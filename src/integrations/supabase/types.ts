@@ -52,14 +52,15 @@ export type Database = {
           },
         ]
       }
-      optionals: {
+      optional_groups: {
         Row: {
           active: boolean | null
           created_at: string | null
           description: string | null
+          display_order: number | null
           id: string
           name: string
-          price: number
+          selection_type: string
           store_id: string | null
           updated_at: string | null
         }
@@ -67,9 +68,10 @@ export type Database = {
           active?: boolean | null
           created_at?: string | null
           description?: string | null
+          display_order?: number | null
           id?: string
           name: string
-          price: number
+          selection_type: string
           store_id?: string | null
           updated_at?: string | null
         }
@@ -77,13 +79,71 @@ export type Database = {
           active?: boolean | null
           created_at?: string | null
           description?: string | null
+          display_order?: number | null
+          id?: string
+          name?: string
+          selection_type?: string
+          store_id?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "optional_groups_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      optionals: {
+        Row: {
+          active: boolean | null
+          created_at: string | null
+          description: string | null
+          display_order: number | null
+          group_id: string | null
+          id: string
+          name: string
+          price: number
+          store_id: string | null
+          updated_at: string | null
+          warning_note: string | null
+        }
+        Insert: {
+          active?: boolean | null
+          created_at?: string | null
+          description?: string | null
+          display_order?: number | null
+          group_id?: string | null
+          id?: string
+          name: string
+          price: number
+          store_id?: string | null
+          updated_at?: string | null
+          warning_note?: string | null
+        }
+        Update: {
+          active?: boolean | null
+          created_at?: string | null
+          description?: string | null
+          display_order?: number | null
+          group_id?: string | null
           id?: string
           name?: string
           price?: number
           store_id?: string | null
           updated_at?: string | null
+          warning_note?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "optionals_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "optional_groups"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "optionals_store_id_fkey"
             columns: ["store_id"]
@@ -100,14 +160,20 @@ export type Database = {
           category_id: string | null
           created_at: string | null
           delivery_days: number | null
+          depth: number | null
           differentials: string[] | null
           id: string
           included_items: string[] | null
           installation_days: number | null
+          length: number | null
           name: string
           not_included_items: string[] | null
+          notes: string | null
+          payment_terms: string | null
+          photo_url: string | null
           store_id: string | null
           updated_at: string | null
+          width: number | null
         }
         Insert: {
           active?: boolean | null
@@ -115,14 +181,20 @@ export type Database = {
           category_id?: string | null
           created_at?: string | null
           delivery_days?: number | null
+          depth?: number | null
           differentials?: string[] | null
           id?: string
           included_items?: string[] | null
           installation_days?: number | null
+          length?: number | null
           name: string
           not_included_items?: string[] | null
+          notes?: string | null
+          payment_terms?: string | null
+          photo_url?: string | null
           store_id?: string | null
           updated_at?: string | null
+          width?: number | null
         }
         Update: {
           active?: boolean | null
@@ -130,14 +202,20 @@ export type Database = {
           category_id?: string | null
           created_at?: string | null
           delivery_days?: number | null
+          depth?: number | null
           differentials?: string[] | null
           id?: string
           included_items?: string[] | null
           installation_days?: number | null
+          length?: number | null
           name?: string
           not_included_items?: string[] | null
+          notes?: string | null
+          payment_terms?: string | null
+          photo_url?: string | null
           store_id?: string | null
           updated_at?: string | null
+          width?: number | null
         }
         Relationships: [
           {

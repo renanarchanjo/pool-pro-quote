@@ -21,12 +21,18 @@ interface PoolModel {
   id: string;
   category_id: string;
   name: string;
+  length: number | null;
+  width: number | null;
+  depth: number | null;
+  photo_url: string | null;
   differentials: string[];
   included_items: string[];
   not_included_items: string[];
   base_price: number;
   delivery_days: number;
   installation_days: number;
+  payment_terms: string;
+  notes: string | null;
   active: boolean;
 }
 
@@ -39,9 +45,15 @@ const PoolModelManager = () => {
   const [formData, setFormData] = useState({
     category_id: "",
     name: "",
+    length: "",
+    width: "",
+    depth: "",
+    photo_url: "",
     base_price: "",
     delivery_days: "30",
     installation_days: "5",
+    payment_terms: "À vista",
+    notes: "",
     differentials: [] as string[],
     included_items: [] as string[],
     not_included_items: [] as string[],
@@ -113,9 +125,15 @@ const PoolModelManager = () => {
       const data = {
         category_id: formData.category_id,
         name: formData.name,
+        length: formData.length ? parseFloat(formData.length) : null,
+        width: formData.width ? parseFloat(formData.width) : null,
+        depth: formData.depth ? parseFloat(formData.depth) : null,
+        photo_url: formData.photo_url || null,
         base_price: parseFloat(formData.base_price),
         delivery_days: parseInt(formData.delivery_days),
         installation_days: parseInt(formData.installation_days),
+        payment_terms: formData.payment_terms,
+        notes: formData.notes || null,
         differentials: formData.differentials,
         included_items: formData.included_items,
         not_included_items: formData.not_included_items,
@@ -148,9 +166,15 @@ const PoolModelManager = () => {
     setFormData({
       category_id: "",
       name: "",
+      length: "",
+      width: "",
+      depth: "",
+      photo_url: "",
       base_price: "",
       delivery_days: "30",
       installation_days: "5",
+      payment_terms: "À vista",
+      notes: "",
       differentials: [],
       included_items: [],
       not_included_items: [],
@@ -166,9 +190,15 @@ const PoolModelManager = () => {
     setFormData({
       category_id: model.category_id,
       name: model.name,
+      length: model.length?.toString() || "",
+      width: model.width?.toString() || "",
+      depth: model.depth?.toString() || "",
+      photo_url: model.photo_url || "",
       base_price: model.base_price.toString(),
       delivery_days: model.delivery_days.toString(),
       installation_days: model.installation_days.toString(),
+      payment_terms: model.payment_terms || "À vista",
+      notes: model.notes || "",
       differentials: model.differentials || [],
       included_items: model.included_items || [],
       not_included_items: model.not_included_items || [],
