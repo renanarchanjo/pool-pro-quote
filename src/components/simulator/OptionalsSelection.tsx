@@ -1,13 +1,28 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Label } from "@/components/ui/label";
+import { Loader2, AlertCircle } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 interface Optional {
   id: string;
   name: string;
   description: string;
   price: number;
+  group_id: string;
+  warning_note: string | null;
+}
+
+interface OptionalGroup {
+  id: string;
+  name: string;
+  description: string | null;
+  selection_type: string;
+  display_order: number;
 }
 
 interface OptionalsSelectionProps {
@@ -15,76 +30,207 @@ interface OptionalsSelectionProps {
   selectedOptionals: string[];
   onConfirm: (selectedIds: string[]) => void;
   onBack: () => void;
+  model: any;
 }
 
-const OptionalsSelection = ({ optionals, selectedOptionals: initialSelected, onConfirm, onBack }: OptionalsSelectionProps) => {
-  const [selected, setSelected] = useState<string[]>(initialSelected);
+const OptionalsSelection = ({ optionals, selectedOptionals: initialSelected, onConfirm, onBack, model }: OptionalsSelectionProps) => {
+  const [selected, setSelected] = useState<Record<string, string[]>>({});
+  const [groups, setGroups] = useState<OptionalGroup[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const toggleOptional = (id: string) => {
-    setSelected(prev =>
-      prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]
-    );
+  useEffect(() => {
+    loadGroups();
+  }, []);
+
+  useEffect(() => {
+    // Restore initial selections by group
+    if (initialSelected.length > 0) {
+      const restored: Record<string, string[]> = {};
+      initialSelected.forEach((optId) => {
+        const opt = optionals.find(o => o.id === optId);
+        if (opt) {
+          if (!restored[opt.group_id]) {
+            restored[opt.group_id] = [];
+          }
+          restored[opt.group_id].push(optId);
+        }
+      });
+      setSelected(restored);
+    }
+  }, [initialSelected, optionals]);
+
+  const loadGroups = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("optional_groups")
+        .select("*")
+        .eq("active", true)
+        .order("display_order");
+
+      if (error) throw error;
+      setGroups(data || []);
+    } catch (error) {
+      console.error("Error loading groups:", error);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const totalPrice = optionals
-    .filter(opt => selected.includes(opt.id))
-    .reduce((sum, opt) => sum + opt.price, 0);
+  const handleCheckboxChange = (groupId: string, optionalId: string, checked: boolean) => {
+    setSelected((prev) => {
+      const current = prev[groupId] || [];
+      if (checked) {
+        return { ...prev, [groupId]: [...current, optionalId] };
+      } else {
+        return { ...prev, [groupId]: current.filter((id) => id !== optionalId) };
+      }
+    });
+  };
+
+  const handleRadioChange = (groupId: string, optionalId: string) => {
+    setSelected((prev) => ({ ...prev, [groupId]: [optionalId] }));
+  };
+
+  const handleContinue = () => {
+    const allSelected = Object.values(selected).flat();
+    onConfirm(allSelected);
+  };
+
+  const calculateTotal = () => {
+    let total = model.base_price;
+    Object.values(selected).flat().forEach((optId) => {
+      const optional = optionals.find((o) => o.id === optId);
+      if (optional) total += optional.price;
+    });
+    return total;
+  };
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center min-h-[400px]">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   return (
-    <div>
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h2 className="text-3xl font-bold mb-2">Opcionais</h2>
-          <p className="text-muted-foreground">Personalize sua piscina com opcionais</p>
-        </div>
-        <Button variant="outline" onClick={onBack}>Voltar</Button>
+    <div className="max-w-4xl mx-auto">
+      <div className="text-center mb-10 animate-fade-in">
+        <h1 className="text-4xl md:text-5xl font-display font-bold mb-4">
+          Personalize sua Piscina
+        </h1>
+        <p className="text-lg text-muted-foreground mb-2">
+          Selecione os opcionais desejados
+        </p>
+        <p className="text-sm text-muted-foreground">
+          Modelo: <span className="font-semibold text-foreground">{model.name}</span>
+        </p>
       </div>
 
-      <div className="space-y-3 mb-6">
-        {optionals.map((optional) => (
-          <Card
-            key={optional.id}
-            className={`p-4 cursor-pointer transition-all hover:shadow-card ${
-              selected.includes(optional.id) ? "border-2 border-primary" : ""
-            }`}
-            onClick={() => toggleOptional(optional.id)}
-          >
-            <div className="flex items-start gap-4">
-              <Checkbox
-                checked={selected.includes(optional.id)}
-                onCheckedChange={() => toggleOptional(optional.id)}
-              />
-              <div className="flex-1">
-                <div className="flex justify-between items-start">
-                  <div>
-                    <h4 className="font-semibold">{optional.name}</h4>
-                    {optional.description && (
-                      <p className="text-sm text-muted-foreground mt-1">
-                        {optional.description}
-                      </p>
-                    )}
+      <div className="space-y-6 mb-8">
+        {groups.map((group) => {
+          const groupOptionals = optionals.filter((o) => o.group_id === group.id);
+          if (groupOptionals.length === 0) return null;
+
+          return (
+            <Card key={group.id} className="p-6 bg-card/80 backdrop-blur-sm">
+              <h3 className="text-xl font-display font-bold mb-2">{group.name}</h3>
+              {group.description && (
+                <p className="text-sm text-muted-foreground mb-4">{group.description}</p>
+              )}
+
+              {group.selection_type === "single" ? (
+                <RadioGroup
+                  value={selected[group.id]?.[0] || ""}
+                  onValueChange={(value) => handleRadioChange(group.id, value)}
+                >
+                  <div className="space-y-3">
+                    {groupOptionals.map((optional) => (
+                      <div key={optional.id} className="space-y-2">
+                        <div className="flex items-start gap-3">
+                          <RadioGroupItem value={optional.id} id={optional.id} />
+                          <Label htmlFor={optional.id} className="flex-1 cursor-pointer">
+                            <div className="flex justify-between items-start">
+                              <div>
+                                <p className="font-semibold">{optional.name}</p>
+                                {optional.description && (
+                                  <p className="text-sm text-muted-foreground">
+                                    {optional.description}
+                                  </p>
+                                )}
+                              </div>
+                              <p className="font-bold text-primary ml-4">
+                                + R$ {optional.price.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                              </p>
+                            </div>
+                          </Label>
+                        </div>
+                        {optional.warning_note && selected[group.id]?.includes(optional.id) && (
+                          <Alert variant="destructive" className="ml-7">
+                            <AlertCircle className="h-4 w-4" />
+                            <AlertDescription>{optional.warning_note}</AlertDescription>
+                          </Alert>
+                        )}
+                      </div>
+                    ))}
                   </div>
-                  <span className="font-semibold text-primary whitespace-nowrap ml-4">
-                    + R$ {optional.price.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                  </span>
+                </RadioGroup>
+              ) : (
+                <div className="space-y-3">
+                  {groupOptionals.map((optional) => (
+                    <div key={optional.id} className="space-y-2">
+                      <div className="flex items-start gap-3">
+                        <Checkbox
+                          id={optional.id}
+                          checked={selected[group.id]?.includes(optional.id)}
+                          onCheckedChange={(checked) =>
+                            handleCheckboxChange(group.id, optional.id, checked as boolean)
+                          }
+                        />
+                        <Label htmlFor={optional.id} className="flex-1 cursor-pointer">
+                          <div className="flex justify-between items-start">
+                            <div>
+                              <p className="font-semibold">{optional.name}</p>
+                              {optional.description && (
+                                <p className="text-sm text-muted-foreground">
+                                  {optional.description}
+                                </p>
+                              )}
+                            </div>
+                            <p className="font-bold text-primary ml-4">
+                              + R$ {optional.price.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                            </p>
+                          </div>
+                        </Label>
+                      </div>
+                      {optional.warning_note && selected[group.id]?.includes(optional.id) && (
+                        <Alert variant="destructive" className="ml-7">
+                          <AlertCircle className="h-4 w-4" />
+                          <AlertDescription>{optional.warning_note}</AlertDescription>
+                        </Alert>
+                      )}
+                    </div>
+                  ))}
                 </div>
-              </div>
-            </div>
-          </Card>
-        ))}
+              )}
+            </Card>
+          );
+        })}
       </div>
 
-      <div className="border-t pt-4 flex justify-between items-center">
-        <div>
-          <p className="text-sm text-muted-foreground">Total em opcionais:</p>
-          <p className="text-2xl font-bold text-primary">
-            R$ {totalPrice.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-          </p>
+      <Card className="p-6 bg-card/80 backdrop-blur-sm border-2 border-primary sticky bottom-4">
+        <div className="flex justify-between items-center">
+          <div>
+            <p className="text-sm text-muted-foreground">Total do Orçamento</p>
+            <p className="text-3xl font-display font-bold text-primary">
+              R$ {calculateTotal().toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+            </p>
+          </div>
+          <Button className="gradient-primary text-white px-8" size="lg" onClick={handleContinue}>
+            Continuar
+          </Button>
         </div>
-        <Button onClick={() => onConfirm(selected)} className="gradient-primary text-white">
-          Continuar
-        </Button>
-      </div>
+      </Card>
     </div>
   );
 };
