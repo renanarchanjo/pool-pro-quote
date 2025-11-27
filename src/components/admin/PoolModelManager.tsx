@@ -10,6 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Plus, Pencil, Loader2, X } from "lucide-react";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
+import { useStoreData } from "@/hooks/useStoreData";
 
 interface Category {
   id: string;
@@ -30,6 +31,7 @@ interface PoolModel {
 }
 
 const PoolModelManager = () => {
+  const { store } = useStoreData();
   const [categories, setCategories] = useState<Category[]>([]);
   const [models, setModels] = useState<PoolModel[]>([]);
   const [loading, setLoading] = useState(true);
@@ -49,14 +51,18 @@ const PoolModelManager = () => {
   });
 
   useEffect(() => {
-    loadData();
-  }, []);
+    if (store) {
+      loadData();
+    }
+  }, [store]);
 
   const loadData = async () => {
+    if (!store) return;
+    
     try {
       const [categoriesRes, modelsRes] = await Promise.all([
-        supabase.from("categories").select("id, name").eq("active", true),
-        supabase.from("pool_models").select("*").order("created_at", { ascending: false })
+        supabase.from("categories").select("id, name").eq("active", true).eq("store_id", store.id),
+        supabase.from("pool_models").select("*").eq("store_id", store.id).order("created_at", { ascending: false })
       ]);
 
       if (categoriesRes.error) throw categoriesRes.error;
@@ -98,6 +104,11 @@ const PoolModelManager = () => {
       return;
     }
 
+    if (!store) {
+      toast.error("Loja não encontrada");
+      return;
+    }
+
     try {
       const data = {
         category_id: formData.category_id,
@@ -108,6 +119,7 @@ const PoolModelManager = () => {
         differentials: formData.differentials,
         included_items: formData.included_items,
         not_included_items: formData.not_included_items,
+        ...(editing ? {} : { store_id: store.id }),
       };
 
       if (editing) {

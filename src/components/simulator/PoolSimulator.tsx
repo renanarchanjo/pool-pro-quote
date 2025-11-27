@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import { ArrowLeft, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -46,8 +47,13 @@ interface PoolSimulatorProps {
 }
 
 const PoolSimulator = ({ onBack }: PoolSimulatorProps) => {
+  const [searchParams] = useSearchParams();
+  const storeSlug = searchParams.get("store");
+  
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(true);
+  const [storeId, setStoreId] = useState<string | null>(null);
+  const [storeSettings, setStoreSettings] = useState<{logo_url: string | null; primary_color: string; secondary_color: string} | null>(null);
   
   const [categories, setCategories] = useState<Category[]>([]);
   const [models, setModels] = useState<PoolModel[]>([]);
@@ -61,16 +67,50 @@ const PoolSimulator = ({ onBack }: PoolSimulatorProps) => {
 
   useEffect(() => {
     loadData();
-  }, []);
+  }, [storeSlug]);
 
   const loadData = async () => {
     try {
       setLoading(true);
       
+      // If store slug is provided, fetch store_id first
+      let currentStoreId: string | null = null;
+      
+      if (storeSlug) {
+        const { data: storeData, error: storeError } = await supabase
+          .from("stores")
+          .select("id")
+          .eq("slug", storeSlug)
+          .single();
+
+        if (storeError || !storeData) {
+          toast.error("Loja não encontrada");
+          return;
+        }
+
+        currentStoreId = storeData.id;
+        setStoreId(currentStoreId);
+
+        // Load store settings
+        const { data: settingsData } = await supabase
+          .from("store_settings")
+          .select("logo_url, primary_color, secondary_color")
+          .eq("store_id", currentStoreId)
+          .single();
+
+        setStoreSettings(settingsData);
+      }
+      
       const [categoriesRes, modelsRes, optionalsRes] = await Promise.all([
-        supabase.from("categories").select("*").eq("active", true),
-        supabase.from("pool_models").select("*").eq("active", true),
-        supabase.from("optionals").select("*").eq("active", true)
+        currentStoreId 
+          ? supabase.from("categories").select("*").eq("active", true).eq("store_id", currentStoreId)
+          : supabase.from("categories").select("*").eq("active", true),
+        currentStoreId
+          ? supabase.from("pool_models").select("*").eq("active", true).eq("store_id", currentStoreId)
+          : supabase.from("pool_models").select("*").eq("active", true),
+        currentStoreId
+          ? supabase.from("optionals").select("*").eq("active", true).eq("store_id", currentStoreId)
+          : supabase.from("optionals").select("*").eq("active", true)
       ]);
 
       if (categoriesRes.error) throw categoriesRes.error;
@@ -121,7 +161,8 @@ const PoolSimulator = ({ onBack }: PoolSimulatorProps) => {
           customer_whatsapp: data.whatsapp,
           model_id: selectedModel.id,
           selected_optionals: selectedOptionals,
-          total_price: totalPrice
+          total_price: totalPrice,
+          ...(storeId ? { store_id: storeId } : {})
         })
         .select()
         .single();
@@ -154,6 +195,19 @@ const PoolSimulator = ({ onBack }: PoolSimulatorProps) => {
         customerData={customerData}
         category={categories.find(c => c.id === selectedCategory)?.name || ""}
         onBack={onBack}
+      />
+    );
+  }
+
+  if (step === 5 && selectedModel && customerData) {
+    return (
+      <ProposalView
+        model={selectedModel}
+        selectedOptionals={optionals.filter(opt => selectedOptionals.includes(opt.id))}
+        customerData={customerData}
+        category={categories.find(c => c.id === selectedCategory)?.name || ""}
+        onBack={onBack}
+        storeSettings={storeSettings}
       />
     );
   }

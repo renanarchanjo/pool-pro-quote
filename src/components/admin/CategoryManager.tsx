@@ -8,6 +8,7 @@ import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { Plus, Pencil, Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { useStoreData } from "@/hooks/useStoreData";
 
 interface Category {
   id: string;
@@ -17,20 +18,26 @@ interface Category {
 }
 
 const CategoryManager = () => {
+  const { store } = useStoreData();
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState<string | null>(null);
   const [formData, setFormData] = useState({ name: "", description: "" });
 
   useEffect(() => {
-    loadCategories();
-  }, []);
+    if (store) {
+      loadCategories();
+    }
+  }, [store]);
 
   const loadCategories = async () => {
+    if (!store) return;
+    
     try {
       const { data, error } = await supabase
         .from("categories")
         .select("*")
+        .eq("store_id", store.id)
         .order("created_at", { ascending: false });
 
       if (error) throw error;
@@ -51,6 +58,11 @@ const CategoryManager = () => {
       return;
     }
 
+    if (!store) {
+      toast.error("Loja não encontrada");
+      return;
+    }
+
     try {
       if (editing) {
         const { error } = await supabase
@@ -63,7 +75,11 @@ const CategoryManager = () => {
       } else {
         const { error } = await supabase
           .from("categories")
-          .insert({ name: formData.name, description: formData.description });
+          .insert({ 
+            name: formData.name, 
+            description: formData.description,
+            store_id: store.id
+          });
 
         if (error) throw error;
         toast.success("Categoria criada");

@@ -30,9 +30,14 @@ interface ProposalViewProps {
   customerData: CustomerData;
   category: string;
   onBack: () => void;
+  storeSettings?: {
+    logo_url: string | null;
+    primary_color: string;
+    secondary_color: string;
+  } | null;
 }
 
-const ProposalView = ({ model, selectedOptionals, customerData, category, onBack }: ProposalViewProps) => {
+const ProposalView = ({ model, selectedOptionals, customerData, category, onBack, storeSettings }: ProposalViewProps) => {
   const optionalsTotal = selectedOptionals.reduce((sum, opt) => sum + opt.price, 0);
   const totalPrice = model.base_price + optionalsTotal;
   const today = new Date().toLocaleDateString('pt-BR');
@@ -95,17 +100,30 @@ const ProposalView = ({ model, selectedOptionals, customerData, category, onBack
     window.print();
   };
 
+  const primaryColor = storeSettings?.primary_color || '#0ea5e9';
+  const secondaryColor = storeSettings?.secondary_color || '#06b6d4';
+
   return (
     <div className="min-h-screen bg-gradient-hero print:bg-white">
       <nav className="border-b border-border/50 bg-background/80 backdrop-blur-sm print:hidden">
         <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-          <Button variant="ghost" onClick={onBack}>Voltar ao Início</Button>
+          {storeSettings?.logo_url ? (
+            <img src={storeSettings.logo_url} alt="Logo" className="h-12 object-contain" />
+          ) : (
+            <Button variant="ghost" onClick={onBack}>Voltar ao Início</Button>
+          )}
           <div className="flex gap-2">
             <Button variant="outline" onClick={handlePrint}>
               <Printer className="w-4 h-4 mr-2" />
               Imprimir
             </Button>
-            <Button onClick={generateWhatsAppMessage} className="gradient-primary text-white">
+            <Button 
+              onClick={generateWhatsAppMessage}
+              style={{ 
+                background: `linear-gradient(135deg, ${primaryColor}, ${secondaryColor})`,
+                color: 'white'
+              }}
+            >
               <MessageCircle className="w-4 h-4 mr-2" />
               Enviar WhatsApp
             </Button>

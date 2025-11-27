@@ -9,10 +9,13 @@ import CategoryManager from "@/components/admin/CategoryManager";
 import PoolModelManager from "@/components/admin/PoolModelManager";
 import OptionalManager from "@/components/admin/OptionalManager";
 import ProposalsView from "@/components/admin/ProposalsView";
+import StoreSettings from "@/components/admin/StoreSettings";
+import { useStoreData } from "@/hooks/useStoreData";
 
 const Admin = () => {
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+  const { store, loading: storeLoading } = useStoreData();
 
   useEffect(() => {
     checkAuth();
@@ -32,10 +35,21 @@ const Admin = () => {
     navigate("/");
   };
 
-  if (loading) {
+  if (loading || storeLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  if (!store) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-lg mb-4">Loja não encontrada</p>
+          <Button onClick={() => navigate("/")}>Voltar ao Início</Button>
+        </div>
       </div>
     );
   }
@@ -57,11 +71,12 @@ const Admin = () => {
 
       <main className="container mx-auto px-4 py-8">
         <Tabs defaultValue="categories" className="w-full">
-          <TabsList className="grid w-full grid-cols-4 mb-8">
+          <TabsList className="grid w-full grid-cols-5 mb-8">
             <TabsTrigger value="categories">Categorias</TabsTrigger>
             <TabsTrigger value="models">Modelos</TabsTrigger>
             <TabsTrigger value="optionals">Opcionais</TabsTrigger>
             <TabsTrigger value="proposals">Propostas</TabsTrigger>
+            <TabsTrigger value="settings">Configurações</TabsTrigger>
           </TabsList>
 
           <TabsContent value="categories">
@@ -78,6 +93,10 @@ const Admin = () => {
 
           <TabsContent value="proposals">
             <ProposalsView />
+          </TabsContent>
+
+          <TabsContent value="settings">
+            <StoreSettings />
           </TabsContent>
         </Tabs>
       </main>
