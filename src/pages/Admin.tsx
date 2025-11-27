@@ -56,13 +56,18 @@ const Admin = () => {
 
   return (
     <div className="min-h-screen bg-gradient-hero">
-      <nav className="border-b border-border/50 bg-background/80 backdrop-blur-sm">
+      <nav className="border-b border-border/50 bg-background/95 backdrop-blur-md">
         <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-          <div className="flex items-center gap-2">
-            <Waves className="w-8 h-8 text-primary" />
-            <span className="text-xl font-bold">Painel Admin</span>
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 gradient-primary rounded-lg flex items-center justify-center shadow-md">
+              <Waves className="w-6 h-6 text-white" />
+            </div>
+            <div>
+              <span className="text-xl font-display font-bold block">SIMULAPOOL</span>
+              <span className="text-xs text-muted-foreground">Painel Administrativo</span>
+            </div>
           </div>
-          <Button variant="outline" onClick={handleLogout}>
+          <Button variant="outline" onClick={handleLogout} className="font-display font-medium">
             <LogOut className="w-4 h-4 mr-2" />
             Sair
           </Button>

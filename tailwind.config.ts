@@ -13,6 +13,12 @@ export default {
       },
     },
     extend: {
+      fontFamily: {
+        'sans': ['Inter', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'sans-serif'],
+        'display': ['Montserrat', 'sans-serif'],
+        'montserrat': ['Montserrat', 'sans-serif'],
+        'inter': ['Inter', 'sans-serif'],
+      },
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
@@ -56,6 +62,14 @@ export default {
           "accent-foreground": "hsl(var(--sidebar-accent-foreground))",
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
+        },
+        pool: {
+          light: "hsl(var(--pool-light))",
+          medium: "hsl(var(--pool-medium))",
+          deep: "hsl(var(--pool-deep))",
+        },
+        cyan: {
+          bright: "hsl(var(--cyan-bright))",
         },
       },
       borderRadius: {
