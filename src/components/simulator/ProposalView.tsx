@@ -1,7 +1,8 @@
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { FileDown, MessageCircle, Printer } from "lucide-react";
+import { FileDown, MessageCircle, Printer, Mail } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { toast } from "sonner";
 
 interface PoolModel {
   name: string;
@@ -97,10 +98,17 @@ const ProposalView = ({ model, selectedOptionals, customerData, category, onBack
   };
 
   const handlePrint = () => {
-    // Adiciona um pequeno delay para garantir que o DOM está pronto
     setTimeout(() => {
       window.print();
     }, 100);
+  };
+
+  const handleSendEmail = () => {
+    // Modo teste - simula envio de email
+    toast.success("✉️ Email enviado com sucesso! (modo teste)", {
+      description: `Proposta enviada para: ${customerData.name}`,
+      duration: 5000,
+    });
   };
 
   const primaryColor = storeSettings?.primary_color || '#0ea5e9';
@@ -120,6 +128,10 @@ const ProposalView = ({ model, selectedOptionals, customerData, category, onBack
               <Printer className="w-4 h-4 mr-2" />
               Imprimir
             </Button>
+            <Button variant="outline" onClick={handleSendEmail}>
+              <Mail className="w-4 h-4 mr-2" />
+              Email
+            </Button>
             <Button 
               onClick={generateWhatsAppMessage}
               style={{ 
@@ -128,7 +140,7 @@ const ProposalView = ({ model, selectedOptionals, customerData, category, onBack
               }}
             >
               <MessageCircle className="w-4 h-4 mr-2" />
-              Enviar WhatsApp
+              WhatsApp
             </Button>
           </div>
         </div>
