@@ -216,4 +216,61 @@
       radial-gradient(circle at 20% 50%, hsl(var(--pool-light)) 0%, transparent 50%),
       radial-gradient(circle at 80% 80%, hsl(var(--cyan-bright) / 0.1) 0%, transparent 50%);
   }
+
+  /* Estilos de Impressão para PDF */
+  @media print {
+    @page {
+      margin: 2cm;
+      size: A4;
+    }
+
+    body {
+      print-color-adjust: exact;
+      -webkit-print-color-adjust: exact;
+    }
+
+    .print\\:hidden {
+      display: none !important;
+    }
+
+    .print\\:bg-white {
+      background: white !important;
+    }
+
+    .print\\:shadow-none {
+      box-shadow: none !important;
+    }
+
+    .print\\:text-3xl {
+      font-size: 1.875rem !important;
+    }
+
+    .print\\:text-lg {
+      font-size: 1.125rem !important;
+    }
+
+    .print\\:text-xl {
+      font-size: 1.25rem !important;
+    }
+
+    .print\\:mb-6 {
+      margin-bottom: 1.5rem !important;
+    }
+
+    .print\\:pt-4 {
+      padding-top: 1rem !important;
+    }
+
+    .print\\:space-y-4 > * + * {
+      margin-top: 1rem !important;
+    }
+
+    .print\\:border {
+      border-width: 1px !important;
+    }
+
+    .print\\:border-gray-300 {
+      border-color: #d1d5db !important;
+    }
+  }
 }

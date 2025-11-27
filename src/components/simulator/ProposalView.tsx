@@ -97,7 +97,10 @@ const ProposalView = ({ model, selectedOptionals, customerData, category, onBack
   };
 
   const handlePrint = () => {
-    window.print();
+    // Adiciona um pequeno delay para garantir que o DOM está pronto
+    setTimeout(() => {
+      window.print();
+    }, 100);
   };
 
   const primaryColor = storeSettings?.primary_color || '#0ea5e9';
