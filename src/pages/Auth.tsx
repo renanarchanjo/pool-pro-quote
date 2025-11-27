@@ -5,8 +5,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
-import { Waves, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import logoDark from "@/assets/simulapool-dark.png";
 
 const Auth = () => {
   const [loading, setLoading] = useState(false);
@@ -127,17 +128,15 @@ const Auth = () => {
   };
 
   return (
-    <div className="min-h-screen gradient-hero flex items-center justify-center p-4">
-      <Card className="w-full max-w-md p-8 shadow-elegant">
+    <div className="min-h-screen gradient-pool flex items-center justify-center p-4">
+      <Card className="w-full max-w-md p-8 shadow-pool border-border/50">
         <div className="text-center mb-8">
-          <div className="flex justify-center mb-4">
-            <div className="w-16 h-16 gradient-primary rounded-full flex items-center justify-center">
-              <Waves className="w-8 h-8 text-white" />
-            </div>
+          <div className="flex justify-center mb-6">
+            <img src={logoDark} alt="SIMULAPOOL" className="h-20 object-contain" />
           </div>
-          <h1 className="text-3xl font-bold mb-2">Painel Administrativo</h1>
+          <h1 className="text-3xl font-display font-bold mb-2">Área do Lojista</h1>
           <p className="text-muted-foreground">
-            {isLogin ? "Entre com suas credenciais" : "Crie sua conta"}
+            {isLogin ? "Entre com suas credenciais" : "Crie sua loja agora"}
           </p>
         </div>
 
@@ -182,7 +181,7 @@ const Auth = () => {
 
           <Button
             type="submit"
-            className="w-full gradient-primary text-white"
+            className="w-full gradient-primary text-white font-display font-semibold"
             disabled={loading}
           >
             {loading ? (
@@ -191,7 +190,7 @@ const Auth = () => {
                 Processando...
               </>
             ) : (
-              <>{isLogin ? "Entrar" : "Criar Conta"}</>
+              <>{isLogin ? "Entrar" : "Criar Loja"}</>
             )}
           </Button>
         </form>
@@ -200,10 +199,10 @@ const Auth = () => {
           <button
             type="button"
             onClick={() => setIsLogin(!isLogin)}
-            className="text-sm text-primary hover:underline"
+            className="text-sm text-primary hover:underline font-medium"
             disabled={loading}
           >
-            {isLogin ? "Ainda não tem conta? Cadastre-se" : "Já tem conta? Entre"}
+            {isLogin ? "Ainda não tem loja? Cadastre-se grátis" : "Já tem conta? Entre"}
           </button>
         </div>
 

@@ -2,103 +2,101 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
-All colors MUST be HSL.
+/* SIMULAPOOL AquaTech BR Design System
+   Premium SaaS para orçamentos automatizados de piscinas
+   Paleta: Pool Blue + Deep Blue + Cyan Tech
 */
 
 @layer base {
   :root {
+    /* Cores Base - SIMULAPOOL Light Mode */
     --background: 0 0% 100%;
-    --foreground: 210 100% 10%;
-
+    --foreground: 217 91% 15%;
+    
     --card: 0 0% 100%;
-    --card-foreground: 210 100% 10%;
-
+    --card-foreground: 217 91% 15%;
+    
     --popover: 0 0% 100%;
-    --popover-foreground: 210 100% 10%;
-
-    --primary: 195 100% 39%;
+    --popover-foreground: 217 91% 15%;
+    
+    /* Pool Blue - Azul Piscina Principal (#0EA5E9) */
+    --primary: 199 89% 48%;
     --primary-foreground: 0 0% 100%;
-
-    --secondary: 210 100% 45%;
+    
+    /* Deep Blue - Azul Profundo Premium (#1E40AF) */
+    --secondary: 222 47% 35%;
     --secondary-foreground: 0 0% 100%;
-
-    --muted: 210 40% 96%;
+    
+    /* Cyan Tech - Ciano Tecnológico (#06B6D4) */
+    --accent: 188 85% 60%;
+    --accent-foreground: 217 91% 15%;
+    
+    --muted: 214 32% 97%;
     --muted-foreground: 215 16% 47%;
-
-    --accent: 180 100% 35%;
-    --accent-foreground: 0 0% 100%;
-
+    
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
-
+    
     --border: 214 32% 91%;
     --input: 214 32% 91%;
-    --ring: 195 100% 39%;
-
+    --ring: 199 89% 48%;
     --radius: 0.75rem;
-
-    --sidebar-background: 210 100% 98%;
-    --sidebar-foreground: 210 100% 10%;
-    --sidebar-primary: 195 100% 39%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 195 100% 95%;
-    --sidebar-accent-foreground: 195 100% 20%;
-    --sidebar-border: 214 32% 91%;
-    --sidebar-ring: 195 100% 39%;
-
-    /* Gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(195 100% 39%), hsl(180 100% 35%));
-    --gradient-hero: linear-gradient(180deg, hsl(195 100% 95%), hsl(180 100% 98%));
     
-    /* Shadows */
-    --shadow-elegant: 0 10px 30px -10px hsl(195 100% 39% / 0.2);
-    --shadow-card: 0 4px 20px -4px hsl(195 100% 39% / 0.1);
+    /* SIMULAPOOL Extended Palette */
+    --pool-light: 199 100% 95%;
+    --pool-medium: 199 89% 48%;
+    --pool-deep: 222 47% 35%;
+    --cyan-bright: 188 95% 50%;
+    
+    /* Sidebar */
+    --sidebar-background: 210 100% 98%;
+    --sidebar-foreground: 217 91% 15%;
+    --sidebar-primary: 199 89% 48%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 199 100% 95%;
+    --sidebar-accent-foreground: 199 100% 20%;
+    --sidebar-border: 214 32% 91%;
+    --sidebar-ring: 199 89% 48%;
   }
 
   .dark {
-    --background: 210 100% 6%;
-    --foreground: 0 0% 98%;
-
-    --card: 210 50% 10%;
-    --card-foreground: 0 0% 98%;
-
-    --popover: 210 50% 10%;
-    --popover-foreground: 0 0% 98%;
-
-    --primary: 195 100% 50%;
+    /* SIMULAPOOL Dark Mode - Navy Deep */
+    --background: 222 47% 11%;
+    --foreground: 210 40% 98%;
+    
+    --card: 217 33% 17%;
+    --card-foreground: 210 40% 98%;
+    
+    --popover: 217 33% 17%;
+    --popover-foreground: 210 40% 98%;
+    
+    --primary: 199 89% 48%;
     --primary-foreground: 0 0% 100%;
-
-    --secondary: 210 100% 20%;
-    --secondary-foreground: 0 0% 98%;
-
-    --muted: 210 50% 15%;
-    --muted-foreground: 215 20% 65%;
-
-    --accent: 180 100% 40%;
+    
+    --secondary: 222 47% 25%;
+    --secondary-foreground: 0 0% 100%;
+    
+    --accent: 188 85% 60%;
     --accent-foreground: 0 0% 100%;
-
+    
+    --muted: 217 33% 20%;
+    --muted-foreground: 215 20% 65%;
+    
     --destructive: 0 63% 31%;
-    --destructive-foreground: 0 0% 98%;
-
-    --border: 210 50% 20%;
-    --input: 210 50% 20%;
-    --ring: 195 100% 50%;
+    --destructive-foreground: 210 40% 98%;
     
-    --sidebar-background: 210 50% 8%;
-    --sidebar-foreground: 0 0% 95%;
-    --sidebar-primary: 195 100% 50%;
+    --border: 217 33% 23%;
+    --input: 217 33% 23%;
+    --ring: 199 89% 48%;
+    
+    --sidebar-background: 217 33% 14%;
+    --sidebar-foreground: 210 40% 98%;
+    --sidebar-primary: 199 89% 48%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 210 50% 15%;
-    --sidebar-accent-foreground: 0 0% 95%;
-    --sidebar-border: 210 50% 20%;
-    --sidebar-ring: 195 100% 50%;
-
-    --gradient-primary: linear-gradient(135deg, hsl(195 100% 50%), hsl(180 100% 40%));
-    --gradient-hero: linear-gradient(180deg, hsl(210 50% 10%), hsl(210 50% 15%));
-    
-    --shadow-elegant: 0 10px 30px -10px hsl(195 100% 50% / 0.3);
-    --shadow-card: 0 4px 20px -4px hsl(195 100% 50% / 0.15);
+    --sidebar-accent: 217 33% 20%;
+    --sidebar-accent-foreground: 210 40% 98%;
+    --sidebar-border: 217 33% 23%;
+    --sidebar-ring: 199 89% 48%;
   }
 }
 
@@ -113,24 +111,109 @@ All colors MUST be HSL.
   }
 
   h1, h2, h3, h4, h5, h6 {
-    @apply font-bold;
+    @apply font-display font-bold;
   }
 }
 
 @layer utilities {
-  .gradient-primary {
-    background: var(--gradient-primary);
-  }
-  
+  /* SIMULAPOOL Gradientes Premium */
   .gradient-hero {
-    background: var(--gradient-hero);
+    background: linear-gradient(135deg, 
+      hsl(var(--pool-medium)) 0%, 
+      hsl(var(--pool-deep)) 100%
+    );
   }
-  
-  .shadow-elegant {
-    box-shadow: var(--shadow-elegant);
+
+  .gradient-pool {
+    background: linear-gradient(135deg, 
+      hsl(var(--pool-light)) 0%, 
+      hsl(var(--pool-medium)) 50%,
+      hsl(var(--pool-deep)) 100%
+    );
   }
-  
+
+  .gradient-primary {
+    background: linear-gradient(135deg, 
+      hsl(var(--primary)) 0%, 
+      hsl(var(--accent)) 100%
+    );
+  }
+
+  .gradient-tech {
+    background: linear-gradient(135deg, 
+      hsl(var(--cyan-bright)) 0%, 
+      hsl(var(--pool-deep)) 100%
+    );
+  }
+
+  /* SIMULAPOOL Sombras Elegantes */
   .shadow-card {
-    box-shadow: var(--shadow-card);
+    box-shadow: 0 10px 40px -10px hsl(var(--primary) / 0.25);
+  }
+
+  .shadow-elegant {
+    box-shadow: 0 20px 60px -15px hsl(var(--primary) / 0.35),
+                0 0 0 1px hsl(var(--border));
+  }
+
+  .shadow-pool {
+    box-shadow: 0 25px 80px -20px hsl(var(--pool-medium) / 0.4),
+                0 10px 30px -10px hsl(var(--cyan-bright) / 0.2);
+  }
+
+  .shadow-glow {
+    box-shadow: 0 0 40px hsl(var(--primary) / 0.3);
+  }
+
+  /* Texto com Gradiente */
+  .text-gradient {
+    background: linear-gradient(135deg, 
+      hsl(var(--primary)), 
+      hsl(var(--accent))
+    );
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* Animações de Água */
+  @keyframes wave {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+  }
+
+  .animate-wave {
+    animation: wave 3s ease-in-out infinite;
+  }
+
+  @keyframes wave-delayed {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+  }
+
+  .animate-wave-delayed {
+    animation: wave-delayed 3s ease-in-out infinite 0.5s;
+  }
+
+  @keyframes ripple {
+    0% {
+      transform: scale(1);
+      opacity: 1;
+    }
+    100% {
+      transform: scale(2);
+      opacity: 0;
+    }
+  }
+
+  .animate-ripple {
+    animation: ripple 2s ease-out infinite;
+  }
+
+  /* Background Pattern Água */
+  .bg-water-pattern {
+    background-image: 
+      radial-gradient(circle at 20% 50%, hsl(var(--pool-light)) 0%, transparent 50%),
+      radial-gradient(circle at 80% 80%, hsl(var(--cyan-bright) / 0.1) 0%, transparent 50%);
   }
 }
