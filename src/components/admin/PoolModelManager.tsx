@@ -268,6 +268,53 @@ const PoolModelManager = () => {
 
           <div className="grid md:grid-cols-3 gap-4">
             <div>
+              <Label htmlFor="length">Comprimento (m)</Label>
+              <Input
+                id="length"
+                type="number"
+                step="0.01"
+                value={formData.length}
+                onChange={(e) => setFormData({ ...formData, length: e.target.value })}
+                placeholder="Ex: 8.00"
+              />
+            </div>
+            <div>
+              <Label htmlFor="width">Largura (m)</Label>
+              <Input
+                id="width"
+                type="number"
+                step="0.01"
+                value={formData.width}
+                onChange={(e) => setFormData({ ...formData, width: e.target.value })}
+                placeholder="Ex: 4.00"
+              />
+            </div>
+            <div>
+              <Label htmlFor="depth">Profundidade (m)</Label>
+              <Input
+                id="depth"
+                type="number"
+                step="0.01"
+                value={formData.depth}
+                onChange={(e) => setFormData({ ...formData, depth: e.target.value })}
+                placeholder="Ex: 1.40"
+              />
+            </div>
+          </div>
+
+          <div>
+            <Label htmlFor="photo">URL da Foto</Label>
+            <Input
+              id="photo"
+              type="url"
+              value={formData.photo_url}
+              onChange={(e) => setFormData({ ...formData, photo_url: e.target.value })}
+              placeholder="https://exemplo.com/foto-piscina.jpg"
+            />
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-4">
+            <div>
               <Label htmlFor="price">Preço Base (R$) *</Label>
               <Input
                 id="price"
@@ -296,6 +343,27 @@ const PoolModelManager = () => {
                 onChange={(e) => setFormData({ ...formData, installation_days: e.target.value })}
               />
             </div>
+          </div>
+
+          <div>
+            <Label htmlFor="payment">Forma de Pagamento</Label>
+            <Input
+              id="payment"
+              value={formData.payment_terms}
+              onChange={(e) => setFormData({ ...formData, payment_terms: e.target.value })}
+              placeholder="Ex: À vista, Parcelado, Financiamento"
+            />
+          </div>
+
+          <div>
+            <Label htmlFor="notes">Observações Gerais</Label>
+            <Textarea
+              id="notes"
+              value={formData.notes}
+              onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
+              placeholder="Informações adicionais sobre o modelo..."
+              rows={4}
+            />
           </div>
 
           <div>
@@ -386,6 +454,11 @@ const PoolModelManager = () => {
                 <p className="text-2xl font-bold text-primary mt-1">
                   R$ {model.base_price.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                 </p>
+                {(model.length || model.width || model.depth) && (
+                  <p className="text-sm text-muted-foreground mt-1">
+                    Dimensões: {model.length}m × {model.width}m × {model.depth}m
+                  </p>
+                )}
               </div>
               <div className="flex items-center gap-4">
                 <div className="flex items-center gap-2">
@@ -418,9 +491,23 @@ const PoolModelManager = () => {
               </div>
             )}
 
-            <div className="text-sm text-muted-foreground">
-              Entrega: {model.delivery_days}d | Instalação: {model.installation_days}d
+            <div className="grid md:grid-cols-2 gap-2 text-sm text-muted-foreground">
+              <div>
+                Entrega: {model.delivery_days}d | Instalação: {model.installation_days}d
+              </div>
+              {model.payment_terms && (
+                <div>
+                  Pagamento: {model.payment_terms}
+                </div>
+              )}
             </div>
+
+            {model.notes && (
+              <div className="mt-3 p-3 bg-muted/50 rounded-md">
+                <span className="font-semibold text-sm">Observações:</span>
+                <p className="text-sm mt-1">{model.notes}</p>
+              </div>
+            )}
           </Card>
         ))}
       </div>
