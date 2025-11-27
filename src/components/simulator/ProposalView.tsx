@@ -3,6 +3,7 @@ import { Card } from "@/components/ui/card";
 import { FileDown, MessageCircle, Printer, Mail } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
+import html2pdf from "html2pdf.js";
 
 interface PoolModel {
   name: string;
@@ -104,11 +105,34 @@ const ProposalView = ({ model, selectedOptionals, customerData, category, onBack
   };
 
   const handleSendEmail = () => {
-    // Modo teste - simula envio de email
     toast.success("✉️ Email enviado com sucesso! (modo teste)", {
       description: `Proposta enviada para: ${customerData.name}`,
       duration: 5000,
     });
+  };
+
+  const handleDownloadPDF = async () => {
+    try {
+      toast.info("Gerando PDF...", { duration: 2000 });
+      
+      const element = document.getElementById('proposal-content');
+      if (!element) return;
+
+      const opt = {
+        margin: 10,
+        filename: `proposta-${customerData.name.replace(/\s+/g, '-')}-${today.replace(/\//g, '-')}.pdf`,
+        image: { type: 'jpeg' as const, quality: 0.98 },
+        html2canvas: { scale: 2, useCORS: true },
+        jsPDF: { unit: 'mm' as const, format: 'a4' as const, orientation: 'portrait' as const }
+      };
+
+      await html2pdf().set(opt).from(element).save();
+      
+      toast.success("PDF baixado com sucesso!");
+    } catch (error) {
+      console.error("Erro ao gerar PDF:", error);
+      toast.error("Erro ao gerar PDF");
+    }
   };
 
   const primaryColor = storeSettings?.primary_color || '#0ea5e9';
@@ -124,6 +148,10 @@ const ProposalView = ({ model, selectedOptionals, customerData, category, onBack
             <Button variant="ghost" onClick={onBack}>Voltar ao Início</Button>
           )}
           <div className="flex gap-2">
+            <Button variant="outline" onClick={handleDownloadPDF}>
+              <FileDown className="w-4 h-4 mr-2" />
+              Baixar PDF
+            </Button>
             <Button variant="outline" onClick={handlePrint}>
               <Printer className="w-4 h-4 mr-2" />
               Imprimir
@@ -147,7 +175,7 @@ const ProposalView = ({ model, selectedOptionals, customerData, category, onBack
       </nav>
 
       <main className="container mx-auto px-4 py-8">
-        <Card className="max-w-4xl mx-auto p-8 shadow-card print:shadow-none">
+        <Card id="proposal-content" className="max-w-4xl mx-auto p-8 shadow-card print:shadow-none">
           <div className="text-center mb-8 print:mb-6">
             <h1 className="text-4xl font-bold mb-2 print:text-3xl">Proposta Comercial</h1>
             <p className="text-muted-foreground">Piscina de Fibra</p>
