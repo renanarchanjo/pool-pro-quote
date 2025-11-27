@@ -77,6 +77,8 @@ const PoolSimulator = ({ onBack }: PoolSimulatorProps) => {
     try {
       setLoading(true);
       
+      console.log("Loading data...");
+      
       const [storeRes, categoriesRes, modelsRes, optionalsRes] = await Promise.all([
         supabase.from("stores").select("id").limit(1).single(),
         supabase.from("categories").select("*").eq("active", true).order("name"),
@@ -84,15 +86,34 @@ const PoolSimulator = ({ onBack }: PoolSimulatorProps) => {
         supabase.from("optionals").select("*").eq("active", true).order("display_order")
       ]);
 
-      if (storeRes.error) throw storeRes.error;
-      if (categoriesRes.error) throw categoriesRes.error;
-      if (modelsRes.error) throw modelsRes.error;
-      if (optionalsRes.error) throw optionalsRes.error;
+      console.log("Store result:", storeRes);
+      console.log("Categories result:", categoriesRes);
+      console.log("Models result:", modelsRes);
+      console.log("Optionals result:", optionalsRes);
+
+      if (storeRes.error) {
+        console.error("Store error:", storeRes.error);
+        throw storeRes.error;
+      }
+      if (categoriesRes.error) {
+        console.error("Categories error:", categoriesRes.error);
+        throw categoriesRes.error;
+      }
+      if (modelsRes.error) {
+        console.error("Models error:", modelsRes.error);
+        throw modelsRes.error;
+      }
+      if (optionalsRes.error) {
+        console.error("Optionals error:", optionalsRes.error);
+        throw optionalsRes.error;
+      }
 
       setStoreId(storeRes.data.id);
       setCategories(categoriesRes.data || []);
       setModels(modelsRes.data || []);
       setOptionals(optionalsRes.data || []);
+      
+      console.log("Data loaded successfully!");
     } catch (error) {
       console.error("Error loading data:", error);
       toast.error("Erro ao carregar dados");
