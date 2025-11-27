@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import { useSearchParams } from "react-router-dom";
 import { ArrowLeft, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -10,6 +9,7 @@ import ModelSelection from "./ModelSelection";
 import OptionalsSelection from "./OptionalsSelection";
 import CustomerForm from "./CustomerForm";
 import ProposalView from "./ProposalView";
+import logoHorizontal from "@/assets/simulapool-horizontal.png";
 
 interface Category {
   id: string;
@@ -21,12 +21,18 @@ interface PoolModel {
   id: string;
   name: string;
   category_id: string;
+  length: number | null;
+  width: number | null;
+  depth: number | null;
+  photo_url: string | null;
   differentials: string[];
   included_items: string[];
   not_included_items: string[];
   base_price: number;
   delivery_days: number;
   installation_days: number;
+  payment_terms: string | null;
+  notes: string | null;
 }
 
 interface Optional {
@@ -34,6 +40,8 @@ interface Optional {
   name: string;
   description: string;
   price: number;
+  group_id: string;
+  warning_note: string | null;
 }
 
 interface CustomerData {
@@ -47,13 +55,8 @@ interface PoolSimulatorProps {
 }
 
 const PoolSimulator = ({ onBack }: PoolSimulatorProps) => {
-  const [searchParams] = useSearchParams();
-  const storeSlug = searchParams.get("store");
-  
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(true);
-  const [storeId, setStoreId] = useState<string | null>(null);
-  const [storeSettings, setStoreSettings] = useState<{logo_url: string | null; primary_color: string; secondary_color: string} | null>(null);
   
   const [categories, setCategories] = useState<Category[]>([]);
   const [models, setModels] = useState<PoolModel[]>([]);
@@ -67,50 +70,16 @@ const PoolSimulator = ({ onBack }: PoolSimulatorProps) => {
 
   useEffect(() => {
     loadData();
-  }, [storeSlug]);
+  }, []);
 
   const loadData = async () => {
     try {
       setLoading(true);
       
-      // If store slug is provided, fetch store_id first
-      let currentStoreId: string | null = null;
-      
-      if (storeSlug) {
-        const { data: storeData, error: storeError } = await supabase
-          .from("stores")
-          .select("id")
-          .eq("slug", storeSlug)
-          .single();
-
-        if (storeError || !storeData) {
-          toast.error("Loja não encontrada");
-          return;
-        }
-
-        currentStoreId = storeData.id;
-        setStoreId(currentStoreId);
-
-        // Load store settings
-        const { data: settingsData } = await supabase
-          .from("store_settings")
-          .select("logo_url, primary_color, secondary_color")
-          .eq("store_id", currentStoreId)
-          .single();
-
-        setStoreSettings(settingsData);
-      }
-      
       const [categoriesRes, modelsRes, optionalsRes] = await Promise.all([
-        currentStoreId 
-          ? supabase.from("categories").select("*").eq("active", true).eq("store_id", currentStoreId)
-          : supabase.from("categories").select("*").eq("active", true),
-        currentStoreId
-          ? supabase.from("pool_models").select("*").eq("active", true).eq("store_id", currentStoreId)
-          : supabase.from("pool_models").select("*").eq("active", true),
-        currentStoreId
-          ? supabase.from("optionals").select("*").eq("active", true).eq("store_id", currentStoreId)
-          : supabase.from("optionals").select("*").eq("active", true)
+        supabase.from("categories").select("*").eq("active", true).order("name"),
+        supabase.from("pool_models").select("*").eq("active", true).order("name"),
+        supabase.from("optionals").select("*").eq("active", true).order("display_order")
       ]);
 
       if (categoriesRes.error) throw categoriesRes.error;
@@ -161,8 +130,7 @@ const PoolSimulator = ({ onBack }: PoolSimulatorProps) => {
           customer_whatsapp: data.whatsapp,
           model_id: selectedModel.id,
           selected_optionals: selectedOptionals,
-          total_price: totalPrice,
-          ...(storeId ? { store_id: storeId } : {})
+          total_price: totalPrice
         })
         .select()
         .single();
@@ -179,9 +147,18 @@ const PoolSimulator = ({ onBack }: PoolSimulatorProps) => {
     }
   };
 
+  const handleRestart = () => {
+    setStep(1);
+    setSelectedCategory(null);
+    setSelectedModel(null);
+    setSelectedOptionals([]);
+    setCustomerData(null);
+    setProposalId(null);
+  };
+
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-hero">
         <Loader2 className="w-8 h-8 animate-spin text-primary" />
       </div>
     );
@@ -194,84 +171,68 @@ const PoolSimulator = ({ onBack }: PoolSimulatorProps) => {
         selectedOptionals={optionals.filter(opt => selectedOptionals.includes(opt.id))}
         customerData={customerData}
         category={categories.find(c => c.id === selectedCategory)?.name || ""}
-        onBack={onBack}
-      />
-    );
-  }
-
-  if (step === 5 && selectedModel && customerData) {
-    return (
-      <ProposalView
-        model={selectedModel}
-        selectedOptionals={optionals.filter(opt => selectedOptionals.includes(opt.id))}
-        customerData={customerData}
-        category={categories.find(c => c.id === selectedCategory)?.name || ""}
-        onBack={onBack}
-        storeSettings={storeSettings}
+        onBack={handleRestart}
       />
     );
   }
 
   return (
     <div className="min-h-screen bg-gradient-hero">
-      <nav className="border-b border-border/50 bg-background/80 backdrop-blur-sm">
-        <div className="container mx-auto px-4 py-4">
-          <Button variant="ghost" onClick={onBack}>
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Voltar
-          </Button>
+      <nav className="border-b border-border/30 bg-background/95 backdrop-blur-md sticky top-0 z-50">
+        <div className="container mx-auto px-4 py-4 flex justify-between items-center">
+          <div className="flex items-center gap-4">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={step === 1 ? onBack : () => setStep(step - 1)}
+            >
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Voltar
+            </Button>
+            <img src={logoHorizontal} alt="SIMULAPOOL" className="h-8 object-contain" />
+          </div>
+          {step < 5 && (
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <span className="font-medium">Etapa {step} de 4</span>
+            </div>
+          )}
         </div>
       </nav>
 
       <main className="container mx-auto px-4 py-8">
-        <Card className="max-w-4xl mx-auto p-8 shadow-card">
-          <div className="mb-8">
-            <div className="flex items-center justify-between mb-4">
-              {[1, 2, 3, 4].map((s) => (
-                <div
-                  key={s}
-                  className={`flex-1 h-2 rounded-full mx-1 transition-colors ${
-                    step >= s ? "bg-primary" : "bg-muted"
-                  }`}
-                />
-              ))}
-            </div>
-            <p className="text-sm text-muted-foreground text-center">
-              Passo {step} de 4
-            </p>
-          </div>
+        {step === 1 && (
+          <CategorySelection
+            categories={categories}
+            onSelect={handleCategorySelect}
+          />
+        )}
 
-          {step === 1 && (
-            <CategorySelection
-              categories={categories}
-              onSelect={handleCategorySelect}
-            />
-          )}
+        {step === 2 && selectedCategory && (
+          <ModelSelection
+            models={models.filter(m => m.category_id === selectedCategory)}
+            onSelect={handleModelSelect}
+            onBack={() => setStep(1)}
+          />
+        )}
 
-          {step === 2 && selectedCategory && (
-            <ModelSelection
-              models={models.filter(m => m.category_id === selectedCategory)}
-              onSelect={handleModelSelect}
-              onBack={() => setStep(1)}
-            />
-          )}
+        {step === 3 && selectedModel && (
+          <OptionalsSelection
+            optionals={optionals}
+            selectedOptionals={selectedOptionals}
+            onConfirm={handleOptionalsConfirm}
+            onBack={() => setStep(2)}
+            model={selectedModel}
+          />
+        )}
 
-          {step === 3 && selectedModel && (
-            <OptionalsSelection
-              optionals={optionals}
-              selectedOptionals={selectedOptionals}
-              onConfirm={handleOptionalsConfirm}
-              onBack={() => setStep(2)}
-            />
-          )}
-
-          {step === 4 && (
-            <CustomerForm
-              onSubmit={handleCustomerSubmit}
-              onBack={() => setStep(3)}
-            />
-          )}
-        </Card>
+        {step === 4 && selectedModel && (
+          <CustomerForm
+            onSubmit={handleCustomerSubmit}
+            onBack={() => setStep(3)}
+            model={selectedModel}
+            optionals={optionals.filter(opt => selectedOptionals.includes(opt.id))}
+          />
+        )}
       </main>
     </div>
   );
