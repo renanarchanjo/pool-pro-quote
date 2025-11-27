@@ -61,6 +61,7 @@ const PoolSimulator = ({ onBack }: PoolSimulatorProps) => {
   const [categories, setCategories] = useState<Category[]>([]);
   const [models, setModels] = useState<PoolModel[]>([]);
   const [optionals, setOptionals] = useState<Optional[]>([]);
+  const [storeId, setStoreId] = useState<string | null>(null);
   
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedModel, setSelectedModel] = useState<PoolModel | null>(null);
@@ -76,16 +77,19 @@ const PoolSimulator = ({ onBack }: PoolSimulatorProps) => {
     try {
       setLoading(true);
       
-      const [categoriesRes, modelsRes, optionalsRes] = await Promise.all([
+      const [storeRes, categoriesRes, modelsRes, optionalsRes] = await Promise.all([
+        supabase.from("stores").select("id").limit(1).single(),
         supabase.from("categories").select("*").eq("active", true).order("name"),
         supabase.from("pool_models").select("*").eq("active", true).order("name"),
         supabase.from("optionals").select("*").eq("active", true).order("display_order")
       ]);
 
+      if (storeRes.error) throw storeRes.error;
       if (categoriesRes.error) throw categoriesRes.error;
       if (modelsRes.error) throw modelsRes.error;
       if (optionalsRes.error) throw optionalsRes.error;
 
+      setStoreId(storeRes.data.id);
       setCategories(categoriesRes.data || []);
       setModels(modelsRes.data || []);
       setOptionals(optionalsRes.data || []);
@@ -113,7 +117,7 @@ const PoolSimulator = ({ onBack }: PoolSimulatorProps) => {
   };
 
   const handleCustomerSubmit = async (data: CustomerData) => {
-    if (!selectedModel) return;
+    if (!selectedModel || !storeId) return;
 
     try {
       const optionalsPrice = optionals
@@ -130,7 +134,8 @@ const PoolSimulator = ({ onBack }: PoolSimulatorProps) => {
           customer_whatsapp: data.whatsapp,
           model_id: selectedModel.id,
           selected_optionals: selectedOptionals,
-          total_price: totalPrice
+          total_price: totalPrice,
+          store_id: storeId
         })
         .select()
         .single();
