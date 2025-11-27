@@ -7,6 +7,7 @@ import { LogOut, Waves, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import CategoryManager from "@/components/admin/CategoryManager";
 import PoolModelManager from "@/components/admin/PoolModelManager";
+import OptionalGroupManager from "@/components/admin/OptionalGroupManager";
 import OptionalManager from "@/components/admin/OptionalManager";
 import ProposalsView from "@/components/admin/ProposalsView";
 import StoreSettings from "@/components/admin/StoreSettings";
@@ -76,9 +77,10 @@ const Admin = () => {
 
       <main className="container mx-auto px-4 py-8">
         <Tabs defaultValue="categories" className="w-full">
-          <TabsList className="grid w-full grid-cols-5 mb-8">
+          <TabsList className="grid w-full grid-cols-6 mb-8">
             <TabsTrigger value="categories">Categorias</TabsTrigger>
             <TabsTrigger value="models">Modelos</TabsTrigger>
+            <TabsTrigger value="groups">Grupos</TabsTrigger>
             <TabsTrigger value="optionals">Opcionais</TabsTrigger>
             <TabsTrigger value="proposals">Propostas</TabsTrigger>
             <TabsTrigger value="settings">Configurações</TabsTrigger>
@@ -90,6 +92,10 @@ const Admin = () => {
 
           <TabsContent value="models">
             <PoolModelManager />
+          </TabsContent>
+
+          <TabsContent value="groups">
+            <OptionalGroupManager />
           </TabsContent>
 
           <TabsContent value="optionals">
