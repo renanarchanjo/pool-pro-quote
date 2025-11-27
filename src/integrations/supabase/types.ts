@@ -21,6 +21,7 @@ export type Database = {
           description: string | null
           id: string
           name: string
+          store_id: string | null
           updated_at: string | null
         }
         Insert: {
@@ -29,6 +30,7 @@ export type Database = {
           description?: string | null
           id?: string
           name: string
+          store_id?: string | null
           updated_at?: string | null
         }
         Update: {
@@ -37,9 +39,18 @@ export type Database = {
           description?: string | null
           id?: string
           name?: string
+          store_id?: string | null
           updated_at?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "categories_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       optionals: {
         Row: {
@@ -49,6 +60,7 @@ export type Database = {
           id: string
           name: string
           price: number
+          store_id: string | null
           updated_at: string | null
         }
         Insert: {
@@ -58,6 +70,7 @@ export type Database = {
           id?: string
           name: string
           price: number
+          store_id?: string | null
           updated_at?: string | null
         }
         Update: {
@@ -67,9 +80,18 @@ export type Database = {
           id?: string
           name?: string
           price?: number
+          store_id?: string | null
           updated_at?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "optionals_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       pool_models: {
         Row: {
@@ -84,6 +106,7 @@ export type Database = {
           installation_days: number | null
           name: string
           not_included_items: string[] | null
+          store_id: string | null
           updated_at: string | null
         }
         Insert: {
@@ -98,6 +121,7 @@ export type Database = {
           installation_days?: number | null
           name: string
           not_included_items?: string[] | null
+          store_id?: string | null
           updated_at?: string | null
         }
         Update: {
@@ -112,6 +136,7 @@ export type Database = {
           installation_days?: number | null
           name?: string
           not_included_items?: string[] | null
+          store_id?: string | null
           updated_at?: string | null
         }
         Relationships: [
@@ -120,6 +145,45 @@ export type Database = {
             columns: ["category_id"]
             isOneToOne: false
             referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pool_models_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          created_at: string | null
+          full_name: string | null
+          id: string
+          store_id: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          full_name?: string | null
+          id: string
+          store_id?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          full_name?: string | null
+          id?: string
+          store_id?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "profiles_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
             referencedColumns: ["id"]
           },
         ]
@@ -133,6 +197,7 @@ export type Database = {
           id: string
           model_id: string | null
           selected_optionals: Json | null
+          store_id: string | null
           total_price: number
         }
         Insert: {
@@ -143,6 +208,7 @@ export type Database = {
           id?: string
           model_id?: string | null
           selected_optionals?: Json | null
+          store_id?: string | null
           total_price: number
         }
         Update: {
@@ -153,6 +219,7 @@ export type Database = {
           id?: string
           model_id?: string | null
           selected_optionals?: Json | null
+          store_id?: string | null
           total_price?: number
         }
         Relationships: [
@@ -163,17 +230,110 @@ export type Database = {
             referencedRelation: "pool_models"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "proposals_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
         ]
+      }
+      store_settings: {
+        Row: {
+          created_at: string | null
+          id: string
+          logo_url: string | null
+          primary_color: string | null
+          secondary_color: string | null
+          store_id: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          logo_url?: string | null
+          primary_color?: string | null
+          secondary_color?: string | null
+          store_id: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          logo_url?: string | null
+          primary_color?: string | null
+          secondary_color?: string | null
+          store_id?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "store_settings_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: true
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      stores: {
+        Row: {
+          created_at: string | null
+          id: string
+          name: string
+          slug: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          name: string
+          slug: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          name?: string
+          slug?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
       }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "owner" | "seller"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -300,6 +460,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["owner", "seller"],
+    },
   },
 } as const

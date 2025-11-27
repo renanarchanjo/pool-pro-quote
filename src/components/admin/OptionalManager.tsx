@@ -8,6 +8,7 @@ import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { Plus, Pencil, Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { useStoreData } from "@/hooks/useStoreData";
 
 interface Optional {
   id: string;
@@ -18,20 +19,26 @@ interface Optional {
 }
 
 const OptionalManager = () => {
+  const { store } = useStoreData();
   const [optionals, setOptionals] = useState<Optional[]>([]);
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState<string | null>(null);
   const [formData, setFormData] = useState({ name: "", description: "", price: "" });
 
   useEffect(() => {
-    loadOptionals();
-  }, []);
+    if (store) {
+      loadOptionals();
+    }
+  }, [store]);
 
   const loadOptionals = async () => {
+    if (!store) return;
+    
     try {
       const { data, error } = await supabase
         .from("optionals")
         .select("*")
+        .eq("store_id", store.id)
         .order("created_at", { ascending: false });
 
       if (error) throw error;
@@ -52,11 +59,17 @@ const OptionalManager = () => {
       return;
     }
 
+    if (!store) {
+      toast.error("Loja não encontrada");
+      return;
+    }
+
     try {
       const data = {
         name: formData.name,
         description: formData.description,
         price: parseFloat(formData.price),
+        ...(editing ? {} : { store_id: store.id }),
       };
 
       if (editing) {
