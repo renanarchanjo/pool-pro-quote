@@ -1,11 +1,14 @@
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Check, X } from "lucide-react";
 
 interface PoolModel {
   id: string;
   name: string;
+  length: number | null;
+  width: number | null;
+  depth: number | null;
+  photo_url: string | null;
   differentials: string[];
   included_items: string[];
   not_included_items: string[];
@@ -31,65 +34,41 @@ const ModelSelection = ({ models, onSelect, onBack }: ModelSelectionProps) => {
         <Button variant="outline" onClick={onBack}>Voltar</Button>
       </div>
       
-      <div className="space-y-4">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         {models.map((model) => (
-          <Card key={model.id} className="p-6 hover:shadow-elegant transition-all">
-            <div className="flex justify-between items-start mb-4">
-              <div>
-                <h3 className="text-2xl font-bold mb-2">{model.name}</h3>
-                <p className="text-3xl font-bold text-primary">
-                  R$ {model.base_price.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                </p>
-              </div>
-              <Button onClick={() => onSelect(model)} className="gradient-primary text-white">
-                Selecionar
-              </Button>
-            </div>
-
-            {model.differentials.length > 0 && (
-              <div className="mb-4">
-                <h4 className="font-semibold mb-2">Diferenciais:</h4>
-                <div className="flex flex-wrap gap-2">
-                  {model.differentials.map((diff, idx) => (
-                    <Badge key={idx} variant="secondary">{diff}</Badge>
-                  ))}
-                </div>
+          <Card key={model.id} className="overflow-hidden hover:shadow-elegant transition-all cursor-pointer group" onClick={() => onSelect(model)}>
+            {model.photo_url && (
+              <div className="aspect-video overflow-hidden bg-muted">
+                <img 
+                  src={model.photo_url} 
+                  alt={model.name}
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                />
               </div>
             )}
+            <div className="p-4">
+              <h3 className="text-xl font-bold mb-1">{model.name}</h3>
+              {(model.length || model.width || model.depth) && (
+                <p className="text-sm text-muted-foreground mb-2">
+                  {model.length}m x {model.width}m x {model.depth}m
+                </p>
+              )}
+              <p className="text-2xl font-bold text-primary mb-3">
+                R$ {model.base_price.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+              </p>
 
-            <div className="grid md:grid-cols-2 gap-4">
-              {model.included_items.length > 0 && (
-                <div>
-                  <h4 className="font-semibold mb-2 flex items-center gap-2">
-                    <Check className="w-4 h-4 text-green-600" />
-                    Inclusos:
-                  </h4>
-                  <ul className="space-y-1 text-sm">
-                    {model.included_items.map((item, idx) => (
-                      <li key={idx} className="text-muted-foreground">• {item}</li>
-                    ))}
-                  </ul>
+              {model.differentials.length > 0 && (
+                <div className="flex flex-wrap gap-1 mb-3">
+                  {model.differentials.slice(0, 2).map((diff, idx) => (
+                    <Badge key={idx} variant="secondary" className="text-xs">{diff}</Badge>
+                  ))}
                 </div>
               )}
 
-              {model.not_included_items.length > 0 && (
-                <div>
-                  <h4 className="font-semibold mb-2 flex items-center gap-2">
-                    <X className="w-4 h-4 text-destructive" />
-                    Não inclusos:
-                  </h4>
-                  <ul className="space-y-1 text-sm">
-                    {model.not_included_items.map((item, idx) => (
-                      <li key={idx} className="text-muted-foreground">• {item}</li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-            </div>
-
-            <div className="mt-4 pt-4 border-t flex gap-4 text-sm text-muted-foreground">
-              <span>Entrega: {model.delivery_days} dias</span>
-              <span>Instalação: {model.installation_days} dias</span>
+              <div className="flex gap-3 text-xs text-muted-foreground">
+                <span>Entrega: {model.delivery_days} dias</span>
+                <span>Instalação: {model.installation_days} dias</span>
+              </div>
             </div>
           </Card>
         ))}
