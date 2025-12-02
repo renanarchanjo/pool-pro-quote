@@ -42,18 +42,17 @@ const Index = () => {
           <div className="max-w-4xl mx-auto text-center mb-20 animate-fade-in">
             <div className="inline-flex items-center gap-2 bg-primary/10 text-primary px-4 py-2 rounded-full text-sm font-medium mb-6 animate-wave">
               <Sparkles className="w-4 h-4" />
-              O jeito moderno de orçar piscinas
+              Orçamentos completos em menos de 1 minuto
             </div>
             
             <h1 className="text-5xl md:text-7xl font-display font-extrabold mb-6 leading-tight">
-              <span className="text-gradient">Simulou, orçou.</span>
+              <span className="text-gradient">Simule, gere e envie.</span>
               <br />
-              <span className="text-foreground">Fechou.</span>
+              <span className="text-foreground">Sem dor de cabeça.</span>
             </h1>
             
             <p className="text-xl md:text-2xl text-muted-foreground mb-10 font-light max-w-2xl mx-auto">
-              Sistema profissional de orçamentos automatizados para piscinas de fibra. 
-              Simples, rápido e tecnológico.
+              Crie orçamentos profissionais de piscinas de fibra com modelo, dimensões, opcionais e valor total — prontos para enviar ao cliente pelo WhatsApp.
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
@@ -62,7 +61,7 @@ const Index = () => {
                 className="gradient-primary text-white shadow-pool hover:shadow-glow transition-all text-lg px-8 py-6 font-display font-semibold"
                 onClick={() => setShowSimulator(true)}
               >
-                Simular Agora
+                Gerar Orçamento Agora
                 <ChevronRight className="ml-2 w-5 h-5" />
               </Button>
               <Link to="/auth">
@@ -71,13 +70,13 @@ const Index = () => {
                   variant="outline"
                   className="text-lg px-8 py-6 font-display font-semibold"
                 >
-                  Sou Lojista
+                  Acesso Lojista
                 </Button>
               </Link>
             </div>
 
             <p className="mt-6 text-sm text-muted-foreground">
-              ✓ Sem cadastro • ✓ 100% grátis • ✓ Proposta em segundos
+              ✓ Sem cadastro necessário • ✓ 100% gratuito • ✓ Orçamento pronto em segundos
             </p>
           </div>
 
@@ -87,9 +86,9 @@ const Index = () => {
               <div className="w-16 h-16 gradient-primary rounded-xl flex items-center justify-center mb-5 group-hover:scale-110 transition-transform shadow-lg">
                 <Calculator className="w-8 h-8 text-white" />
               </div>
-              <h3 className="text-xl font-display font-bold mb-3">Cálculo Automático</h3>
+              <h3 className="text-xl font-display font-bold mb-3">Valores Calculados na Hora</h3>
               <p className="text-muted-foreground leading-relaxed">
-                Todos os valores calculados em tempo real com base nos opcionais escolhidos. Zero erros.
+                Escolha modelo e opcionais. O sistema soma tudo automaticamente e gera o valor final sem erro.
               </p>
             </div>
 
@@ -97,9 +96,9 @@ const Index = () => {
               <div className="w-16 h-16 gradient-primary rounded-xl flex items-center justify-center mb-5 group-hover:scale-110 transition-transform shadow-lg">
                 <FileText className="w-8 h-8 text-white" />
               </div>
-              <h3 className="text-xl font-display font-bold mb-3">Proposta Premium</h3>
+              <h3 className="text-xl font-display font-bold mb-3">Orçamento Completo em PDF</h3>
               <p className="text-muted-foreground leading-relaxed">
-                Propostas profissionais com sua marca. Imprima, baixe em PDF ou compartilhe.
+                Modelo, dimensões, itens inclusos, opcionais selecionados e valor total. Baixe ou imprima na hora.
               </p>
             </div>
 
@@ -107,9 +106,9 @@ const Index = () => {
               <div className="w-16 h-16 gradient-primary rounded-xl flex items-center justify-center mb-5 group-hover:scale-110 transition-transform shadow-lg">
                 <MessageCircle className="w-8 h-8 text-white" />
               </div>
-              <h3 className="text-xl font-display font-bold mb-3">Envio Instantâneo</h3>
+              <h3 className="text-xl font-display font-bold mb-3">Pronto para WhatsApp</h3>
               <p className="text-muted-foreground leading-relaxed">
-                Mensagem formatada e pronta para enviar direto no WhatsApp do cliente.
+                Orçamento formatado e pronto para copiar. Envie direto para o cliente e feche a venda mais rápido.
               </p>
             </div>
           </div>
@@ -118,17 +117,17 @@ const Index = () => {
           <div className="mt-20 text-center">
             <div className="inline-block bg-card/80 backdrop-blur-sm p-10 rounded-3xl shadow-elegant border border-border/50">
               <h2 className="text-3xl font-display font-bold mb-4">
-                Pronto para modernizar seus orçamentos?
+                Pare de perder tempo fazendo orçamentos na mão
               </h2>
               <p className="text-muted-foreground mb-6 max-w-md mx-auto">
-                Junte-se aos lojistas que já usam tecnologia para vender mais
+                Em poucos cliques você gera um orçamento profissional completo, sem planilha, sem complicação
               </p>
               <Button 
                 size="lg"
                 className="gradient-tech text-white shadow-pool text-lg px-10 py-6 font-display font-bold"
                 onClick={() => setShowSimulator(true)}
               >
-                Experimentar Grátis
+                Criar Meu Orçamento Grátis
               </Button>
             </div>
           </div>
@@ -138,7 +137,7 @@ const Index = () => {
         <footer className="border-t border-border/30 mt-20 py-8 bg-background/50 backdrop-blur-sm">
           <div className="container mx-auto px-4 text-center text-sm text-muted-foreground">
             <p className="font-display">
-              <strong className="text-foreground">SIMULAPOOL</strong> - Sistema profissional de orçamentos para piscinas
+              <strong className="text-foreground">SIMULAPOOL</strong> — Orçamentos de piscinas de fibra em segundos
             </p>
             <p className="mt-2">© 2025 SIMULAPOOL. Todos os direitos reservados.</p>
           </div>
