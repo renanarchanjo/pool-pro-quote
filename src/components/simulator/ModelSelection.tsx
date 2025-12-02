@@ -38,11 +38,11 @@ const ModelSelection = ({ models, onSelect, onBack }: ModelSelectionProps) => {
         {models.map((model) => (
           <Card key={model.id} className="overflow-hidden hover:shadow-elegant transition-all cursor-pointer group" onClick={() => onSelect(model)}>
             {model.photo_url && (
-              <div className="aspect-video overflow-hidden bg-muted">
+              <div className="aspect-square overflow-hidden bg-white p-4">
                 <img 
                   src={model.photo_url} 
                   alt={model.name}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                  className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-300"
                 />
               </div>
             )}
