@@ -1,21 +1,13 @@
 import { useState, useEffect } from "react";
 import { ArrowLeft, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import CategorySelection from "./CategorySelection";
 import ModelSelection from "./ModelSelection";
 import OptionalsSelection from "./OptionalsSelection";
 import CustomerForm from "./CustomerForm";
 import ProposalView from "./ProposalView";
 import logoHorizontal from "@/assets/simulapool-horizontal.png";
-
-interface Category {
-  id: string;
-  name: string;
-  description: string;
-}
 
 interface PoolModel {
   id: string;
@@ -58,12 +50,10 @@ const PoolSimulator = ({ onBack }: PoolSimulatorProps) => {
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(true);
   
-  const [categories, setCategories] = useState<Category[]>([]);
   const [models, setModels] = useState<PoolModel[]>([]);
   const [optionals, setOptionals] = useState<Optional[]>([]);
   const [storeId, setStoreId] = useState<string | null>(null);
   
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedModel, setSelectedModel] = useState<PoolModel | null>(null);
   const [selectedOptionals, setSelectedOptionals] = useState<string[]>([]);
   const [customerData, setCustomerData] = useState<CustomerData | null>(null);
@@ -77,20 +67,17 @@ const PoolSimulator = ({ onBack }: PoolSimulatorProps) => {
     try {
       setLoading(true);
       
-      const [storeRes, categoriesRes, modelsRes, optionalsRes] = await Promise.all([
+      const [storeRes, modelsRes, optionalsRes] = await Promise.all([
         supabase.from("stores").select("id").limit(1).single(),
-        supabase.from("categories").select("*").eq("active", true).order("name"),
         supabase.from("pool_models").select("*").eq("active", true).order("name"),
         supabase.from("optionals").select("*").eq("active", true).order("display_order")
       ]);
 
       if (storeRes.error) throw storeRes.error;
-      if (categoriesRes.error) throw categoriesRes.error;
       if (modelsRes.error) throw modelsRes.error;
       if (optionalsRes.error) throw optionalsRes.error;
 
       setStoreId(storeRes.data.id);
-      setCategories(categoriesRes.data || []);
       setModels(modelsRes.data || []);
       setOptionals(optionalsRes.data || []);
     } catch (error) {
@@ -101,19 +88,14 @@ const PoolSimulator = ({ onBack }: PoolSimulatorProps) => {
     }
   };
 
-  const handleCategorySelect = (categoryId: string) => {
-    setSelectedCategory(categoryId);
-    setStep(2);
-  };
-
   const handleModelSelect = (model: PoolModel) => {
     setSelectedModel(model);
-    setStep(3);
+    setStep(2);
   };
 
   const handleOptionalsConfirm = (selectedIds: string[]) => {
     setSelectedOptionals(selectedIds);
-    setStep(4);
+    setStep(3);
   };
 
   const handleCustomerSubmit = async (data: CustomerData) => {
@@ -144,7 +126,7 @@ const PoolSimulator = ({ onBack }: PoolSimulatorProps) => {
 
       setCustomerData(data);
       setProposalId(proposal.id);
-      setStep(5);
+      setStep(4);
       toast.success("Proposta gerada com sucesso!");
     } catch (error) {
       console.error("Error creating proposal:", error);
@@ -154,7 +136,6 @@ const PoolSimulator = ({ onBack }: PoolSimulatorProps) => {
 
   const handleRestart = () => {
     setStep(1);
-    setSelectedCategory(null);
     setSelectedModel(null);
     setSelectedOptionals([]);
     setCustomerData(null);
@@ -169,13 +150,13 @@ const PoolSimulator = ({ onBack }: PoolSimulatorProps) => {
     );
   }
 
-  if (step === 5 && selectedModel && customerData) {
+  if (step === 4 && selectedModel && customerData) {
     return (
       <ProposalView
         model={selectedModel}
         selectedOptionals={optionals.filter(opt => selectedOptionals.includes(opt.id))}
         customerData={customerData}
-        category={categories.find(c => c.id === selectedCategory)?.name || ""}
+        category="Piscina de Fibra"
         onBack={handleRestart}
       />
     );
@@ -196,9 +177,9 @@ const PoolSimulator = ({ onBack }: PoolSimulatorProps) => {
             </Button>
             <img src={logoHorizontal} alt="SIMULAPOOL" className="h-8 object-contain" />
           </div>
-          {step < 5 && (
+          {step < 4 && (
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <span className="font-medium">Etapa {step} de 4</span>
+              <span className="font-medium">Etapa {step} de 3</span>
             </div>
           )}
         </div>
@@ -206,34 +187,27 @@ const PoolSimulator = ({ onBack }: PoolSimulatorProps) => {
 
       <main className="container mx-auto px-4 py-8">
         {step === 1 && (
-          <CategorySelection
-            categories={categories}
-            onSelect={handleCategorySelect}
-          />
-        )}
-
-        {step === 2 && selectedCategory && (
           <ModelSelection
-            models={models.filter(m => m.category_id === selectedCategory)}
+            models={models}
             onSelect={handleModelSelect}
-            onBack={() => setStep(1)}
+            onBack={onBack}
           />
         )}
 
-        {step === 3 && selectedModel && (
+        {step === 2 && selectedModel && (
           <OptionalsSelection
             optionals={optionals}
             selectedOptionals={selectedOptionals}
             onConfirm={handleOptionalsConfirm}
-            onBack={() => setStep(2)}
+            onBack={() => setStep(1)}
             model={selectedModel}
           />
         )}
 
-        {step === 4 && selectedModel && (
+        {step === 3 && selectedModel && (
           <CustomerForm
             onSubmit={handleCustomerSubmit}
-            onBack={() => setStep(3)}
+            onBack={() => setStep(2)}
             model={selectedModel}
             optionals={optionals.filter(opt => selectedOptionals.includes(opt.id))}
           />
