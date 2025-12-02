@@ -69,7 +69,7 @@ const PoolSimulator = ({ onBack }: PoolSimulatorProps) => {
       
       const [storeRes, modelsRes, optionalsRes] = await Promise.all([
         supabase.from("stores").select("id").limit(1).single(),
-        supabase.from("pool_models").select("*").eq("active", true).order("name"),
+        supabase.from("pool_models").select("*").eq("active", true).order("display_order"),
         supabase.from("optionals").select("*").eq("active", true).order("display_order")
       ]);
 

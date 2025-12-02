@@ -162,6 +162,7 @@ export type Database = {
           delivery_days: number | null
           depth: number | null
           differentials: string[] | null
+          display_order: number | null
           id: string
           included_items: string[] | null
           installation_days: number | null
@@ -183,6 +184,7 @@ export type Database = {
           delivery_days?: number | null
           depth?: number | null
           differentials?: string[] | null
+          display_order?: number | null
           id?: string
           included_items?: string[] | null
           installation_days?: number | null
@@ -204,6 +206,7 @@ export type Database = {
           delivery_days?: number | null
           depth?: number | null
           differentials?: string[] | null
+          display_order?: number | null
           id?: string
           included_items?: string[] | null
           installation_days?: number | null
