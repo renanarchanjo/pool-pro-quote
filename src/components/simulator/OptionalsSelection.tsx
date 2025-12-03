@@ -138,19 +138,30 @@ const OptionalsSelection = ({ optionals, selectedOptionals: initialSelected, onC
               )}
             </div>
             
-            {model.included_items && model.included_items.length > 0 && (
-              <div>
-                <p className="text-sm font-semibold text-muted-foreground mb-2">Itens inclusos:</p>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-1">
-                  {model.included_items.map((item: string, idx: number) => (
-                    <div key={idx} className="flex items-center gap-2 text-sm">
-                      <Check className="w-4 h-4 text-primary flex-shrink-0" />
-                      <span>{item}</span>
-                    </div>
-                  ))}
-                </div>
+            <div>
+              <p className="text-sm font-semibold text-muted-foreground mb-2">Itens inclusos:</p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-1">
+                {[
+                  "Casco da piscina de fibra",
+                  "Escavação primeira categoria com máquina bob cat",
+                  "Conjunto: filtro, bomba e motor",
+                  "Areia especial para filtro",
+                  "2 Dispositivos de ralo de fundo",
+                  "Dispositivo de aspiração",
+                  "2 Dispositivos de retorno",
+                  "Construção de base em concreto casa de maquinas em alvenaria",
+                  "Instalação/compactação lateral da piscina com pó de pedra",
+                  "Instalação hidráulica e elétrica dentro da casa de maquinas",
+                  "Transporte especial da piscina até 50 km da loja em Londrina",
+                  "Kit limpeza: aspirador, mangueira, cabo de alumínio, peneira e ponteiras"
+                ].map((item, idx) => (
+                  <div key={idx} className="flex items-center gap-2 text-sm">
+                    <Check className="w-4 h-4 text-primary flex-shrink-0" />
+                    <span>{item}</span>
+                  </div>
+                ))}
               </div>
-            )}
+            </div>
           </div>
         </div>
       </Card>
