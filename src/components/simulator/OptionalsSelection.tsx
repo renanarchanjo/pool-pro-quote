@@ -116,17 +116,8 @@ const OptionalsSelection = ({ optionals, selectedOptionals: initialSelected, onC
 
   return (
     <div className="max-w-4xl mx-auto">
-      <div className="text-center mb-8 animate-fade-in">
-        <h1 className="text-4xl md:text-5xl font-display font-bold mb-4">
-          Personalize sua Piscina
-        </h1>
-        <p className="text-lg text-muted-foreground">
-          Selecione os opcionais desejados
-        </p>
-      </div>
-
-      {/* Banner do modelo escolhido */}
-      <Card className="p-6 mb-8 bg-card/80 backdrop-blur-sm border-2 border-primary/30">
+      {/* Banner do modelo escolhido - agora no topo */}
+      <Card className="p-6 mb-8 bg-card/80 backdrop-blur-sm border-2 border-primary/30 animate-fade-in">
         <div className="flex flex-col md:flex-row gap-6">
           {model.photo_url && (
             <div className="w-full md:w-48 h-48 bg-white rounded-lg overflow-hidden flex-shrink-0">
@@ -137,9 +128,9 @@ const OptionalsSelection = ({ optionals, selectedOptionals: initialSelected, onC
               />
             </div>
           )}
-          <div className="flex-1">
+          <div className="flex-1 flex flex-col justify-center">
             <div className="flex items-center gap-3 mb-3">
-              <h2 className="text-2xl font-display font-bold">{model.name}</h2>
+              <h1 className="text-3xl md:text-4xl font-display font-bold">{model.name}</h1>
               {(model.length || model.width || model.depth) && (
                 <Badge variant="secondary" className="text-sm">
                   {model.length}m x {model.width}m x {model.depth}m
@@ -163,6 +154,16 @@ const OptionalsSelection = ({ optionals, selectedOptionals: initialSelected, onC
           </div>
         </div>
       </Card>
+
+      {/* Título da seção de opcionais */}
+      <div className="text-center mb-8">
+        <h2 className="text-2xl md:text-3xl font-display font-bold mb-2">
+          Personalize sua Piscina
+        </h2>
+        <p className="text-muted-foreground">
+          Selecione os opcionais desejados
+        </p>
+      </div>
 
       <div className="space-y-6 mb-8">
         {groups.map((group) => {
