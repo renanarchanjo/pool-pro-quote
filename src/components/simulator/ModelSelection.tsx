@@ -53,9 +53,6 @@ const ModelSelection = ({ models, onSelect, onBack }: ModelSelectionProps) => {
                   {model.length}m x {model.width}m x {model.depth}m
                 </p>
               )}
-              <p className="text-2xl font-bold text-primary mb-3">
-                R$ {model.base_price.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-              </p>
 
               {model.differentials.length > 0 && (
                 <div className="flex flex-wrap gap-1 mb-3">

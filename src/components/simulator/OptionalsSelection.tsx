@@ -5,8 +5,9 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
-import { Loader2, AlertCircle } from "lucide-react";
+import { Loader2, AlertCircle, Check } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Badge } from "@/components/ui/badge";
 
 interface Optional {
   id: string;
@@ -115,17 +116,53 @@ const OptionalsSelection = ({ optionals, selectedOptionals: initialSelected, onC
 
   return (
     <div className="max-w-4xl mx-auto">
-      <div className="text-center mb-10 animate-fade-in">
+      <div className="text-center mb-8 animate-fade-in">
         <h1 className="text-4xl md:text-5xl font-display font-bold mb-4">
           Personalize sua Piscina
         </h1>
-        <p className="text-lg text-muted-foreground mb-2">
+        <p className="text-lg text-muted-foreground">
           Selecione os opcionais desejados
         </p>
-        <p className="text-sm text-muted-foreground">
-          Modelo: <span className="font-semibold text-foreground">{model.name}</span>
-        </p>
       </div>
+
+      {/* Banner do modelo escolhido */}
+      <Card className="p-6 mb-8 bg-card/80 backdrop-blur-sm border-2 border-primary/30">
+        <div className="flex flex-col md:flex-row gap-6">
+          {model.photo_url && (
+            <div className="w-full md:w-48 h-48 bg-white rounded-lg overflow-hidden flex-shrink-0">
+              <img 
+                src={model.photo_url} 
+                alt={model.name}
+                className="w-full h-full object-contain p-2"
+              />
+            </div>
+          )}
+          <div className="flex-1">
+            <div className="flex items-center gap-3 mb-3">
+              <h2 className="text-2xl font-display font-bold">{model.name}</h2>
+              {(model.length || model.width || model.depth) && (
+                <Badge variant="secondary" className="text-sm">
+                  {model.length}m x {model.width}m x {model.depth}m
+                </Badge>
+              )}
+            </div>
+            
+            {model.included_items && model.included_items.length > 0 && (
+              <div>
+                <p className="text-sm font-semibold text-muted-foreground mb-2">Itens inclusos:</p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-1">
+                  {model.included_items.map((item: string, idx: number) => (
+                    <div key={idx} className="flex items-center gap-2 text-sm">
+                      <Check className="w-4 h-4 text-primary flex-shrink-0" />
+                      <span>{item}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      </Card>
 
       <div className="space-y-6 mb-8">
         {groups.map((group) => {
