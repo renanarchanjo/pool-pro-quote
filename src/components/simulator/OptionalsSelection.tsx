@@ -139,19 +139,13 @@ const OptionalsSelection = ({ optionals, selectedOptionals: initialSelected, onC
             </div>
             
             {model.included_items && model.included_items.length > 0 && (
-              <div className="mt-4 pt-4 border-t border-border/50">
-                <p className="text-sm font-semibold text-primary mb-3 flex items-center gap-2">
-                  <Check className="w-4 h-4" />
-                  Itens inclusos neste modelo:
-                </p>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              <div>
+                <p className="text-sm font-semibold text-muted-foreground mb-2">Itens inclusos:</p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-1">
                   {model.included_items.map((item: string, idx: number) => (
-                    <div 
-                      key={idx} 
-                      className="flex items-start gap-2 text-sm bg-primary/5 rounded-lg px-3 py-2 border border-primary/10"
-                    >
-                      <Check className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
-                      <span className="text-foreground/90">{item}</span>
+                    <div key={idx} className="flex items-center gap-2 text-sm">
+                      <Check className="w-4 h-4 text-primary flex-shrink-0" />
+                      <span>{item}</span>
                     </div>
                   ))}
                 </div>
