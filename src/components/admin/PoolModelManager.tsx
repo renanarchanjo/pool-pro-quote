@@ -7,10 +7,15 @@ import { Card } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus, Pencil, Loader2, X } from "lucide-react";
+import { Plus, Pencil, Loader2, X, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { useStoreData } from "@/hooks/useStoreData";
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel,
+  AlertDialogContent, AlertDialogDescription, AlertDialogFooter,
+  AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 interface Category {
   id: string;
@@ -206,6 +211,18 @@ const PoolModelManager = () => {
       newIncluded: "",
       newNotIncluded: "",
     });
+  };
+
+  const handleDelete = async (id: string) => {
+    try {
+      const { error } = await supabase.from("pool_models").delete().eq("id", id);
+      if (error) throw error;
+      toast.success("Modelo excluído");
+      loadData();
+    } catch (error) {
+      console.error("Error deleting model:", error);
+      toast.error("Erro ao excluir modelo. Verifique se não há propostas vinculadas.");
+    }
   };
 
   const toggleActive = async (id: string, active: boolean) => {
@@ -470,13 +487,31 @@ const PoolModelManager = () => {
                     {model.active ? "Ativo" : "Inativo"}
                   </span>
                 </div>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => handleEdit(model)}
-                >
+                <Button variant="outline" size="sm" onClick={() => handleEdit(model)}>
                   <Pencil className="w-4 h-4" />
                 </Button>
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button variant="outline" size="sm" className="text-destructive hover:text-destructive">
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Excluir modelo?</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        Tem certeza que deseja excluir "{model.name}"? Esta ação não pode ser desfeita.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                      <AlertDialogAction onClick={() => handleDelete(model.id)}
+                        className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                        Excluir
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
               </div>
             </div>
 

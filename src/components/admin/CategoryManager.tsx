@@ -6,9 +6,14 @@ import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
-import { Plus, Pencil, Loader2 } from "lucide-react";
+import { Plus, Pencil, Loader2, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { useStoreData } from "@/hooks/useStoreData";
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel,
+  AlertDialogContent, AlertDialogDescription, AlertDialogFooter,
+  AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 interface Category {
   id: string;
@@ -25,21 +30,17 @@ const CategoryManager = () => {
   const [formData, setFormData] = useState({ name: "", description: "" });
 
   useEffect(() => {
-    if (store) {
-      loadCategories();
-    }
+    if (store) loadCategories();
   }, [store]);
 
   const loadCategories = async () => {
     if (!store) return;
-    
     try {
       const { data, error } = await supabase
         .from("categories")
         .select("*")
         .eq("store_id", store.id)
         .order("created_at", { ascending: false });
-
       if (error) throw error;
       setCategories(data || []);
     } catch (error) {
@@ -52,39 +53,22 @@ const CategoryManager = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    if (!formData.name.trim()) {
-      toast.error("Nome é obrigatório");
-      return;
-    }
-
-    if (!store) {
-      toast.error("Loja não encontrada");
-      return;
-    }
+    if (!formData.name.trim()) { toast.error("Nome é obrigatório"); return; }
+    if (!store) { toast.error("Loja não encontrada"); return; }
 
     try {
       if (editing) {
-        const { error } = await supabase
-          .from("categories")
+        const { error } = await supabase.from("categories")
           .update({ name: formData.name, description: formData.description })
           .eq("id", editing);
-
         if (error) throw error;
         toast.success("Categoria atualizada");
       } else {
-        const { error } = await supabase
-          .from("categories")
-          .insert({ 
-            name: formData.name, 
-            description: formData.description,
-            store_id: store.id
-          });
-
+        const { error } = await supabase.from("categories")
+          .insert({ name: formData.name, description: formData.description, store_id: store.id });
         if (error) throw error;
         toast.success("Categoria criada");
       }
-
       setFormData({ name: "", description: "" });
       setEditing(null);
       loadCategories();
@@ -96,19 +80,24 @@ const CategoryManager = () => {
 
   const handleEdit = (category: Category) => {
     setEditing(category.id);
-    setFormData({
-      name: category.name,
-      description: category.description || "",
-    });
+    setFormData({ name: category.name, description: category.description || "" });
+  };
+
+  const handleDelete = async (id: string) => {
+    try {
+      const { error } = await supabase.from("categories").delete().eq("id", id);
+      if (error) throw error;
+      toast.success("Categoria excluída");
+      loadCategories();
+    } catch (error) {
+      console.error("Error deleting category:", error);
+      toast.error("Erro ao excluir categoria. Verifique se não há modelos vinculados.");
+    }
   };
 
   const toggleActive = async (id: string, active: boolean) => {
     try {
-      const { error } = await supabase
-        .from("categories")
-        .update({ active: !active })
-        .eq("id", id);
-
+      const { error } = await supabase.from("categories").update({ active: !active }).eq("id", id);
       if (error) throw error;
       toast.success("Status atualizado");
       loadCategories();
@@ -135,21 +124,15 @@ const CategoryManager = () => {
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <Label htmlFor="name">Nome *</Label>
-            <Input
-              id="name"
-              value={formData.name}
+            <Input id="name" value={formData.name}
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-              placeholder="Ex: Piscinas Residenciais"
-            />
+              placeholder="Ex: Piscinas Residenciais" />
           </div>
           <div>
             <Label htmlFor="description">Descrição</Label>
-            <Textarea
-              id="description"
-              value={formData.description}
+            <Textarea id="description" value={formData.description}
               onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-              placeholder="Descrição da categoria"
-            />
+              placeholder="Descrição da categoria" />
           </div>
           <div className="flex gap-2">
             <Button type="submit" className="gradient-primary text-white">
@@ -157,14 +140,10 @@ const CategoryManager = () => {
               {editing ? "Atualizar" : "Criar"}
             </Button>
             {editing && (
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => {
-                  setEditing(null);
-                  setFormData({ name: "", description: "" });
-                }}
-              >
+              <Button type="button" variant="outline" onClick={() => {
+                setEditing(null);
+                setFormData({ name: "", description: "" });
+              }}>
                 Cancelar
               </Button>
             )}
@@ -182,23 +161,37 @@ const CategoryManager = () => {
                   <p className="text-muted-foreground">{category.description}</p>
                 )}
               </div>
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-3">
                 <div className="flex items-center gap-2">
-                  <Switch
-                    checked={category.active}
-                    onCheckedChange={() => toggleActive(category.id, category.active)}
-                  />
-                  <span className="text-sm">
-                    {category.active ? "Ativo" : "Inativo"}
-                  </span>
+                  <Switch checked={category.active}
+                    onCheckedChange={() => toggleActive(category.id, category.active)} />
+                  <span className="text-sm">{category.active ? "Ativo" : "Inativo"}</span>
                 </div>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => handleEdit(category)}
-                >
+                <Button variant="outline" size="sm" onClick={() => handleEdit(category)}>
                   <Pencil className="w-4 h-4" />
                 </Button>
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button variant="outline" size="sm" className="text-destructive hover:text-destructive">
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Excluir categoria?</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        Tem certeza que deseja excluir "{category.name}"? Esta ação não pode ser desfeita.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                      <AlertDialogAction onClick={() => handleDelete(category.id)}
+                        className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                        Excluir
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
               </div>
             </div>
           </Card>
