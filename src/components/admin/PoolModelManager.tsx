@@ -34,6 +34,8 @@ interface PoolModel {
   included_items: string[];
   not_included_items: string[];
   base_price: number;
+  cost: number;
+  margin_percent: number;
   delivery_days: number;
   installation_days: number;
   payment_terms: string;
@@ -54,6 +56,8 @@ const PoolModelManager = () => {
     width: "",
     depth: "",
     photo_url: "",
+    cost: "",
+    margin_percent: "",
     base_price: "",
     delivery_days: "30",
     installation_days: "5",
@@ -134,6 +138,8 @@ const PoolModelManager = () => {
         width: formData.width ? parseFloat(formData.width) : null,
         depth: formData.depth ? parseFloat(formData.depth) : null,
         photo_url: formData.photo_url || null,
+        cost: formData.cost ? parseFloat(formData.cost) : 0,
+        margin_percent: formData.margin_percent ? parseFloat(formData.margin_percent) : 0,
         base_price: parseFloat(formData.base_price),
         delivery_days: parseInt(formData.delivery_days),
         installation_days: parseInt(formData.installation_days),
@@ -175,6 +181,8 @@ const PoolModelManager = () => {
       width: "",
       depth: "",
       photo_url: "",
+      cost: "",
+      margin_percent: "",
       base_price: "",
       delivery_days: "30",
       installation_days: "5",
@@ -199,6 +207,8 @@ const PoolModelManager = () => {
       width: model.width?.toString() || "",
       depth: model.depth?.toString() || "",
       photo_url: model.photo_url || "",
+      cost: model.cost?.toString() || "",
+      margin_percent: model.margin_percent?.toString() || "",
       base_price: model.base_price.toString(),
       delivery_days: model.delivery_days.toString(),
       installation_days: model.installation_days.toString(),
@@ -332,7 +342,39 @@ const PoolModelManager = () => {
 
           <div className="grid md:grid-cols-3 gap-4">
             <div>
-              <Label htmlFor="price">Preço Base (R$) *</Label>
+              <Label htmlFor="cost">Custo (R$)</Label>
+              <Input
+                id="cost"
+                type="number"
+                step="0.01"
+                value={formData.cost}
+                onChange={(e) => {
+                  const cost = e.target.value;
+                  const margin = formData.margin_percent;
+                  const price = cost && margin ? (parseFloat(cost) * (1 + parseFloat(margin) / 100)).toFixed(2) : formData.base_price;
+                  setFormData({ ...formData, cost, base_price: price });
+                }}
+                placeholder="0.00"
+              />
+            </div>
+            <div>
+              <Label htmlFor="margin">Margem (%)</Label>
+              <Input
+                id="margin"
+                type="number"
+                step="0.1"
+                value={formData.margin_percent}
+                onChange={(e) => {
+                  const margin = e.target.value;
+                  const cost = formData.cost;
+                  const price = cost && margin ? (parseFloat(cost) * (1 + parseFloat(margin) / 100)).toFixed(2) : formData.base_price;
+                  setFormData({ ...formData, margin_percent: margin, base_price: price });
+                }}
+                placeholder="Ex: 30"
+              />
+            </div>
+            <div>
+              <Label htmlFor="price">Preço de Venda (R$) *</Label>
               <Input
                 id="price"
                 type="number"
@@ -341,7 +383,16 @@ const PoolModelManager = () => {
                 onChange={(e) => setFormData({ ...formData, base_price: e.target.value })}
                 placeholder="0.00"
               />
+              {formData.cost && parseFloat(formData.cost) > 0 && formData.base_price && parseFloat(formData.base_price) > 0 && (
+                <p className="text-xs text-muted-foreground mt-1">
+                  Lucro: R$ {(parseFloat(formData.base_price) - parseFloat(formData.cost)).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                  {" "}({(((parseFloat(formData.base_price) - parseFloat(formData.cost)) / parseFloat(formData.cost)) * 100).toFixed(1)}%)
+                </p>
+              )}
             </div>
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-4">
             <div>
               <Label htmlFor="delivery">Prazo Entrega (dias)</Label>
               <Input
@@ -471,6 +522,15 @@ const PoolModelManager = () => {
                 <p className="text-2xl font-bold text-primary mt-1">
                   R$ {model.base_price.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                 </p>
+                {model.cost > 0 && (
+                  <div className="flex gap-3 mt-1 text-sm text-muted-foreground">
+                    <span>Custo: R$ {model.cost.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
+                    <span>Margem: {model.margin_percent}%</span>
+                    <span className="text-green-600 font-medium">
+                      Lucro: R$ {(model.base_price - model.cost).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                    </span>
+                  </div>
+                )}
                 {(model.length || model.width || model.depth) && (
                   <p className="text-sm text-muted-foreground mt-1">
                     Dimensões: {model.length}m × {model.width}m × {model.depth}m

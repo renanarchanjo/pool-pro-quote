@@ -99,11 +99,13 @@ export type Database = {
       optionals: {
         Row: {
           active: boolean | null
+          cost: number | null
           created_at: string | null
           description: string | null
           display_order: number | null
           group_id: string | null
           id: string
+          margin_percent: number | null
           name: string
           price: number
           store_id: string | null
@@ -112,11 +114,13 @@ export type Database = {
         }
         Insert: {
           active?: boolean | null
+          cost?: number | null
           created_at?: string | null
           description?: string | null
           display_order?: number | null
           group_id?: string | null
           id?: string
+          margin_percent?: number | null
           name: string
           price: number
           store_id?: string | null
@@ -125,11 +129,13 @@ export type Database = {
         }
         Update: {
           active?: boolean | null
+          cost?: number | null
           created_at?: string | null
           description?: string | null
           display_order?: number | null
           group_id?: string | null
           id?: string
+          margin_percent?: number | null
           name?: string
           price?: number
           store_id?: string | null
@@ -158,6 +164,7 @@ export type Database = {
           active: boolean | null
           base_price: number
           category_id: string | null
+          cost: number | null
           created_at: string | null
           delivery_days: number | null
           depth: number | null
@@ -167,6 +174,7 @@ export type Database = {
           included_items: string[] | null
           installation_days: number | null
           length: number | null
+          margin_percent: number | null
           name: string
           not_included_items: string[] | null
           notes: string | null
@@ -180,6 +188,7 @@ export type Database = {
           active?: boolean | null
           base_price: number
           category_id?: string | null
+          cost?: number | null
           created_at?: string | null
           delivery_days?: number | null
           depth?: number | null
@@ -189,6 +198,7 @@ export type Database = {
           included_items?: string[] | null
           installation_days?: number | null
           length?: number | null
+          margin_percent?: number | null
           name: string
           not_included_items?: string[] | null
           notes?: string | null
@@ -202,6 +212,7 @@ export type Database = {
           active?: boolean | null
           base_price?: number
           category_id?: string | null
+          cost?: number | null
           created_at?: string | null
           delivery_days?: number | null
           depth?: number | null
@@ -211,6 +222,7 @@ export type Database = {
           included_items?: string[] | null
           installation_days?: number | null
           length?: number | null
+          margin_percent?: number | null
           name?: string
           not_included_items?: string[] | null
           notes?: string | null

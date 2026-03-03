@@ -20,6 +20,8 @@ interface Optional {
   name: string;
   description: string | null;
   price: number;
+  cost: number;
+  margin_percent: number;
   active: boolean;
 }
 
@@ -28,7 +30,7 @@ const OptionalManager = () => {
   const [optionals, setOptionals] = useState<Optional[]>([]);
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState<string | null>(null);
-  const [formData, setFormData] = useState({ name: "", description: "", price: "" });
+  const [formData, setFormData] = useState({ name: "", description: "", price: "", cost: "", margin_percent: "" });
 
   useEffect(() => {
     if (store) loadOptionals();
@@ -58,6 +60,8 @@ const OptionalManager = () => {
       const data = {
         name: formData.name, description: formData.description,
         price: parseFloat(formData.price),
+        cost: formData.cost ? parseFloat(formData.cost) : 0,
+        margin_percent: formData.margin_percent ? parseFloat(formData.margin_percent) : 0,
         ...(editing ? {} : { store_id: store.id }),
       };
 
@@ -70,7 +74,7 @@ const OptionalManager = () => {
         if (error) throw error;
         toast.success("Opcional criado");
       }
-      setFormData({ name: "", description: "", price: "" });
+      setFormData({ name: "", description: "", price: "", cost: "", margin_percent: "" });
       setEditing(null);
       loadOptionals();
     } catch (error) {
@@ -81,7 +85,7 @@ const OptionalManager = () => {
 
   const handleEdit = (optional: Optional) => {
     setEditing(optional.id);
-    setFormData({ name: optional.name, description: optional.description || "", price: optional.price.toString() });
+    setFormData({ name: optional.name, description: optional.description || "", price: optional.price.toString(), cost: optional.cost?.toString() || "", margin_percent: optional.margin_percent?.toString() || "" });
   };
 
   const handleDelete = async (id: string) => {
@@ -123,7 +127,7 @@ const OptionalManager = () => {
           {editing ? "Editar Opcional" : "Novo Opcional"}
         </h2>
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="grid md:grid-cols-2 gap-4">
+          <div className="grid md:grid-cols-4 gap-4">
             <div>
               <Label htmlFor="name">Nome *</Label>
               <Input id="name" value={formData.name}
@@ -131,10 +135,37 @@ const OptionalManager = () => {
                 placeholder="Ex: LEDs RGB" />
             </div>
             <div>
-              <Label htmlFor="price">Preço (R$) *</Label>
+              <Label htmlFor="cost">Custo (R$)</Label>
+              <Input id="cost" type="number" step="0.01" value={formData.cost}
+                onChange={(e) => {
+                  const cost = e.target.value;
+                  const margin = formData.margin_percent;
+                  const price = cost && margin ? (parseFloat(cost) * (1 + parseFloat(margin) / 100)).toFixed(2) : formData.price;
+                  setFormData({ ...formData, cost, price });
+                }}
+                placeholder="0.00" />
+            </div>
+            <div>
+              <Label htmlFor="margin">Margem (%)</Label>
+              <Input id="margin" type="number" step="0.1" value={formData.margin_percent}
+                onChange={(e) => {
+                  const margin = e.target.value;
+                  const cost = formData.cost;
+                  const price = cost && margin ? (parseFloat(cost) * (1 + parseFloat(margin) / 100)).toFixed(2) : formData.price;
+                  setFormData({ ...formData, margin_percent: margin, price });
+                }}
+                placeholder="Ex: 30" />
+            </div>
+            <div>
+              <Label htmlFor="price">Preço de Venda (R$) *</Label>
               <Input id="price" type="number" step="0.01" value={formData.price}
                 onChange={(e) => setFormData({ ...formData, price: e.target.value })}
                 placeholder="0.00" />
+              {formData.cost && parseFloat(formData.cost) > 0 && formData.price && parseFloat(formData.price) > 0 && (
+                <p className="text-xs text-muted-foreground mt-1">
+                  Lucro: R$ {(parseFloat(formData.price) - parseFloat(formData.cost)).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                </p>
+              )}
             </div>
           </div>
           <div>
@@ -151,7 +182,7 @@ const OptionalManager = () => {
             {editing && (
               <Button type="button" variant="outline" onClick={() => {
                 setEditing(null);
-                setFormData({ name: "", description: "", price: "" });
+              setFormData({ name: "", description: "", price: "", cost: "", margin_percent: "" });
               }}>Cancelar</Button>
             )}
           </div>
@@ -164,9 +195,18 @@ const OptionalManager = () => {
             <div className="flex justify-between items-start">
               <div className="flex-1">
                 <h3 className="text-xl font-semibold mb-1">{optional.name}</h3>
-                <p className="text-2xl font-bold text-primary mb-2">
+                <p className="text-2xl font-bold text-primary mb-1">
                   R$ {optional.price.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
                 </p>
+                {optional.cost > 0 && (
+                  <div className="flex gap-3 text-xs text-muted-foreground mb-2">
+                    <span>Custo: R$ {optional.cost.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</span>
+                    <span>Margem: {optional.margin_percent}%</span>
+                    <span className="text-green-600 font-medium">
+                      Lucro: R$ {(optional.price - optional.cost).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                    </span>
+                  </div>
+                )}
                 {optional.description && (
                   <p className="text-sm text-muted-foreground">{optional.description}</p>
                 )}
