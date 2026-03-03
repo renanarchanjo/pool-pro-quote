@@ -15,10 +15,10 @@ const SiteHeader = () => {
   const location = useLocation();
 
   return (
-    <nav className="sticky top-0 z-50 bg-[hsl(220,40%,13%)] border-b border-white/10">
+    <nav className="sticky top-0 z-50 border-b border-border/30 bg-background/95 backdrop-blur-md">
       <div className="container mx-auto px-4 py-3 flex justify-between items-center">
         <Link to="/">
-          <img src={logoHorizontal} alt="SIMULAPOOL" className="h-9 object-contain brightness-0 invert" />
+          <img src={logoHorizontal} alt="SIMULAPOOL" className="h-10 object-contain" />
         </Link>
 
         {/* Desktop Nav */}
@@ -29,18 +29,15 @@ const SiteHeader = () => {
               to={link.to}
               className={`text-sm font-medium transition-colors ${
                 location.pathname === link.to
-                  ? "text-white"
-                  : "text-white/60 hover:text-white"
+                  ? "text-foreground font-semibold"
+                  : "text-muted-foreground hover:text-foreground"
               }`}
             >
               {link.label}
             </Link>
           ))}
           <Link to="/auth">
-            <Button
-              size="sm"
-              className="bg-[hsl(160,70%,45%)] hover:bg-[hsl(160,70%,40%)] text-white font-display font-semibold rounded-full px-6"
-            >
+            <Button size="sm" className="gradient-primary text-white font-display font-semibold shadow-sm">
               Área do Lojista
             </Button>
           </Link>
@@ -48,7 +45,7 @@ const SiteHeader = () => {
 
         {/* Mobile Toggle */}
         <button
-          className="md:hidden p-2 text-white"
+          className="md:hidden p-2"
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
         >
           {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
@@ -57,22 +54,19 @@ const SiteHeader = () => {
 
       {/* Mobile Nav */}
       {mobileMenuOpen && (
-        <div className="md:hidden bg-[hsl(220,40%,13%)] border-t border-white/10 px-4 py-4 space-y-3">
+        <div className="md:hidden border-t border-border/30 bg-background/98 backdrop-blur-md px-4 py-4 space-y-3">
           {navLinks.map((link) => (
             <Link
               key={link.to}
               to={link.to}
               onClick={() => setMobileMenuOpen(false)}
-              className="block text-sm font-medium text-white/80 hover:text-white py-2"
+              className="block text-sm font-medium py-2"
             >
               {link.label}
             </Link>
           ))}
           <Link to="/auth" onClick={() => setMobileMenuOpen(false)} className="block">
-            <Button
-              size="sm"
-              className="w-full bg-[hsl(160,70%,45%)] hover:bg-[hsl(160,70%,40%)] text-white font-display font-semibold rounded-full"
-            >
+            <Button size="sm" className="w-full gradient-primary text-white font-display font-semibold">
               Área do Lojista
             </Button>
           </Link>
