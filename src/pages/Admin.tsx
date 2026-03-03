@@ -1,42 +1,37 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Routes, Route } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { LogOut, Waves, Loader2 } from "lucide-react";
-import { toast } from "sonner";
+import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import AdminSidebar from "@/components/admin/AdminSidebar";
+import AdminDashboard from "@/components/admin/AdminDashboard";
 import CategoryManager from "@/components/admin/CategoryManager";
 import PoolModelManager from "@/components/admin/PoolModelManager";
 import OptionalGroupManager from "@/components/admin/OptionalGroupManager";
 import OptionalManager from "@/components/admin/OptionalManager";
 import ProposalsView from "@/components/admin/ProposalsView";
 import StoreSettings from "@/components/admin/StoreSettings";
+import AdminProfile from "@/components/admin/AdminProfile";
 import { useStoreData } from "@/hooks/useStoreData";
 
 const Admin = () => {
-  const [loading, setLoading] = useState(true);
+  const [authLoading, setAuthLoading] = useState(true);
   const navigate = useNavigate();
   const { store, loading: storeLoading } = useStoreData();
 
   useEffect(() => {
+    const checkAuth = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        navigate("/auth");
+      }
+      setAuthLoading(false);
+    };
     checkAuth();
-  }, []);
+  }, [navigate]);
 
-  const checkAuth = async () => {
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) {
-      navigate("/auth");
-    }
-    setLoading(false);
-  };
-
-  const handleLogout = async () => {
-    await supabase.auth.signOut();
-    toast.success("Logout realizado");
-    navigate("/");
-  };
-
-  if (loading || storeLoading) {
+  if (authLoading || storeLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <Loader2 className="w-8 h-8 animate-spin text-primary" />
@@ -56,62 +51,29 @@ const Admin = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-hero">
-      <nav className="border-b border-border/50 bg-background/95 backdrop-blur-md">
-        <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 gradient-primary rounded-lg flex items-center justify-center shadow-md">
-              <Waves className="w-6 h-6 text-white" />
-            </div>
-            <div>
-              <span className="text-xl font-display font-bold block">SIMULAPOOL</span>
-              <span className="text-xs text-muted-foreground">Painel Administrativo</span>
-            </div>
-          </div>
-          <Button variant="outline" onClick={handleLogout} className="font-display font-medium">
-            <LogOut className="w-4 h-4 mr-2" />
-            Sair
-          </Button>
+    <SidebarProvider>
+      <div className="min-h-screen flex w-full bg-muted/30">
+        <AdminSidebar />
+        <div className="flex-1 flex flex-col">
+          <header className="h-14 flex items-center border-b border-border/50 bg-background px-4">
+            <SidebarTrigger />
+          </header>
+          <main className="flex-1 p-6 overflow-auto">
+            <Routes>
+              <Route index element={<AdminDashboard />} />
+              <Route path="propostas" element={<ProposalsView />} />
+              <Route path="categorias" element={<CategoryManager />} />
+              <Route path="grupos" element={<OptionalGroupManager />} />
+              <Route path="opcionais" element={<OptionalManager />} />
+              <Route path="modelos" element={<PoolModelManager />} />
+              <Route path="perfil" element={<AdminProfile />} />
+              <Route path="configuracoes" element={<StoreSettings />} />
+              <Route path="lojistas" element={<div><h1 className="text-3xl font-bold mb-4">Lojistas</h1><p className="text-muted-foreground">Gerenciamento de lojistas em breve.</p></div>} />
+            </Routes>
+          </main>
         </div>
-      </nav>
-
-      <main className="container mx-auto px-4 py-8">
-        <Tabs defaultValue="categories" className="w-full">
-          <TabsList className="grid w-full grid-cols-6 mb-8">
-            <TabsTrigger value="categories">Categorias</TabsTrigger>
-            <TabsTrigger value="models">Modelos</TabsTrigger>
-            <TabsTrigger value="groups">Grupos</TabsTrigger>
-            <TabsTrigger value="optionals">Opcionais</TabsTrigger>
-            <TabsTrigger value="proposals">Propostas</TabsTrigger>
-            <TabsTrigger value="settings">Configurações</TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="categories">
-            <CategoryManager />
-          </TabsContent>
-
-          <TabsContent value="models">
-            <PoolModelManager />
-          </TabsContent>
-
-          <TabsContent value="groups">
-            <OptionalGroupManager />
-          </TabsContent>
-
-          <TabsContent value="optionals">
-            <OptionalManager />
-          </TabsContent>
-
-          <TabsContent value="proposals">
-            <ProposalsView />
-          </TabsContent>
-
-          <TabsContent value="settings">
-            <StoreSettings />
-          </TabsContent>
-        </Tabs>
-      </main>
-    </div>
+      </div>
+    </SidebarProvider>
   );
 };
 
