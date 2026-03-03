@@ -11,6 +11,8 @@ interface Store {
   id: string;
   name: string;
   slug: string;
+  city: string | null;
+  state: string | null;
 }
 
 interface StoreSettings {

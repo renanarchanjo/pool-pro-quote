@@ -2,15 +2,15 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useStoreData } from "@/hooks/useStoreData";
 import { toast } from "sonner";
-import { Loader2, FileText, ArrowLeft } from "lucide-react";
+import { Loader2, FileText, ArrowLeft, Eye, EyeOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
 import ProposalView from "@/components/simulator/ProposalView";
 
 interface PoolModel {
@@ -46,7 +46,7 @@ interface Category {
 }
 
 const ManualProposal = () => {
-  const { profile } = useStoreData();
+  const { profile, store, storeSettings } = useStoreData();
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [showProposal, setShowProposal] = useState(false);
@@ -58,6 +58,7 @@ const ManualProposal = () => {
   const [selectedCategoryId, setSelectedCategoryId] = useState<string>("");
   const [selectedModel, setSelectedModel] = useState<PoolModel | null>(null);
   const [selectedOptionalIds, setSelectedOptionalIds] = useState<string[]>([]);
+  const [enabledOptionalIds, setEnabledOptionalIds] = useState<string[]>([]);
 
   const [customerName, setCustomerName] = useState("");
   const [customerCity, setCustomerCity] = useState("");
@@ -66,6 +67,11 @@ const ManualProposal = () => {
   useEffect(() => {
     if (profile?.store_id) loadData();
   }, [profile?.store_id]);
+
+  // Enable all optionals by default when loaded
+  useEffect(() => {
+    setEnabledOptionalIds(optionals.map((o) => o.id));
+  }, [optionals]);
 
   const loadData = async () => {
     try {
@@ -90,9 +96,18 @@ const ManualProposal = () => {
     ? models.filter((m) => m.category_id === selectedCategoryId)
     : models;
 
+  const visibleOptionals = optionals.filter((o) => enabledOptionalIds.includes(o.id));
   const selectedOptionalsList = optionals.filter((o) => selectedOptionalIds.includes(o.id));
   const optionalsTotal = selectedOptionalsList.reduce((s, o) => s + o.price, 0);
   const totalPrice = (selectedModel?.base_price || 0) + optionalsTotal;
+
+  const toggleEnabled = (id: string) => {
+    setEnabledOptionalIds((prev) =>
+      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
+    );
+    // Also deselect if disabling
+    setSelectedOptionalIds((prev) => prev.filter((x) => x !== id || enabledOptionalIds.includes(id) === false));
+  };
 
   const toggleOptional = (id: string) => {
     setSelectedOptionalIds((prev) =>
@@ -162,10 +177,16 @@ const ManualProposal = () => {
           customerData={{ name: customerName, city: customerCity, whatsapp: customerWhatsapp }}
           category={categories.find((c) => c.id === selectedModel.category_id)?.name || "Piscina"}
           onBack={handleReset}
+          storeSettings={storeSettings}
+          storeName={store?.name}
+          storeCity={store?.city}
+          storeState={store?.state}
         />
       </div>
     );
   }
+
+  const allEnabled = enabledOptionalIds.length === optionals.length;
 
   return (
     <div className="max-w-4xl">
@@ -248,32 +269,74 @@ const ManualProposal = () => {
         {/* Opcionais */}
         <Card className="md:col-span-2">
           <CardHeader>
-            <CardTitle className="text-lg">Opcionais</CardTitle>
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-lg">Opcionais</CardTitle>
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <span>{allEnabled ? "Desativar todos" : "Ativar todos"}</span>
+                <Switch
+                  checked={allEnabled}
+                  onCheckedChange={(checked) => {
+                    setEnabledOptionalIds(checked ? optionals.map((o) => o.id) : []);
+                    if (!checked) setSelectedOptionalIds([]);
+                  }}
+                />
+              </div>
+            </div>
+            <p className="text-xs text-muted-foreground mt-1">
+              Use o <Eye className="w-3 h-3 inline" /> para ativar/desativar opcionais visíveis na proposta
+            </p>
           </CardHeader>
           <CardContent>
             {optionals.length === 0 ? (
               <p className="text-muted-foreground text-sm">Nenhum opcional cadastrado.</p>
             ) : (
               <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                {optionals.map((opt) => (
-                  <label
-                    key={opt.id}
-                    className={`flex items-start gap-3 p-3 rounded-lg border cursor-pointer transition-colors ${
-                      selectedOptionalIds.includes(opt.id) ? "border-primary bg-primary/5" : "border-border hover:border-primary/40"
-                    }`}
-                  >
-                    <Checkbox
-                      checked={selectedOptionalIds.includes(opt.id)}
-                      onCheckedChange={() => toggleOptional(opt.id)}
-                    />
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium leading-tight">{opt.name}</p>
-                      <p className="text-xs text-primary font-semibold mt-1">
-                        + R$ {opt.price.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
-                      </p>
+                {optionals.map((opt) => {
+                  const isEnabled = enabledOptionalIds.includes(opt.id);
+                  const isSelected = selectedOptionalIds.includes(opt.id);
+                  return (
+                    <div
+                      key={opt.id}
+                      className={`relative flex items-start gap-3 p-3 rounded-lg border transition-all ${
+                        !isEnabled
+                          ? "border-border/30 bg-muted/30 opacity-50"
+                          : isSelected
+                          ? "border-primary bg-primary/5"
+                          : "border-border hover:border-primary/40"
+                      }`}
+                    >
+                      {/* Toggle visibility */}
+                      <button
+                        type="button"
+                        onClick={() => toggleEnabled(opt.id)}
+                        className="absolute top-2 right-2 p-1 rounded hover:bg-muted transition-colors"
+                        title={isEnabled ? "Desativar opcional" : "Ativar opcional"}
+                      >
+                        {isEnabled ? (
+                          <Eye className="w-3.5 h-3.5 text-primary" />
+                        ) : (
+                          <EyeOff className="w-3.5 h-3.5 text-muted-foreground" />
+                        )}
+                      </button>
+
+                      {/* Selection checkbox */}
+                      <label className={`flex items-start gap-3 flex-1 min-w-0 ${isEnabled ? "cursor-pointer" : "cursor-not-allowed"}`}>
+                        <Checkbox
+                          checked={isSelected}
+                          onCheckedChange={() => isEnabled && toggleOptional(opt.id)}
+                          disabled={!isEnabled}
+                          className="mt-0.5"
+                        />
+                        <div className="flex-1 min-w-0 pr-5">
+                          <p className="text-sm font-medium leading-tight">{opt.name}</p>
+                          <p className="text-xs text-primary font-semibold mt-1">
+                            + R$ {opt.price.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                          </p>
+                        </div>
+                      </label>
                     </div>
-                  </label>
-                ))}
+                  );
+                })}
               </div>
             )}
           </CardContent>
