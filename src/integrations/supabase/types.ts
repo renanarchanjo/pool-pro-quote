@@ -360,24 +360,30 @@ export type Database = {
       }
       stores: {
         Row: {
+          city: string | null
           created_at: string | null
           id: string
           name: string
           slug: string
+          state: string | null
           updated_at: string | null
         }
         Insert: {
+          city?: string | null
           created_at?: string | null
           id?: string
           name: string
           slug: string
+          state?: string | null
           updated_at?: string | null
         }
         Update: {
+          city?: string | null
           created_at?: string | null
           id?: string
           name?: string
           slug?: string
+          state?: string | null
           updated_at?: string | null
         }
         Relationships: []
