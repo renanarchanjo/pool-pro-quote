@@ -1,0 +1,318 @@
+import { useState, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { useStoreData } from "@/hooks/useStoreData";
+import { toast } from "sonner";
+import { Loader2, FileText, ArrowLeft } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
+import ProposalView from "@/components/simulator/ProposalView";
+
+interface PoolModel {
+  id: string;
+  name: string;
+  category_id: string;
+  length: number | null;
+  width: number | null;
+  depth: number | null;
+  photo_url: string | null;
+  differentials: string[];
+  included_items: string[];
+  not_included_items: string[];
+  base_price: number;
+  delivery_days: number;
+  installation_days: number;
+  payment_terms: string | null;
+  notes: string | null;
+}
+
+interface Optional {
+  id: string;
+  name: string;
+  description: string;
+  price: number;
+  group_id: string;
+  warning_note: string | null;
+}
+
+interface Category {
+  id: string;
+  name: string;
+}
+
+const ManualProposal = () => {
+  const { profile } = useStoreData();
+  const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
+  const [showProposal, setShowProposal] = useState(false);
+
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [models, setModels] = useState<PoolModel[]>([]);
+  const [optionals, setOptionals] = useState<Optional[]>([]);
+
+  const [selectedCategoryId, setSelectedCategoryId] = useState<string>("");
+  const [selectedModel, setSelectedModel] = useState<PoolModel | null>(null);
+  const [selectedOptionalIds, setSelectedOptionalIds] = useState<string[]>([]);
+
+  const [customerName, setCustomerName] = useState("");
+  const [customerCity, setCustomerCity] = useState("");
+  const [customerWhatsapp, setCustomerWhatsapp] = useState("");
+
+  useEffect(() => {
+    if (profile?.store_id) loadData();
+  }, [profile?.store_id]);
+
+  const loadData = async () => {
+    try {
+      const storeId = profile!.store_id!;
+      const [catRes, modRes, optRes] = await Promise.all([
+        supabase.from("categories").select("id, name").eq("store_id", storeId).eq("active", true).order("name"),
+        supabase.from("pool_models").select("*").eq("store_id", storeId).eq("active", true).order("display_order"),
+        supabase.from("optionals").select("*").eq("store_id", storeId).eq("active", true).order("display_order"),
+      ]);
+      setCategories(catRes.data || []);
+      setModels(modRes.data || []);
+      setOptionals(optRes.data || []);
+    } catch (e) {
+      console.error(e);
+      toast.error("Erro ao carregar dados");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const filteredModels = selectedCategoryId
+    ? models.filter((m) => m.category_id === selectedCategoryId)
+    : models;
+
+  const selectedOptionalsList = optionals.filter((o) => selectedOptionalIds.includes(o.id));
+  const optionalsTotal = selectedOptionalsList.reduce((s, o) => s + o.price, 0);
+  const totalPrice = (selectedModel?.base_price || 0) + optionalsTotal;
+
+  const toggleOptional = (id: string) => {
+    setSelectedOptionalIds((prev) =>
+      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
+    );
+  };
+
+  const handleSubmit = async () => {
+    if (!customerName || !customerCity || !customerWhatsapp) {
+      toast.error("Preencha todos os dados do cliente");
+      return;
+    }
+    if (!selectedModel) {
+      toast.error("Selecione um modelo de piscina");
+      return;
+    }
+
+    setSubmitting(true);
+    try {
+      const { error } = await supabase.from("proposals").insert({
+        customer_name: customerName,
+        customer_city: customerCity,
+        customer_whatsapp: customerWhatsapp,
+        model_id: selectedModel.id,
+        selected_optionals: selectedOptionalIds,
+        total_price: totalPrice,
+        store_id: profile!.store_id!,
+      });
+      if (error) throw error;
+      toast.success("Proposta gerada com sucesso!");
+      setShowProposal(true);
+    } catch (e) {
+      console.error(e);
+      toast.error("Erro ao gerar proposta");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleReset = () => {
+    setShowProposal(false);
+    setSelectedModel(null);
+    setSelectedCategoryId("");
+    setSelectedOptionalIds([]);
+    setCustomerName("");
+    setCustomerCity("");
+    setCustomerWhatsapp("");
+  };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-20">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  if (showProposal && selectedModel) {
+    return (
+      <div>
+        <Button variant="ghost" onClick={handleReset} className="mb-4">
+          <ArrowLeft className="w-4 h-4 mr-2" /> Nova Proposta
+        </Button>
+        <ProposalView
+          model={selectedModel}
+          selectedOptionals={selectedOptionalsList}
+          customerData={{ name: customerName, city: customerCity, whatsapp: customerWhatsapp }}
+          category={categories.find((c) => c.id === selectedModel.category_id)?.name || "Piscina"}
+          onBack={handleReset}
+        />
+      </div>
+    );
+  }
+
+  return (
+    <div className="max-w-4xl">
+      <div className="mb-6">
+        <h1 className="text-3xl font-bold flex items-center gap-3">
+          <FileText className="w-8 h-8 text-primary" />
+          Gerar Proposta
+        </h1>
+        <p className="text-muted-foreground mt-1">
+          Crie uma proposta manual para clientes por indicação
+        </p>
+      </div>
+
+      <div className="grid gap-6 md:grid-cols-2">
+        {/* Cliente */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg">Dados do Cliente</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div>
+              <Label htmlFor="cname">Nome Completo *</Label>
+              <Input id="cname" value={customerName} onChange={(e) => setCustomerName(e.target.value)} placeholder="Nome do cliente" />
+            </div>
+            <div>
+              <Label htmlFor="ccity">Cidade *</Label>
+              <Input id="ccity" value={customerCity} onChange={(e) => setCustomerCity(e.target.value)} placeholder="Cidade" />
+            </div>
+            <div>
+              <Label htmlFor="cwhat">WhatsApp *</Label>
+              <Input id="cwhat" value={customerWhatsapp} onChange={(e) => setCustomerWhatsapp(e.target.value)} placeholder="(00) 00000-0000" />
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Modelo */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg">Modelo de Piscina</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div>
+              <Label>Categoria</Label>
+              <Select value={selectedCategoryId} onValueChange={(v) => { setSelectedCategoryId(v); setSelectedModel(null); }}>
+                <SelectTrigger><SelectValue placeholder="Todas as categorias" /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Todas</SelectItem>
+                  {categories.map((c) => (
+                    <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label>Modelo *</Label>
+              <Select value={selectedModel?.id || ""} onValueChange={(v) => setSelectedModel(filteredModels.find((m) => m.id === v) || null)}>
+                <SelectTrigger><SelectValue placeholder="Selecione um modelo" /></SelectTrigger>
+                <SelectContent>
+                  {filteredModels.map((m) => (
+                    <SelectItem key={m.id} value={m.id}>
+                      {m.name} — R$ {m.base_price.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            {selectedModel && (
+              <div className="text-sm text-muted-foreground space-y-1 bg-muted/50 p-3 rounded-lg">
+                {selectedModel.length && selectedModel.width && (
+                  <p>{selectedModel.length}m × {selectedModel.width}m{selectedModel.depth ? ` × ${selectedModel.depth}m` : ""}</p>
+                )}
+                <p className="font-semibold text-foreground">
+                  Base: R$ {selectedModel.base_price.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                </p>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Opcionais */}
+        <Card className="md:col-span-2">
+          <CardHeader>
+            <CardTitle className="text-lg">Opcionais</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {optionals.length === 0 ? (
+              <p className="text-muted-foreground text-sm">Nenhum opcional cadastrado.</p>
+            ) : (
+              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                {optionals.map((opt) => (
+                  <label
+                    key={opt.id}
+                    className={`flex items-start gap-3 p-3 rounded-lg border cursor-pointer transition-colors ${
+                      selectedOptionalIds.includes(opt.id) ? "border-primary bg-primary/5" : "border-border hover:border-primary/40"
+                    }`}
+                  >
+                    <Checkbox
+                      checked={selectedOptionalIds.includes(opt.id)}
+                      onCheckedChange={() => toggleOptional(opt.id)}
+                    />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium leading-tight">{opt.name}</p>
+                      <p className="text-xs text-primary font-semibold mt-1">
+                        + R$ {opt.price.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                      </p>
+                    </div>
+                  </label>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Resumo */}
+        <Card className="md:col-span-2">
+          <CardContent className="pt-6">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+              <div className="space-y-1">
+                <p className="text-sm text-muted-foreground">Resumo</p>
+                <div className="flex flex-wrap gap-2">
+                  {selectedModel && <Badge variant="secondary">{selectedModel.name}</Badge>}
+                  {selectedOptionalsList.length > 0 && (
+                    <Badge variant="outline">{selectedOptionalsList.length} opcional(is)</Badge>
+                  )}
+                </div>
+                <p className="text-2xl font-bold text-primary">
+                  R$ {totalPrice.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                </p>
+              </div>
+              <Button
+                size="lg"
+                className="gradient-primary text-white"
+                onClick={handleSubmit}
+                disabled={submitting || !selectedModel}
+              >
+                {submitting ? (
+                  <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Gerando...</>
+                ) : (
+                  <><FileText className="w-4 h-4 mr-2" /> Gerar Proposta</>
+                )}
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  );
+};
+
+export default ManualProposal;
