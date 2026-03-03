@@ -13,6 +13,7 @@ import OptionalManager from "@/components/admin/OptionalManager";
 import ProposalsView from "@/components/admin/ProposalsView";
 import StoreSettings from "@/components/admin/StoreSettings";
 import AdminProfile from "@/components/admin/AdminProfile";
+import ManualProposal from "@/components/admin/ManualProposal";
 import { useStoreData } from "@/hooks/useStoreData";
 
 const Admin = () => {
@@ -72,6 +73,7 @@ const Admin = () => {
           <main className="flex-1 p-6 overflow-auto">
             <Routes>
               <Route index element={<AdminDashboard />} />
+              <Route path="gerar-proposta" element={<ManualProposal />} />
               <Route path="propostas" element={<ProposalsView />} />
               <Route path="categorias" element={<CategoryManager />} />
               <Route path="grupos" element={<OptionalGroupManager />} />
