@@ -40,11 +40,22 @@ const Admin = () => {
   }
 
   if (!store) {
+    const handleLogoutAndRetry = async () => {
+      await supabase.auth.signOut();
+      navigate("/auth");
+    };
+
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <p className="text-lg mb-4">Loja não encontrada</p>
-          <Button onClick={() => navigate("/")}>Voltar ao Início</Button>
+          <p className="text-lg mb-4">Nenhuma loja vinculada a esta conta.</p>
+          <p className="text-sm text-muted-foreground mb-6">Faça login com uma conta que possua uma loja cadastrada.</p>
+          <div className="flex gap-3 justify-center">
+            <Button variant="outline" onClick={() => navigate("/")}>Voltar ao Início</Button>
+            <Button onClick={handleLogoutAndRetry} className="gradient-primary text-white">
+              Trocar de Conta
+            </Button>
+          </div>
         </div>
       </div>
     );
