@@ -3,6 +3,7 @@ import { ArrowLeft, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import LocationStep from "./LocationStep";
 import ModelSelection from "./ModelSelection";
 import OptionalsSelection from "./OptionalsSelection";
 import CustomerForm from "./CustomerForm";
@@ -47,45 +48,46 @@ interface PoolSimulatorProps {
 }
 
 const PoolSimulator = ({ onBack }: PoolSimulatorProps) => {
-  const [step, setStep] = useState(1);
-  const [loading, setLoading] = useState(true);
+  const [step, setStep] = useState(0); // 0 = location
+  const [loading, setLoading] = useState(false);
   
   const [models, setModels] = useState<PoolModel[]>([]);
   const [optionals, setOptionals] = useState<Optional[]>([]);
   const [storeId, setStoreId] = useState<string | null>(null);
+  const [selectedStoreName, setSelectedStoreName] = useState<string>("");
   
   const [selectedModel, setSelectedModel] = useState<PoolModel | null>(null);
   const [selectedOptionals, setSelectedOptionals] = useState<string[]>([]);
   const [customerData, setCustomerData] = useState<CustomerData | null>(null);
   const [proposalId, setProposalId] = useState<string | null>(null);
 
-  useEffect(() => {
-    loadData();
-  }, []);
-
-  const loadData = async () => {
+  const loadStoreData = async (storeId: string) => {
     try {
       setLoading(true);
       
-      const [storeRes, modelsRes, optionalsRes] = await Promise.all([
-        supabase.from("stores").select("id").limit(1).single(),
-        supabase.from("pool_models").select("*").eq("active", true).order("display_order"),
-        supabase.from("optionals").select("*").eq("active", true).order("display_order")
+      const [modelsRes, optionalsRes] = await Promise.all([
+        supabase.from("pool_models").select("*").eq("active", true).eq("store_id", storeId).order("display_order"),
+        supabase.from("optionals").select("*").eq("active", true).eq("store_id", storeId).order("display_order")
       ]);
 
-      if (storeRes.error) throw storeRes.error;
       if (modelsRes.error) throw modelsRes.error;
       if (optionalsRes.error) throw optionalsRes.error;
 
-      setStoreId(storeRes.data.id);
+      setStoreId(storeId);
       setModels(modelsRes.data || []);
       setOptionals(optionalsRes.data || []);
+      setStep(1);
     } catch (error) {
-      console.error("Error loading data:", error);
-      toast.error("Erro ao carregar dados");
+      console.error("Error loading store data:", error);
+      toast.error("Erro ao carregar dados da loja");
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleSelectStore = (store: { id: string; name: string }) => {
+    setSelectedStoreName(store.name);
+    loadStoreData(store.id);
   };
 
   const handleModelSelect = (model: PoolModel) => {
@@ -135,11 +137,14 @@ const PoolSimulator = ({ onBack }: PoolSimulatorProps) => {
   };
 
   const handleRestart = () => {
-    setStep(1);
+    setStep(0);
     setSelectedModel(null);
     setSelectedOptionals([]);
     setCustomerData(null);
     setProposalId(null);
+    setStoreId(null);
+    setModels([]);
+    setOptionals([]);
   };
 
   if (loading) {
@@ -162,6 +167,9 @@ const PoolSimulator = ({ onBack }: PoolSimulatorProps) => {
     );
   }
 
+  const totalSteps = 4;
+  const displayStep = step; // 0=location, 1=model, 2=optionals, 3=customer
+
   return (
     <div className="min-h-screen bg-gradient-hero">
       <nav className="border-b border-border/30 bg-background/95 backdrop-blur-md sticky top-0 z-50">
@@ -170,27 +178,39 @@ const PoolSimulator = ({ onBack }: PoolSimulatorProps) => {
             <Button
               variant="ghost"
               size="sm"
-              onClick={step === 1 ? onBack : () => setStep(step - 1)}
+              onClick={step === 0 ? onBack : () => setStep(step === 1 ? 0 : step - 1)}
             >
               <ArrowLeft className="w-4 h-4 mr-2" />
               Voltar
             </Button>
             <img src={logoHorizontal} alt="SIMULAPOOL" className="h-8 object-contain" />
           </div>
-          {step < 4 && (
+          {step > 0 && step < 4 && (
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <span className="font-medium">Etapa {step} de 3</span>
+              {selectedStoreName && (
+                <span className="hidden md:inline ml-2 text-xs bg-primary/10 text-primary px-2 py-1 rounded-full">
+                  {selectedStoreName}
+                </span>
+              )}
             </div>
           )}
         </div>
       </nav>
 
       <main className="container mx-auto px-4 py-8">
+        {step === 0 && (
+          <LocationStep
+            onSelectStore={handleSelectStore}
+            onBack={onBack}
+          />
+        )}
+
         {step === 1 && (
           <ModelSelection
             models={models}
             onSelect={handleModelSelect}
-            onBack={onBack}
+            onBack={() => setStep(0)}
           />
         )}
 
