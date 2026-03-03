@@ -1,17 +1,24 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { ChevronRight, Calculator, FileText, MessageCircle, Sparkles } from "lucide-react";
+import { ChevronRight, Calculator, FileText, MessageCircle, Sparkles, Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import PoolSimulator from "@/components/simulator/PoolSimulator";
+import PricingSection from "@/components/landing/PricingSection";
 import logoHorizontal from "@/assets/simulapool-horizontal.png";
 import heroPattern from "@/assets/hero-pattern.png";
 
 const Index = () => {
   const [showSimulator, setShowSimulator] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   if (showSimulator) {
     return <PoolSimulator onBack={() => setShowSimulator(false)} />;
   }
+
+  const scrollTo = (id: string) => {
+    setMobileMenuOpen(false);
+    document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
+  };
 
   return (
     <div className="min-h-screen bg-gradient-hero relative overflow-hidden">
@@ -26,15 +33,46 @@ const Index = () => {
       />
       
       <div className="relative z-10">
-        <nav className="border-b border-border/30 bg-background/95 backdrop-blur-md">
-          <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-            <img src={logoHorizontal} alt="SIMULAPOOL" className="h-10 object-contain" />
-            <Link to="/auth">
-              <Button variant="outline" size="sm" className="shadow-sm">
-                Área do Lojista
-              </Button>
-            </Link>
+        {/* Professional Header */}
+        <nav className="sticky top-0 z-50 border-b border-border/30 bg-background/95 backdrop-blur-md">
+          <div className="container mx-auto px-4 py-3 flex justify-between items-center">
+            <img src={logoHorizontal} alt="SIMULAPOOL" className="h-9 object-contain" />
+            
+            {/* Desktop Nav */}
+            <div className="hidden md:flex items-center gap-8">
+              <button onClick={() => scrollTo("features")} className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
+                Funcionalidades
+              </button>
+              <button onClick={() => scrollTo("pricing")} className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
+                Planos
+              </button>
+              <button onClick={() => setShowSimulator(true)} className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
+                Simulador
+              </button>
+              <Link to="/auth">
+                <Button size="sm" className="gradient-primary text-white font-display font-semibold shadow-sm">
+                  Área do Lojista
+                </Button>
+              </Link>
+            </div>
+
+            {/* Mobile Menu Toggle */}
+            <button className="md:hidden p-2" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
+              {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            </button>
           </div>
+
+          {/* Mobile Nav */}
+          {mobileMenuOpen && (
+            <div className="md:hidden border-t border-border/30 bg-background/98 backdrop-blur-md px-4 py-4 space-y-3">
+              <button onClick={() => scrollTo("features")} className="block w-full text-left text-sm font-medium py-2">Funcionalidades</button>
+              <button onClick={() => scrollTo("pricing")} className="block w-full text-left text-sm font-medium py-2">Planos</button>
+              <button onClick={() => { setMobileMenuOpen(false); setShowSimulator(true); }} className="block w-full text-left text-sm font-medium py-2">Simulador</button>
+              <Link to="/auth" className="block">
+                <Button size="sm" className="w-full gradient-primary text-white font-display font-semibold">Área do Lojista</Button>
+              </Link>
+            </div>
+          )}
         </nav>
 
         <main className="container mx-auto px-4 py-20">
@@ -81,7 +119,7 @@ const Index = () => {
           </div>
 
           {/* Features Grid */}
-          <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+          <div id="features" className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto scroll-mt-20">
             <div className="bg-card/80 backdrop-blur-sm p-8 rounded-2xl shadow-card hover:shadow-pool transition-all animate-fade-in border border-border/50 group">
               <div className="w-16 h-16 gradient-primary rounded-xl flex items-center justify-center mb-5 group-hover:scale-110 transition-transform shadow-lg">
                 <Calculator className="w-8 h-8 text-white" />
@@ -111,6 +149,11 @@ const Index = () => {
                 Orçamento formatado e pronto para copiar. Envie direto para o cliente e feche a venda mais rápido.
               </p>
             </div>
+          </div>
+
+          {/* Pricing Section */}
+          <div id="pricing" className="scroll-mt-20">
+            <PricingSection />
           </div>
 
           {/* CTA Section */}
