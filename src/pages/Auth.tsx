@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import logoDark from "@/assets/simulapool-dark.png";
@@ -15,7 +16,14 @@ const Auth = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
+  const [city, setCity] = useState("");
+  const [state, setState] = useState("");
   const navigate = useNavigate();
+
+  const brazilStates = [
+    "AC","AL","AP","AM","BA","CE","DF","ES","GO","MA","MT","MS","MG",
+    "PA","PB","PR","PE","PI","RJ","RN","RS","RO","RR","SC","SP","SE","TO"
+  ];
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -43,6 +51,11 @@ const Auth = () => {
 
     if (!isLogin && !name) {
       toast.error("Preencha o nome da loja");
+      return;
+    }
+
+    if (!isLogin && (!city || !state)) {
+      toast.error("Preencha a cidade e o estado");
       return;
     }
 
@@ -81,7 +94,7 @@ const Auth = () => {
         // Create store
         const { data: storeData, error: storeError } = await supabase
           .from("stores")
-          .insert({ name, slug })
+          .insert({ name, slug, city, state })
           .select()
           .single();
 
@@ -152,6 +165,35 @@ const Auth = () => {
                 placeholder="Minha Loja de Piscinas"
                 disabled={loading}
               />
+            </div>
+          )}
+
+          {!isLogin && (
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <Label htmlFor="city">Cidade</Label>
+                <Input
+                  id="city"
+                  type="text"
+                  value={city}
+                  onChange={(e) => setCity(e.target.value)}
+                  placeholder="Ex: São Paulo"
+                  disabled={loading}
+                />
+              </div>
+              <div>
+                <Label htmlFor="state">Estado</Label>
+                <Select value={state} onValueChange={setState} disabled={loading}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="UF" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {brazilStates.map((uf) => (
+                      <SelectItem key={uf} value={uf}>{uf}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
           )}
           

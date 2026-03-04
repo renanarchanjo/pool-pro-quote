@@ -14,6 +14,7 @@ import ProposalsView from "@/components/admin/ProposalsView";
 import StoreSettings from "@/components/admin/StoreSettings";
 import AdminProfile from "@/components/admin/AdminProfile";
 import ManualProposal from "@/components/admin/ManualProposal";
+import StoresManager from "@/components/admin/StoresManager";
 import { useStoreData } from "@/hooks/useStoreData";
 
 const Admin = () => {
@@ -81,7 +82,7 @@ const Admin = () => {
               <Route path="modelos" element={<PoolModelManager />} />
               <Route path="perfil" element={<AdminProfile />} />
               <Route path="configuracoes" element={<StoreSettings />} />
-              <Route path="lojistas" element={<div><h1 className="text-3xl font-bold mb-4">Lojistas</h1><p className="text-muted-foreground">Gerenciamento de lojistas em breve.</p></div>} />
+              <Route path="lojistas" element={<StoresManager />} />
             </Routes>
           </main>
         </div>
