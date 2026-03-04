@@ -1,3 +1,4 @@
+import { useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { FileDown, MessageCircle, Printer, Mail, ArrowLeft } from "lucide-react";
@@ -36,6 +37,7 @@ interface ProposalViewProps {
   customerData: CustomerData;
   category: string;
   onBack: () => void;
+  autoDownload?: boolean;
   storeSettings?: {
     logo_url: string | null;
     primary_color: string;
@@ -52,11 +54,13 @@ const ProposalView = ({
   customerData,
   category,
   onBack,
+  autoDownload = false,
   storeSettings,
   storeName,
   storeCity,
   storeState,
 }: ProposalViewProps) => {
+  const hasAutoDownloaded = useRef(false);
   const optionalsTotal = selectedOptionals.reduce((sum, opt) => sum + opt.price, 0);
   const totalPrice = model.base_price + optionalsTotal;
   const today = new Date().toLocaleDateString("pt-BR");
@@ -137,6 +141,18 @@ const ProposalView = ({
   };
 
   const storeLocation = [storeCity, storeState].filter(Boolean).join(" - ");
+
+  // Auto-download PDF when coming from simulator
+  useEffect(() => {
+    if (autoDownload && !hasAutoDownloaded.current) {
+      hasAutoDownloaded.current = true;
+      // Small delay to ensure DOM is rendered
+      const timer = setTimeout(() => {
+        handleDownloadPDF();
+      }, 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [autoDownload]);
 
   return (
     <div className="min-h-screen bg-gradient-hero print:bg-white">

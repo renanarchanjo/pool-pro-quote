@@ -1,8 +1,16 @@
 import { useState, useEffect } from "react";
-import { ArrowLeft, Loader2 } from "lucide-react";
+import { ArrowLeft, Loader2, PartyPopper } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogClose,
+} from "@/components/ui/dialog";
 import LocationStep from "./LocationStep";
 import ModelSelection from "./ModelSelection";
 import OptionalsSelection from "./OptionalsSelection";
@@ -60,7 +68,7 @@ const PoolSimulator = ({ onBack }: PoolSimulatorProps) => {
   const [selectedOptionals, setSelectedOptionals] = useState<string[]>([]);
   const [customerData, setCustomerData] = useState<CustomerData | null>(null);
   const [proposalId, setProposalId] = useState<string | null>(null);
-
+  const [showCongrats, setShowCongrats] = useState(false);
   const loadStoreData = async (storeId: string) => {
     try {
       setLoading(true);
@@ -150,6 +158,7 @@ const PoolSimulator = ({ onBack }: PoolSimulatorProps) => {
       setCustomerData(data);
       setProposalId(proposal.id);
       setStep(4);
+      setShowCongrats(true);
       toast.success("Proposta gerada com sucesso!");
     } catch (error) {
       console.error("Error creating proposal:", error);
@@ -166,6 +175,7 @@ const PoolSimulator = ({ onBack }: PoolSimulatorProps) => {
     setStoreId(null);
     setModels([]);
     setOptionals([]);
+    setShowCongrats(false);
   };
 
   if (loading) {
@@ -178,13 +188,32 @@ const PoolSimulator = ({ onBack }: PoolSimulatorProps) => {
 
   if (step === 4 && selectedModel && customerData) {
     return (
-      <ProposalView
-        model={selectedModel}
-        selectedOptionals={optionals.filter(opt => selectedOptionals.includes(opt.id))}
-        customerData={customerData}
-        category="Piscina de Fibra"
-        onBack={handleRestart}
-      />
+      <>
+        <Dialog open={showCongrats} onOpenChange={setShowCongrats}>
+          <DialogContent className="sm:max-w-md text-center">
+            <DialogHeader className="items-center">
+              <div className="mx-auto mb-3 flex h-16 w-16 items-center justify-center rounded-full bg-primary/10">
+                <PartyPopper className="h-8 w-8 text-primary" />
+              </div>
+              <DialogTitle className="text-xl">Parabéns! 🎉</DialogTitle>
+              <DialogDescription className="text-base mt-2">
+                Em breve, um de nossos parceiros lojistas, o mais próximo possível de você, irá entrar em contato!
+              </DialogDescription>
+            </DialogHeader>
+            <DialogClose asChild>
+              <Button className="mt-4 w-full gradient-primary text-white">Fechar</Button>
+            </DialogClose>
+          </DialogContent>
+        </Dialog>
+        <ProposalView
+          model={selectedModel}
+          selectedOptionals={optionals.filter(opt => selectedOptionals.includes(opt.id))}
+          customerData={customerData}
+          category="Piscina de Fibra"
+          onBack={handleRestart}
+          autoDownload
+        />
+      </>
     );
   }
 

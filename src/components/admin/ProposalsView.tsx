@@ -16,7 +16,9 @@ interface Proposal {
   total_price: number;
   created_at: string;
   selected_optionals: any;
+  store_id: string | null;
   pool_models: { name: string } | null;
+  stores: { name: string } | null;
 }
 
 const ProposalsView = () => {
@@ -53,8 +55,9 @@ const ProposalsView = () => {
         .from("proposals")
         .select(`
           id, customer_name, customer_city, customer_whatsapp,
-          total_price, created_at, selected_optionals,
-          pool_models (name)
+          total_price, created_at, selected_optionals, store_id,
+          pool_models (name),
+          stores (name)
         `)
         .order("created_at", { ascending: false });
 
@@ -174,6 +177,11 @@ const ProposalsView = () => {
                         <Badge variant="secondary" className="text-xs">
                           {p.pool_models?.name || "N/A"}
                         </Badge>
+                        {p.stores?.name && (
+                          <Badge variant="outline" className="text-xs">
+                            {p.stores.name}
+                          </Badge>
+                        )}
                       </div>
                       <div className="flex flex-wrap gap-3 mt-1 text-sm text-muted-foreground">
                         <span className="flex items-center gap-1">
