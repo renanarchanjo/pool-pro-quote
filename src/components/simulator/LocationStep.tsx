@@ -18,9 +18,10 @@ interface Store {
 interface LocationStepProps {
   onSelectStore: (store: Store) => void;
   onBack: () => void;
+  onSkip?: () => void;
 }
 
-const LocationStep = ({ onSelectStore, onBack }: LocationStepProps) => {
+const LocationStep = ({ onSelectStore, onBack, onSkip }: LocationStepProps) => {
   const { location, loading: geoLoading, error: geoError, detectLocation } = useGeolocation();
   const [state, setState] = useState("");
   const [city, setCity] = useState("");
@@ -185,6 +186,15 @@ const LocationStep = ({ onSelectStore, onBack }: LocationStepProps) => {
           <span className="text-muted-foreground">Buscando lojistas...</span>
         </div>
       )}
+
+      <div className="mt-8 text-center">
+        <button
+          onClick={onSkip}
+          className="text-sm text-muted-foreground hover:text-primary underline underline-offset-4 transition-colors"
+        >
+          Pular localização e ver todos os modelos
+        </button>
+      </div>
     </div>
   );
 };
