@@ -90,6 +90,27 @@ const PoolSimulator = ({ onBack }: PoolSimulatorProps) => {
     loadStoreData(store.id);
   };
 
+  const handleSkipLocation = async () => {
+    try {
+      setLoading(true);
+      const [modelsRes, optionalsRes] = await Promise.all([
+        supabase.from("pool_models").select("*").eq("active", true).order("display_order"),
+        supabase.from("optionals").select("*").eq("active", true).order("display_order")
+      ]);
+      if (modelsRes.error) throw modelsRes.error;
+      if (optionalsRes.error) throw optionalsRes.error;
+      setModels(modelsRes.data || []);
+      setOptionals(optionalsRes.data || []);
+      setSelectedStoreName("Todas as lojas");
+      setStep(1);
+    } catch (error) {
+      console.error("Error loading all data:", error);
+      toast.error("Erro ao carregar dados");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleModelSelect = (model: PoolModel) => {
     setSelectedModel(model);
     setStep(2);
@@ -203,6 +224,7 @@ const PoolSimulator = ({ onBack }: PoolSimulatorProps) => {
           <LocationStep
             onSelectStore={handleSelectStore}
             onBack={onBack}
+            onSkip={handleSkipLocation}
           />
         )}
 

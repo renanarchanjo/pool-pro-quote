@@ -16,7 +16,7 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-gradient-hero relative overflow-hidden flex flex-col">
       <div 
-        className="absolute inset-0 opacity-30"
+        className="absolute inset-0 opacity-15"
         style={{
           backgroundImage: `url(${heroPattern})`,
           backgroundSize: 'cover',
@@ -27,33 +27,33 @@ const Index = () => {
       <div className="relative z-10 flex flex-col flex-1">
         <SiteHeader />
 
-        <main className="flex-1 flex items-center justify-center container mx-auto px-4 py-16">
+        <main className="flex-1 flex items-center justify-center container mx-auto px-4 py-8 md:py-16">
           <div className="max-w-3xl mx-auto text-center animate-fade-in">
-            <div className="inline-flex items-center gap-2 bg-primary/10 text-primary px-4 py-2 rounded-full text-sm font-medium mb-6 animate-wave">
-              <Sparkles className="w-4 h-4" />
+            <div className="inline-flex items-center gap-2 bg-primary/10 text-primary px-3 py-1.5 md:px-4 md:py-2 rounded-full text-xs md:text-sm font-medium mb-4 md:mb-6 animate-wave">
+              <Sparkles className="w-3.5 h-3.5 md:w-4 md:h-4" />
               Orçamento completo em menos de 1 minuto
             </div>
             
-            <h1 className="text-5xl md:text-7xl font-display font-extrabold mb-6 leading-tight">
+            <h1 className="text-3xl md:text-5xl lg:text-7xl font-display font-extrabold mb-4 md:mb-6 leading-tight">
               <span className="text-gradient">Sua piscina dos sonhos</span>
               <br />
               <span className="text-foreground">começa aqui.</span>
             </h1>
             
-            <p className="text-xl md:text-2xl text-muted-foreground mb-10 font-light max-w-2xl mx-auto">
+            <p className="text-base md:text-xl lg:text-2xl text-muted-foreground mb-6 md:mb-10 font-light max-w-2xl mx-auto px-2">
               Escolha o modelo, personalize com opcionais e receba seu orçamento completo na hora — pronto para fechar negócio.
             </p>
             
             <Button 
               size="lg" 
-              className="gradient-primary text-white shadow-pool hover:shadow-glow transition-all text-lg px-10 py-7 font-display font-semibold"
+              className="gradient-primary text-white shadow-pool hover:shadow-glow transition-all text-base md:text-lg px-8 py-6 md:px-10 md:py-7 font-display font-semibold w-full sm:w-auto touch-manipulation"
               onClick={() => setShowSimulator(true)}
             >
               Simular Minha Piscina
               <ChevronRight className="ml-2 w-5 h-5" />
             </Button>
 
-            <p className="mt-6 text-sm text-muted-foreground">
+            <p className="mt-4 md:mt-6 text-xs md:text-sm text-muted-foreground">
               ✓ Sem cadastro • ✓ 100% gratuito • ✓ Orçamento pronto em segundos
             </p>
           </div>

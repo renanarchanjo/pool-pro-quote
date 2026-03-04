@@ -118,9 +118,18 @@
 @layer utilities {
   /* SIMULAPOOL Gradientes Premium */
   .gradient-hero {
-    background: linear-gradient(135deg, 
-      hsl(var(--pool-medium)) 0%, 
-      hsl(var(--pool-deep)) 100%
+    background: linear-gradient(180deg, 
+      hsl(199 100% 97%) 0%,
+      hsl(199 80% 92%) 40%,
+      hsl(199 70% 88%) 100%
+    );
+  }
+
+  .bg-gradient-hero {
+    background: linear-gradient(180deg, 
+      hsl(199 100% 97%) 0%,
+      hsl(199 80% 92%) 40%,
+      hsl(199 70% 88%) 100%
     );
   }
 
