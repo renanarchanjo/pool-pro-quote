@@ -45,6 +45,17 @@ interface Optional {
   warning_note: string | null;
 }
 
+interface Brand {
+  id: string;
+  name: string;
+}
+
+interface Category {
+  id: string;
+  name: string;
+  brand_id: string | null;
+}
+
 interface CustomerData {
   name: string;
   city: string;
@@ -56,37 +67,56 @@ interface PoolSimulatorProps {
 }
 
 const PoolSimulator = ({ onBack }: PoolSimulatorProps) => {
-  const [step, setStep] = useState(0); // 0 = location
+  const [step, setStep] = useState(0);
   const [loading, setLoading] = useState(false);
-  
+
   const [models, setModels] = useState<PoolModel[]>([]);
+  const [brands, setBrands] = useState<Brand[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [optionals, setOptionals] = useState<Optional[]>([]);
   const [modelOptionals, setModelOptionals] = useState<any[]>([]);
   const [storeId, setStoreId] = useState<string | null>(null);
   const [selectedStoreName, setSelectedStoreName] = useState<string>("");
-  
+
   const [selectedModel, setSelectedModel] = useState<PoolModel | null>(null);
   const [selectedOptionals, setSelectedOptionals] = useState<string[]>([]);
   const [customerData, setCustomerData] = useState<CustomerData | null>(null);
   const [proposalId, setProposalId] = useState<string | null>(null);
   const [showCongrats, setShowCongrats] = useState(false);
-  const loadStoreData = async (storeId: string) => {
+
+  // Store settings for proposal branding
+  const [storeSettings, setStoreSettings] = useState<any>(null);
+  const [storeCity, setStoreCity] = useState<string | null>(null);
+  const [storeState, setStoreState] = useState<string | null>(null);
+
+  const loadStoreData = async (sid: string) => {
     try {
       setLoading(true);
-      
-      const [modelsRes, optionalsRes, modelOptsRes] = await Promise.all([
-        supabase.from("pool_models").select("*").eq("active", true).eq("store_id", storeId).order("display_order"),
-        supabase.from("optionals").select("*").eq("active", true).eq("store_id", storeId).order("display_order"),
-        supabase.from("model_optionals").select("*").eq("active", true).eq("store_id", storeId).order("display_order"),
+
+      const [modelsRes, brandsRes, catsRes, optionalsRes, modelOptsRes, settingsRes, storeRes] = await Promise.all([
+        supabase.from("pool_models").select("*").eq("active", true).eq("store_id", sid).order("display_order"),
+        supabase.from("brands").select("id, name").eq("active", true).eq("store_id", sid).order("name"),
+        supabase.from("categories").select("id, name, brand_id").eq("active", true).eq("store_id", sid).order("name"),
+        supabase.from("optionals").select("*").eq("active", true).eq("store_id", sid).order("display_order"),
+        supabase.from("model_optionals").select("*").eq("active", true).eq("store_id", sid).order("display_order"),
+        supabase.from("store_settings").select("*").eq("store_id", sid).maybeSingle(),
+        supabase.from("stores").select("name, city, state").eq("id", sid).single(),
       ]);
 
       if (modelsRes.error) throw modelsRes.error;
-      if (optionalsRes.error) throw optionalsRes.error;
 
-      setStoreId(storeId);
+      setStoreId(sid);
       setModels(modelsRes.data || []);
+      setBrands(brandsRes.data || []);
+      setCategories(catsRes.data || []);
       setOptionals(optionalsRes.data || []);
       setModelOptionals(modelOptsRes.data || []);
+      setStoreSettings(settingsRes.data || null);
+      if (storeRes.data) {
+        setSelectedStoreName(storeRes.data.name);
+        setStoreCity(storeRes.data.city);
+        setStoreState(storeRes.data.state);
+      }
       setStep(1);
     } catch (error) {
       console.error("Error loading store data:", error);
@@ -104,14 +134,17 @@ const PoolSimulator = ({ onBack }: PoolSimulatorProps) => {
   const handleSkipLocation = async () => {
     try {
       setLoading(true);
-      const [modelsRes, optionalsRes, modelOptsRes] = await Promise.all([
+      const [modelsRes, brandsRes, catsRes, optionalsRes, modelOptsRes] = await Promise.all([
         supabase.from("pool_models").select("*").eq("active", true).order("display_order"),
+        supabase.from("brands").select("id, name").eq("active", true).order("name"),
+        supabase.from("categories").select("id, name, brand_id").eq("active", true).order("name"),
         supabase.from("optionals").select("*").eq("active", true).order("display_order"),
         supabase.from("model_optionals").select("*").eq("active", true).order("display_order"),
       ]);
       if (modelsRes.error) throw modelsRes.error;
-      if (optionalsRes.error) throw optionalsRes.error;
       setModels(modelsRes.data || []);
+      setBrands(brandsRes.data || []);
+      setCategories(catsRes.data || []);
       setOptionals(optionalsRes.data || []);
       setModelOptionals(modelOptsRes.data || []);
       setSelectedStoreName("Todas as lojas");
@@ -135,7 +168,7 @@ const PoolSimulator = ({ onBack }: PoolSimulatorProps) => {
   };
 
   const handleCustomerSubmit = async (data: CustomerData) => {
-    if (!selectedModel || !storeId) return;
+    if (!selectedModel) return;
 
     try {
       const optionalsPrice = optionals
@@ -157,7 +190,7 @@ const PoolSimulator = ({ onBack }: PoolSimulatorProps) => {
           model_id: selectedModel.id,
           selected_optionals: selectedOptionals,
           total_price: totalPrice,
-          store_id: storeId
+          store_id: storeId,
         })
         .select()
         .single();
@@ -183,8 +216,11 @@ const PoolSimulator = ({ onBack }: PoolSimulatorProps) => {
     setProposalId(null);
     setStoreId(null);
     setModels([]);
+    setBrands([]);
+    setCategories([]);
     setOptionals([]);
     setShowCongrats(false);
+    setStoreSettings(null);
   };
 
   if (loading) {
@@ -210,7 +246,7 @@ const PoolSimulator = ({ onBack }: PoolSimulatorProps) => {
               </DialogDescription>
             </DialogHeader>
             <DialogClose asChild>
-              <Button className="mt-4 w-full gradient-primary text-white">Fechar</Button>
+              <Button className="mt-4 w-full gradient-primary text-white">Ver Proposta</Button>
             </DialogClose>
           </DialogContent>
         </Dialog>
@@ -223,14 +259,14 @@ const PoolSimulator = ({ onBack }: PoolSimulatorProps) => {
           customerData={customerData}
           category="Piscina de Fibra"
           onBack={handleRestart}
-          autoDownload
+          storeSettings={storeSettings}
+          storeName={selectedStoreName !== "Todas as lojas" ? selectedStoreName : undefined}
+          storeCity={storeCity}
+          storeState={storeState}
         />
       </>
     );
   }
-
-  const totalSteps = 4;
-  const displayStep = step; // 0=location, 1=model, 2=optionals, 3=customer
 
   return (
     <div className="min-h-screen bg-gradient-hero">
@@ -272,6 +308,8 @@ const PoolSimulator = ({ onBack }: PoolSimulatorProps) => {
         {step === 1 && (
           <ModelSelection
             models={models}
+            brands={brands}
+            categories={categories}
             onSelect={handleModelSelect}
             onBack={() => setStep(0)}
           />
