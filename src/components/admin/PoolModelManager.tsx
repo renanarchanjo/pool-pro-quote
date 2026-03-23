@@ -616,101 +616,100 @@ const PoolModelManager = () => {
                 onCheckedChange={() => toggleSelectModel(model.id)}
                 className="mt-1 shrink-0"
               />
-            <div className="flex justify-between items-start mb-4">
-              <div>
-                <div className="flex items-center gap-2 flex-wrap">
-                  <h3 className="text-xl font-semibold">{model.name}</h3>
-                  {getBrandName(model.category_id) && (
-                    <Badge variant="outline">{getBrandName(model.category_id)}</Badge>
-                  )}
-                  <Badge variant="secondary">
-                    {categories.find((c) => c.id === model.category_id)?.name || "Sem categoria"}
-                  </Badge>
-                </div>
-                <p className="text-2xl font-bold text-primary mt-1">
-                  R$ {model.base_price.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                </p>
-                {model.cost > 0 && (
-                  <div className="flex gap-3 mt-1 text-sm text-muted-foreground">
-                    <span>Custo: R$ {model.cost.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
-                    <span>Margem: {model.margin_percent}%</span>
-                    <span className="text-green-600 font-medium">
-                      Lucro: R$ {(model.base_price - model.cost).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                    </span>
-                  </div>
-                )}
-                {(model.length || model.width || model.depth) && (
-                  <p className="text-sm text-muted-foreground mt-1">
-                    Dimensões: {model.length}m × {model.width}m × {model.depth}m
-                  </p>
-                )}
-              </div>
-              <div className="flex items-center gap-4">
-                <div className="flex items-center gap-2">
-                  <Switch
-                    checked={model.active}
-                    onCheckedChange={() => toggleActive(model.id, model.active)}
-                  />
-                  <span className="text-sm">
-                    {model.active ? "Ativo" : "Inativo"}
-                  </span>
-                </div>
-                <Button variant="outline" size="sm" onClick={() => handleEdit(model)}>
-                  <Pencil className="w-4 h-4" />
-                </Button>
-                <AlertDialog>
-                  <AlertDialogTrigger asChild>
-                    <Button variant="outline" size="sm" className="text-destructive hover:text-destructive">
-                      <Trash2 className="w-4 h-4" />
-                    </Button>
-                  </AlertDialogTrigger>
-                  <AlertDialogContent>
-                    <AlertDialogHeader>
-                      <AlertDialogTitle>Excluir modelo?</AlertDialogTitle>
-                      <AlertDialogDescription>
-                        Tem certeza que deseja excluir "{model.name}"? Esta ação não pode ser desfeita.
-                      </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                      <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                      <AlertDialogAction onClick={() => handleDelete(model.id)}
-                        className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
-                        Excluir
-                      </AlertDialogAction>
-                    </AlertDialogFooter>
-                  </AlertDialogContent>
-                </AlertDialog>
-              </div>
-            </div>
-
-            {model.differentials?.length > 0 && (
-              <div className="mb-3">
-                <span className="font-semibold text-sm">Diferenciais:</span>
-                <div className="flex flex-wrap gap-1 mt-1">
-                  {model.differentials.map((d, i) => (
-                    <Badge key={i} variant="secondary">{d}</Badge>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            <div className="grid md:grid-cols-2 gap-2 text-sm text-muted-foreground">
-              <div>
-                Entrega: {model.delivery_days}d | Instalação: {model.installation_days}d
-              </div>
-              {model.payment_terms && (
+            <div className="flex-1 min-w-0">
+              <div className="flex justify-between items-start mb-4">
                 <div>
-                  Pagamento: {model.payment_terms}
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <h3 className="text-xl font-semibold">{model.name}</h3>
+                    {getBrandName(model.category_id) && (
+                      <Badge variant="outline">{getBrandName(model.category_id)}</Badge>
+                    )}
+                    <Badge variant="secondary">
+                      {categories.find((c) => c.id === model.category_id)?.name || "Sem categoria"}
+                    </Badge>
+                  </div>
+                  <p className="text-2xl font-bold text-primary mt-1">
+                    R$ {model.base_price.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                  </p>
+                  {model.cost > 0 && (
+                    <div className="flex gap-3 mt-1 text-sm text-muted-foreground flex-wrap">
+                      <span>Custo: R$ {model.cost.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
+                      <span>Margem: {model.margin_percent}%</span>
+                      <span className="text-emerald-600 font-medium">
+                        Lucro: R$ {(model.base_price - model.cost).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                      </span>
+                    </div>
+                  )}
+                  {(model.length || model.width || model.depth) && (
+                    <p className="text-sm text-muted-foreground mt-1">
+                      Dimensões: {model.length}m × {model.width}m × {model.depth}m
+                    </p>
+                  )}
+                </div>
+                <div className="flex items-center gap-4 shrink-0">
+                  <div className="flex items-center gap-2">
+                    <Switch
+                      checked={model.active}
+                      onCheckedChange={() => toggleActive(model.id, model.active)}
+                    />
+                    <span className="text-sm">{model.active ? "Ativo" : "Inativo"}</span>
+                  </div>
+                  <Button variant="outline" size="sm" onClick={() => handleEdit(model)}>
+                    <Pencil className="w-4 h-4" />
+                  </Button>
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button variant="outline" size="sm" className="text-destructive hover:text-destructive">
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Excluir modelo?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          Excluir "{model.name}"? Esta ação não pode ser desfeita.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                        <AlertDialogAction onClick={() => handleDelete(model.id)}
+                          className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                          Excluir
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                </div>
+              </div>
+
+              {model.differentials?.length > 0 && (
+                <div className="mb-3">
+                  <span className="font-semibold text-sm">Diferenciais:</span>
+                  <div className="flex flex-wrap gap-1 mt-1">
+                    {model.differentials.map((d, i) => (
+                      <Badge key={i} variant="secondary">{d}</Badge>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              <div className="grid md:grid-cols-2 gap-2 text-sm text-muted-foreground">
+                <div>
+                  Entrega: {model.delivery_days}d | Instalação: {model.installation_days}d
+                </div>
+                {model.payment_terms && (
+                  <div>Pagamento: {model.payment_terms}</div>
+                )}
+              </div>
+
+              {model.notes && (
+                <div className="mt-3 p-3 bg-muted/50 rounded-md">
+                  <span className="font-semibold text-sm">Observações:</span>
+                  <p className="text-sm mt-1">{model.notes}</p>
                 </div>
               )}
             </div>
-
-            {model.notes && (
-              <div className="mt-3 p-3 bg-muted/50 rounded-md">
-                <span className="font-semibold text-sm">Observações:</span>
-                <p className="text-sm mt-1">{model.notes}</p>
-              </div>
-            )}
+            </div>
           </Card>
         ))}
       </div>
