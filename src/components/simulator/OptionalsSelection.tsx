@@ -26,15 +26,23 @@ interface OptionalGroup {
   display_order: number;
 }
 
+interface ModelOptionalItem {
+  id: string;
+  name: string;
+  description: string | null;
+  price: number;
+}
+
 interface OptionalsSelectionProps {
   optionals: Optional[];
+  modelOptionals?: ModelOptionalItem[];
   selectedOptionals: string[];
   onConfirm: (selectedIds: string[]) => void;
   onBack: () => void;
   model: any;
 }
 
-const OptionalsSelection = ({ optionals, selectedOptionals: initialSelected, onConfirm, onBack, model }: OptionalsSelectionProps) => {
+const OptionalsSelection = ({ optionals, modelOptionals = [], selectedOptionals: initialSelected, onConfirm, onBack, model }: OptionalsSelectionProps) => {
   const [selected, setSelected] = useState<Record<string, string[]>>({});
   const [groups, setGroups] = useState<OptionalGroup[]>([]);
   const [loading, setLoading] = useState(true);
