@@ -267,6 +267,60 @@ export type Database = {
           },
         ]
       }
+      payment_history: {
+        Row: {
+          amount: number
+          created_at: string | null
+          id: string
+          payment_date: string | null
+          period_end: string | null
+          period_start: string | null
+          plan_id: string | null
+          status: string
+          store_id: string
+          stripe_payment_id: string | null
+        }
+        Insert: {
+          amount: number
+          created_at?: string | null
+          id?: string
+          payment_date?: string | null
+          period_end?: string | null
+          period_start?: string | null
+          plan_id?: string | null
+          status?: string
+          store_id: string
+          stripe_payment_id?: string | null
+        }
+        Update: {
+          amount?: number
+          created_at?: string | null
+          id?: string
+          payment_date?: string | null
+          period_end?: string | null
+          period_start?: string | null
+          plan_id?: string | null
+          status?: string
+          store_id?: string
+          stripe_payment_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payment_history_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "subscription_plans"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payment_history_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       pool_models: {
         Row: {
           active: boolean | null
@@ -487,8 +541,14 @@ export type Database = {
           created_at: string | null
           id: string
           name: string
+          plan_expires_at: string | null
+          plan_id: string | null
+          plan_started_at: string | null
+          plan_status: string | null
           slug: string
           state: string | null
+          stripe_customer_id: string | null
+          stripe_subscription_id: string | null
           updated_at: string | null
         }
         Insert: {
@@ -496,8 +556,14 @@ export type Database = {
           created_at?: string | null
           id?: string
           name: string
+          plan_expires_at?: string | null
+          plan_id?: string | null
+          plan_started_at?: string | null
+          plan_status?: string | null
           slug: string
           state?: string | null
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
           updated_at?: string | null
         }
         Update: {
@@ -505,9 +571,56 @@ export type Database = {
           created_at?: string | null
           id?: string
           name?: string
+          plan_expires_at?: string | null
+          plan_id?: string | null
+          plan_started_at?: string | null
+          plan_status?: string | null
           slug?: string
           state?: string | null
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
           updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "stores_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "subscription_plans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      subscription_plans: {
+        Row: {
+          active: boolean | null
+          created_at: string | null
+          display_order: number | null
+          id: string
+          max_proposals_per_month: number
+          name: string
+          price_monthly: number
+          slug: string
+        }
+        Insert: {
+          active?: boolean | null
+          created_at?: string | null
+          display_order?: number | null
+          id?: string
+          max_proposals_per_month?: number
+          name: string
+          price_monthly?: number
+          slug: string
+        }
+        Update: {
+          active?: boolean | null
+          created_at?: string | null
+          display_order?: number | null
+          id?: string
+          max_proposals_per_month?: number
+          name?: string
+          price_monthly?: number
+          slug?: string
         }
         Relationships: []
       }
@@ -544,7 +657,7 @@ export type Database = {
       }
     }
     Enums: {
-      app_role: "owner" | "seller"
+      app_role: "owner" | "seller" | "super_admin"
       proposal_status:
         | "nova"
         | "enviada"
@@ -678,7 +791,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["owner", "seller"],
+      app_role: ["owner", "seller", "super_admin"],
       proposal_status: [
         "nova",
         "enviada",
