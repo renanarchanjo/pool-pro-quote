@@ -123,7 +123,7 @@ const DashboardKPIs = ({ proposals }: Props) => {
                       <p className="text-[11px] text-muted-foreground mt-1">{kpi.subtitle}</p>
                     )}
                   </div>
-                  <div className={`h-9 w-9 rounded-lg ${kpi.iconBg} flex items-center justify-center shrink-0`}>
+                  <div className={`hidden sm:flex h-9 w-9 rounded-lg ${kpi.iconBg} items-center justify-center shrink-0`}>
                     <Icon className={`h-4 w-4 ${kpi.iconColor}`} />
                   </div>
                 </div>
