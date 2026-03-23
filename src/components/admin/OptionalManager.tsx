@@ -66,8 +66,38 @@ const OptionalManager = () => {
       setLoading(false);
     }
   };
+  const handleCreateGroup = async () => {
+    if (!newGroupName.trim() || !store) return;
+    try {
+      const { error } = await supabase.from("optional_groups").insert({
+        name: newGroupName.trim(),
+        store_id: store.id,
+        selection_type: "multiple",
+        display_order: groups.length + 1,
+      });
+      if (error) throw error;
+      toast.success("Grupo criado");
+      setNewGroupName("");
+      setShowGroupForm(false);
+      loadData();
+    } catch {
+      toast.error("Erro ao criar grupo");
+    }
+  };
 
-  const toggleSelect = (id: string) => {
+  const handleDeleteGroup = async (groupId: string) => {
+    try {
+      // Move optionals from this group to ungrouped
+      await supabase.from("optionals").update({ group_id: null }).eq("group_id", groupId);
+      await supabase.from("optional_groups").delete().eq("id", groupId);
+      toast.success("Grupo excluído");
+      loadData();
+    } catch {
+      toast.error("Erro ao excluir grupo");
+    }
+  };
+
+
     setSelected((prev) => prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]);
   };
 
