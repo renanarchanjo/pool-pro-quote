@@ -565,9 +565,57 @@ const PoolModelManager = () => {
         </form>
       </Card>
 
+      {/* Bulk actions header */}
+      {models.length > 0 && (
+        <div className="flex items-center justify-between flex-wrap gap-3">
+          <Button variant="outline" size="sm" onClick={selectAllModels}>
+            {selectedModels.length === models.length ? <CheckSquare className="w-4 h-4 mr-1" /> : <Square className="w-4 h-4 mr-1" />}
+            {selectedModels.length === models.length ? "Desmarcar" : "Selecionar"} todos
+          </Button>
+        </div>
+      )}
+
+      {selectedModels.length > 0 && (
+        <Card className="p-3 bg-primary/5 border-primary/20">
+          <div className="flex items-center justify-between flex-wrap gap-2">
+            <p className="text-sm font-medium">{selectedModels.length} modelo(s) selecionado(s)</p>
+            <div className="flex gap-2">
+              <Button size="sm" variant="outline" onClick={() => bulkModelAction("activate")}>Ativar</Button>
+              <Button size="sm" variant="outline" onClick={() => bulkModelAction("deactivate")}>Desativar</Button>
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button size="sm" variant="destructive">
+                    <Trash2 className="w-3.5 h-3.5 mr-1" /> Excluir
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Excluir {selectedModels.length} modelo(s)?</AlertDialogTitle>
+                    <AlertDialogDescription>Esta ação não pode ser desfeita.</AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                    <AlertDialogAction onClick={() => bulkModelAction("delete")}
+                      className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                      Excluir
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            </div>
+          </div>
+        </Card>
+      )}
+
       <div className="grid gap-4">
         {models.map((model) => (
-          <Card key={model.id} className="p-6">
+          <Card key={model.id} className={`p-6 transition-colors ${selectedModels.includes(model.id) ? "ring-2 ring-primary/30" : ""}`}>
+            <div className="flex gap-3">
+              <Checkbox
+                checked={selectedModels.includes(model.id)}
+                onCheckedChange={() => toggleSelectModel(model.id)}
+                className="mt-1 shrink-0"
+              />
             <div className="flex justify-between items-start mb-4">
               <div>
                 <div className="flex items-center gap-2 flex-wrap">
