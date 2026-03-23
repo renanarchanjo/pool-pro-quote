@@ -1,8 +1,6 @@
 import { useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 import { FileDown, MessageCircle, Printer, Mail, ArrowLeft } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import html2pdf from "html2pdf.js";
 
@@ -67,28 +65,16 @@ const ProposalView = ({
   const validUntil = new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toLocaleDateString("pt-BR");
 
   const primaryColor = storeSettings?.primary_color || "#0ea5e9";
-  const secondaryColor = storeSettings?.secondary_color || "#06b6d4";
 
   const fmt = (v: number) => `R$ ${v.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`;
 
   const generateWhatsAppMessage = () => {
     let message = `🏊‍♂️ *PROPOSTA - PISCINA DE FIBRA*\n\n`;
-    message += `📋 *Dados do Cliente:*\n`;
-    message += `Nome: ${customerData.name}\nCidade: ${customerData.city}\n\n`;
+    message += `📋 *Dados do Cliente:*\nNome: ${customerData.name}\nCidade: ${customerData.city}\n\n`;
     message += `🏊 *Categoria:* ${category}\n🎯 *Modelo:* ${model.name}\n\n`;
-    if (model.differentials.length > 0) {
-      message += `✨ *Diferenciais:*\n`;
-      model.differentials.forEach((d) => (message += `• ${d}\n`));
-      message += `\n`;
-    }
     if (model.included_items.length > 0) {
       message += `✅ *Itens Inclusos:*\n`;
       model.included_items.forEach((i) => (message += `• ${i}\n`));
-      message += `\n`;
-    }
-    if (model.not_included_items.length > 0) {
-      message += `❌ *Não Inclusos:*\n`;
-      model.not_included_items.forEach((i) => (message += `• ${i}\n`));
       message += `\n`;
     }
     if (selectedOptionals.length > 0) {
@@ -100,8 +86,8 @@ const ProposalView = ({
     if (optionalsTotal > 0) message += `Opcionais: ${fmt(optionalsTotal)}\n`;
     message += `*TOTAL: ${fmt(totalPrice)}*\n\n`;
     message += `📅 *Prazos:*\nEntrega: ${model.delivery_days} dias\nInstalação: ${model.installation_days} dias\n\n`;
-    message += `💳 *Forma de Pagamento:* ${model.payment_terms || "À vista"}\n`;
-    message += `📆 *Data de Emissão:* ${today}\n⏰ *Validade:* ${validUntil} (3 dias)\n`;
+    message += `💳 *Pagamento:* ${model.payment_terms || "À vista"}\n`;
+    message += `📆 *Emissão:* ${today}\n⏰ *Validade:* ${validUntil}\n`;
 
     const encoded = encodeURIComponent(message);
     window.open(`https://wa.me/55${customerData.whatsapp.replace(/\D/g, "")}?text=${encoded}`, "_blank");
@@ -124,7 +110,7 @@ const ProposalView = ({
 
       await html2pdf()
         .set({
-          margin: 0,
+          margin: 10,
           filename: `proposta-${customerData.name.replace(/\s+/g, "-")}-${today.replace(/\//g, "-")}.pdf`,
           image: { type: "jpeg", quality: 0.98 },
           html2canvas: { scale: 2, useCORS: true },
@@ -140,31 +126,47 @@ const ProposalView = ({
     }
   };
 
-  const storeLocation = [storeCity, storeState].filter(Boolean).join(" - ");
+  const storeLocation = [storeCity, storeState].filter(Boolean).join(" / ");
 
-  // Auto-download PDF when coming from simulator
   useEffect(() => {
     if (autoDownload && !hasAutoDownloaded.current) {
       hasAutoDownloaded.current = true;
-      // Small delay to ensure DOM is rendered
-      const timer = setTimeout(() => {
-        handleDownloadPDF();
-      }, 1000);
+      const timer = setTimeout(() => handleDownloadPDF(), 1000);
       return () => clearTimeout(timer);
     }
   }, [autoDownload]);
 
+  // Reusable section card style
+  const sectionStyle: React.CSSProperties = {
+    border: "1px solid #e5e7eb",
+    borderRadius: "8px",
+    marginBottom: "16px",
+    overflow: "hidden",
+  };
+  const sectionHeaderStyle: React.CSSProperties = {
+    borderBottom: "1px solid #e5e7eb",
+    borderLeft: `4px solid ${primaryColor}`,
+    padding: "10px 16px",
+    fontWeight: 700,
+    fontSize: "14px",
+    color: "#111827",
+    background: "#f9fafb",
+  };
+  const sectionBodyStyle: React.CSSProperties = {
+    padding: "16px",
+  };
+
   return (
-    <div className="min-h-screen bg-gradient-hero print:bg-white">
-      {/* Action bar - hidden in print/PDF */}
+    <div style={{ minHeight: "100vh", background: "#f3f4f6" }} className="print:bg-white">
+      {/* Action bar */}
       <nav className="border-b border-border/50 bg-background/80 backdrop-blur-sm print:hidden">
         <div className="container mx-auto px-4 py-4 flex justify-between items-center">
           <Button variant="ghost" onClick={onBack}>
             <ArrowLeft className="w-4 h-4 mr-2" /> Voltar
           </Button>
-          <div className="flex gap-2">
+          <div className="flex gap-2 flex-wrap">
             <Button variant="outline" onClick={handleDownloadPDF}>
-              <FileDown className="w-4 h-4 mr-2" /> Baixar PDF
+              <FileDown className="w-4 h-4 mr-2" /> PDF
             </Button>
             <Button variant="outline" onClick={handlePrint}>
               <Printer className="w-4 h-4 mr-2" /> Imprimir
@@ -174,7 +176,7 @@ const ProposalView = ({
             </Button>
             <Button
               onClick={generateWhatsAppMessage}
-              style={{ background: `linear-gradient(135deg, ${primaryColor}, ${secondaryColor})`, color: "white" }}
+              style={{ background: primaryColor, color: "white" }}
             >
               <MessageCircle className="w-4 h-4 mr-2" /> WhatsApp
             </Button>
@@ -186,191 +188,199 @@ const ProposalView = ({
       <main className="container mx-auto px-4 py-8 print:p-0">
         <div
           id="proposal-content"
-          className="max-w-4xl mx-auto bg-white text-gray-900 print:shadow-none"
-          style={{ fontFamily: "'Inter', 'Segoe UI', sans-serif" }}
+          style={{
+            maxWidth: "800px",
+            margin: "0 auto",
+            background: "white",
+            fontFamily: "'Inter', 'Segoe UI', sans-serif",
+            color: "#111827",
+            padding: "32px",
+          }}
+          className="print:shadow-none"
         >
           {/* ===== HEADER ===== */}
-          <div
-            className="px-8 py-6"
-            style={{ background: `linear-gradient(135deg, ${primaryColor}, ${secondaryColor})` }}
-          >
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-4">
-                {storeSettings?.logo_url && (
-                  <div className="bg-white rounded-lg p-2 shadow-md">
-                    <img
-                      src={storeSettings.logo_url}
-                      alt="Logo"
-                      className="h-14 w-auto object-contain"
-                      crossOrigin="anonymous"
-                    />
-                  </div>
-                )}
-                <div className="text-white">
-                  <h2 className="text-2xl font-bold tracking-tight">{storeName || "Proposta Comercial"}</h2>
-                  {storeLocation && <p className="text-white/80 text-sm mt-0.5">{storeLocation}</p>}
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "28px", borderBottom: "2px solid #e5e7eb", paddingBottom: "20px" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+              {storeSettings?.logo_url ? (
+                <img
+                  src={storeSettings.logo_url}
+                  alt="Logo"
+                  style={{ height: "48px", width: "auto", objectFit: "contain" }}
+                  crossOrigin="anonymous"
+                />
+              ) : (
+                <div style={{ fontSize: "20px", fontWeight: 800, color: primaryColor }}>
+                  {storeName || "SIMULAPOOL"}
                 </div>
-              </div>
-              <div className="text-right text-white text-sm space-y-0.5">
-                <p className="font-semibold text-lg">PROPOSTA COMERCIAL</p>
-                <p className="text-white/80">Emissão: {today}</p>
-                <p className="text-white/80">Validade: {validUntil}</p>
+              )}
+            </div>
+            <div style={{ textAlign: "right" }}>
+              <h1 style={{ fontSize: "24px", fontWeight: 800, color: "#111827", margin: 0 }}>Proposta Comercial</h1>
+              <p style={{ fontSize: "12px", color: "#6b7280", margin: "4px 0 0" }}>Emitida em {today}</p>
+              <p style={{ fontSize: "12px", color: "#6b7280", margin: "2px 0 0" }}>Validade: {validUntil}</p>
+            </div>
+          </div>
+
+          {/* ===== CLIENTE ===== */}
+          <div style={sectionStyle}>
+            <div style={sectionHeaderStyle}>Cliente</div>
+            <div style={sectionBodyStyle}>
+              <table style={{ width: "100%", fontSize: "13px", borderCollapse: "collapse" }}>
+                <tbody>
+                  {[
+                    ["Nome", customerData.name],
+                    ["WhatsApp", customerData.whatsapp],
+                    ["Cidade / UF", customerData.city],
+                  ].map(([label, value], i) => (
+                    <tr key={i} style={{ borderBottom: i < 2 ? "1px solid #f3f4f6" : "none" }}>
+                      <td style={{ fontWeight: 700, color: "#374151", padding: "8px 16px 8px 0", width: "140px" }}>{label}</td>
+                      <td style={{ padding: "8px 0", color: "#111827" }}>{value}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          {/* ===== PISCINA ===== */}
+          <div style={sectionStyle}>
+            <div style={sectionHeaderStyle}>Piscina</div>
+            <div style={{ ...sectionBodyStyle, display: "flex", alignItems: "flex-start", gap: "16px" }}>
+              <div style={{ flex: 1 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "8px" }}>
+                  <span style={{ fontSize: "20px", fontWeight: 800, color: "#111827" }}>{model.name}</span>
+                  <span style={{
+                    display: "inline-block",
+                    background: `${primaryColor}18`,
+                    color: primaryColor,
+                    fontSize: "11px",
+                    fontWeight: 700,
+                    padding: "3px 10px",
+                    borderRadius: "12px",
+                    textTransform: "uppercase",
+                    letterSpacing: "0.5px",
+                  }}>
+                    {category}
+                  </span>
+                </div>
+                {(model.length || model.width) && (
+                  <p style={{ fontSize: "13px", color: "#374151", margin: "0 0 4px" }}>
+                    <strong>Dimensões:</strong> COMP: {model.length}M LARG: {model.width}M{model.depth ? ` PROF: ${model.depth}M` : ""}
+                  </p>
+                )}
+                <p style={{ fontSize: "13px", color: "#374151", margin: 0 }}>
+                  <strong>Valor base:</strong> {fmt(model.base_price)}
+                </p>
               </div>
             </div>
           </div>
 
-          {/* ===== BODY ===== */}
-          <div className="px-8 py-6 space-y-6">
-            {/* Cliente */}
-            <div className="bg-gray-50 rounded-lg p-5 border border-gray-100">
-              <h3 className="text-sm font-bold uppercase tracking-wider text-gray-500 mb-3">Dados do Cliente</h3>
-              <div className="grid grid-cols-2 gap-x-6 gap-y-2 text-sm">
-                <div><span className="font-semibold text-gray-700">Nome:</span> <span className="text-gray-900">{customerData.name}</span></div>
-                <div><span className="font-semibold text-gray-700">Cidade:</span> <span className="text-gray-900">{customerData.city}</span></div>
-                <div><span className="font-semibold text-gray-700">WhatsApp:</span> <span className="text-gray-900">{customerData.whatsapp}</span></div>
-                <div><span className="font-semibold text-gray-700">Data:</span> <span className="text-gray-900">{today}</span></div>
-              </div>
-            </div>
-
-            {/* Modelo */}
-            <div>
-              <h3 className="text-sm font-bold uppercase tracking-wider text-gray-500 mb-3">Especificações do Produto</h3>
-              <div className="grid grid-cols-2 gap-x-6 gap-y-2 text-sm">
-                <div><span className="font-semibold text-gray-700">Categoria:</span> <span>{category}</span></div>
-                <div><span className="font-semibold text-gray-700">Modelo:</span> <span className="font-semibold">{model.name}</span></div>
-                {model.length && model.width && (
-                  <div>
-                    <span className="font-semibold text-gray-700">Dimensões:</span>{" "}
-                    <span>{model.length}m × {model.width}m{model.depth ? ` × ${model.depth}m` : ""}</span>
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* Diferenciais */}
-            {model.differentials.length > 0 && (
-              <div>
-                <h3 className="text-sm font-bold uppercase tracking-wider text-gray-500 mb-3">Diferenciais</h3>
-                <div className="flex flex-wrap gap-2">
-                  {model.differentials.map((d, i) => (
-                    <span
-                      key={i}
-                      className="inline-block text-xs font-medium px-3 py-1.5 rounded-full border border-gray-200 bg-white text-gray-700"
-                    >
-                      {d}
-                    </span>
+          {/* ===== ITENS INCLUSOS + OPCIONAIS ===== */}
+          <div style={{ display: "flex", gap: "16px", marginBottom: "16px" }}>
+            {/* Itens Inclusos */}
+            <div style={{ ...sectionStyle, flex: 1, marginBottom: 0 }}>
+              <div style={sectionHeaderStyle}>Itens Inclusos</div>
+              <div style={sectionBodyStyle}>
+                <ul style={{ margin: 0, paddingLeft: "18px", fontSize: "12px", lineHeight: "1.8" }}>
+                  {model.included_items.map((item, i) => (
+                    <li key={i} style={{ color: "#374151" }}>{item}</li>
                   ))}
-                </div>
+                </ul>
               </div>
-            )}
-
-            {/* Itens inclusos / não inclusos */}
-            <div className="grid grid-cols-2 gap-6">
-              {model.included_items.length > 0 && (
-                <div>
-                  <h3 className="text-sm font-bold uppercase tracking-wider text-gray-500 mb-3">✅ Itens Inclusos</h3>
-                  <ul className="text-sm space-y-1.5">
-                    {model.included_items.map((item, i) => (
-                      <li key={i} className="flex items-start gap-2">
-                        <span className="text-green-500 mt-0.5">•</span>
-                        <span>{item}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-              {model.not_included_items.length > 0 && (
-                <div>
-                  <h3 className="text-sm font-bold uppercase tracking-wider text-gray-500 mb-3">❌ Não Inclusos</h3>
-                  <ul className="text-sm space-y-1.5 text-gray-500">
-                    {model.not_included_items.map((item, i) => (
-                      <li key={i} className="flex items-start gap-2">
-                        <span className="mt-0.5">•</span>
-                        <span>{item}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
             </div>
 
             {/* Opcionais */}
-            {selectedOptionals.length > 0 && (
-              <div>
-                <h3 className="text-sm font-bold uppercase tracking-wider text-gray-500 mb-3">Opcionais Selecionados</h3>
-                <div className="border border-gray-200 rounded-lg overflow-hidden">
-                  {selectedOptionals.map((opt, i) => (
-                    <div
-                      key={i}
-                      className={`flex justify-between items-center px-4 py-2.5 text-sm ${
-                        i % 2 === 0 ? "bg-white" : "bg-gray-50"
-                      }`}
-                    >
-                      <span>{opt.name}</span>
-                      <span className="font-semibold">{fmt(opt.price)}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Investimento */}
-            <div
-              className="rounded-lg p-5 mt-4"
-              style={{ background: `linear-gradient(135deg, ${primaryColor}10, ${secondaryColor}10)` }}
-            >
-              <h3 className="text-sm font-bold uppercase tracking-wider text-gray-500 mb-4">Investimento</h3>
-              <div className="space-y-2 text-sm">
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Valor Base ({model.name})</span>
-                  <span className="font-semibold">{fmt(model.base_price)}</span>
-                </div>
-                {optionalsTotal > 0 && (
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Opcionais ({selectedOptionals.length} itens)</span>
-                    <span className="font-semibold">{fmt(optionalsTotal)}</span>
-                  </div>
+            <div style={{ ...sectionStyle, flex: 1, marginBottom: 0 }}>
+              <div style={sectionHeaderStyle}>Opcionais</div>
+              <div style={sectionBodyStyle}>
+                {selectedOptionals.length === 0 ? (
+                  <p style={{ fontSize: "12px", color: "#9ca3af", margin: 0 }}>Nenhum opcional selecionado</p>
+                ) : (
+                  <table style={{ width: "100%", fontSize: "12px", borderCollapse: "collapse" }}>
+                    <tbody>
+                      {selectedOptionals.map((opt, i) => (
+                        <tr key={i} style={{ borderBottom: "1px solid #f3f4f6" }}>
+                          <td style={{ padding: "6px 8px 6px 0", color: "#374151" }}>{opt.name}</td>
+                          <td style={{ padding: "6px 0", textAlign: "right", fontWeight: 600, color: "#111827", whiteSpace: "nowrap" }}>{fmt(opt.price)}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
                 )}
-                <div className="border-t border-gray-300 my-2" />
-                <div className="flex justify-between items-center pt-1">
-                  <span className="text-lg font-bold text-gray-900">TOTAL</span>
-                  <span
-                    className="text-2xl font-extrabold"
-                    style={{ color: primaryColor }}
-                  >
-                    {fmt(totalPrice)}
-                  </span>
-                </div>
               </div>
             </div>
+          </div>
 
-            {/* Condições */}
-            <div className="grid grid-cols-2 gap-6 text-sm">
-              <div>
-                <h3 className="text-sm font-bold uppercase tracking-wider text-gray-500 mb-3">Prazos</h3>
-                <div className="space-y-1.5">
-                  <div><span className="font-semibold text-gray-700">Entrega:</span> {model.delivery_days} dias</div>
-                  <div><span className="font-semibold text-gray-700">Instalação:</span> {model.installation_days} dias</div>
-                </div>
-              </div>
-              <div>
-                <h3 className="text-sm font-bold uppercase tracking-wider text-gray-500 mb-3">Condições</h3>
-                <div className="space-y-1.5">
-                  <div><span className="font-semibold text-gray-700">Pagamento:</span> {model.payment_terms || "À vista"}</div>
-                  <div><span className="font-semibold text-gray-700">Validade:</span> {validUntil} (3 dias)</div>
-                </div>
-              </div>
+          {/* ===== RESUMO FINANCEIRO ===== */}
+          <div style={sectionStyle}>
+            <div style={sectionHeaderStyle}>Resumo Financeiro</div>
+            <div style={sectionBodyStyle}>
+              <table style={{ width: "100%", fontSize: "13px", borderCollapse: "collapse" }}>
+                <tbody>
+                  <tr style={{ borderBottom: "1px solid #f3f4f6" }}>
+                    <td style={{ padding: "8px 0", color: "#6b7280" }}>Valor base</td>
+                    <td style={{ padding: "8px 0", textAlign: "right", color: "#111827" }}>{fmt(model.base_price)}</td>
+                  </tr>
+                  {optionalsTotal > 0 && (
+                    <tr style={{ borderBottom: "1px solid #f3f4f6" }}>
+                      <td style={{ padding: "8px 0", color: "#6b7280" }}>Opcionais</td>
+                      <td style={{ padding: "8px 0", textAlign: "right", color: "#111827" }}>{fmt(optionalsTotal)}</td>
+                    </tr>
+                  )}
+                  <tr>
+                    <td style={{ padding: "12px 0 8px", fontWeight: 800, fontSize: "16px", color: primaryColor }}>Total</td>
+                    <td style={{ padding: "12px 0 8px", textAlign: "right", fontWeight: 800, fontSize: "16px", color: primaryColor }}>{fmt(totalPrice)}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          {/* ===== CONDIÇÕES ===== */}
+          <div style={sectionStyle}>
+            <div style={sectionHeaderStyle}>Condições</div>
+            <div style={sectionBodyStyle}>
+              <table style={{ width: "100%", fontSize: "13px", borderCollapse: "collapse" }}>
+                <tbody>
+                  {[
+                    ["Pagamento", model.payment_terms || "À vista"],
+                    ["Entrega", `${model.delivery_days} dias`],
+                    ["Instalação", `${model.installation_days} dias`],
+                    ["Validade", `${validUntil} (3 dias)`],
+                  ].map(([label, value], i) => (
+                    <tr key={i} style={{ borderBottom: i < 3 ? "1px solid #f3f4f6" : "none" }}>
+                      <td style={{ fontWeight: 700, color: "#374151", padding: "8px 16px 8px 0", width: "140px" }}>{label}</td>
+                      <td style={{ padding: "8px 0", color: "#111827" }}>{value}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          {/* ===== DADOS DO LOJISTA ===== */}
+          <div style={sectionStyle}>
+            <div style={sectionHeaderStyle}>Dados do Lojista</div>
+            <div style={sectionBodyStyle}>
+              <table style={{ width: "100%", fontSize: "13px", borderCollapse: "collapse" }}>
+                <tbody>
+                  {[
+                    ["Empresa", storeName || "-"],
+                    ["Cidade", storeLocation || "-"],
+                  ].map(([label, value], i) => (
+                    <tr key={i} style={{ borderBottom: i < 1 ? "1px solid #f3f4f6" : "none" }}>
+                      <td style={{ fontWeight: 700, color: "#374151", padding: "8px 16px 8px 0", width: "140px" }}>{label}</td>
+                      <td style={{ padding: "8px 0", color: "#111827" }}>{value}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           </div>
 
           {/* ===== FOOTER ===== */}
-          <div
-            className="px-8 py-4 text-center text-xs"
-            style={{ background: `linear-gradient(135deg, ${primaryColor}, ${secondaryColor})`, color: "white" }}
-          >
-            <p className="font-semibold">{storeName}</p>
-            {storeLocation && <p className="opacity-80">{storeLocation}</p>}
-            <p className="opacity-60 mt-1">Proposta gerada automaticamente • {today}</p>
+          <div style={{ textAlign: "center", fontSize: "11px", color: "#9ca3af", marginTop: "24px", paddingTop: "16px", borderTop: "1px solid #e5e7eb" }}>
+            Documento gerado por SimulaPool
           </div>
         </div>
       </main>
