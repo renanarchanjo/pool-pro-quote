@@ -10,7 +10,7 @@ import CategoryManager from "@/components/admin/CategoryManager";
 import PoolModelManager from "@/components/admin/PoolModelManager";
 import OptionalGroupManager from "@/components/admin/OptionalGroupManager";
 import OptionalManager from "@/components/admin/OptionalManager";
-import ProposalsView from "@/components/admin/ProposalsView";
+// ProposalsView merged into AdminDashboard
 import StoreSettings from "@/components/admin/StoreSettings";
 import AdminProfile from "@/components/admin/AdminProfile";
 import ManualProposal from "@/components/admin/ManualProposal";
@@ -75,7 +75,7 @@ const Admin = () => {
             <Routes>
               <Route index element={<AdminDashboard />} />
               <Route path="gerar-proposta" element={<ManualProposal />} />
-              <Route path="propostas" element={<ProposalsView />} />
+              {/* Propostas merged into Dashboard */}
               <Route path="categorias" element={<CategoryManager />} />
               <Route path="grupos" element={<OptionalGroupManager />} />
               <Route path="opcionais" element={<OptionalManager />} />
