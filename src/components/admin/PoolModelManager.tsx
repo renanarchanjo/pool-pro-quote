@@ -17,9 +17,15 @@ import {
   AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 
+interface Brand {
+  id: string;
+  name: string;
+}
+
 interface Category {
   id: string;
   name: string;
+  brand_id: string | null;
 }
 
 interface PoolModel {
@@ -45,6 +51,7 @@ interface PoolModel {
 
 const PoolModelManager = () => {
   const { store } = useStoreData();
+  const [brands, setBrands] = useState<Brand[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [models, setModels] = useState<PoolModel[]>([]);
   const [loading, setLoading] = useState(true);
@@ -81,14 +88,17 @@ const PoolModelManager = () => {
     if (!store) return;
     
     try {
-      const [categoriesRes, modelsRes] = await Promise.all([
-        supabase.from("categories").select("id, name").eq("active", true).eq("store_id", store.id),
+      const [brandsRes, categoriesRes, modelsRes] = await Promise.all([
+        supabase.from("brands").select("id, name").eq("active", true).eq("store_id", store.id),
+        supabase.from("categories").select("id, name, brand_id").eq("active", true).eq("store_id", store.id),
         supabase.from("pool_models").select("*").eq("store_id", store.id).order("created_at", { ascending: false })
       ]);
 
+      if (brandsRes.error) throw brandsRes.error;
       if (categoriesRes.error) throw categoriesRes.error;
       if (modelsRes.error) throw modelsRes.error;
 
+      setBrands(brandsRes.data || []);
       setCategories(categoriesRes.data || []);
       setModels(modelsRes.data || []);
     } catch (error) {
@@ -97,6 +107,13 @@ const PoolModelManager = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const getBrandName = (categoryId: string) => {
+    const cat = categories.find((c) => c.id === categoryId);
+    if (!cat?.brand_id) return "";
+    const brand = brands.find((b) => b.id === cat.brand_id);
+    return brand?.name || "";
   };
 
   const addToArray = (field: "differentials" | "included_items" | "not_included_items", inputField: string) => {
@@ -268,17 +285,20 @@ const PoolModelManager = () => {
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid md:grid-cols-2 gap-4">
             <div>
-              <Label htmlFor="category">Categoria *</Label>
+              <Label htmlFor="category">Categoria (Marca) *</Label>
               <Select value={formData.category_id} onValueChange={(v) => setFormData({ ...formData, category_id: v })}>
                 <SelectTrigger>
                   <SelectValue placeholder="Selecione" />
                 </SelectTrigger>
                 <SelectContent>
-                  {categories.map((cat) => (
-                    <SelectItem key={cat.id} value={cat.id}>
-                      {cat.name}
-                    </SelectItem>
-                  ))}
+                  {categories.map((cat) => {
+                    const brandName = getBrandName(cat.id);
+                    return (
+                      <SelectItem key={cat.id} value={cat.id}>
+                        {cat.name}{brandName ? ` — ${brandName}` : ""}
+                      </SelectItem>
+                    );
+                  })}
                 </SelectContent>
               </Select>
             </div>
@@ -518,7 +538,15 @@ const PoolModelManager = () => {
           <Card key={model.id} className="p-6">
             <div className="flex justify-between items-start mb-4">
               <div>
-                <h3 className="text-xl font-semibold">{model.name}</h3>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <h3 className="text-xl font-semibold">{model.name}</h3>
+                  {getBrandName(model.category_id) && (
+                    <Badge variant="outline">{getBrandName(model.category_id)}</Badge>
+                  )}
+                  <Badge variant="secondary">
+                    {categories.find((c) => c.id === model.category_id)?.name || "Sem categoria"}
+                  </Badge>
+                </div>
                 <p className="text-2xl font-bold text-primary mt-1">
                   R$ {model.base_price.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                 </p>
