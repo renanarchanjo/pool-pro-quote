@@ -88,14 +88,17 @@ const PoolModelManager = () => {
     if (!store) return;
     
     try {
-      const [categoriesRes, modelsRes] = await Promise.all([
-        supabase.from("categories").select("id, name").eq("active", true).eq("store_id", store.id),
+      const [brandsRes, categoriesRes, modelsRes] = await Promise.all([
+        supabase.from("brands").select("id, name").eq("active", true).eq("store_id", store.id),
+        supabase.from("categories").select("id, name, brand_id").eq("active", true).eq("store_id", store.id),
         supabase.from("pool_models").select("*").eq("store_id", store.id).order("created_at", { ascending: false })
       ]);
 
+      if (brandsRes.error) throw brandsRes.error;
       if (categoriesRes.error) throw categoriesRes.error;
       if (modelsRes.error) throw modelsRes.error;
 
+      setBrands(brandsRes.data || []);
       setCategories(categoriesRes.data || []);
       setModels(modelsRes.data || []);
     } catch (error) {
@@ -104,6 +107,13 @@ const PoolModelManager = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const getBrandName = (categoryId: string) => {
+    const cat = categories.find((c) => c.id === categoryId);
+    if (!cat?.brand_id) return "";
+    const brand = brands.find((b) => b.id === cat.brand_id);
+    return brand?.name || "";
   };
 
   const addToArray = (field: "differentials" | "included_items" | "not_included_items", inputField: string) => {
