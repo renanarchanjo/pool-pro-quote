@@ -10,7 +10,9 @@ import {
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
-import { Loader2, FileText, TrendingUp, Users, Search, Download, Eye, Pencil } from "lucide-react";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
+import { Loader2, FileText, TrendingUp, Users, Search, Download, Eye, Pencil, CalendarIcon, X } from "lucide-react";
 import { useStoreData } from "@/hooks/useStoreData";
 import { toast } from "sonner";
 import html2pdf from "html2pdf.js";
@@ -18,6 +20,8 @@ import {
   Dialog, DialogContent, DialogHeader, DialogTitle,
 } from "@/components/ui/dialog";
 import ProposalView from "@/components/simulator/ProposalView";
+import { format, startOfDay, endOfDay, subDays, startOfWeek, startOfMonth, endOfMonth, subMonths, subWeeks } from "date-fns";
+import { ptBR } from "date-fns/locale";
 
 type ProposalStatus = "nova" | "enviada" | "em_negociacao" | "fechada" | "perdida";
 
