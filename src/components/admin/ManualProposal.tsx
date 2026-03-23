@@ -263,7 +263,7 @@ const ManualProposal = () => {
               <select
                 id="cuf"
                 value={customerUf}
-                onChange={(e) => setCustomerUf(e.target.value)}
+                onChange={(e) => { setCustomerUf(e.target.value); setCustomerCity(""); }}
                 className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               >
                 <option value="">Selecione o estado</option>
@@ -274,7 +274,25 @@ const ManualProposal = () => {
             </div>
             <div>
               <Label htmlFor="ccity">Cidade *</Label>
-              <Input id="ccity" value={customerCity} onChange={(e) => setCustomerCity(e.target.value)} placeholder="Cidade" />
+              {loadingCities ? (
+                <div className="flex items-center gap-2 h-10 text-sm text-muted-foreground">
+                  <Loader2 className="w-4 h-4 animate-spin" /> Carregando cidades...
+                </div>
+              ) : customerCities.length > 0 ? (
+                <select
+                  id="ccity"
+                  value={customerCity}
+                  onChange={(e) => setCustomerCity(e.target.value)}
+                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                >
+                  <option value="">Selecione a cidade</option>
+                  {customerCities.map((c) => (
+                    <option key={c} value={c}>{c}</option>
+                  ))}
+                </select>
+              ) : (
+                <Input id="ccity" value={customerCity} onChange={(e) => setCustomerCity(e.target.value)} placeholder="Selecione um estado primeiro" />
+              )}
             </div>
             <div>
               <Label htmlFor="cwhat">WhatsApp *</Label>
