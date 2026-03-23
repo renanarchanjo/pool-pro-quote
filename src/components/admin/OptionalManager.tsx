@@ -97,7 +97,7 @@ const OptionalManager = () => {
     }
   };
 
-
+  const toggleSelect = (id: string) => {
     setSelected((prev) => prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]);
   };
 
