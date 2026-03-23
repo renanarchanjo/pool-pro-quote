@@ -67,6 +67,7 @@ const ManualProposal = () => {
   const [selectedCategoryId, setSelectedCategoryId] = useState<string>("");
   const [selectedModel, setSelectedModel] = useState<PoolModel | null>(null);
   const [selectedOptionalIds, setSelectedOptionalIds] = useState<string[]>([]);
+  const [selectedModelOptIds, setSelectedModelOptIds] = useState<string[]>([]);
   const [enabledOptionalIds, setEnabledOptionalIds] = useState<string[]>([]);
 
   const [customerName, setCustomerName] = useState("");
