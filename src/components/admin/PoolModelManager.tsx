@@ -270,6 +270,36 @@ const PoolModelManager = () => {
     }
   };
 
+  const toggleSelectModel = (id: string) => {
+    setSelectedModels((prev) => prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]);
+  };
+
+  const selectAllModels = () => {
+    setSelectedModels(selectedModels.length === models.length ? [] : models.map((m) => m.id));
+  };
+
+  const bulkModelAction = async (action: "activate" | "deactivate" | "delete") => {
+    if (selectedModels.length === 0) return;
+    try {
+      if (action === "delete") {
+        for (const id of selectedModels) {
+          await supabase.from("pool_models").delete().eq("id", id);
+        }
+        toast.success(`${selectedModels.length} modelo(s) excluído(s)`);
+      } else {
+        const active = action === "activate";
+        for (const id of selectedModels) {
+          await supabase.from("pool_models").update({ active }).eq("id", id);
+        }
+        toast.success(`${selectedModels.length} modelo(s) ${active ? "ativado(s)" : "desativado(s)"}`);
+      }
+      setSelectedModels([]);
+      loadData();
+    } catch {
+      toast.error("Erro na operação em lote");
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex justify-center p-8">
