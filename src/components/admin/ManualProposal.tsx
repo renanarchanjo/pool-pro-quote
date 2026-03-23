@@ -166,6 +166,7 @@ const ManualProposal = () => {
   const handleReset = () => {
     setShowProposal(false);
     setSelectedModel(null);
+    setSelectedBrandId("");
     setSelectedCategoryId("");
     setSelectedOptionalIds([]);
     setCustomerName("");
