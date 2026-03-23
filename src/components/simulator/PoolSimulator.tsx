@@ -216,7 +216,10 @@ const PoolSimulator = ({ onBack }: PoolSimulatorProps) => {
         </Dialog>
         <ProposalView
           model={selectedModel}
-          selectedOptionals={optionals.filter(opt => selectedOptionals.includes(opt.id))}
+          selectedOptionals={[
+            ...optionals.filter(opt => selectedOptionals.includes(opt.id)),
+            ...modelOptionals.filter((opt: any) => selectedOptionals.includes(opt.id)).map((o: any) => ({ name: o.name, price: o.price })),
+          ]}
           customerData={customerData}
           category="Piscina de Fibra"
           onBack={handleRestart}
