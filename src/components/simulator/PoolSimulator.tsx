@@ -104,14 +104,16 @@ const PoolSimulator = ({ onBack }: PoolSimulatorProps) => {
   const handleSkipLocation = async () => {
     try {
       setLoading(true);
-      const [modelsRes, optionalsRes] = await Promise.all([
+      const [modelsRes, optionalsRes, modelOptsRes] = await Promise.all([
         supabase.from("pool_models").select("*").eq("active", true).order("display_order"),
-        supabase.from("optionals").select("*").eq("active", true).order("display_order")
+        supabase.from("optionals").select("*").eq("active", true).order("display_order"),
+        supabase.from("model_optionals").select("*").eq("active", true).order("display_order"),
       ]);
       if (modelsRes.error) throw modelsRes.error;
       if (optionalsRes.error) throw optionalsRes.error;
       setModels(modelsRes.data || []);
       setOptionals(optionalsRes.data || []);
+      setModelOptionals(modelOptsRes.data || []);
       setSelectedStoreName("Todas as lojas");
       setStep(1);
     } catch (error) {
