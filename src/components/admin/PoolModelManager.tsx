@@ -55,6 +55,7 @@ const PoolModelManager = () => {
   const [brands, setBrands] = useState<Brand[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [models, setModels] = useState<PoolModel[]>([]);
+  const [selectedModels, setSelectedModels] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState<string | null>(null);
   const [formData, setFormData] = useState({
