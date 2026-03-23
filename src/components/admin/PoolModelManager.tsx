@@ -56,6 +56,9 @@ const PoolModelManager = () => {
   const [categories, setCategories] = useState<Category[]>([]);
   const [models, setModels] = useState<PoolModel[]>([]);
   const [selectedModels, setSelectedModels] = useState<string[]>([]);
+  const [expandedModel, setExpandedModel] = useState<string | null>(null);
+  const [filterBrand, setFilterBrand] = useState<string>("all");
+  const [filterCategory, setFilterCategory] = useState<string>("all");
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState<string | null>(null);
   const [formData, setFormData] = useState({
