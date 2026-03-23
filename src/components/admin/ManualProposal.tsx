@@ -155,7 +155,7 @@ const ManualProposal = () => {
     try {
       const { error } = await supabase.from("proposals").insert({
         customer_name: customerName,
-        customer_city: customerCity,
+        customer_city: `${customerCity} / ${customerUf}`,
         customer_whatsapp: customerWhatsapp,
         model_id: selectedModel.id,
         selected_optionals: selectedOptionalIds,
