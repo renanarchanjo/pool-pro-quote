@@ -243,6 +243,7 @@ const DashboardPipeline = ({ proposals, onUpdateStatus, onViewProposal, onExport
                       <TableHead>MODELO</TableHead>
                       <TableHead>VALOR</TableHead>
                       <TableHead>STATUS</TableHead>
+                      <TableHead>DATA</TableHead>
                       <TableHead>DIAS</TableHead>
                       <TableHead>AÇÕES</TableHead>
                     </TableRow>
