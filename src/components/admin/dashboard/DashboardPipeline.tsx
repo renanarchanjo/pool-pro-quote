@@ -201,7 +201,7 @@ const DashboardPipeline = ({ proposals, onUpdateStatus, onViewProposal, onExport
                             <p className="font-semibold text-sm truncate">{p.customer_name}</p>
                           </div>
                           <p className="text-[11px] text-muted-foreground mt-0.5 truncate">
-                            {p.pool_models?.name || "N/A"} · {p.customer_city} · {days}d
+                            {p.pool_models?.name || "N/A"} · {p.customer_city} · {new Date(p.created_at).toLocaleDateString("pt-BR")} · {days}d
                           </p>
                         </div>
                         <span className="font-bold text-primary text-sm whitespace-nowrap">
