@@ -142,7 +142,7 @@ const ManualProposal = () => {
   };
 
   const handleSubmit = async () => {
-    if (!customerName || !customerCity || !customerWhatsapp) {
+    if (!customerName || !customerCity || !customerUf || !customerWhatsapp) {
       toast.error("Preencha todos os dados do cliente");
       return;
     }
