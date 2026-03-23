@@ -74,11 +74,28 @@ const ManualProposal = () => {
   const [customerName, setCustomerName] = useState("");
   const [customerUf, setCustomerUf] = useState("");
   const [customerCity, setCustomerCity] = useState("");
+  const [customerCities, setCustomerCities] = useState<string[]>([]);
+  const [loadingCities, setLoadingCities] = useState(false);
   const [customerWhatsapp, setCustomerWhatsapp] = useState("");
 
   useEffect(() => {
     if (profile?.store_id) loadData();
   }, [profile?.store_id]);
+
+  // Fetch cities when UF changes
+  useEffect(() => {
+    if (!customerUf) { setCustomerCities([]); return; }
+    const fetchCities = async () => {
+      setLoadingCities(true);
+      try {
+        const res = await fetch(`https://servicodados.ibge.gov.br/api/v1/localidades/estados/${customerUf}/municipios?orderBy=nome`);
+        const data = await res.json();
+        setCustomerCities(data.map((m: any) => m.nome));
+      } catch { setCustomerCities([]); }
+      finally { setLoadingCities(false); }
+    };
+    fetchCities();
+  }, [customerUf]);
 
   // Enable all optionals by default when loaded
   useEffect(() => {
@@ -245,7 +262,7 @@ const ManualProposal = () => {
               <select
                 id="cuf"
                 value={customerUf}
-                onChange={(e) => setCustomerUf(e.target.value)}
+                onChange={(e) => { setCustomerUf(e.target.value); setCustomerCity(""); }}
                 className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               >
                 <option value="">Selecione o estado</option>
@@ -256,7 +273,25 @@ const ManualProposal = () => {
             </div>
             <div>
               <Label htmlFor="ccity">Cidade *</Label>
-              <Input id="ccity" value={customerCity} onChange={(e) => setCustomerCity(e.target.value)} placeholder="Cidade" />
+              {loadingCities ? (
+                <div className="flex items-center gap-2 h-10 text-sm text-muted-foreground">
+                  <Loader2 className="w-4 h-4 animate-spin" /> Carregando cidades...
+                </div>
+              ) : customerCities.length > 0 ? (
+                <select
+                  id="ccity"
+                  value={customerCity}
+                  onChange={(e) => setCustomerCity(e.target.value)}
+                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                >
+                  <option value="">Selecione a cidade</option>
+                  {customerCities.map((c) => (
+                    <option key={c} value={c}>{c}</option>
+                  ))}
+                </select>
+              ) : (
+                <Input id="ccity" value={customerCity} onChange={(e) => setCustomerCity(e.target.value)} placeholder="Selecione um estado primeiro" />
+              )}
             </div>
             <div>
               <Label htmlFor="cwhat">WhatsApp *</Label>
