@@ -68,39 +68,7 @@ const ProposalView = ({
 
   const fmt = (v: number) => `R$ ${v.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`;
 
-  const generateWhatsAppMessage = () => {
-    let message = `🏊‍♂️ *PROPOSTA - PISCINA DE FIBRA*\n\n`;
-    message += `📋 *Dados do Cliente:*\nNome: ${customerData.name}\nCidade: ${customerData.city}\n\n`;
-    message += `🏊 *Categoria:* ${category}\n🎯 *Modelo:* ${model.name}\n\n`;
-    if (model.included_items.length > 0) {
-      message += `✅ *Itens Inclusos:*\n`;
-      model.included_items.forEach((i) => (message += `• ${i}\n`));
-      message += `\n`;
-    }
-    if (selectedOptionals.length > 0) {
-      message += `➕ *Opcionais Selecionados:*\n`;
-      selectedOptionals.forEach((opt) => (message += `• ${opt.name} - ${fmt(opt.price)}\n`));
-      message += `\n`;
-    }
-    message += `💰 *VALOR DO INVESTIMENTO:*\nBase: ${fmt(model.base_price)}\n`;
-    if (optionalsTotal > 0) message += `Opcionais: ${fmt(optionalsTotal)}\n`;
-    message += `*TOTAL: ${fmt(totalPrice)}*\n\n`;
-    message += `📅 *Prazos:*\nEntrega: ${model.delivery_days} dias\nInstalação: ${model.installation_days} dias\n\n`;
-    message += `💳 *Pagamento:* ${model.payment_terms || "À vista"}\n`;
-    message += `📆 *Emissão:* ${today}\n⏰ *Validade:* ${validUntil}\n`;
-
-    const encoded = encodeURIComponent(message);
-    window.open(`https://wa.me/55${customerData.whatsapp.replace(/\D/g, "")}?text=${encoded}`, "_blank");
-  };
-
-  const handlePrint = () => setTimeout(() => window.print(), 100);
-
-  const handleSendEmail = () => {
-    toast.success("✉️ Email enviado com sucesso! (modo teste)", {
-      description: `Proposta enviada para: ${customerData.name}`,
-      duration: 5000,
-    });
-  };
+  // Removed WhatsApp and email send functions - lead only gets PDF download and view
 
   const handleDownloadPDF = async () => {
     try {
