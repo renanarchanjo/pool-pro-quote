@@ -100,6 +100,66 @@ export type Database = {
           },
         ]
       }
+      model_optionals: {
+        Row: {
+          active: boolean | null
+          cost: number | null
+          created_at: string | null
+          description: string | null
+          display_order: number | null
+          id: string
+          margin_percent: number | null
+          model_id: string
+          name: string
+          price: number
+          store_id: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          active?: boolean | null
+          cost?: number | null
+          created_at?: string | null
+          description?: string | null
+          display_order?: number | null
+          id?: string
+          margin_percent?: number | null
+          model_id: string
+          name: string
+          price?: number
+          store_id?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          active?: boolean | null
+          cost?: number | null
+          created_at?: string | null
+          description?: string | null
+          display_order?: number | null
+          id?: string
+          margin_percent?: number | null
+          model_id?: string
+          name?: string
+          price?: number
+          store_id?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "model_optionals_model_id_fkey"
+            columns: ["model_id"]
+            isOneToOne: false
+            referencedRelation: "pool_models"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "model_optionals_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       optional_groups: {
         Row: {
           active: boolean | null
