@@ -589,6 +589,14 @@ const PoolModelManager = () => {
             ))}
           </SelectContent>
         </Select>
+        <Select value={filterStatus} onValueChange={setFilterStatus}>
+          <SelectTrigger className="w-[160px]"><SelectValue placeholder="Status" /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Todos</SelectItem>
+            <SelectItem value="active">Ativos</SelectItem>
+            <SelectItem value="inactive">Desativados</SelectItem>
+          </SelectContent>
+        </Select>
         <Button variant="outline" size="sm" onClick={selectAllModels}>
           {selectedModels.length === models.length ? <CheckSquare className="w-4 h-4 mr-1" /> : <Square className="w-4 h-4 mr-1" />}
           {selectedModels.length === models.length ? "Desmarcar" : "Selecionar"} todos
