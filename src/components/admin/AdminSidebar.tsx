@@ -1,6 +1,6 @@
 import { useNavigate, useLocation } from "react-router-dom";
 import { 
-  LayoutDashboard, FilePlus, Tag, Box, Package, User, Users, LogOut 
+  LayoutDashboard, FilePlus, Tag, Box, Package, User, Users, LogOut, UsersRound
 } from "lucide-react";
 import {
   Sidebar,
@@ -17,30 +17,15 @@ import {
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { useStoreData } from "@/hooks/useStoreData";
 import logoHorizontal from "@/assets/simulapool-horizontal.png";
-
-const mainItems = [
-  { title: "Dashboard", url: "/admin", icon: LayoutDashboard },
-  { title: "Gerar Proposta", url: "/admin/gerar-proposta", icon: FilePlus },
-];
-
-const catalogItems = [
-  { title: "Marca e Categoria", url: "/admin/marcas", icon: Tag },
-  { title: "Modelos", url: "/admin/modelos", icon: Box },
-  { title: "Opcionais", url: "/admin/opcionais", icon: Package },
-];
-
-const profileItems = [
-  { title: "Meu Perfil", url: "/admin/perfil", icon: User },
-];
-
-const adminItems = [
-  { title: "Lojistas", url: "/admin/lojistas", icon: Users },
-];
 
 const AdminSidebar = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { role } = useStoreData();
+
+  const isOwner = role === "owner";
 
   const isActive = (url: string) => {
     if (url === "/admin") return location.pathname === "/admin";
@@ -53,27 +38,50 @@ const AdminSidebar = () => {
     navigate("/");
   };
 
-  const renderGroup = (label: string, items: typeof mainItems) => (
-    <SidebarGroup>
-      <SidebarGroupLabel>{label}</SidebarGroupLabel>
-      <SidebarGroupContent>
-        <SidebarMenu>
-          {items.map((item) => (
-            <SidebarMenuItem key={item.title}>
-              <SidebarMenuButton
-                onClick={() => navigate(item.url)}
-                isActive={isActive(item.url)}
-                className="cursor-pointer"
-              >
-                <item.icon className="w-4 h-4" />
-                <span>{item.title}</span>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-          ))}
-        </SidebarMenu>
-      </SidebarGroupContent>
-    </SidebarGroup>
-  );
+  const mainItems = [
+    { title: "Dashboard", url: "/admin", icon: LayoutDashboard },
+    { title: "Gerar Proposta", url: "/admin/gerar-proposta", icon: FilePlus },
+  ];
+
+  const catalogItems = isOwner ? [
+    { title: "Marca e Categoria", url: "/admin/marcas", icon: Tag },
+    { title: "Modelos", url: "/admin/modelos", icon: Box },
+    { title: "Opcionais", url: "/admin/opcionais", icon: Package },
+  ] : [];
+
+  const accountItems = [
+    { title: "Meu Perfil", url: "/admin/perfil", icon: User },
+    ...(isOwner ? [{ title: "Equipe", url: "/admin/equipe", icon: UsersRound }] : []),
+  ];
+
+  const adminItems = isOwner ? [
+    { title: "Lojistas", url: "/admin/lojistas", icon: Users },
+  ] : [];
+
+  const renderGroup = (label: string, items: typeof mainItems) => {
+    if (items.length === 0) return null;
+    return (
+      <SidebarGroup>
+        <SidebarGroupLabel>{label}</SidebarGroupLabel>
+        <SidebarGroupContent>
+          <SidebarMenu>
+            {items.map((item) => (
+              <SidebarMenuItem key={item.title}>
+                <SidebarMenuButton
+                  onClick={() => navigate(item.url)}
+                  isActive={isActive(item.url)}
+                  className="cursor-pointer"
+                >
+                  <item.icon className="w-4 h-4" />
+                  <span>{item.title}</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            ))}
+          </SidebarMenu>
+        </SidebarGroupContent>
+      </SidebarGroup>
+    );
+  };
 
   return (
     <Sidebar collapsible="offcanvas">
@@ -86,7 +94,7 @@ const AdminSidebar = () => {
       <SidebarContent>
         {renderGroup("PAINEL DO LOJISTA", mainItems)}
         {renderGroup("CADASTROS", catalogItems)}
-        {renderGroup("CONTA", profileItems)}
+        {renderGroup("CONTA", accountItems)}
         {renderGroup("ADMINISTRAÇÃO", adminItems)}
       </SidebarContent>
 

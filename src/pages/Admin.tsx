@@ -12,12 +12,13 @@ import OptionalManager from "@/components/admin/OptionalManager";
 import AdminProfile from "@/components/admin/AdminProfile";
 import ManualProposal from "@/components/admin/ManualProposal";
 import StoresManager from "@/components/admin/StoresManager";
+import TeamManager from "@/components/admin/TeamManager";
 import { useStoreData } from "@/hooks/useStoreData";
 
 const Admin = () => {
   const [authLoading, setAuthLoading] = useState(true);
   const navigate = useNavigate();
-  const { store, loading: storeLoading } = useStoreData();
+  const { store, role, loading: storeLoading } = useStoreData();
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -60,6 +61,8 @@ const Admin = () => {
     );
   }
 
+  const isOwner = role === "owner";
+
   return (
     <SidebarProvider>
       <div className="min-h-screen flex w-full bg-muted/30">
@@ -72,11 +75,17 @@ const Admin = () => {
             <Routes>
               <Route index element={<AdminDashboard />} />
               <Route path="gerar-proposta" element={<ManualProposal />} />
-              <Route path="marcas" element={<BrandCategoryManager />} />
-              <Route path="modelos" element={<PoolModelManager />} />
-              <Route path="opcionais" element={<OptionalManager />} />
               <Route path="perfil" element={<AdminProfile />} />
-              <Route path="lojistas" element={<StoresManager />} />
+              {/* Owner-only routes */}
+              {isOwner && (
+                <>
+                  <Route path="marcas" element={<BrandCategoryManager />} />
+                  <Route path="modelos" element={<PoolModelManager />} />
+                  <Route path="opcionais" element={<OptionalManager />} />
+                  <Route path="equipe" element={<TeamManager />} />
+                  <Route path="lojistas" element={<StoresManager />} />
+                </>
+              )}
             </Routes>
           </main>
         </div>
