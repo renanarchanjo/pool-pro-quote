@@ -376,6 +376,44 @@ const ManualProposal = () => {
           </CardContent>
         </Card>
 
+        {/* Opcionais Exclusivos do Modelo */}
+        {selectedModel && currentModelOpts.length > 0 && (
+          <Card className="md:col-span-2">
+            <CardHeader>
+              <CardTitle className="text-lg">Opcionais Exclusivos — {selectedModel.name}</CardTitle>
+              <p className="text-xs text-muted-foreground">Opcionais específicos calculados para este modelo</p>
+            </CardHeader>
+            <CardContent>
+              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                {currentModelOpts.map((opt: any) => {
+                  const isSelected = selectedModelOptIds.includes(opt.id);
+                  return (
+                    <label
+                      key={opt.id}
+                      className={`flex items-start gap-3 p-3 rounded-lg border cursor-pointer transition-all ${
+                        isSelected ? "border-primary bg-primary/5" : "border-border hover:border-primary/40"
+                      }`}
+                    >
+                      <Checkbox
+                        checked={isSelected}
+                        onCheckedChange={() => setSelectedModelOptIds((prev) => prev.includes(opt.id) ? prev.filter((x: string) => x !== opt.id) : [...prev, opt.id])}
+                        className="mt-0.5"
+                      />
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium leading-tight">{opt.name}</p>
+                        {opt.description && <p className="text-xs text-muted-foreground">{opt.description}</p>}
+                        <p className="text-xs text-primary font-semibold mt-1">
+                          + R$ {opt.price.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                        </p>
+                      </div>
+                    </label>
+                  );
+                })}
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
         {/* Resumo */}
         <Card className="md:col-span-2">
           <CardContent className="pt-6">
