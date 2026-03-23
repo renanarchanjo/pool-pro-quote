@@ -43,6 +43,8 @@ const OptionalManager = () => {
   const [editing, setEditing] = useState<string | null>(null);
   const [formData, setFormData] = useState({ name: "", description: "", price: "", cost: "", margin_percent: "", group_id: "" });
   const [selected, setSelected] = useState<string[]>([]);
+  const [newGroupName, setNewGroupName] = useState("");
+  const [showGroupForm, setShowGroupForm] = useState(false);
 
   useEffect(() => {
     if (store) loadData();
@@ -64,8 +66,38 @@ const OptionalManager = () => {
       setLoading(false);
     }
   };
+  const handleCreateGroup = async () => {
+    if (!newGroupName.trim() || !store) return;
+    try {
+      const { error } = await supabase.from("optional_groups").insert({
+        name: newGroupName.trim(),
+        store_id: store.id,
+        selection_type: "multiple",
+        display_order: groups.length + 1,
+      });
+      if (error) throw error;
+      toast.success("Grupo criado");
+      setNewGroupName("");
+      setShowGroupForm(false);
+      loadData();
+    } catch {
+      toast.error("Erro ao criar grupo");
+    }
+  };
 
-  const toggleSelect = (id: string) => {
+  const handleDeleteGroup = async (groupId: string) => {
+    try {
+      // Move optionals from this group to ungrouped
+      await supabase.from("optionals").update({ group_id: null }).eq("group_id", groupId);
+      await supabase.from("optional_groups").delete().eq("id", groupId);
+      toast.success("Grupo excluído");
+      loadData();
+    } catch {
+      toast.error("Erro ao excluir grupo");
+    }
+  };
+
+
     setSelected((prev) => prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]);
   };
 
@@ -228,6 +260,59 @@ const OptionalManager = () => {
 
   return (
     <div className="space-y-6">
+      {/* Group management */}
+      <Card className="p-6">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-xl font-bold">Grupos de Opcionais</h2>
+          <Button variant="outline" size="sm" onClick={() => setShowGroupForm(!showGroupForm)}>
+            <Plus className="w-4 h-4 mr-1" /> Novo Grupo
+          </Button>
+        </div>
+        {showGroupForm && (
+          <div className="flex gap-2 mb-4">
+            <Input
+              value={newGroupName}
+              onChange={(e) => setNewGroupName(e.target.value)}
+              placeholder="Nome do novo grupo"
+              className="max-w-xs"
+            />
+            <Button size="sm" className="gradient-primary text-white" onClick={handleCreateGroup}>Criar</Button>
+            <Button size="sm" variant="outline" onClick={() => { setShowGroupForm(false); setNewGroupName(""); }}>Cancelar</Button>
+          </div>
+        )}
+        <div className="flex flex-wrap gap-2">
+          {groups.map((g) => (
+            <div key={g.id} className="flex items-center gap-1 bg-muted/50 rounded-lg px-3 py-1.5 text-sm">
+              <span className="font-medium">{g.name}</span>
+              <span className="text-xs text-muted-foreground ml-1">
+                ({optionals.filter((o) => o.group_id === g.id).length})
+              </span>
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <button className="ml-1 p-0.5 rounded hover:bg-destructive/10 transition-colors">
+                    <Trash2 className="w-3.5 h-3.5 text-destructive/60 hover:text-destructive" />
+                  </button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Excluir grupo "{g.name}"?</AlertDialogTitle>
+                    <AlertDialogDescription>Os opcionais deste grupo ficarão sem grupo.</AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                    <AlertDialogAction onClick={() => handleDeleteGroup(g.id)}
+                      className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                      Excluir
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            </div>
+          ))}
+          {groups.length === 0 && <p className="text-sm text-muted-foreground">Nenhum grupo cadastrado.</p>}
+        </div>
+      </Card>
+
       <Card className="p-6">
         <h2 className="text-2xl font-bold mb-4">
           {editing ? "Editar Opcional" : "Novo Opcional"}
