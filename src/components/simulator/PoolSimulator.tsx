@@ -280,6 +280,7 @@ const PoolSimulator = ({ onBack }: PoolSimulatorProps) => {
         {step === 2 && selectedModel && (
           <OptionalsSelection
             optionals={optionals}
+            modelOptionals={selectedModel ? modelOptionals.filter((o: any) => o.model_id === selectedModel.id) : []}
             selectedOptionals={selectedOptionals}
             onConfirm={handleOptionalsConfirm}
             onBack={() => setStep(1)}
