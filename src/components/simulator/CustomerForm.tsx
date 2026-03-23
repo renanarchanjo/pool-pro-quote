@@ -19,13 +19,16 @@ interface CustomerFormProps {
   optionals: any[];
 }
 
+const STATES = [
+  "AC","AL","AP","AM","BA","CE","DF","ES","GO","MA","MT","MS","MG",
+  "PA","PB","PR","PE","PI","RJ","RN","RS","RO","RR","SC","SP","SE","TO"
+];
+
 const CustomerForm = ({ onSubmit, onBack, model, optionals }: CustomerFormProps) => {
   const [loading, setLoading] = useState(false);
-  const [formData, setFormData] = useState<CustomerData>({
-    name: "",
-    city: "",
-    whatsapp: ""
-  });
+  const [uf, setUf] = useState("");
+  const [city, setCity] = useState("");
+  const [formData, setFormData] = useState({ name: "", whatsapp: "" });
 
   const totalPrice = model.base_price + optionals.reduce((sum, opt) => sum + opt.price, 0);
 
