@@ -108,21 +108,22 @@ const DashboardKPIs = ({ proposals }: Props) => {
               <CardContent className="p-4">
                 <div className="flex items-start justify-between gap-2">
                   <div className="min-w-0 flex-1">
-                    <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider truncate">
+                    <p className="text-[10px] sm:text-[11px] font-medium text-muted-foreground uppercase tracking-wider leading-tight">
                       {kpi.label}
                     </p>
-                    <p className="text-xl sm:text-2xl font-bold mt-1 truncate">{kpi.value}</p>
+                    <p className="text-lg sm:text-2xl font-bold mt-1 truncate">{kpi.value}</p>
                     {kpi.change !== undefined && (
-                      <div className={`flex items-center gap-1 mt-1 text-xs font-medium ${kpi.change >= 0 ? "text-emerald-600" : "text-red-500"}`}>
-                        {kpi.change >= 0 ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
-                        <span>{kpi.change >= 0 ? "+" : ""}{kpi.change.toFixed(1)}% vs mês anterior</span>
+                      <div className={`flex items-center gap-1 mt-1 text-[10px] sm:text-xs font-medium ${kpi.change >= 0 ? "text-emerald-600" : "text-red-500"}`}>
+                        {kpi.change >= 0 ? <TrendingUp className="w-3 h-3 shrink-0" /> : <TrendingDown className="w-3 h-3 shrink-0" />}
+                        <span className="hidden sm:inline">{kpi.change >= 0 ? "+" : ""}{kpi.change.toFixed(1)}% vs mês anterior</span>
+                        <span className="sm:hidden">{kpi.change >= 0 ? "+" : ""}{kpi.change.toFixed(1)}%</span>
                       </div>
                     )}
                     {kpi.subtitle && (
                       <p className="text-[11px] text-muted-foreground mt-1">{kpi.subtitle}</p>
                     )}
                   </div>
-                  <div className={`h-9 w-9 rounded-lg ${kpi.iconBg} flex items-center justify-center shrink-0`}>
+                  <div className={`hidden sm:flex h-9 w-9 rounded-lg ${kpi.iconBg} items-center justify-center shrink-0`}>
                     <Icon className={`h-4 w-4 ${kpi.iconColor}`} />
                   </div>
                 </div>
