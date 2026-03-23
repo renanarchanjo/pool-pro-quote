@@ -161,7 +161,7 @@ const ProposalView = ({
                 <img
                   src={storeSettings.logo_url}
                   alt="Logo"
-                  style={{ height: "48px", width: "auto", objectFit: "contain" }}
+                  style={{ height: "52px", maxWidth: "200px", objectFit: "contain" }}
                   crossOrigin="anonymous"
                 />
               ) : (
