@@ -43,6 +43,8 @@ const OptionalManager = () => {
   const [editing, setEditing] = useState<string | null>(null);
   const [formData, setFormData] = useState({ name: "", description: "", price: "", cost: "", margin_percent: "", group_id: "" });
   const [selected, setSelected] = useState<string[]>([]);
+  const [newGroupName, setNewGroupName] = useState("");
+  const [showGroupForm, setShowGroupForm] = useState(false);
 
   useEffect(() => {
     if (store) loadData();
