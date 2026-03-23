@@ -35,14 +35,14 @@ const CustomerForm = ({ onSubmit, onBack, model, optionals }: CustomerFormProps)
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!formData.name || !formData.city || !formData.whatsapp) {
+    if (!formData.name || !city || !uf || !formData.whatsapp) {
       toast.error("Preencha todos os campos");
       return;
     }
 
     setLoading(true);
     try {
-      await onSubmit(formData);
+      await onSubmit({ name: formData.name, city: `${city} / ${uf}`, whatsapp: formData.whatsapp });
     } finally {
       setLoading(false);
     }
