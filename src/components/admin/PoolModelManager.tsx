@@ -568,15 +568,31 @@ const PoolModelManager = () => {
         </form>
       </Card>
 
-      {/* Bulk actions header */}
-      {models.length > 0 && (
-        <div className="flex items-center justify-between flex-wrap gap-3">
-          <Button variant="outline" size="sm" onClick={selectAllModels}>
-            {selectedModels.length === models.length ? <CheckSquare className="w-4 h-4 mr-1" /> : <Square className="w-4 h-4 mr-1" />}
-            {selectedModels.length === models.length ? "Desmarcar" : "Selecionar"} todos
-          </Button>
-        </div>
-      )}
+      {/* Filters */}
+      <div className="flex items-center gap-3 flex-wrap">
+        <Select value={filterBrand} onValueChange={(v) => { setFilterBrand(v); setFilterCategory("all"); }}>
+          <SelectTrigger className="w-[180px]"><SelectValue placeholder="Marca" /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Todas as Marcas</SelectItem>
+            {brands.map((b) => (
+              <SelectItem key={b.id} value={b.id}>{b.name}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <Select value={filterCategory} onValueChange={setFilterCategory}>
+          <SelectTrigger className="w-[200px]"><SelectValue placeholder="Categoria" /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Todas as Categorias</SelectItem>
+            {(filterBrand === "all" ? categories : categories.filter((c) => c.brand_id === filterBrand)).map((c) => (
+              <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <Button variant="outline" size="sm" onClick={selectAllModels}>
+          {selectedModels.length === models.length ? <CheckSquare className="w-4 h-4 mr-1" /> : <Square className="w-4 h-4 mr-1" />}
+          {selectedModels.length === models.length ? "Desmarcar" : "Selecionar"} todos
+        </Button>
+      </div>
 
       {selectedModels.length > 0 && (
         <Card className="p-3 bg-primary/5 border-primary/20">
@@ -610,112 +626,118 @@ const PoolModelManager = () => {
         </Card>
       )}
 
-      <div className="grid gap-4">
-        {models.map((model) => (
-          <Card key={model.id} className={`p-6 transition-colors ${selectedModels.includes(model.id) ? "ring-2 ring-primary/30" : ""}`}>
-            <div className="flex gap-3">
-              <Checkbox
-                checked={selectedModels.includes(model.id)}
-                onCheckedChange={() => toggleSelectModel(model.id)}
-                className="mt-1 shrink-0"
-              />
-            <div className="flex-1 min-w-0">
-              <div className="flex justify-between items-start mb-4">
-                <div>
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <h3 className="text-xl font-semibold">{model.name}</h3>
-                    {getBrandName(model.category_id) && (
-                      <Badge variant="outline">{getBrandName(model.category_id)}</Badge>
-                    )}
-                    <Badge variant="secondary">
-                      {categories.find((c) => c.id === model.category_id)?.name || "Sem categoria"}
-                    </Badge>
+      {(() => {
+        let filtered = models;
+        if (filterCategory !== "all") {
+          filtered = filtered.filter((m) => m.category_id === filterCategory);
+        } else if (filterBrand !== "all") {
+          const brandCatIds = categories.filter((c) => c.brand_id === filterBrand).map((c) => c.id);
+          filtered = filtered.filter((m) => brandCatIds.includes(m.category_id));
+        }
+
+        if (filtered.length === 0) {
+          return <p className="text-muted-foreground text-center py-8">Nenhum modelo encontrado.</p>;
+        }
+
+        return (
+          <div className="grid gap-3">
+            {filtered.map((model) => {
+              const isExpanded = expandedModel === model.id;
+              const brandName = getBrandName(model.category_id);
+              const catName = categories.find((c) => c.id === model.category_id)?.name || "Sem categoria";
+
+              return (
+                <Card key={model.id} className={`transition-colors ${selectedModels.includes(model.id) ? "ring-2 ring-primary/30" : ""}`}>
+                  {/* Collapsed row */}
+                  <div
+                    className="flex items-center gap-3 p-4 cursor-pointer"
+                    onClick={() => setExpandedModel(isExpanded ? null : model.id)}
+                  >
+                    <Checkbox
+                      checked={selectedModels.includes(model.id)}
+                      onCheckedChange={(e) => { e && e; toggleSelectModel(model.id); }}
+                      onClick={(e) => e.stopPropagation()}
+                      className="shrink-0"
+                    />
+                    <div className="flex-1 min-w-0 flex items-center gap-2 flex-wrap">
+                      <h3 className="font-semibold">{model.name}</h3>
+                      {brandName && <Badge variant="outline" className="text-xs">{brandName}</Badge>}
+                      <Badge variant="secondary" className="text-xs">{catName}</Badge>
+                    </div>
+                    <span className="font-bold text-primary whitespace-nowrap">
+                      R$ {model.base_price.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                    </span>
+                    <div className="flex items-center gap-2 shrink-0" onClick={(e) => e.stopPropagation()}>
+                      <Switch checked={model.active} onCheckedChange={() => toggleActive(model.id, model.active)} />
+                      <Button variant="outline" size="sm" onClick={() => handleEdit(model)}>
+                        <Pencil className="w-4 h-4" />
+                      </Button>
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                          <Button variant="outline" size="sm" className="text-destructive hover:text-destructive">
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>Excluir "{model.name}"?</AlertDialogTitle>
+                            <AlertDialogDescription>Esta ação não pode ser desfeita.</AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                            <AlertDialogAction onClick={() => handleDelete(model.id)}
+                              className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                              Excluir
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
+                    </div>
                   </div>
-                  <p className="text-2xl font-bold text-primary mt-1">
-                    R$ {model.base_price.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                  </p>
-                  {model.cost > 0 && (
-                    <div className="flex gap-3 mt-1 text-sm text-muted-foreground flex-wrap">
-                      <span>Custo: R$ {model.cost.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
-                      <span>Margem: {model.margin_percent}%</span>
-                      <span className="text-emerald-600 font-medium">
-                        Lucro: R$ {(model.base_price - model.cost).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                      </span>
+
+                  {/* Expanded details */}
+                  {isExpanded && (
+                    <div className="px-4 pb-4 pt-0 border-t border-border/50 space-y-3">
+                      {model.cost > 0 && (
+                        <div className="flex gap-4 text-sm text-muted-foreground flex-wrap pt-3">
+                          <span>Custo: R$ {model.cost.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</span>
+                          <span>Margem: {model.margin_percent}%</span>
+                          <span className="text-emerald-600 font-medium">
+                            Lucro: R$ {(model.base_price - model.cost).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                          </span>
+                        </div>
+                      )}
+                      {(model.length || model.width || model.depth) && (
+                        <p className="text-sm text-muted-foreground">
+                          Dimensões: {model.length}m × {model.width}m × {model.depth}m
+                        </p>
+                      )}
+                      <div className="grid md:grid-cols-2 gap-2 text-sm text-muted-foreground">
+                        <div>Entrega: {model.delivery_days}d | Instalação: {model.installation_days}d</div>
+                        {model.payment_terms && <div>Pagamento: {model.payment_terms}</div>}
+                      </div>
+                      {model.differentials?.length > 0 && (
+                        <div>
+                          <span className="font-semibold text-sm">Diferenciais:</span>
+                          <div className="flex flex-wrap gap-1 mt-1">
+                            {model.differentials.map((d, i) => <Badge key={i} variant="secondary">{d}</Badge>)}
+                          </div>
+                        </div>
+                      )}
+                      {model.notes && (
+                        <div className="p-3 bg-muted/50 rounded-md">
+                          <span className="font-semibold text-sm">Observações:</span>
+                          <p className="text-sm mt-1">{model.notes}</p>
+                        </div>
+                      )}
                     </div>
                   )}
-                  {(model.length || model.width || model.depth) && (
-                    <p className="text-sm text-muted-foreground mt-1">
-                      Dimensões: {model.length}m × {model.width}m × {model.depth}m
-                    </p>
-                  )}
-                </div>
-                <div className="flex items-center gap-4 shrink-0">
-                  <div className="flex items-center gap-2">
-                    <Switch
-                      checked={model.active}
-                      onCheckedChange={() => toggleActive(model.id, model.active)}
-                    />
-                    <span className="text-sm">{model.active ? "Ativo" : "Inativo"}</span>
-                  </div>
-                  <Button variant="outline" size="sm" onClick={() => handleEdit(model)}>
-                    <Pencil className="w-4 h-4" />
-                  </Button>
-                  <AlertDialog>
-                    <AlertDialogTrigger asChild>
-                      <Button variant="outline" size="sm" className="text-destructive hover:text-destructive">
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
-                    </AlertDialogTrigger>
-                    <AlertDialogContent>
-                      <AlertDialogHeader>
-                        <AlertDialogTitle>Excluir modelo?</AlertDialogTitle>
-                        <AlertDialogDescription>
-                          Excluir "{model.name}"? Esta ação não pode ser desfeita.
-                        </AlertDialogDescription>
-                      </AlertDialogHeader>
-                      <AlertDialogFooter>
-                        <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                        <AlertDialogAction onClick={() => handleDelete(model.id)}
-                          className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
-                          Excluir
-                        </AlertDialogAction>
-                      </AlertDialogFooter>
-                    </AlertDialogContent>
-                  </AlertDialog>
-                </div>
-              </div>
-
-              {model.differentials?.length > 0 && (
-                <div className="mb-3">
-                  <span className="font-semibold text-sm">Diferenciais:</span>
-                  <div className="flex flex-wrap gap-1 mt-1">
-                    {model.differentials.map((d, i) => (
-                      <Badge key={i} variant="secondary">{d}</Badge>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              <div className="grid md:grid-cols-2 gap-2 text-sm text-muted-foreground">
-                <div>
-                  Entrega: {model.delivery_days}d | Instalação: {model.installation_days}d
-                </div>
-                {model.payment_terms && (
-                  <div>Pagamento: {model.payment_terms}</div>
-                )}
-              </div>
-
-              {model.notes && (
-                <div className="mt-3 p-3 bg-muted/50 rounded-md">
-                  <span className="font-semibold text-sm">Observações:</span>
-                  <p className="text-sm mt-1">{model.notes}</p>
-                </div>
-              )}
-            </div>
-            </div>
-          </Card>
-        ))}
-      </div>
+                </Card>
+              );
+            })}
+          </div>
+        );
+      })()}
     </div>
   );
 };
