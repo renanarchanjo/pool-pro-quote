@@ -102,8 +102,14 @@ const ManualProposal = () => {
     }
   };
 
+  const filteredCategories = selectedBrandId
+    ? categories.filter((c) => c.brand_id === selectedBrandId)
+    : categories;
+
   const filteredModels = selectedCategoryId
     ? models.filter((m) => m.category_id === selectedCategoryId)
+    : selectedBrandId
+    ? models.filter((m) => filteredCategories.some((c) => c.id === m.category_id))
     : models;
 
   const visibleOptionals = optionals.filter((o) => enabledOptionalIds.includes(o.id));
