@@ -90,15 +90,15 @@ const AdminProfile = () => {
         <div className="space-y-8">
           {/* Logo Section */}
           <div className="flex flex-col items-center gap-4 pb-6 border-b border-border">
-            <div className="w-full max-w-md rounded-lg border-2 border-dashed border-primary/20 bg-muted/50 overflow-hidden" style={{ aspectRatio: "3 / 2" }}>
+            <div className="w-full max-w-md rounded-lg border-2 border-dashed border-primary/20 bg-muted/50 overflow-hidden flex items-center justify-center min-h-[120px] p-4">
               {logoUrl ? (
                 <img
                   src={logoUrl}
                   alt="Logo da loja"
-                  className="w-full h-full object-contain p-4"
+                  className="max-w-full max-h-[200px] object-contain"
                 />
               ) : (
-                <div className="w-full h-full flex flex-col items-center justify-center text-muted-foreground">
+                <div className="flex flex-col items-center justify-center text-muted-foreground py-8">
                   <ImageIcon className="w-12 h-12 mb-2 opacity-40" />
                   <span className="text-sm">Nenhuma logo enviada</span>
                 </div>
@@ -125,7 +125,7 @@ const AdminProfile = () => {
               )}
               {logoUrl ? "Trocar Logo" : "Enviar Logo"}
             </Button>
-            <p className="text-xs text-muted-foreground">Formato horizontal recomendado: 1500×1000px (3:2). PNG, JPG ou SVG.</p>
+            <p className="text-xs text-muted-foreground">Envie sua logo em qualquer formato (horizontal, vertical ou redonda). PNG, JPG ou SVG.</p>
           </div>
 
           {/* Fields */}
