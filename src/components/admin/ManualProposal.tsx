@@ -175,6 +175,7 @@ const ManualProposal = () => {
     setSelectedBrandId("");
     setSelectedCategoryId("");
     setSelectedOptionalIds([]);
+    setSelectedModelOptIds([]);
     setCustomerName("");
     setCustomerCity("");
     setCustomerWhatsapp("");
