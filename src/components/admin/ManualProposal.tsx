@@ -40,9 +40,15 @@ interface Optional {
   warning_note: string | null;
 }
 
+interface Brand {
+  id: string;
+  name: string;
+}
+
 interface Category {
   id: string;
   name: string;
+  brand_id: string | null;
 }
 
 const ManualProposal = () => {
