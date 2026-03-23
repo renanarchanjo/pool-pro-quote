@@ -157,14 +157,15 @@ const AdminProfile = () => {
               <div className="space-y-2">
                 <Label className="flex items-center gap-2">
                   <ImageIcon className="w-4 h-4 text-muted-foreground" />
-                  Logo Atual
+                  Preview na Proposta
                 </Label>
                 <div className="p-4 bg-muted rounded-lg">
                   <img
                     src={logoUrl}
                     alt="Logo da empresa"
-                    className="max-h-24 object-contain"
+                    className="h-12 w-auto object-contain"
                   />
+                  <p className="text-xs text-muted-foreground mt-2">Assim aparecerá no cabeçalho das propostas</p>
                 </div>
               </div>
             )}
