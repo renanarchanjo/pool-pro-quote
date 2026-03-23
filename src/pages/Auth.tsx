@@ -28,15 +28,25 @@ const Auth = () => {
   ];
 
   useEffect(() => {
+    const redirectByRole = async (userId: string) => {
+      const { data: roleData } = await supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", userId);
+      
+      const isSuperAdmin = roleData?.some((r: any) => r.role === "super_admin");
+      navigate(isSuperAdmin ? "/matriz" : "/admin");
+    };
+
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session) {
-        navigate("/admin");
+        redirectByRole(session.user.id);
       }
     });
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (session) {
-        navigate("/admin");
+        redirectByRole(session.user.id);
       }
     });
 
