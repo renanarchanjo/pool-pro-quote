@@ -84,11 +84,13 @@ const ManualProposal = () => {
   const loadData = async () => {
     try {
       const storeId = profile!.store_id!;
-      const [catRes, modRes, optRes] = await Promise.all([
-        supabase.from("categories").select("id, name").eq("store_id", storeId).eq("active", true).order("name"),
+      const [brandRes, catRes, modRes, optRes] = await Promise.all([
+        supabase.from("brands").select("id, name").eq("store_id", storeId).eq("active", true).order("name"),
+        supabase.from("categories").select("id, name, brand_id").eq("store_id", storeId).eq("active", true).order("name"),
         supabase.from("pool_models").select("*").eq("store_id", storeId).eq("active", true).order("display_order"),
         supabase.from("optionals").select("*").eq("store_id", storeId).eq("active", true).order("display_order"),
       ]);
+      setBrands(brandRes.data || []);
       setCategories(catRes.data || []);
       setModels(modRes.data || []);
       setOptionals(optRes.data || []);
