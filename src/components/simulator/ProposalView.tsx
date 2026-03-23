@@ -173,7 +173,7 @@ const ProposalView = ({
       </nav>
 
       {/* PDF Content */}
-      <main className="container mx-auto px-4 py-8 print:p-0">
+      <main className="container mx-auto px-2 sm:px-4 py-4 sm:py-8 print:p-0">
         <div
           id="proposal-content"
           style={{
@@ -182,9 +182,9 @@ const ProposalView = ({
             background: "white",
             fontFamily: "'Inter', 'Segoe UI', sans-serif",
             color: "#111827",
-            padding: "32px",
+            padding: "16px",
           }}
-          className="print:shadow-none"
+          className="sm:p-8 print:shadow-none"
         >
           {/* ===== HEADER ===== */}
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "28px", borderBottom: "2px solid #e5e7eb", paddingBottom: "20px" }}>
