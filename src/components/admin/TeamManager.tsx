@@ -223,11 +223,11 @@ const TeamManager = () => {
     );
   }
 
-  const isAtLimit = members.length >= MAX_MEMBERS;
+  const isAtLimit = members.length >= maxMembers;
 
   return (
     <div className="space-y-6 max-w-3xl">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
           <h2 className="text-2xl font-bold">Equipe</h2>
           <p className="text-muted-foreground text-sm">Gerencie os membros da sua loja</p>
@@ -245,13 +245,13 @@ const TeamManager = () => {
       {/* Limit warning */}
       <Alert className="border-amber-500/50 bg-amber-500/5">
         <AlertTriangle className="h-4 w-4 text-amber-500" />
-        <AlertDescription className="flex items-center justify-between">
-          <span className="font-medium text-amber-700">
-            LIMITE DE {MAX_MEMBERS} USUÁRIOS POR LOJA
+        <AlertDescription className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <span className="font-medium text-amber-700 text-sm">
+            LIMITE DO PLANO: {maxMembers} USUÁRIO{maxMembers > 1 ? "S" : ""}
           </span>
           <span className="text-sm">
             <Users className="w-4 h-4 inline mr-1" />
-            {members.length}/{MAX_MEMBERS} utilizados
+            {members.length}/{maxMembers} utilizados
           </span>
         </AlertDescription>
       </Alert>
