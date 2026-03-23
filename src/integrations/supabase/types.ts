@@ -14,7 +14,7 @@ export type Database = {
   }
   public: {
     Tables: {
-      categories: {
+      brands: {
         Row: {
           active: boolean | null
           created_at: string | null
@@ -43,6 +43,54 @@ export type Database = {
           updated_at?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "brands_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      categories: {
+        Row: {
+          active: boolean | null
+          brand_id: string | null
+          created_at: string | null
+          description: string | null
+          id: string
+          name: string
+          store_id: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          active?: boolean | null
+          brand_id?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          name: string
+          store_id?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          active?: boolean | null
+          brand_id?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          name?: string
+          store_id?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "categories_brand_id_fkey"
+            columns: ["brand_id"]
+            isOneToOne: false
+            referencedRelation: "brands"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "categories_store_id_fkey"
             columns: ["store_id"]
