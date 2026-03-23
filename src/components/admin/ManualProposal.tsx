@@ -74,6 +74,8 @@ const ManualProposal = () => {
   const [customerName, setCustomerName] = useState("");
   const [customerUf, setCustomerUf] = useState("");
   const [customerCity, setCustomerCity] = useState("");
+  const [customerCities, setCustomerCities] = useState<string[]>([]);
+  const [loadingCities, setLoadingCities] = useState(false);
   const [customerWhatsapp, setCustomerWhatsapp] = useState("");
 
   useEffect(() => {
