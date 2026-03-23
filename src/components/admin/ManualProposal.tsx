@@ -82,6 +82,22 @@ const ManualProposal = () => {
     if (profile?.store_id) loadData();
   }, [profile?.store_id]);
 
+  // Fetch cities when UF changes
+  useEffect(() => {
+    if (!customerUf) { setCustomerCities([]); return; }
+    const fetchCities = async () => {
+      setLoadingCities(true);
+      try {
+        const res = await fetch(`https://servicodados.ibge.gov.br/api/v1/localidades/estados/${customerUf}/municipios?orderBy=nome`);
+        const data = await res.json();
+        setCustomerCities(data.map((m: any) => m.nome));
+      } catch { setCustomerCities([]); }
+      finally { setLoadingCities(false); }
+    };
+    fetchCities();
+  }, [customerUf]);
+  }, [profile?.store_id]);
+
   // Enable all optionals by default when loaded
   useEffect(() => {
     setEnabledOptionalIds(optionals.map((o) => o.id));
