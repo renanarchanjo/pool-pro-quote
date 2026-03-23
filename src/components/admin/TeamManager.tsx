@@ -38,6 +38,7 @@ const TeamManager = () => {
   const [showForm, setShowForm] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [editingRole, setEditingRole] = useState<string | null>(null);
+  const [currentPlanSlug, setCurrentPlanSlug] = useState<string>("gratuito");
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -45,9 +46,32 @@ const TeamManager = () => {
     role: "seller",
   });
 
+  const maxMembers = PLAN_USER_LIMITS[currentPlanSlug] || 1;
+
   useEffect(() => {
-    if (store) loadMembers();
+    if (store) {
+      loadMembers();
+      loadSubscription();
+    }
   }, [store]);
+
+  const loadSubscription = async () => {
+    try {
+      const { data, error } = await supabase.functions.invoke("check-subscription");
+      if (error) return;
+      if (data?.subscribed && data?.product_id) {
+        // Map product IDs to plan slugs
+        const productPlanMap: Record<string, string> = {
+          "prod_UCgRljPq5bvjS4": "premium",
+          "prod_UCgScAiO19M68R": "avancado",
+          "prod_UCgSX4JTil25jU": "escala",
+        };
+        setCurrentPlanSlug(productPlanMap[data.product_id] || "gratuito");
+      }
+    } catch {
+      // fallback to gratuito
+    }
+  };
 
   const loadMembers = async () => {
     if (!store) return;
