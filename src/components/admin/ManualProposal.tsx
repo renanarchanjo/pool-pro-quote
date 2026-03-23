@@ -61,11 +61,13 @@ const ManualProposal = () => {
   const [categories, setCategories] = useState<Category[]>([]);
   const [models, setModels] = useState<PoolModel[]>([]);
   const [optionals, setOptionals] = useState<Optional[]>([]);
+  const [modelOptionals, setModelOptionals] = useState<any[]>([]);
 
   const [selectedBrandId, setSelectedBrandId] = useState<string>("");
   const [selectedCategoryId, setSelectedCategoryId] = useState<string>("");
   const [selectedModel, setSelectedModel] = useState<PoolModel | null>(null);
   const [selectedOptionalIds, setSelectedOptionalIds] = useState<string[]>([]);
+  const [selectedModelOptIds, setSelectedModelOptIds] = useState<string[]>([]);
   const [enabledOptionalIds, setEnabledOptionalIds] = useState<string[]>([]);
 
   const [customerName, setCustomerName] = useState("");
@@ -84,16 +86,18 @@ const ManualProposal = () => {
   const loadData = async () => {
     try {
       const storeId = profile!.store_id!;
-      const [brandRes, catRes, modRes, optRes] = await Promise.all([
+      const [brandRes, catRes, modRes, optRes, modelOptRes] = await Promise.all([
         supabase.from("brands").select("id, name").eq("store_id", storeId).eq("active", true).order("name"),
         supabase.from("categories").select("id, name, brand_id").eq("store_id", storeId).eq("active", true).order("name"),
         supabase.from("pool_models").select("*").eq("store_id", storeId).eq("active", true).order("display_order"),
         supabase.from("optionals").select("*").eq("store_id", storeId).eq("active", true).order("display_order"),
+        supabase.from("model_optionals").select("*").eq("store_id", storeId).eq("active", true).order("display_order"),
       ]);
       setBrands(brandRes.data || []);
       setCategories(catRes.data || []);
       setModels(modRes.data || []);
       setOptionals(optRes.data || []);
+      setModelOptionals(modelOptRes.data || []);
     } catch (e) {
       console.error(e);
       toast.error("Erro ao carregar dados");
@@ -114,7 +118,9 @@ const ManualProposal = () => {
 
   const visibleOptionals = optionals.filter((o) => enabledOptionalIds.includes(o.id));
   const selectedOptionalsList = optionals.filter((o) => selectedOptionalIds.includes(o.id));
-  const optionalsTotal = selectedOptionalsList.reduce((s, o) => s + o.price, 0);
+  const currentModelOpts = selectedModel ? modelOptionals.filter((o: any) => o.model_id === selectedModel.id) : [];
+  const selectedModelOptsList = currentModelOpts.filter((o: any) => selectedModelOptIds.includes(o.id));
+  const optionalsTotal = selectedOptionalsList.reduce((s, o) => s + o.price, 0) + selectedModelOptsList.reduce((s: number, o: any) => s + o.price, 0);
   const totalPrice = (selectedModel?.base_price || 0) + optionalsTotal;
 
   const toggleEnabled = (id: string) => {
@@ -169,6 +175,7 @@ const ManualProposal = () => {
     setSelectedBrandId("");
     setSelectedCategoryId("");
     setSelectedOptionalIds([]);
+    setSelectedModelOptIds([]);
     setCustomerName("");
     setCustomerCity("");
     setCustomerWhatsapp("");
@@ -190,7 +197,7 @@ const ManualProposal = () => {
         </Button>
         <ProposalView
           model={selectedModel}
-          selectedOptionals={selectedOptionalsList}
+          selectedOptionals={[...selectedOptionalsList, ...selectedModelOptsList.map((o: any) => ({ name: o.name, price: o.price }))]}
           customerData={{ name: customerName, city: customerCity, whatsapp: customerWhatsapp }}
           category={categories.find((c) => c.id === selectedModel.category_id)?.name || "Piscina"}
           onBack={handleReset}
@@ -368,6 +375,44 @@ const ManualProposal = () => {
             )}
           </CardContent>
         </Card>
+
+        {/* Opcionais Exclusivos do Modelo */}
+        {selectedModel && currentModelOpts.length > 0 && (
+          <Card className="md:col-span-2">
+            <CardHeader>
+              <CardTitle className="text-lg">Opcionais Exclusivos — {selectedModel.name}</CardTitle>
+              <p className="text-xs text-muted-foreground">Opcionais específicos calculados para este modelo</p>
+            </CardHeader>
+            <CardContent>
+              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                {currentModelOpts.map((opt: any) => {
+                  const isSelected = selectedModelOptIds.includes(opt.id);
+                  return (
+                    <label
+                      key={opt.id}
+                      className={`flex items-start gap-3 p-3 rounded-lg border cursor-pointer transition-all ${
+                        isSelected ? "border-primary bg-primary/5" : "border-border hover:border-primary/40"
+                      }`}
+                    >
+                      <Checkbox
+                        checked={isSelected}
+                        onCheckedChange={() => setSelectedModelOptIds((prev) => prev.includes(opt.id) ? prev.filter((x: string) => x !== opt.id) : [...prev, opt.id])}
+                        className="mt-0.5"
+                      />
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium leading-tight">{opt.name}</p>
+                        {opt.description && <p className="text-xs text-muted-foreground">{opt.description}</p>}
+                        <p className="text-xs text-primary font-semibold mt-1">
+                          + R$ {opt.price.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                        </p>
+                      </div>
+                    </label>
+                  );
+                })}
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Resumo */}
         <Card className="md:col-span-2">

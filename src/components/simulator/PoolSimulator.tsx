@@ -61,6 +61,7 @@ const PoolSimulator = ({ onBack }: PoolSimulatorProps) => {
   
   const [models, setModels] = useState<PoolModel[]>([]);
   const [optionals, setOptionals] = useState<Optional[]>([]);
+  const [modelOptionals, setModelOptionals] = useState<any[]>([]);
   const [storeId, setStoreId] = useState<string | null>(null);
   const [selectedStoreName, setSelectedStoreName] = useState<string>("");
   
@@ -73,9 +74,10 @@ const PoolSimulator = ({ onBack }: PoolSimulatorProps) => {
     try {
       setLoading(true);
       
-      const [modelsRes, optionalsRes] = await Promise.all([
+      const [modelsRes, optionalsRes, modelOptsRes] = await Promise.all([
         supabase.from("pool_models").select("*").eq("active", true).eq("store_id", storeId).order("display_order"),
-        supabase.from("optionals").select("*").eq("active", true).eq("store_id", storeId).order("display_order")
+        supabase.from("optionals").select("*").eq("active", true).eq("store_id", storeId).order("display_order"),
+        supabase.from("model_optionals").select("*").eq("active", true).eq("store_id", storeId).order("display_order"),
       ]);
 
       if (modelsRes.error) throw modelsRes.error;
@@ -84,6 +86,7 @@ const PoolSimulator = ({ onBack }: PoolSimulatorProps) => {
       setStoreId(storeId);
       setModels(modelsRes.data || []);
       setOptionals(optionalsRes.data || []);
+      setModelOptionals(modelOptsRes.data || []);
       setStep(1);
     } catch (error) {
       console.error("Error loading store data:", error);
@@ -101,14 +104,16 @@ const PoolSimulator = ({ onBack }: PoolSimulatorProps) => {
   const handleSkipLocation = async () => {
     try {
       setLoading(true);
-      const [modelsRes, optionalsRes] = await Promise.all([
+      const [modelsRes, optionalsRes, modelOptsRes] = await Promise.all([
         supabase.from("pool_models").select("*").eq("active", true).order("display_order"),
-        supabase.from("optionals").select("*").eq("active", true).order("display_order")
+        supabase.from("optionals").select("*").eq("active", true).order("display_order"),
+        supabase.from("model_optionals").select("*").eq("active", true).order("display_order"),
       ]);
       if (modelsRes.error) throw modelsRes.error;
       if (optionalsRes.error) throw optionalsRes.error;
       setModels(modelsRes.data || []);
       setOptionals(optionalsRes.data || []);
+      setModelOptionals(modelOptsRes.data || []);
       setSelectedStoreName("Todas as lojas");
       setStep(1);
     } catch (error) {
@@ -137,7 +142,11 @@ const PoolSimulator = ({ onBack }: PoolSimulatorProps) => {
         .filter(opt => selectedOptionals.includes(opt.id))
         .reduce((sum, opt) => sum + opt.price, 0);
 
-      const totalPrice = selectedModel.base_price + optionalsPrice;
+      const modelOptsPrice = modelOptionals
+        .filter(opt => selectedOptionals.includes(opt.id))
+        .reduce((sum: number, opt: any) => sum + opt.price, 0);
+
+      const totalPrice = selectedModel.base_price + optionalsPrice + modelOptsPrice;
 
       const { data: proposal, error } = await supabase
         .from("proposals")
@@ -207,7 +216,10 @@ const PoolSimulator = ({ onBack }: PoolSimulatorProps) => {
         </Dialog>
         <ProposalView
           model={selectedModel}
-          selectedOptionals={optionals.filter(opt => selectedOptionals.includes(opt.id))}
+          selectedOptionals={[
+            ...optionals.filter(opt => selectedOptionals.includes(opt.id)),
+            ...modelOptionals.filter((opt: any) => selectedOptionals.includes(opt.id)).map((o: any) => ({ name: o.name, price: o.price })),
+          ]}
           customerData={customerData}
           category="Piscina de Fibra"
           onBack={handleRestart}
@@ -268,6 +280,7 @@ const PoolSimulator = ({ onBack }: PoolSimulatorProps) => {
         {step === 2 && selectedModel && (
           <OptionalsSelection
             optionals={optionals}
+            modelOptionals={selectedModel ? modelOptionals.filter((o: any) => o.model_id === selectedModel.id) : []}
             selectedOptionals={selectedOptionals}
             onConfirm={handleOptionalsConfirm}
             onBack={() => setStep(1)}
@@ -280,7 +293,10 @@ const PoolSimulator = ({ onBack }: PoolSimulatorProps) => {
             onSubmit={handleCustomerSubmit}
             onBack={() => setStep(2)}
             model={selectedModel}
-            optionals={optionals.filter(opt => selectedOptionals.includes(opt.id))}
+            optionals={[
+              ...optionals.filter(opt => selectedOptionals.includes(opt.id)),
+              ...modelOptionals.filter((opt: any) => selectedOptionals.includes(opt.id)).map((o: any) => ({ name: o.name, price: o.price, id: o.id, description: "", group_id: "", warning_note: null })),
+            ]}
           />
         )}
       </main>

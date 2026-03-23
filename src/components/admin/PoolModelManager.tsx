@@ -7,6 +7,7 @@ import { Card } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Plus, Pencil, Loader2, X, Trash2, CheckSquare, Square } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
@@ -18,17 +19,18 @@ import {
   AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 
-interface Brand {
+interface Brand { id: string; name: string; }
+interface Category { id: string; name: string; brand_id: string | null; }
+interface ModelOptional {
   id: string;
+  model_id: string;
   name: string;
+  description: string | null;
+  price: number;
+  cost: number;
+  margin_percent: number;
+  active: boolean;
 }
-
-interface Category {
-  id: string;
-  name: string;
-  brand_id: string | null;
-}
-
 interface PoolModel {
   id: string;
   category_id: string;
@@ -55,6 +57,7 @@ const PoolModelManager = () => {
   const [brands, setBrands] = useState<Brand[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [models, setModels] = useState<PoolModel[]>([]);
+  const [modelOptionals, setModelOptionals] = useState<ModelOptional[]>([]);
   const [selectedModels, setSelectedModels] = useState<string[]>([]);
   const [expandedModel, setExpandedModel] = useState<string | null>(null);
   const [filterBrand, setFilterBrand] = useState<string>("all");
@@ -62,101 +65,72 @@ const PoolModelManager = () => {
   const [filterStatus, setFilterStatus] = useState<string>("all");
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState<string | null>(null);
+  const [formTab, setFormTab] = useState("dados");
+
+  // Form state
   const [formData, setFormData] = useState({
-    category_id: "",
-    name: "",
-    length: "",
-    width: "",
-    depth: "",
-    photo_url: "",
-    cost: "",
-    margin_percent: "",
-    base_price: "",
-    delivery_days: "30",
-    installation_days: "5",
-    payment_terms: "À vista",
+    category_id: "", name: "", length: "", width: "", depth: "",
+    photo_url: "", cost: "", margin_percent: "", base_price: "",
+    delivery_days: "30", installation_days: "5", payment_terms: "À vista",
     notes: "",
-    differentials: [] as string[],
-    included_items: [] as string[],
-    not_included_items: [] as string[],
-    newDifferential: "",
-    newIncluded: "",
-    newNotIncluded: "",
+    differentials: [] as string[], included_items: [] as string[], not_included_items: [] as string[],
+    newDifferential: "", newIncluded: "", newNotIncluded: "",
   });
 
-  useEffect(() => {
-    if (store) {
-      loadData();
-    }
-  }, [store]);
+  // Model optional form
+  const [optForm, setOptForm] = useState({ name: "", description: "", cost: "", margin_percent: "", price: "" });
+  const [editingOpt, setEditingOpt] = useState<string | null>(null);
+
+  useEffect(() => { if (store) loadData(); }, [store]);
 
   const loadData = async () => {
     if (!store) return;
-    
     try {
-      const [brandsRes, categoriesRes, modelsRes] = await Promise.all([
+      const [brandsRes, categoriesRes, modelsRes, optRes] = await Promise.all([
         supabase.from("brands").select("id, name").eq("active", true).eq("store_id", store.id),
         supabase.from("categories").select("id, name, brand_id").eq("active", true).eq("store_id", store.id),
-        supabase.from("pool_models").select("*").eq("store_id", store.id).order("created_at", { ascending: false })
+        supabase.from("pool_models").select("*").eq("store_id", store.id).order("created_at", { ascending: false }),
+        supabase.from("model_optionals").select("*").eq("store_id", store.id).order("display_order"),
       ]);
-
       if (brandsRes.error) throw brandsRes.error;
       if (categoriesRes.error) throw categoriesRes.error;
       if (modelsRes.error) throw modelsRes.error;
-
       setBrands(brandsRes.data || []);
       setCategories(categoriesRes.data || []);
       setModels(modelsRes.data || []);
+      setModelOptionals(optRes.data || []);
     } catch (error) {
-      console.error("Error loading data:", error);
+      console.error(error);
       toast.error("Erro ao carregar dados");
-    } finally {
-      setLoading(false);
-    }
+    } finally { setLoading(false); }
   };
 
   const getBrandName = (categoryId: string) => {
     const cat = categories.find((c) => c.id === categoryId);
     if (!cat?.brand_id) return "";
-    const brand = brands.find((b) => b.id === cat.brand_id);
-    return brand?.name || "";
+    return brands.find((b) => b.id === cat.brand_id)?.name || "";
   };
 
+  // ---- Array helpers ----
   const addToArray = (field: "differentials" | "included_items" | "not_included_items", inputField: string) => {
     const value = formData[inputField as keyof typeof formData] as string;
     if (!value.trim()) return;
-
-    setFormData({
-      ...formData,
-      [field]: [...formData[field], value.trim()],
-      [inputField]: "",
-    });
+    setFormData({ ...formData, [field]: [...formData[field], value.trim()], [inputField]: "" });
   };
-
   const removeFromArray = (field: "differentials" | "included_items" | "not_included_items", index: number) => {
-    setFormData({
-      ...formData,
-      [field]: formData[field].filter((_, i) => i !== index),
-    });
+    setFormData({ ...formData, [field]: formData[field].filter((_, i) => i !== index) });
   };
 
+  // ---- Model CRUD ----
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
     if (!formData.name.trim() || !formData.category_id || !formData.base_price) {
-      toast.error("Preencha os campos obrigatórios");
-      return;
+      toast.error("Preencha os campos obrigatórios"); return;
     }
-
-    if (!store) {
-      toast.error("Loja não encontrada");
-      return;
-    }
-
+    if (!store) { toast.error("Loja não encontrada"); return; }
     try {
       const data = {
-        category_id: formData.category_id,
-        name: formData.name,
+        category_id: formData.category_id, name: formData.name,
         length: formData.length ? parseFloat(formData.length) : null,
         width: formData.width ? parseFloat(formData.width) : null,
         depth: formData.depth ? parseFloat(formData.depth) : null,
@@ -173,13 +147,8 @@ const PoolModelManager = () => {
         not_included_items: formData.not_included_items,
         ...(editing ? {} : { store_id: store.id }),
       };
-
       if (editing) {
-        const { error } = await supabase
-          .from("pool_models")
-          .update(data)
-          .eq("id", editing);
-
+        const { error } = await supabase.from("pool_models").update(data).eq("id", editing);
         if (error) throw error;
         toast.success("Modelo atualizado");
       } else {
@@ -187,406 +156,387 @@ const PoolModelManager = () => {
         if (error) throw error;
         toast.success("Modelo criado");
       }
-
-      resetForm();
-      loadData();
-    } catch (error) {
-      console.error("Error saving model:", error);
-      toast.error("Erro ao salvar modelo");
-    }
+      resetForm(); loadData();
+    } catch (error) { console.error(error); toast.error("Erro ao salvar modelo"); }
   };
 
   const resetForm = () => {
     setFormData({
-      category_id: "",
-      name: "",
-      length: "",
-      width: "",
-      depth: "",
-      photo_url: "",
-      cost: "",
-      margin_percent: "",
-      base_price: "",
-      delivery_days: "30",
-      installation_days: "5",
-      payment_terms: "À vista",
-      notes: "",
-      differentials: [],
-      included_items: [],
-      not_included_items: [],
-      newDifferential: "",
-      newIncluded: "",
-      newNotIncluded: "",
+      category_id: "", name: "", length: "", width: "", depth: "",
+      photo_url: "", cost: "", margin_percent: "", base_price: "",
+      delivery_days: "30", installation_days: "5", payment_terms: "À vista", notes: "",
+      differentials: [], included_items: [], not_included_items: [],
+      newDifferential: "", newIncluded: "", newNotIncluded: "",
     });
     setEditing(null);
+    setFormTab("dados");
   };
 
   const handleEdit = (model: PoolModel) => {
     setEditing(model.id);
     setFormData({
-      category_id: model.category_id,
-      name: model.name,
-      length: model.length?.toString() || "",
-      width: model.width?.toString() || "",
-      depth: model.depth?.toString() || "",
-      photo_url: model.photo_url || "",
-      cost: model.cost?.toString() || "",
-      margin_percent: model.margin_percent?.toString() || "",
+      category_id: model.category_id, name: model.name,
+      length: model.length?.toString() || "", width: model.width?.toString() || "",
+      depth: model.depth?.toString() || "", photo_url: model.photo_url || "",
+      cost: model.cost?.toString() || "", margin_percent: model.margin_percent?.toString() || "",
       base_price: model.base_price.toString(),
-      delivery_days: model.delivery_days.toString(),
-      installation_days: model.installation_days.toString(),
-      payment_terms: model.payment_terms || "À vista",
-      notes: model.notes || "",
-      differentials: model.differentials || [],
-      included_items: model.included_items || [],
+      delivery_days: model.delivery_days.toString(), installation_days: model.installation_days.toString(),
+      payment_terms: model.payment_terms || "À vista", notes: model.notes || "",
+      differentials: model.differentials || [], included_items: model.included_items || [],
       not_included_items: model.not_included_items || [],
-      newDifferential: "",
-      newIncluded: "",
-      newNotIncluded: "",
+      newDifferential: "", newIncluded: "", newNotIncluded: "",
     });
+    setFormTab("dados");
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const handleDelete = async (id: string) => {
     try {
       const { error } = await supabase.from("pool_models").delete().eq("id", id);
       if (error) throw error;
-      toast.success("Modelo excluído");
-      loadData();
-    } catch (error) {
-      console.error("Error deleting model:", error);
-      toast.error("Erro ao excluir modelo. Verifique se não há propostas vinculadas.");
-    }
+      toast.success("Modelo excluído"); loadData();
+    } catch { toast.error("Erro ao excluir modelo"); }
   };
 
   const toggleActive = async (id: string, active: boolean) => {
     try {
-      const { error } = await supabase
-        .from("pool_models")
-        .update({ active: !active })
-        .eq("id", id);
-
+      const { error } = await supabase.from("pool_models").update({ active: !active }).eq("id", id);
       if (error) throw error;
-      toast.success("Status atualizado");
+      toast.success("Status atualizado"); loadData();
+    } catch { toast.error("Erro ao atualizar status"); }
+  };
+
+  // ---- Model Optionals CRUD ----
+  const handleOptSubmit = async () => {
+    if (!editing) { toast.error("Salve o modelo primeiro para adicionar opcionais exclusivos"); return; }
+    if (!optForm.name.trim() || !optForm.price) { toast.error("Preencha nome e preço"); return; }
+    try {
+      const data = {
+        model_id: editing,
+        store_id: store!.id,
+        name: optForm.name,
+        description: optForm.description || null,
+        cost: optForm.cost ? parseFloat(optForm.cost) : 0,
+        margin_percent: optForm.margin_percent ? parseFloat(optForm.margin_percent) : 0,
+        price: parseFloat(optForm.price),
+      };
+      if (editingOpt) {
+        const { error } = await supabase.from("model_optionals").update(data).eq("id", editingOpt);
+        if (error) throw error;
+        toast.success("Opcional atualizado");
+      } else {
+        const { error } = await supabase.from("model_optionals").insert(data);
+        if (error) throw error;
+        toast.success("Opcional adicionado");
+      }
+      setOptForm({ name: "", description: "", cost: "", margin_percent: "", price: "" });
+      setEditingOpt(null);
       loadData();
-    } catch (error) {
-      console.error("Error updating model:", error);
-      toast.error("Erro ao atualizar status");
-    }
+    } catch { toast.error("Erro ao salvar opcional"); }
   };
 
-  const toggleSelectModel = (id: string) => {
-    setSelectedModels((prev) => prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]);
+  const handleDeleteOpt = async (id: string) => {
+    try {
+      await supabase.from("model_optionals").delete().eq("id", id);
+      toast.success("Opcional excluído"); loadData();
+    } catch { toast.error("Erro ao excluir"); }
   };
 
-  const selectAllModels = () => {
-    setSelectedModels(selectedModels.length === models.length ? [] : models.map((m) => m.id));
+  const handleEditOpt = (opt: ModelOptional) => {
+    setEditingOpt(opt.id);
+    setOptForm({
+      name: opt.name, description: opt.description || "",
+      cost: opt.cost?.toString() || "", margin_percent: opt.margin_percent?.toString() || "",
+      price: opt.price.toString(),
+    });
   };
 
+  // ---- Bulk actions ----
+  const toggleSelectModel = (id: string) => setSelectedModels((prev) => prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]);
+  const selectAllModels = () => setSelectedModels(selectedModels.length === models.length ? [] : models.map((m) => m.id));
   const bulkModelAction = async (action: "activate" | "deactivate" | "delete") => {
     if (selectedModels.length === 0) return;
     try {
       if (action === "delete") {
-        for (const id of selectedModels) {
-          await supabase.from("pool_models").delete().eq("id", id);
-        }
+        for (const id of selectedModels) await supabase.from("pool_models").delete().eq("id", id);
         toast.success(`${selectedModels.length} modelo(s) excluído(s)`);
       } else {
         const active = action === "activate";
-        for (const id of selectedModels) {
-          await supabase.from("pool_models").update({ active }).eq("id", id);
-        }
+        for (const id of selectedModels) await supabase.from("pool_models").update({ active }).eq("id", id);
         toast.success(`${selectedModels.length} modelo(s) ${active ? "ativado(s)" : "desativado(s)"}`);
       }
-      setSelectedModels([]);
-      loadData();
-    } catch {
-      toast.error("Erro na operação em lote");
-    }
+      setSelectedModels([]); loadData();
+    } catch { toast.error("Erro na operação em lote"); }
   };
 
+  const currentModelOptionals = editing ? modelOptionals.filter((o) => o.model_id === editing) : [];
+
   if (loading) {
-    return (
-      <div className="flex justify-center p-8">
-        <Loader2 className="w-8 h-8 animate-spin text-primary" />
-      </div>
-    );
+    return <div className="flex justify-center p-8"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
   }
+
+  const ArrayField = ({ label, field, inputField, placeholder }: { label: string; field: "differentials" | "included_items" | "not_included_items"; inputField: string; placeholder: string }) => (
+    <div>
+      <Label>{label}</Label>
+      <div className="flex gap-2 mb-2">
+        <Input
+          value={formData[inputField as keyof typeof formData] as string}
+          onChange={(e) => setFormData({ ...formData, [inputField]: e.target.value })}
+          placeholder={placeholder}
+          onKeyPress={(e) => e.key === "Enter" && (e.preventDefault(), addToArray(field, inputField))}
+        />
+        <Button type="button" onClick={() => addToArray(field, inputField)}><Plus className="w-4 h-4" /></Button>
+      </div>
+      <div className="flex flex-wrap gap-2">
+        {formData[field].map((item, idx) => (
+          <Badge key={idx} variant="secondary" className="cursor-pointer" onClick={() => removeFromArray(field, idx)}>
+            {item} <X className="w-3 h-3 ml-1" />
+          </Badge>
+        ))}
+      </div>
+    </div>
+  );
 
   return (
     <div className="space-y-6">
+      {/* ===== FORM ===== */}
       <Card className="p-6">
-        <h2 className="text-2xl font-bold mb-4">
-          {editing ? "Editar Modelo" : "Novo Modelo"}
-        </h2>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="grid md:grid-cols-2 gap-4">
-            <div>
-              <Label htmlFor="category">Categoria (Marca) *</Label>
-              <Select value={formData.category_id} onValueChange={(v) => setFormData({ ...formData, category_id: v })}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Selecione" />
-                </SelectTrigger>
-                <SelectContent>
-                  {categories.map((cat) => {
-                    const brandName = getBrandName(cat.id);
-                    return (
-                      <SelectItem key={cat.id} value={cat.id}>
-                        {cat.name}{brandName ? ` — ${brandName}` : ""}
-                      </SelectItem>
-                    );
-                  })}
-                </SelectContent>
-              </Select>
-            </div>
-            <div>
-              <Label htmlFor="name">Nome do Modelo *</Label>
-              <Input
-                id="name"
-                value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                placeholder="Ex: Modelo Premium 8x4"
-              />
-            </div>
-          </div>
+        <h2 className="text-2xl font-bold mb-4">{editing ? "Editar Modelo" : "Novo Modelo"}</h2>
 
-          <div className="grid md:grid-cols-3 gap-4">
-            <div>
-              <Label htmlFor="length">Comprimento (m)</Label>
-              <Input
-                id="length"
-                type="number"
-                step="0.01"
-                value={formData.length}
-                onChange={(e) => setFormData({ ...formData, length: e.target.value })}
-                placeholder="Ex: 8.00"
-              />
-            </div>
-            <div>
-              <Label htmlFor="width">Largura (m)</Label>
-              <Input
-                id="width"
-                type="number"
-                step="0.01"
-                value={formData.width}
-                onChange={(e) => setFormData({ ...formData, width: e.target.value })}
-                placeholder="Ex: 4.00"
-              />
-            </div>
-            <div>
-              <Label htmlFor="depth">Profundidade (m)</Label>
-              <Input
-                id="depth"
-                type="number"
-                step="0.01"
-                value={formData.depth}
-                onChange={(e) => setFormData({ ...formData, depth: e.target.value })}
-                placeholder="Ex: 1.40"
-              />
-            </div>
-          </div>
+        <Tabs value={formTab} onValueChange={setFormTab}>
+          <TabsList className="mb-4">
+            <TabsTrigger value="dados">Dados</TabsTrigger>
+            <TabsTrigger value="opcionais" disabled={!editing}>Opcionais Exclusivos</TabsTrigger>
+            <TabsTrigger value="itens">Itens Inclusos</TabsTrigger>
+          </TabsList>
 
-          <div>
-            <Label htmlFor="photo">URL da Foto</Label>
-            <Input
-              id="photo"
-              type="url"
-              value={formData.photo_url}
-              onChange={(e) => setFormData({ ...formData, photo_url: e.target.value })}
-              placeholder="https://exemplo.com/foto-piscina.jpg"
-            />
-          </div>
+          {/* TAB: Dados */}
+          <TabsContent value="dados">
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="grid md:grid-cols-2 gap-4">
+                <div>
+                  <Label>Categoria (Marca) *</Label>
+                  <Select value={formData.category_id} onValueChange={(v) => setFormData({ ...formData, category_id: v })}>
+                    <SelectTrigger><SelectValue placeholder="Selecione" /></SelectTrigger>
+                    <SelectContent>
+                      {categories.map((cat) => {
+                        const brandName = getBrandName(cat.id);
+                        return <SelectItem key={cat.id} value={cat.id}>{cat.name}{brandName ? ` — ${brandName}` : ""}</SelectItem>;
+                      })}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label>Nome do Modelo *</Label>
+                  <Input value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} placeholder="Ex: Modelo Premium 8x4" />
+                </div>
+              </div>
 
-          <div className="grid md:grid-cols-3 gap-4">
-            <div>
-              <Label htmlFor="cost">Custo (R$)</Label>
-              <Input
-                id="cost"
-                type="number"
-                step="0.01"
-                value={formData.cost}
-                onChange={(e) => {
-                  const cost = e.target.value;
-                  const margin = formData.margin_percent;
-                  const price = cost && margin ? (parseFloat(cost) * (1 + parseFloat(margin) / 100)).toFixed(2) : formData.base_price;
-                  setFormData({ ...formData, cost, base_price: price });
-                }}
-                placeholder="0.00"
-              />
-            </div>
-            <div>
-              <Label htmlFor="margin">Margem (%)</Label>
-              <Input
-                id="margin"
-                type="number"
-                step="0.1"
-                value={formData.margin_percent}
-                onChange={(e) => {
-                  const margin = e.target.value;
-                  const cost = formData.cost;
-                  const price = cost && margin ? (parseFloat(cost) * (1 + parseFloat(margin) / 100)).toFixed(2) : formData.base_price;
-                  setFormData({ ...formData, margin_percent: margin, base_price: price });
-                }}
-                placeholder="Ex: 30"
-              />
-            </div>
-            <div>
-              <Label htmlFor="price">Preço de Venda (R$) *</Label>
-              <Input
-                id="price"
-                type="number"
-                step="0.01"
-                value={formData.base_price}
-                onChange={(e) => setFormData({ ...formData, base_price: e.target.value })}
-                placeholder="0.00"
-              />
-              {formData.cost && parseFloat(formData.cost) > 0 && formData.base_price && parseFloat(formData.base_price) > 0 && (
-                <p className="text-xs text-muted-foreground mt-1">
-                  Lucro: R$ {(parseFloat(formData.base_price) - parseFloat(formData.cost)).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
-                  {" "}({(((parseFloat(formData.base_price) - parseFloat(formData.cost)) / parseFloat(formData.cost)) * 100).toFixed(1)}%)
+              <div className="grid md:grid-cols-3 gap-4">
+                <div>
+                  <Label>Comprimento (m)</Label>
+                  <Input type="number" step="0.01" value={formData.length} onChange={(e) => setFormData({ ...formData, length: e.target.value })} placeholder="Ex: 8.00" />
+                </div>
+                <div>
+                  <Label>Largura (m)</Label>
+                  <Input type="number" step="0.01" value={formData.width} onChange={(e) => setFormData({ ...formData, width: e.target.value })} placeholder="Ex: 4.00" />
+                </div>
+                <div>
+                  <Label>Profundidade (m)</Label>
+                  <Input type="number" step="0.01" value={formData.depth} onChange={(e) => setFormData({ ...formData, depth: e.target.value })} placeholder="Ex: 1.40" />
+                </div>
+              </div>
+
+              <div>
+                <Label>URL da Foto</Label>
+                <Input type="url" value={formData.photo_url} onChange={(e) => setFormData({ ...formData, photo_url: e.target.value })} placeholder="https://exemplo.com/foto.jpg" />
+              </div>
+
+              <div className="grid md:grid-cols-3 gap-4">
+                <div>
+                  <Label>Custo (R$)</Label>
+                  <Input type="number" step="0.01" value={formData.cost}
+                    onChange={(e) => {
+                      const cost = e.target.value;
+                      const margin = formData.margin_percent;
+                      const price = cost && margin ? (parseFloat(cost) * (1 + parseFloat(margin) / 100)).toFixed(2) : formData.base_price;
+                      setFormData({ ...formData, cost, base_price: price });
+                    }} placeholder="0.00" />
+                </div>
+                <div>
+                  <Label>Margem (%)</Label>
+                  <Input type="number" step="0.1" value={formData.margin_percent}
+                    onChange={(e) => {
+                      const margin = e.target.value;
+                      const cost = formData.cost;
+                      const price = cost && margin ? (parseFloat(cost) * (1 + parseFloat(margin) / 100)).toFixed(2) : formData.base_price;
+                      setFormData({ ...formData, margin_percent: margin, base_price: price });
+                    }} placeholder="Ex: 30" />
+                </div>
+                <div>
+                  <Label>Preço de Venda (R$) *</Label>
+                  <Input type="number" step="0.01" value={formData.base_price}
+                    onChange={(e) => setFormData({ ...formData, base_price: e.target.value })} placeholder="0.00" />
+                  {formData.cost && parseFloat(formData.cost) > 0 && formData.base_price && parseFloat(formData.base_price) > 0 && (
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Lucro: R$ {(parseFloat(formData.base_price) - parseFloat(formData.cost)).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                      {" "}({(((parseFloat(formData.base_price) - parseFloat(formData.cost)) / parseFloat(formData.cost)) * 100).toFixed(1)}%)
+                    </p>
+                  )}
+                </div>
+              </div>
+
+              <div className="grid md:grid-cols-2 gap-4">
+                <div>
+                  <Label>Prazo Entrega (dias)</Label>
+                  <Input type="number" value={formData.delivery_days} onChange={(e) => setFormData({ ...formData, delivery_days: e.target.value })} />
+                </div>
+                <div>
+                  <Label>Prazo Instalação (dias)</Label>
+                  <Input type="number" value={formData.installation_days} onChange={(e) => setFormData({ ...formData, installation_days: e.target.value })} />
+                </div>
+              </div>
+
+              <div>
+                <Label>Forma de Pagamento</Label>
+                <Input value={formData.payment_terms} onChange={(e) => setFormData({ ...formData, payment_terms: e.target.value })} placeholder="Ex: À vista" />
+              </div>
+
+              <div>
+                <Label>Observações</Label>
+                <Textarea value={formData.notes} onChange={(e) => setFormData({ ...formData, notes: e.target.value })} placeholder="Informações adicionais..." rows={3} />
+              </div>
+
+              <ArrayField label="Diferenciais" field="differentials" inputField="newDifferential" placeholder="Ex: Acabamento premium" />
+
+              <div className="flex gap-2">
+                <Button type="submit" className="gradient-primary text-white">{editing ? "Salvar Alterações" : "Criar Modelo"}</Button>
+                {editing && <Button type="button" variant="outline" onClick={resetForm}>Cancelar</Button>}
+              </div>
+            </form>
+          </TabsContent>
+
+          {/* TAB: Opcionais Exclusivos */}
+          <TabsContent value="opcionais">
+            {!editing ? (
+              <p className="text-muted-foreground text-center py-8">Salve o modelo primeiro para gerenciar opcionais exclusivos.</p>
+            ) : (
+              <div className="space-y-4">
+                <p className="text-sm text-muted-foreground">
+                  Opcionais exclusivos deste modelo. Esses itens aparecem apenas para este modelo na proposta.
                 </p>
-              )}
-            </div>
-          </div>
 
-          <div className="grid md:grid-cols-2 gap-4">
-            <div>
-              <Label htmlFor="delivery">Prazo Entrega (dias)</Label>
-              <Input
-                id="delivery"
-                type="number"
-                value={formData.delivery_days}
-                onChange={(e) => setFormData({ ...formData, delivery_days: e.target.value })}
-              />
-            </div>
-            <div>
-              <Label htmlFor="installation">Prazo Instalação (dias)</Label>
-              <Input
-                id="installation"
-                type="number"
-                value={formData.installation_days}
-                onChange={(e) => setFormData({ ...formData, installation_days: e.target.value })}
-              />
-            </div>
-          </div>
+                {/* Add/edit form */}
+                <Card className="p-4 bg-muted/30">
+                  <div className="grid md:grid-cols-2 gap-3">
+                    <div>
+                      <Label>Nome *</Label>
+                      <Input value={optForm.name} onChange={(e) => setOptForm({ ...optForm, name: e.target.value })} placeholder="Ex: Revestimento especial" />
+                    </div>
+                    <div>
+                      <Label>Descrição</Label>
+                      <Input value={optForm.description} onChange={(e) => setOptForm({ ...optForm, description: e.target.value })} placeholder="Detalhes do opcional" />
+                    </div>
+                  </div>
+                  <div className="grid md:grid-cols-3 gap-3 mt-3">
+                    <div>
+                      <Label>Custo (R$)</Label>
+                      <Input type="number" step="0.01" value={optForm.cost}
+                        onChange={(e) => {
+                          const cost = e.target.value;
+                          const margin = optForm.margin_percent;
+                          const price = cost && margin ? (parseFloat(cost) * (1 + parseFloat(margin) / 100)).toFixed(2) : optForm.price;
+                          setOptForm({ ...optForm, cost, price });
+                        }} placeholder="0.00" />
+                    </div>
+                    <div>
+                      <Label>Margem (%)</Label>
+                      <Input type="number" step="0.1" value={optForm.margin_percent}
+                        onChange={(e) => {
+                          const margin = e.target.value;
+                          const cost = optForm.cost;
+                          const price = cost && margin ? (parseFloat(cost) * (1 + parseFloat(margin) / 100)).toFixed(2) : optForm.price;
+                          setOptForm({ ...optForm, margin_percent: margin, price });
+                        }} placeholder="Ex: 30" />
+                    </div>
+                    <div>
+                      <Label>Preço (R$) *</Label>
+                      <Input type="number" step="0.01" value={optForm.price}
+                        onChange={(e) => setOptForm({ ...optForm, price: e.target.value })} placeholder="0.00" />
+                    </div>
+                  </div>
+                  <div className="flex gap-2 mt-3">
+                    <Button onClick={handleOptSubmit} className="gradient-primary text-white">
+                      <Plus className="w-4 h-4 mr-1" /> {editingOpt ? "Atualizar" : "Adicionar"}
+                    </Button>
+                    {editingOpt && (
+                      <Button variant="outline" onClick={() => { setEditingOpt(null); setOptForm({ name: "", description: "", cost: "", margin_percent: "", price: "" }); }}>
+                        Cancelar
+                      </Button>
+                    )}
+                  </div>
+                </Card>
 
-          <div>
-            <Label htmlFor="payment">Forma de Pagamento</Label>
-            <Input
-              id="payment"
-              value={formData.payment_terms}
-              onChange={(e) => setFormData({ ...formData, payment_terms: e.target.value })}
-              placeholder="Ex: À vista, Parcelado, Financiamento"
-            />
-          </div>
-
-          <div>
-            <Label htmlFor="notes">Observações Gerais</Label>
-            <Textarea
-              id="notes"
-              value={formData.notes}
-              onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-              placeholder="Informações adicionais sobre o modelo..."
-              rows={4}
-            />
-          </div>
-
-          <div>
-            <Label>Diferenciais</Label>
-            <div className="flex gap-2 mb-2">
-              <Input
-                value={formData.newDifferential}
-                onChange={(e) => setFormData({ ...formData, newDifferential: e.target.value })}
-                placeholder="Ex: Acabamento premium"
-                onKeyPress={(e) => e.key === "Enter" && (e.preventDefault(), addToArray("differentials", "newDifferential"))}
-              />
-              <Button type="button" onClick={() => addToArray("differentials", "newDifferential")}>
-                <Plus className="w-4 h-4" />
-              </Button>
-            </div>
-            <div className="flex flex-wrap gap-2">
-              {formData.differentials.map((item, idx) => (
-                <Badge key={idx} variant="secondary" className="cursor-pointer" onClick={() => removeFromArray("differentials", idx)}>
-                  {item} <X className="w-3 h-3 ml-1" />
-                </Badge>
-              ))}
-            </div>
-          </div>
-
-          <div>
-            <Label>Itens Inclusos</Label>
-            <div className="flex gap-2 mb-2">
-              <Input
-                value={formData.newIncluded}
-                onChange={(e) => setFormData({ ...formData, newIncluded: e.target.value })}
-                placeholder="Ex: Filtro e bomba"
-                onKeyPress={(e) => e.key === "Enter" && (e.preventDefault(), addToArray("included_items", "newIncluded"))}
-              />
-              <Button type="button" onClick={() => addToArray("included_items", "newIncluded")}>
-                <Plus className="w-4 h-4" />
-              </Button>
-            </div>
-            <div className="flex flex-wrap gap-2">
-              {formData.included_items.map((item, idx) => (
-                <Badge key={idx} variant="secondary" className="cursor-pointer" onClick={() => removeFromArray("included_items", idx)}>
-                  {item} <X className="w-3 h-3 ml-1" />
-                </Badge>
-              ))}
-            </div>
-          </div>
-
-          <div>
-            <Label>Itens Não Inclusos</Label>
-            <div className="flex gap-2 mb-2">
-              <Input
-                value={formData.newNotIncluded}
-                onChange={(e) => setFormData({ ...formData, newNotIncluded: e.target.value })}
-                placeholder="Ex: Aquecedor solar"
-                onKeyPress={(e) => e.key === "Enter" && (e.preventDefault(), addToArray("not_included_items", "newNotIncluded"))}
-              />
-              <Button type="button" onClick={() => addToArray("not_included_items", "newNotIncluded")}>
-                <Plus className="w-4 h-4" />
-              </Button>
-            </div>
-            <div className="flex flex-wrap gap-2">
-              {formData.not_included_items.map((item, idx) => (
-                <Badge key={idx} variant="secondary" className="cursor-pointer" onClick={() => removeFromArray("not_included_items", idx)}>
-                  {item} <X className="w-3 h-3 ml-1" />
-                </Badge>
-              ))}
-            </div>
-          </div>
-
-          <div className="flex gap-2">
-            <Button type="submit" className="gradient-primary text-white">
-              {editing ? "Atualizar" : "Criar"}
-            </Button>
-            {editing && (
-              <Button type="button" variant="outline" onClick={resetForm}>
-                Cancelar
-              </Button>
+                {/* List */}
+                {currentModelOptionals.length === 0 ? (
+                  <p className="text-muted-foreground text-sm text-center py-4">Nenhum opcional exclusivo cadastrado para este modelo.</p>
+                ) : (
+                  <div className="space-y-2">
+                    {currentModelOptionals.map((opt) => (
+                      <div key={opt.id} className="flex items-center justify-between p-3 rounded-lg border border-border/50 bg-background">
+                        <div className="flex-1 min-w-0">
+                          <p className="font-medium">{opt.name}</p>
+                          {opt.description && <p className="text-xs text-muted-foreground">{opt.description}</p>}
+                          <div className="flex gap-3 text-xs text-muted-foreground mt-1">
+                            {opt.cost > 0 && <span>Custo: R$ {opt.cost.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</span>}
+                            {opt.margin_percent > 0 && <span>Margem: {opt.margin_percent}%</span>}
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-3 shrink-0">
+                          <span className="font-bold text-primary">R$ {opt.price.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</span>
+                          <Button variant="outline" size="sm" onClick={() => handleEditOpt(opt)}><Pencil className="w-3.5 h-3.5" /></Button>
+                          <Button variant="outline" size="sm" className="text-destructive hover:text-destructive" onClick={() => handleDeleteOpt(opt.id)}>
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
             )}
-          </div>
-        </form>
+          </TabsContent>
+
+          {/* TAB: Itens Inclusos */}
+          <TabsContent value="itens">
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <ArrayField label="Itens Inclusos" field="included_items" inputField="newIncluded" placeholder="Ex: Filtro e bomba" />
+              <ArrayField label="Itens Não Inclusos" field="not_included_items" inputField="newNotIncluded" placeholder="Ex: Aquecedor solar" />
+              <div className="flex gap-2">
+                <Button type="submit" className="gradient-primary text-white">Salvar</Button>
+                {editing && <Button type="button" variant="outline" onClick={resetForm}>Cancelar</Button>}
+              </div>
+            </form>
+          </TabsContent>
+        </Tabs>
       </Card>
 
-      {/* Filters */}
+      {/* ===== FILTERS + LISTING ===== */}
       <div className="flex items-center gap-3 flex-wrap">
         <Select value={filterBrand} onValueChange={(v) => { setFilterBrand(v); setFilterCategory("all"); }}>
           <SelectTrigger className="w-[180px]"><SelectValue placeholder="Marca" /></SelectTrigger>
           <SelectContent>
             <SelectItem value="all">Todas as Marcas</SelectItem>
-            {brands.map((b) => (
-              <SelectItem key={b.id} value={b.id}>{b.name}</SelectItem>
-            ))}
+            {brands.map((b) => <SelectItem key={b.id} value={b.id}>{b.name}</SelectItem>)}
           </SelectContent>
         </Select>
         <Select value={filterCategory} onValueChange={setFilterCategory}>
           <SelectTrigger className="w-[200px]"><SelectValue placeholder="Categoria" /></SelectTrigger>
           <SelectContent>
             <SelectItem value="all">Todas as Categorias</SelectItem>
-            {(filterBrand === "all" ? categories : categories.filter((c) => c.brand_id === filterBrand)).map((c) => (
+            {(filterBrand === "all" ? categories : categories.filter((c) => c.brand_id === filterBrand)).map((c) =>
               <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
-            ))}
+            )}
           </SelectContent>
         </Select>
         <Select value={filterStatus} onValueChange={setFilterStatus}>
@@ -612,9 +562,7 @@ const PoolModelManager = () => {
               <Button size="sm" variant="outline" onClick={() => bulkModelAction("deactivate")}>Desativar</Button>
               <AlertDialog>
                 <AlertDialogTrigger asChild>
-                  <Button size="sm" variant="destructive">
-                    <Trash2 className="w-3.5 h-3.5 mr-1" /> Excluir
-                  </Button>
+                  <Button size="sm" variant="destructive"><Trash2 className="w-3.5 h-3.5 mr-1" /> Excluir</Button>
                 </AlertDialogTrigger>
                 <AlertDialogContent>
                   <AlertDialogHeader>
@@ -623,10 +571,7 @@ const PoolModelManager = () => {
                   </AlertDialogHeader>
                   <AlertDialogFooter>
                     <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                    <AlertDialogAction onClick={() => bulkModelAction("delete")}
-                      className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
-                      Excluir
-                    </AlertDialogAction>
+                    <AlertDialogAction onClick={() => bulkModelAction("delete")} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">Excluir</AlertDialogAction>
                   </AlertDialogFooter>
                 </AlertDialogContent>
               </AlertDialog>
@@ -645,10 +590,7 @@ const PoolModelManager = () => {
           const brandCatIds = categories.filter((c) => c.brand_id === filterBrand).map((c) => c.id);
           filtered = filtered.filter((m) => brandCatIds.includes(m.category_id));
         }
-
-        if (filtered.length === 0) {
-          return <p className="text-muted-foreground text-center py-8">Nenhum modelo encontrado.</p>;
-        }
+        if (filtered.length === 0) return <p className="text-muted-foreground text-center py-8">Nenhum modelo encontrado.</p>;
 
         return (
           <div className="grid gap-3">
@@ -656,38 +598,26 @@ const PoolModelManager = () => {
               const isExpanded = expandedModel === model.id;
               const brandName = getBrandName(model.category_id);
               const catName = categories.find((c) => c.id === model.category_id)?.name || "Sem categoria";
+              const mOpts = modelOptionals.filter((o) => o.model_id === model.id);
 
               return (
                 <Card key={model.id} className={`transition-colors ${selectedModels.includes(model.id) ? "ring-2 ring-primary/30" : ""}`}>
-                  {/* Collapsed row */}
-                  <div
-                    className="flex items-center gap-3 p-4 cursor-pointer"
-                    onClick={() => setExpandedModel(isExpanded ? null : model.id)}
-                  >
-                    <Checkbox
-                      checked={selectedModels.includes(model.id)}
-                      onCheckedChange={(e) => { e && e; toggleSelectModel(model.id); }}
-                      onClick={(e) => e.stopPropagation()}
-                      className="shrink-0"
-                    />
+                  <div className="flex items-center gap-3 p-4 cursor-pointer" onClick={() => setExpandedModel(isExpanded ? null : model.id)}>
+                    <Checkbox checked={selectedModels.includes(model.id)} onCheckedChange={() => toggleSelectModel(model.id)} onClick={(e) => e.stopPropagation()} className="shrink-0" />
                     <div className="flex-1 min-w-0 flex items-center gap-2 flex-wrap">
                       <h3 className="font-semibold">{model.name}</h3>
                       {brandName && <Badge variant="outline" className="text-xs">{brandName}</Badge>}
                       <Badge variant="secondary" className="text-xs">{catName}</Badge>
+                      {mOpts.length > 0 && <Badge className="text-xs bg-accent text-accent-foreground">{mOpts.length} exclusivo(s)</Badge>}
+                      {!model.active && <Badge variant="destructive" className="text-xs">Inativo</Badge>}
                     </div>
-                    <span className="font-bold text-primary whitespace-nowrap">
-                      R$ {model.base_price.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
-                    </span>
+                    <span className="font-bold text-primary whitespace-nowrap">R$ {model.base_price.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</span>
                     <div className="flex items-center gap-2 shrink-0" onClick={(e) => e.stopPropagation()}>
                       <Switch checked={model.active} onCheckedChange={() => toggleActive(model.id, model.active)} />
-                      <Button variant="outline" size="sm" onClick={() => handleEdit(model)}>
-                        <Pencil className="w-4 h-4" />
-                      </Button>
+                      <Button variant="outline" size="sm" onClick={() => handleEdit(model)}><Pencil className="w-4 h-4" /></Button>
                       <AlertDialog>
                         <AlertDialogTrigger asChild>
-                          <Button variant="outline" size="sm" className="text-destructive hover:text-destructive">
-                            <Trash2 className="w-4 h-4" />
-                          </Button>
+                          <Button variant="outline" size="sm" className="text-destructive hover:text-destructive"><Trash2 className="w-4 h-4" /></Button>
                         </AlertDialogTrigger>
                         <AlertDialogContent>
                           <AlertDialogHeader>
@@ -696,32 +626,23 @@ const PoolModelManager = () => {
                           </AlertDialogHeader>
                           <AlertDialogFooter>
                             <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                            <AlertDialogAction onClick={() => handleDelete(model.id)}
-                              className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
-                              Excluir
-                            </AlertDialogAction>
+                            <AlertDialogAction onClick={() => handleDelete(model.id)} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">Excluir</AlertDialogAction>
                           </AlertDialogFooter>
                         </AlertDialogContent>
                       </AlertDialog>
                     </div>
                   </div>
-
-                  {/* Expanded details */}
                   {isExpanded && (
                     <div className="px-4 pb-4 pt-0 border-t border-border/50 space-y-3">
                       {model.cost > 0 && (
                         <div className="flex gap-4 text-sm text-muted-foreground flex-wrap pt-3">
                           <span>Custo: R$ {model.cost.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</span>
                           <span>Margem: {model.margin_percent}%</span>
-                          <span className="text-emerald-600 font-medium">
-                            Lucro: R$ {(model.base_price - model.cost).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
-                          </span>
+                          <span className="font-medium text-emerald-600">Lucro: R$ {(model.base_price - model.cost).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</span>
                         </div>
                       )}
                       {(model.length || model.width || model.depth) && (
-                        <p className="text-sm text-muted-foreground">
-                          Dimensões: {model.length}m × {model.width}m × {model.depth}m
-                        </p>
+                        <p className="text-sm text-muted-foreground">Dimensões: {model.length}m × {model.width}m × {model.depth}m</p>
                       )}
                       <div className="grid md:grid-cols-2 gap-2 text-sm text-muted-foreground">
                         <div>Entrega: {model.delivery_days}d | Instalação: {model.installation_days}d</div>
@@ -730,8 +651,19 @@ const PoolModelManager = () => {
                       {model.differentials?.length > 0 && (
                         <div>
                           <span className="font-semibold text-sm">Diferenciais:</span>
-                          <div className="flex flex-wrap gap-1 mt-1">
-                            {model.differentials.map((d, i) => <Badge key={i} variant="secondary">{d}</Badge>)}
+                          <div className="flex flex-wrap gap-1 mt-1">{model.differentials.map((d, i) => <Badge key={i} variant="secondary">{d}</Badge>)}</div>
+                        </div>
+                      )}
+                      {mOpts.length > 0 && (
+                        <div>
+                          <span className="font-semibold text-sm">Opcionais Exclusivos:</span>
+                          <div className="space-y-1 mt-1">
+                            {mOpts.map((o) => (
+                              <div key={o.id} className="flex justify-between text-sm px-2 py-1 bg-muted/50 rounded">
+                                <span>{o.name}</span>
+                                <span className="font-medium text-primary">R$ {o.price.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</span>
+                              </div>
+                            ))}
                           </div>
                         </div>
                       )}

@@ -26,16 +26,25 @@ interface OptionalGroup {
   display_order: number;
 }
 
+interface ModelOptionalItem {
+  id: string;
+  name: string;
+  description: string | null;
+  price: number;
+}
+
 interface OptionalsSelectionProps {
   optionals: Optional[];
+  modelOptionals?: ModelOptionalItem[];
   selectedOptionals: string[];
   onConfirm: (selectedIds: string[]) => void;
   onBack: () => void;
   model: any;
 }
 
-const OptionalsSelection = ({ optionals, selectedOptionals: initialSelected, onConfirm, onBack, model }: OptionalsSelectionProps) => {
+const OptionalsSelection = ({ optionals, modelOptionals = [], selectedOptionals: initialSelected, onConfirm, onBack, model }: OptionalsSelectionProps) => {
   const [selected, setSelected] = useState<Record<string, string[]>>({});
+  const [selectedModelOpts, setSelectedModelOpts] = useState<string[]>([]);
   const [groups, setGroups] = useState<OptionalGroup[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -93,8 +102,12 @@ const OptionalsSelection = ({ optionals, selectedOptionals: initialSelected, onC
   };
 
   const handleContinue = () => {
-    const allSelected = Object.values(selected).flat();
+    const allSelected = [...Object.values(selected).flat(), ...selectedModelOpts];
     onConfirm(allSelected);
+  };
+
+  const toggleModelOpt = (id: string) => {
+    setSelectedModelOpts((prev) => prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]);
   };
 
   const calculateTotal = () => {
@@ -102,6 +115,10 @@ const OptionalsSelection = ({ optionals, selectedOptionals: initialSelected, onC
     Object.values(selected).flat().forEach((optId) => {
       const optional = optionals.find((o) => o.id === optId);
       if (optional) total += optional.price;
+    });
+    selectedModelOpts.forEach((optId) => {
+      const mOpt = modelOptionals.find((o) => o.id === optId);
+      if (mOpt) total += mOpt.price;
     });
     return total;
   };
@@ -265,6 +282,37 @@ const OptionalsSelection = ({ optionals, selectedOptionals: initialSelected, onC
             </Card>
           );
         })}
+
+
+        {/* Model-specific optionals */}
+        {modelOptionals.length > 0 && (
+          <Card className="p-6 bg-card/80 backdrop-blur-sm border-accent/30">
+            <h3 className="text-xl font-display font-bold mb-2">Opcionais Exclusivos — {model.name}</h3>
+            <p className="text-sm text-muted-foreground mb-4">Opcionais calculados especificamente para este modelo</p>
+            <div className="space-y-3">
+              {modelOptionals.map((mOpt) => (
+                <div key={mOpt.id} className="flex items-start gap-3">
+                  <Checkbox
+                    id={`mopt-${mOpt.id}`}
+                    checked={selectedModelOpts.includes(mOpt.id)}
+                    onCheckedChange={() => toggleModelOpt(mOpt.id)}
+                  />
+                  <Label htmlFor={`mopt-${mOpt.id}`} className="flex-1 cursor-pointer">
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <p className="font-semibold">{mOpt.name}</p>
+                        {mOpt.description && <p className="text-sm text-muted-foreground">{mOpt.description}</p>}
+                      </div>
+                      <p className="font-bold text-primary ml-4">
+                        + R$ {mOpt.price.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                      </p>
+                    </div>
+                  </Label>
+                </div>
+              ))}
+            </div>
+          </Card>
+        )}
       </div>
 
       <Card className="p-6 bg-card/80 backdrop-blur-sm border-2 border-primary sticky bottom-4">
