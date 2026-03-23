@@ -65,8 +65,7 @@ const DashboardKPIs = ({ proposals }: Props) => {
 
   const kpis = [
     {
-      label: "Rec. Fechada",
-      labelFull: "Receita Fechada",
+      label: "Receita Fechada",
       value: formatCurrency(revenueClosed),
       change: pctChange(revenueClosed, revenueClosedLast),
       icon: DollarSign,
