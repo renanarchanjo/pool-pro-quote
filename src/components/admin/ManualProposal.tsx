@@ -118,7 +118,9 @@ const ManualProposal = () => {
 
   const visibleOptionals = optionals.filter((o) => enabledOptionalIds.includes(o.id));
   const selectedOptionalsList = optionals.filter((o) => selectedOptionalIds.includes(o.id));
-  const optionalsTotal = selectedOptionalsList.reduce((s, o) => s + o.price, 0);
+  const currentModelOpts = selectedModel ? modelOptionals.filter((o: any) => o.model_id === selectedModel.id) : [];
+  const selectedModelOptsList = currentModelOpts.filter((o: any) => selectedModelOptIds.includes(o.id));
+  const optionalsTotal = selectedOptionalsList.reduce((s, o) => s + o.price, 0) + selectedModelOptsList.reduce((s: number, o: any) => s + o.price, 0);
   const totalPrice = (selectedModel?.base_price || 0) + optionalsTotal;
 
   const toggleEnabled = (id: string) => {
