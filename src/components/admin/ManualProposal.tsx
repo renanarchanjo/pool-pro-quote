@@ -245,12 +245,22 @@ const ManualProposal = () => {
           </CardHeader>
           <CardContent className="space-y-4">
             <div>
-              <Label>Categoria</Label>
-              <Select value={selectedCategoryId} onValueChange={(v) => { setSelectedCategoryId(v); setSelectedModel(null); }}>
-                <SelectTrigger><SelectValue placeholder="Todas as categorias" /></SelectTrigger>
+              <Label>Marca *</Label>
+              <Select value={selectedBrandId} onValueChange={(v) => { setSelectedBrandId(v === "all" ? "" : v); setSelectedCategoryId(""); setSelectedModel(null); }}>
+                <SelectTrigger><SelectValue placeholder="Selecione uma marca" /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">Todas</SelectItem>
-                  {categories.map((c) => (
+                  {brands.map((b) => (
+                    <SelectItem key={b.id} value={b.id}>{b.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label>Categoria *</Label>
+              <Select value={selectedCategoryId} onValueChange={(v) => { setSelectedCategoryId(v === "all" ? "" : v); setSelectedModel(null); }} disabled={!selectedBrandId}>
+                <SelectTrigger><SelectValue placeholder={selectedBrandId ? "Selecione a categoria" : "Selecione uma marca primeiro"} /></SelectTrigger>
+                <SelectContent>
+                  {filteredCategories.map((c) => (
                     <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
                   ))}
                 </SelectContent>
@@ -258,8 +268,8 @@ const ManualProposal = () => {
             </div>
             <div>
               <Label>Modelo *</Label>
-              <Select value={selectedModel?.id || ""} onValueChange={(v) => setSelectedModel(filteredModels.find((m) => m.id === v) || null)}>
-                <SelectTrigger><SelectValue placeholder="Selecione um modelo" /></SelectTrigger>
+              <Select value={selectedModel?.id || ""} onValueChange={(v) => setSelectedModel(filteredModels.find((m) => m.id === v) || null)} disabled={!selectedCategoryId}>
+                <SelectTrigger><SelectValue placeholder={selectedCategoryId ? "Selecione um modelo" : "Selecione a categoria primeiro"} /></SelectTrigger>
                 <SelectContent>
                   {filteredModels.map((m) => (
                     <SelectItem key={m.id} value={m.id}>
