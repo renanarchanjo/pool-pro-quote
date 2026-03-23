@@ -349,7 +349,7 @@ const PoolModelManager = () => {
 
               <div>
                 <Label>URL da Foto</Label>
-                <Input type="url" value={formData.photo_url} onChange={(e) => setFormData({ ...formData, photo_url: e.target.value })} placeholder="https://exemplo.com/foto.jpg" />
+                <Input type="text" value={formData.photo_url} onChange={(e) => setFormData({ ...formData, photo_url: e.target.value })} placeholder="https://exemplo.com/foto.jpg" />
               </div>
 
               <div className="grid md:grid-cols-3 gap-4">
