@@ -274,7 +274,7 @@ const ProposalView = ({
           </div>
 
           {/* ===== RESUMO FINANCEIRO ===== */}
-          <div style={sectionStyle}>
+          <div style={{ ...sectionStyle, pageBreakBefore: "always", breakBefore: "page" }}>
             <div style={sectionHeaderStyle}>Resumo Financeiro</div>
             <div style={sectionBodyStyle}>
               <table style={{ width: "100%", fontSize: "13px", borderCollapse: "collapse" }}>
