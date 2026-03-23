@@ -538,7 +538,15 @@ const PoolModelManager = () => {
           <Card key={model.id} className="p-6">
             <div className="flex justify-between items-start mb-4">
               <div>
-                <h3 className="text-xl font-semibold">{model.name}</h3>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <h3 className="text-xl font-semibold">{model.name}</h3>
+                  {getBrandName(model.category_id) && (
+                    <Badge variant="outline">{getBrandName(model.category_id)}</Badge>
+                  )}
+                  <Badge variant="secondary">
+                    {categories.find((c) => c.id === model.category_id)?.name || "Sem categoria"}
+                  </Badge>
+                </div>
                 <p className="text-2xl font-bold text-primary mt-1">
                   R$ {model.base_price.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                 </p>
