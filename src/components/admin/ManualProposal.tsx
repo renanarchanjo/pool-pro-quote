@@ -57,10 +57,12 @@ const ManualProposal = () => {
   const [submitting, setSubmitting] = useState(false);
   const [showProposal, setShowProposal] = useState(false);
 
+  const [brands, setBrands] = useState<Brand[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [models, setModels] = useState<PoolModel[]>([]);
   const [optionals, setOptionals] = useState<Optional[]>([]);
 
+  const [selectedBrandId, setSelectedBrandId] = useState<string>("");
   const [selectedCategoryId, setSelectedCategoryId] = useState<string>("");
   const [selectedModel, setSelectedModel] = useState<PoolModel | null>(null);
   const [selectedOptionalIds, setSelectedOptionalIds] = useState<string[]>([]);
