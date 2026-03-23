@@ -13,6 +13,7 @@ import AdminProfile from "@/components/admin/AdminProfile";
 import ManualProposal from "@/components/admin/ManualProposal";
 import StoresManager from "@/components/admin/StoresManager";
 import TeamManager from "@/components/admin/TeamManager";
+import SubscriptionManager from "@/components/admin/SubscriptionManager";
 import { useStoreData } from "@/hooks/useStoreData";
 
 const Admin = () => {
@@ -84,6 +85,7 @@ const Admin = () => {
                   <Route path="opcionais" element={<OptionalManager />} />
                   <Route path="equipe" element={<TeamManager />} />
                   <Route path="lojistas" element={<StoresManager />} />
+                  <Route path="assinatura" element={<SubscriptionManager />} />
                 </>
               )}
             </Routes>

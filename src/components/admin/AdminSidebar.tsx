@@ -1,6 +1,6 @@
 import { useNavigate, useLocation } from "react-router-dom";
 import { 
-  LayoutDashboard, FilePlus, Tag, Box, Package, User, Users, LogOut, UsersRound
+  LayoutDashboard, FilePlus, Tag, Box, Package, User, Users, LogOut, UsersRound, CreditCard
 } from "lucide-react";
 import {
   Sidebar,
@@ -56,6 +56,7 @@ const AdminSidebar = () => {
 
   const adminItems = isOwner ? [
     { title: "Lojistas", url: "/admin/lojistas", icon: Users },
+    { title: "Assinatura", url: "/admin/assinatura", icon: CreditCard },
   ] : [];
 
   const renderGroup = (label: string, items: typeof mainItems) => {
