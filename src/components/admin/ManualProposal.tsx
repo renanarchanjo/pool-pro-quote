@@ -196,7 +196,7 @@ const ManualProposal = () => {
         </Button>
         <ProposalView
           model={selectedModel}
-          selectedOptionals={selectedOptionalsList}
+          selectedOptionals={[...selectedOptionalsList, ...selectedModelOptsList.map((o: any) => ({ name: o.name, price: o.price }))]}
           customerData={{ name: customerName, city: customerCity, whatsapp: customerWhatsapp }}
           category={categories.find((c) => c.id === selectedModel.category_id)?.name || "Piscina"}
           onBack={handleReset}
