@@ -61,6 +61,7 @@ const PoolSimulator = ({ onBack }: PoolSimulatorProps) => {
   
   const [models, setModels] = useState<PoolModel[]>([]);
   const [optionals, setOptionals] = useState<Optional[]>([]);
+  const [modelOptionals, setModelOptionals] = useState<any[]>([]);
   const [storeId, setStoreId] = useState<string | null>(null);
   const [selectedStoreName, setSelectedStoreName] = useState<string>("");
   
