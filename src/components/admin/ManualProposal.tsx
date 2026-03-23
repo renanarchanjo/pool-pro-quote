@@ -40,9 +40,15 @@ interface Optional {
   warning_note: string | null;
 }
 
+interface Brand {
+  id: string;
+  name: string;
+}
+
 interface Category {
   id: string;
   name: string;
+  brand_id: string | null;
 }
 
 const ManualProposal = () => {
@@ -51,10 +57,12 @@ const ManualProposal = () => {
   const [submitting, setSubmitting] = useState(false);
   const [showProposal, setShowProposal] = useState(false);
 
+  const [brands, setBrands] = useState<Brand[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [models, setModels] = useState<PoolModel[]>([]);
   const [optionals, setOptionals] = useState<Optional[]>([]);
 
+  const [selectedBrandId, setSelectedBrandId] = useState<string>("");
   const [selectedCategoryId, setSelectedCategoryId] = useState<string>("");
   const [selectedModel, setSelectedModel] = useState<PoolModel | null>(null);
   const [selectedOptionalIds, setSelectedOptionalIds] = useState<string[]>([]);
@@ -76,11 +84,13 @@ const ManualProposal = () => {
   const loadData = async () => {
     try {
       const storeId = profile!.store_id!;
-      const [catRes, modRes, optRes] = await Promise.all([
-        supabase.from("categories").select("id, name").eq("store_id", storeId).eq("active", true).order("name"),
+      const [brandRes, catRes, modRes, optRes] = await Promise.all([
+        supabase.from("brands").select("id, name").eq("store_id", storeId).eq("active", true).order("name"),
+        supabase.from("categories").select("id, name, brand_id").eq("store_id", storeId).eq("active", true).order("name"),
         supabase.from("pool_models").select("*").eq("store_id", storeId).eq("active", true).order("display_order"),
         supabase.from("optionals").select("*").eq("store_id", storeId).eq("active", true).order("display_order"),
       ]);
+      setBrands(brandRes.data || []);
       setCategories(catRes.data || []);
       setModels(modRes.data || []);
       setOptionals(optRes.data || []);
@@ -92,8 +102,14 @@ const ManualProposal = () => {
     }
   };
 
+  const filteredCategories = selectedBrandId
+    ? categories.filter((c) => c.brand_id === selectedBrandId)
+    : categories;
+
   const filteredModels = selectedCategoryId
     ? models.filter((m) => m.category_id === selectedCategoryId)
+    : selectedBrandId
+    ? models.filter((m) => filteredCategories.some((c) => c.id === m.category_id))
     : models;
 
   const visibleOptionals = optionals.filter((o) => enabledOptionalIds.includes(o.id));
@@ -150,6 +166,7 @@ const ManualProposal = () => {
   const handleReset = () => {
     setShowProposal(false);
     setSelectedModel(null);
+    setSelectedBrandId("");
     setSelectedCategoryId("");
     setSelectedOptionalIds([]);
     setCustomerName("");
@@ -229,12 +246,22 @@ const ManualProposal = () => {
           </CardHeader>
           <CardContent className="space-y-4">
             <div>
-              <Label>Categoria</Label>
-              <Select value={selectedCategoryId} onValueChange={(v) => { setSelectedCategoryId(v); setSelectedModel(null); }}>
-                <SelectTrigger><SelectValue placeholder="Todas as categorias" /></SelectTrigger>
+              <Label>Marca *</Label>
+              <Select value={selectedBrandId} onValueChange={(v) => { setSelectedBrandId(v === "all" ? "" : v); setSelectedCategoryId(""); setSelectedModel(null); }}>
+                <SelectTrigger><SelectValue placeholder="Selecione uma marca" /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">Todas</SelectItem>
-                  {categories.map((c) => (
+                  {brands.map((b) => (
+                    <SelectItem key={b.id} value={b.id}>{b.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label>Categoria *</Label>
+              <Select value={selectedCategoryId} onValueChange={(v) => { setSelectedCategoryId(v === "all" ? "" : v); setSelectedModel(null); }} disabled={!selectedBrandId}>
+                <SelectTrigger><SelectValue placeholder={selectedBrandId ? "Selecione a categoria" : "Selecione uma marca primeiro"} /></SelectTrigger>
+                <SelectContent>
+                  {filteredCategories.map((c) => (
                     <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
                   ))}
                 </SelectContent>
@@ -242,8 +269,8 @@ const ManualProposal = () => {
             </div>
             <div>
               <Label>Modelo *</Label>
-              <Select value={selectedModel?.id || ""} onValueChange={(v) => setSelectedModel(filteredModels.find((m) => m.id === v) || null)}>
-                <SelectTrigger><SelectValue placeholder="Selecione um modelo" /></SelectTrigger>
+              <Select value={selectedModel?.id || ""} onValueChange={(v) => setSelectedModel(filteredModels.find((m) => m.id === v) || null)} disabled={!selectedCategoryId}>
+                <SelectTrigger><SelectValue placeholder={selectedCategoryId ? "Selecione um modelo" : "Selecione a categoria primeiro"} /></SelectTrigger>
                 <SelectContent>
                   {filteredModels.map((m) => (
                     <SelectItem key={m.id} value={m.id}>
