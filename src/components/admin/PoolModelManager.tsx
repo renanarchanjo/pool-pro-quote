@@ -51,6 +51,7 @@ interface PoolModel {
 
 const PoolModelManager = () => {
   const { store } = useStoreData();
+  const [brands, setBrands] = useState<Brand[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [models, setModels] = useState<PoolModel[]>([]);
   const [loading, setLoading] = useState(true);
