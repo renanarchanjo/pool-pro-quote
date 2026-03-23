@@ -159,14 +159,14 @@ const ProposalView = ({
   return (
     <div style={{ minHeight: "100vh", background: "#f3f4f6" }} className="print:bg-white">
       {/* Action bar */}
-      <nav className="border-b border-border/50 bg-background/80 backdrop-blur-sm print:hidden">
-        <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-          <Button variant="ghost" onClick={onBack}>
-            <ArrowLeft className="w-4 h-4 mr-2" /> Voltar
+      <nav className="border-b border-border/50 bg-background/80 backdrop-blur-sm print:hidden sticky top-0 z-50">
+        <div className="container mx-auto px-3 sm:px-4 py-3 sm:py-4 flex justify-between items-center">
+          <Button variant="ghost" size="sm" onClick={onBack}>
+            <ArrowLeft className="w-4 h-4 mr-1 sm:mr-2" /> Voltar
           </Button>
-          <div className="flex gap-2 flex-wrap">
-            <Button variant="outline" onClick={handleDownloadPDF}>
-              <FileDown className="w-4 h-4 mr-2" /> Baixar PDF
+          <div className="flex gap-2">
+            <Button variant="outline" size="sm" onClick={handleDownloadPDF}>
+              <FileDown className="w-4 h-4 mr-1 sm:mr-2" /> <span className="hidden sm:inline">Baixar</span> PDF
             </Button>
           </div>
         </div>
