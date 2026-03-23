@@ -19,27 +19,30 @@ interface CustomerFormProps {
   optionals: any[];
 }
 
+const STATES = [
+  "AC","AL","AP","AM","BA","CE","DF","ES","GO","MA","MT","MS","MG",
+  "PA","PB","PR","PE","PI","RJ","RN","RS","RO","RR","SC","SP","SE","TO"
+];
+
 const CustomerForm = ({ onSubmit, onBack, model, optionals }: CustomerFormProps) => {
   const [loading, setLoading] = useState(false);
-  const [formData, setFormData] = useState<CustomerData>({
-    name: "",
-    city: "",
-    whatsapp: ""
-  });
+  const [uf, setUf] = useState("");
+  const [city, setCity] = useState("");
+  const [formData, setFormData] = useState({ name: "", whatsapp: "" });
 
   const totalPrice = model.base_price + optionals.reduce((sum, opt) => sum + opt.price, 0);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!formData.name || !formData.city || !formData.whatsapp) {
+    if (!formData.name || !city || !uf || !formData.whatsapp) {
       toast.error("Preencha todos os campos");
       return;
     }
 
     setLoading(true);
     try {
-      await onSubmit(formData);
+      await onSubmit({ name: formData.name, city: `${city} / ${uf}`, whatsapp: formData.whatsapp });
     } finally {
       setLoading(false);
     }
@@ -70,11 +73,27 @@ const CustomerForm = ({ onSubmit, onBack, model, optionals }: CustomerFormProps)
           </div>
 
           <div>
+            <Label htmlFor="uf">Estado (UF) *</Label>
+            <select
+              id="uf"
+              value={uf}
+              onChange={(e) => setUf(e.target.value)}
+              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              required
+            >
+              <option value="">Selecione o estado</option>
+              {STATES.map((s) => (
+                <option key={s} value={s}>{s}</option>
+              ))}
+            </select>
+          </div>
+
+          <div>
             <Label htmlFor="city">Cidade *</Label>
             <Input
               id="city"
-              value={formData.city}
-              onChange={(e) => setFormData({ ...formData, city: e.target.value })}
+              value={city}
+              onChange={(e) => setCity(e.target.value)}
               placeholder="Sua cidade"
               required
             />

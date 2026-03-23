@@ -72,6 +72,7 @@ const ManualProposal = () => {
   const [enabledOptionalIds, setEnabledOptionalIds] = useState<string[]>([]);
 
   const [customerName, setCustomerName] = useState("");
+  const [customerUf, setCustomerUf] = useState("");
   const [customerCity, setCustomerCity] = useState("");
   const [customerWhatsapp, setCustomerWhatsapp] = useState("");
 
@@ -141,7 +142,7 @@ const ManualProposal = () => {
   };
 
   const handleSubmit = async () => {
-    if (!customerName || !customerCity || !customerWhatsapp) {
+    if (!customerName || !customerCity || !customerUf || !customerWhatsapp) {
       toast.error("Preencha todos os dados do cliente");
       return;
     }
@@ -154,7 +155,7 @@ const ManualProposal = () => {
     try {
       const { error } = await supabase.from("proposals").insert({
         customer_name: customerName,
-        customer_city: customerCity,
+        customer_city: `${customerCity} / ${customerUf}`,
         customer_whatsapp: customerWhatsapp,
         model_id: selectedModel.id,
         selected_optionals: selectedOptionalIds,
@@ -180,6 +181,7 @@ const ManualProposal = () => {
     setSelectedOptionalIds([]);
     setSelectedModelOptIds([]);
     setCustomerName("");
+    setCustomerUf("");
     setCustomerCity("");
     setCustomerWhatsapp("");
   };
@@ -201,7 +203,7 @@ const ManualProposal = () => {
         <ProposalView
           model={selectedModel}
           selectedOptionals={[...selectedOptionalsList, ...selectedModelOptsList.map((o: any) => ({ name: o.name, price: o.price }))]}
-          customerData={{ name: customerName, city: customerCity, whatsapp: customerWhatsapp }}
+          customerData={{ name: customerName, city: `${customerCity} / ${customerUf}`, whatsapp: customerWhatsapp }}
           category={categories.find((c) => c.id === selectedModel.category_id)?.name || "Piscina"}
           onBack={handleReset}
           storeSettings={storeSettings}
@@ -237,6 +239,20 @@ const ManualProposal = () => {
             <div>
               <Label htmlFor="cname">Nome Completo *</Label>
               <Input id="cname" value={customerName} onChange={(e) => setCustomerName(e.target.value)} placeholder="Nome do cliente" />
+            </div>
+            <div>
+              <Label htmlFor="cuf">Estado (UF) *</Label>
+              <select
+                id="cuf"
+                value={customerUf}
+                onChange={(e) => setCustomerUf(e.target.value)}
+                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              >
+                <option value="">Selecione o estado</option>
+                {["AC","AL","AP","AM","BA","CE","DF","ES","GO","MA","MT","MS","MG","PA","PB","PR","PE","PI","RJ","RN","RS","RO","RR","SC","SP","SE","TO"].map((s) => (
+                  <option key={s} value={s}>{s}</option>
+                ))}
+              </select>
             </div>
             <div>
               <Label htmlFor="ccity">Cidade *</Label>
