@@ -10,7 +10,7 @@ import {
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
-import { Loader2, FileText, TrendingUp, Users, Search, Download, Phone, Eye, Link2, Mail, Pencil } from "lucide-react";
+import { Loader2, FileText, TrendingUp, Users, Search, Download, Eye, Pencil } from "lucide-react";
 import { useStoreData } from "@/hooks/useStoreData";
 import { toast } from "sonner";
 import html2pdf from "html2pdf.js";
