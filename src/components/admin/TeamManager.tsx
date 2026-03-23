@@ -16,7 +16,13 @@ import {
   AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 
-const MAX_MEMBERS = 10;
+// Plan-based user limits
+const PLAN_USER_LIMITS: Record<string, number> = {
+  gratuito: 1,
+  premium: 3,
+  avancado: 7,
+  escala: 10,
+};
 
 interface TeamMember {
   id: string;
@@ -32,6 +38,7 @@ const TeamManager = () => {
   const [showForm, setShowForm] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [editingRole, setEditingRole] = useState<string | null>(null);
+  const [currentPlanSlug, setCurrentPlanSlug] = useState<string>("gratuito");
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -39,9 +46,32 @@ const TeamManager = () => {
     role: "seller",
   });
 
+  const maxMembers = PLAN_USER_LIMITS[currentPlanSlug] || 1;
+
   useEffect(() => {
-    if (store) loadMembers();
+    if (store) {
+      loadMembers();
+      loadSubscription();
+    }
   }, [store]);
+
+  const loadSubscription = async () => {
+    try {
+      const { data, error } = await supabase.functions.invoke("check-subscription");
+      if (error) return;
+      if (data?.subscribed && data?.product_id) {
+        // Map product IDs to plan slugs
+        const productPlanMap: Record<string, string> = {
+          "prod_UCgRljPq5bvjS4": "premium",
+          "prod_UCgScAiO19M68R": "avancado",
+          "prod_UCgSX4JTil25jU": "escala",
+        };
+        setCurrentPlanSlug(productPlanMap[data.product_id] || "gratuito");
+      }
+    } catch {
+      // fallback to gratuito
+    }
+  };
 
   const loadMembers = async () => {
     if (!store) return;
@@ -86,8 +116,8 @@ const TeamManager = () => {
       toast.error("A senha deve ter pelo menos 6 caracteres");
       return;
     }
-    if (members.length >= MAX_MEMBERS) {
-      toast.error(`Limite de ${MAX_MEMBERS} usuários por loja atingido`);
+    if (members.length >= maxMembers) {
+      toast.error(`Limite de ${maxMembers} usuários no plano atual atingido. Faça upgrade para adicionar mais membros.`);
       return;
     }
 
@@ -193,11 +223,11 @@ const TeamManager = () => {
     );
   }
 
-  const isAtLimit = members.length >= MAX_MEMBERS;
+  const isAtLimit = members.length >= maxMembers;
 
   return (
     <div className="space-y-6 max-w-3xl">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
           <h2 className="text-2xl font-bold">Equipe</h2>
           <p className="text-muted-foreground text-sm">Gerencie os membros da sua loja</p>
@@ -215,13 +245,13 @@ const TeamManager = () => {
       {/* Limit warning */}
       <Alert className="border-amber-500/50 bg-amber-500/5">
         <AlertTriangle className="h-4 w-4 text-amber-500" />
-        <AlertDescription className="flex items-center justify-between">
-          <span className="font-medium text-amber-700">
-            LIMITE DE {MAX_MEMBERS} USUÁRIOS POR LOJA
+        <AlertDescription className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <span className="font-medium text-amber-700 text-sm">
+            LIMITE DO PLANO: {maxMembers} USUÁRIO{maxMembers > 1 ? "S" : ""}
           </span>
           <span className="text-sm">
             <Users className="w-4 h-4 inline mr-1" />
-            {members.length}/{MAX_MEMBERS} utilizados
+            {members.length}/{maxMembers} utilizados
           </span>
         </AlertDescription>
       </Alert>

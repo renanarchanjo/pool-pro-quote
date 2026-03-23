@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
-import { FileDown, MessageCircle, Printer, Mail, ArrowLeft } from "lucide-react";
+import { FileDown, ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
 import html2pdf from "html2pdf.js";
 
@@ -159,33 +159,21 @@ const ProposalView = ({
   return (
     <div style={{ minHeight: "100vh", background: "#f3f4f6" }} className="print:bg-white">
       {/* Action bar */}
-      <nav className="border-b border-border/50 bg-background/80 backdrop-blur-sm print:hidden">
-        <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-          <Button variant="ghost" onClick={onBack}>
-            <ArrowLeft className="w-4 h-4 mr-2" /> Voltar
+      <nav className="border-b border-border/50 bg-background/80 backdrop-blur-sm print:hidden sticky top-0 z-50">
+        <div className="container mx-auto px-3 sm:px-4 py-3 sm:py-4 flex justify-between items-center">
+          <Button variant="ghost" size="sm" onClick={onBack}>
+            <ArrowLeft className="w-4 h-4 mr-1 sm:mr-2" /> Voltar
           </Button>
-          <div className="flex gap-2 flex-wrap">
-            <Button variant="outline" onClick={handleDownloadPDF}>
-              <FileDown className="w-4 h-4 mr-2" /> PDF
-            </Button>
-            <Button variant="outline" onClick={handlePrint}>
-              <Printer className="w-4 h-4 mr-2" /> Imprimir
-            </Button>
-            <Button variant="outline" onClick={handleSendEmail}>
-              <Mail className="w-4 h-4 mr-2" /> Email
-            </Button>
-            <Button
-              onClick={generateWhatsAppMessage}
-              style={{ background: primaryColor, color: "white" }}
-            >
-              <MessageCircle className="w-4 h-4 mr-2" /> WhatsApp
+          <div className="flex gap-2">
+            <Button variant="outline" size="sm" onClick={handleDownloadPDF}>
+              <FileDown className="w-4 h-4 mr-1 sm:mr-2" /> <span className="hidden sm:inline">Baixar</span> PDF
             </Button>
           </div>
         </div>
       </nav>
 
       {/* PDF Content */}
-      <main className="container mx-auto px-4 py-8 print:p-0">
+      <main className="container mx-auto px-2 sm:px-4 py-4 sm:py-8 print:p-0">
         <div
           id="proposal-content"
           style={{
@@ -194,12 +182,12 @@ const ProposalView = ({
             background: "white",
             fontFamily: "'Inter', 'Segoe UI', sans-serif",
             color: "#111827",
-            padding: "32px",
+            padding: "16px",
           }}
-          className="print:shadow-none"
+          className="sm:p-8 print:shadow-none"
         >
           {/* ===== HEADER ===== */}
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "28px", borderBottom: "2px solid #e5e7eb", paddingBottom: "20px" }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: "12px", marginBottom: "28px", borderBottom: "2px solid #e5e7eb", paddingBottom: "20px" }} className="sm:!flex-row sm:!justify-between sm:!items-start">
             <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
               {storeSettings?.logo_url ? (
                 <img
@@ -276,7 +264,7 @@ const ProposalView = ({
           </div>
 
           {/* ===== ITENS INCLUSOS + OPCIONAIS ===== */}
-          <div style={{ display: "flex", gap: "16px", marginBottom: "16px" }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: "16px", marginBottom: "16px" }} className="sm:!flex-row">
             {/* Itens Inclusos */}
             <div style={{ ...sectionStyle, flex: 1, marginBottom: 0 }}>
               <div style={sectionHeaderStyle}>Itens Inclusos</div>

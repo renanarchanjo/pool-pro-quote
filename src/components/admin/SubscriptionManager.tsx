@@ -143,14 +143,14 @@ const SubscriptionManager = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-display font-bold">Meu Plano</h1>
-          <p className="text-muted-foreground">
+          <h1 className="text-xl sm:text-2xl font-display font-bold">Meu Plano</h1>
+          <p className="text-muted-foreground text-sm">
             Plano atual:{" "}
             <span className="font-semibold text-primary">{currentPlan?.name || "Gratuito"}</span>
             {subscription?.subscription_end && (
-              <span className="ml-2 text-sm">
+              <span className="ml-2 text-xs sm:text-sm">
                 · Renova em {new Date(subscription.subscription_end).toLocaleDateString("pt-BR")}
               </span>
             )}
@@ -158,18 +158,18 @@ const SubscriptionManager = () => {
         </div>
         <div className="flex gap-2">
           {subscription?.subscribed && (
-            <Button variant="outline" onClick={handleManageSubscription} disabled={portalLoading}>
+            <Button variant="outline" size="sm" onClick={handleManageSubscription} disabled={portalLoading}>
               {portalLoading ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <CreditCard className="w-4 h-4 mr-2" />}
-              Gerenciar Assinatura
+              <span className="hidden sm:inline">Gerenciar</span> Assinatura
             </Button>
           )}
           <Button variant="ghost" size="sm" onClick={checkSubscription}>
-            Atualizar Status
+            Atualizar
           </Button>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {PLANS.map((plan) => {
           const isCurrent =
             (!subscription?.subscribed && plan.slug === "gratuito") ||

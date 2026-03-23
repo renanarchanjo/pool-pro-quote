@@ -10,7 +10,7 @@ import {
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
-import { Loader2, FileText, TrendingUp, Users, Search, Download, Phone, Eye, Link2, Mail, Pencil } from "lucide-react";
+import { Loader2, FileText, TrendingUp, Users, Search, Download, Eye, Pencil } from "lucide-react";
 import { useStoreData } from "@/hooks/useStoreData";
 import { toast } from "sonner";
 import html2pdf from "html2pdf.js";
@@ -124,19 +124,6 @@ const AdminDashboard = () => {
     }
   };
 
-  const handleWhatsApp = (p: Proposal) => {
-    const msg = encodeURIComponent(
-      `Olá ${p.customer_name}! Segue sua proposta:\n\nModelo: ${p.pool_models?.name || "N/A"}\nValor: ${formatCurrency(p.total_price)}\n\nEntre em contato para mais detalhes!`
-    );
-    const phone = p.customer_whatsapp.replace(/\D/g, "");
-    window.open(`https://wa.me/55${phone}?text=${msg}`, "_blank");
-  };
-
-  const handleCopyLink = (p: Proposal) => {
-    const link = `${window.location.origin}/proposta/${p.id}`;
-    navigator.clipboard.writeText(link);
-    toast.success("Link copiado!");
-  };
 
   const handleExportPDF = async () => {
     if (!reportRef.current) return;
@@ -283,7 +270,48 @@ const AdminDashboard = () => {
                 </p>
               </div>
             ) : (
-              <div className="overflow-x-auto">
+              <>
+              {/* Mobile card view */}
+              <div className="block md:hidden space-y-3 p-3">
+                {filtered.map((p) => {
+                  const sc = statusConfig[p.status] || statusConfig.nova;
+                  return (
+                    <div key={p.id} className="border border-border rounded-lg p-3 space-y-2">
+                      <div className="flex items-start justify-between">
+                        <div>
+                          <p className="font-semibold text-sm">{p.customer_name}</p>
+                          <p className="text-xs text-muted-foreground">{p.customer_city} · {p.pool_models?.name || "N/A"}</p>
+                        </div>
+                        <span className="font-bold text-primary text-sm whitespace-nowrap">{formatCurrency(p.total_price)}</span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <Select value={p.status} onValueChange={(v) => updateStatus(p.id, v as ProposalStatus)}>
+                          <SelectTrigger className={`w-[130px] h-7 text-xs font-medium border ${sc.className}`}>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {Object.entries(statusConfig).map(([key, { label }]) => (
+                              <SelectItem key={key} value={key}>{label}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <span className="text-xs text-muted-foreground">{new Date(p.created_at).toLocaleDateString("pt-BR")}</span>
+                      </div>
+                      <div className="flex gap-2">
+                        <Button size="sm" variant="outline" className="h-7 text-xs gap-1 flex-1" onClick={() => setViewingProposal(p)}>
+                          <Eye className="w-3 h-3" /> Ver
+                        </Button>
+                        <Button size="sm" variant="outline" className="h-7 text-xs gap-1 flex-1" onClick={() => handleExportSinglePDF(p)}>
+                          <Download className="w-3 h-3" /> PDF
+                        </Button>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Desktop table view */}
+              <div className="hidden md:block overflow-x-auto">
                 <Table>
                   <TableHeader>
                     <TableRow>
@@ -306,17 +334,10 @@ const AdminDashboard = () => {
                               <p className="text-xs text-muted-foreground">{p.customer_city}</p>
                             </div>
                           </TableCell>
-                          <TableCell className="font-medium">
-                            {p.pool_models?.name || "N/A"}
-                          </TableCell>
-                          <TableCell className="font-bold text-primary whitespace-nowrap">
-                            {formatCurrency(p.total_price)}
-                          </TableCell>
+                          <TableCell className="font-medium">{p.pool_models?.name || "N/A"}</TableCell>
+                          <TableCell className="font-bold text-primary whitespace-nowrap">{formatCurrency(p.total_price)}</TableCell>
                           <TableCell>
-                            <Select
-                              value={p.status}
-                              onValueChange={(v) => updateStatus(p.id, v as ProposalStatus)}
-                            >
+                            <Select value={p.status} onValueChange={(v) => updateStatus(p.id, v as ProposalStatus)}>
                               <SelectTrigger className={`w-[150px] h-8 text-xs font-medium border ${sc.className}`}>
                                 <div className="flex items-center gap-1.5">
                                   <Pencil className="w-3 h-3" />
@@ -330,26 +351,14 @@ const AdminDashboard = () => {
                               </SelectContent>
                             </Select>
                           </TableCell>
-                          <TableCell className="whitespace-nowrap text-sm">
-                            {new Date(p.created_at).toLocaleDateString("pt-BR")}
-                          </TableCell>
+                          <TableCell className="whitespace-nowrap text-sm">{new Date(p.created_at).toLocaleDateString("pt-BR")}</TableCell>
                           <TableCell>
                             <div className="flex flex-wrap gap-1.5">
-                              <Button size="sm" variant="outline" className="h-7 text-xs gap-1"
-                                onClick={() => setViewingProposal(p)}>
+                              <Button size="sm" variant="outline" className="h-7 text-xs gap-1" onClick={() => setViewingProposal(p)}>
                                 <Eye className="w-3 h-3" /> Ver
                               </Button>
-                              <Button size="sm" variant="outline" className="h-7 text-xs gap-1"
-                                onClick={() => handleCopyLink(p)}>
-                                <Link2 className="w-3 h-3" /> Link
-                              </Button>
-                              <Button size="sm" variant="outline" className="h-7 text-xs gap-1"
-                                onClick={() => handleExportSinglePDF(p)}>
-                                <Download className="w-3 h-3 text-red-500" /> PDF
-                              </Button>
-                              <Button size="sm" className="h-7 text-xs gap-1 bg-emerald-600 hover:bg-emerald-700 text-white"
-                                onClick={() => handleWhatsApp(p)}>
-                                <Phone className="w-3 h-3" /> WhatsApp
+                              <Button size="sm" variant="outline" className="h-7 text-xs gap-1" onClick={() => handleExportSinglePDF(p)}>
+                                <Download className="w-3 h-3" /> PDF
                               </Button>
                             </div>
                           </TableCell>
@@ -359,6 +368,7 @@ const AdminDashboard = () => {
                   </TableBody>
                 </Table>
               </div>
+              </>
             )}
           </CardContent>
         </Card>
@@ -366,7 +376,7 @@ const AdminDashboard = () => {
 
       {/* Proposal Detail Dialog */}
       <Dialog open={!!viewingProposal} onOpenChange={(open) => !open && setViewingProposal(null)}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto w-[95vw] p-3 sm:p-6">
           <DialogHeader>
             <DialogTitle>Proposta — {viewingProposal?.customer_name}</DialogTitle>
           </DialogHeader>
