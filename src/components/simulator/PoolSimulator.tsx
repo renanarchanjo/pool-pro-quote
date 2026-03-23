@@ -142,7 +142,11 @@ const PoolSimulator = ({ onBack }: PoolSimulatorProps) => {
         .filter(opt => selectedOptionals.includes(opt.id))
         .reduce((sum, opt) => sum + opt.price, 0);
 
-      const totalPrice = selectedModel.base_price + optionalsPrice;
+      const modelOptsPrice = modelOptionals
+        .filter(opt => selectedOptionals.includes(opt.id))
+        .reduce((sum: number, opt: any) => sum + opt.price, 0);
+
+      const totalPrice = selectedModel.base_price + optionalsPrice + modelOptsPrice;
 
       const { data: proposal, error } = await supabase
         .from("proposals")
