@@ -327,53 +327,113 @@ const ManualProposal = () => {
             {optionals.length === 0 ? (
               <p className="text-muted-foreground text-sm">Nenhum opcional cadastrado.</p>
             ) : (
-              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                {optionals.map((opt) => {
-                  const isEnabled = enabledOptionalIds.includes(opt.id);
-                  const isSelected = selectedOptionalIds.includes(opt.id);
+              <div className="space-y-6">
+                {optionalGroups.map((group) => {
+                  const groupOpts = optionals.filter((o) => o.group_id === group.id);
+                  if (groupOpts.length === 0) return null;
                   return (
-                    <div
-                      key={opt.id}
-                      className={`relative flex items-start gap-3 p-3 rounded-lg border transition-all ${
-                        !isEnabled
-                          ? "border-border/30 bg-muted/30 opacity-50"
-                          : isSelected
-                          ? "border-primary bg-primary/5"
-                          : "border-border hover:border-primary/40"
-                      }`}
-                    >
-                      {/* Toggle visibility */}
-                      <button
-                        type="button"
-                        onClick={() => toggleEnabled(opt.id)}
-                        className="absolute top-2 right-2 p-1 rounded hover:bg-muted transition-colors"
-                        title={isEnabled ? "Desativar opcional" : "Ativar opcional"}
-                      >
-                        {isEnabled ? (
-                          <Eye className="w-3.5 h-3.5 text-primary" />
-                        ) : (
-                          <EyeOff className="w-3.5 h-3.5 text-muted-foreground" />
-                        )}
-                      </button>
-
-                      {/* Selection checkbox */}
-                      <label className={`flex items-start gap-3 flex-1 min-w-0 ${isEnabled ? "cursor-pointer" : "cursor-not-allowed"}`}>
-                        <Checkbox
-                          checked={isSelected}
-                          onCheckedChange={() => isEnabled && toggleOptional(opt.id)}
-                          disabled={!isEnabled}
-                          className="mt-0.5"
-                        />
-                        <div className="flex-1 min-w-0 pr-5">
-                          <p className="text-sm font-medium leading-tight">{opt.name}</p>
-                          <p className="text-xs text-primary font-semibold mt-1">
-                            + R$ {opt.price.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
-                          </p>
-                        </div>
-                      </label>
+                    <div key={group.id}>
+                      <h4 className="text-sm font-bold text-foreground mb-1">{group.name}</h4>
+                      {group.description && <p className="text-xs text-muted-foreground mb-2">{group.description}</p>}
+                      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                        {groupOpts.map((opt) => {
+                          const isEnabled = enabledOptionalIds.includes(opt.id);
+                          const isSelected = selectedOptionalIds.includes(opt.id);
+                          return (
+                            <div
+                              key={opt.id}
+                              className={`relative flex items-start gap-3 p-3 rounded-lg border transition-all ${
+                                !isEnabled
+                                  ? "border-border/30 bg-muted/30 opacity-50"
+                                  : isSelected
+                                  ? "border-primary bg-primary/5"
+                                  : "border-border hover:border-primary/40"
+                              }`}
+                            >
+                              <button
+                                type="button"
+                                onClick={() => toggleEnabled(opt.id)}
+                                className="absolute top-2 right-2 p-1 rounded hover:bg-muted transition-colors"
+                                title={isEnabled ? "Desativar opcional" : "Ativar opcional"}
+                              >
+                                {isEnabled ? (
+                                  <Eye className="w-3.5 h-3.5 text-primary" />
+                                ) : (
+                                  <EyeOff className="w-3.5 h-3.5 text-muted-foreground" />
+                                )}
+                              </button>
+                              <label className={`flex items-start gap-3 flex-1 min-w-0 ${isEnabled ? "cursor-pointer" : "cursor-not-allowed"}`}>
+                                <Checkbox
+                                  checked={isSelected}
+                                  onCheckedChange={() => isEnabled && toggleOptional(opt.id)}
+                                  disabled={!isEnabled}
+                                  className="mt-0.5"
+                                />
+                                <div className="flex-1 min-w-0 pr-5">
+                                  <p className="text-sm font-medium leading-tight">{opt.name}</p>
+                                  <p className="text-xs text-primary font-semibold mt-1">
+                                    + R$ {opt.price.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                                  </p>
+                                </div>
+                              </label>
+                            </div>
+                          );
+                        })}
+                      </div>
                     </div>
                   );
                 })}
+                {/* Opcionais sem grupo */}
+                {optionals.filter((o) => !o.group_id || !optionalGroups.some((g) => g.id === o.group_id)).length > 0 && (
+                  <div>
+                    <h4 className="text-sm font-bold text-foreground mb-2">Outros</h4>
+                    <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                      {optionals.filter((o) => !o.group_id || !optionalGroups.some((g) => g.id === o.group_id)).map((opt) => {
+                        const isEnabled = enabledOptionalIds.includes(opt.id);
+                        const isSelected = selectedOptionalIds.includes(opt.id);
+                        return (
+                          <div
+                            key={opt.id}
+                            className={`relative flex items-start gap-3 p-3 rounded-lg border transition-all ${
+                              !isEnabled
+                                ? "border-border/30 bg-muted/30 opacity-50"
+                                : isSelected
+                                ? "border-primary bg-primary/5"
+                                : "border-border hover:border-primary/40"
+                            }`}
+                          >
+                            <button
+                              type="button"
+                              onClick={() => toggleEnabled(opt.id)}
+                              className="absolute top-2 right-2 p-1 rounded hover:bg-muted transition-colors"
+                              title={isEnabled ? "Desativar opcional" : "Ativar opcional"}
+                            >
+                              {isEnabled ? (
+                                <Eye className="w-3.5 h-3.5 text-primary" />
+                              ) : (
+                                <EyeOff className="w-3.5 h-3.5 text-muted-foreground" />
+                              )}
+                            </button>
+                            <label className={`flex items-start gap-3 flex-1 min-w-0 ${isEnabled ? "cursor-pointer" : "cursor-not-allowed"}`}>
+                              <Checkbox
+                                checked={isSelected}
+                                onCheckedChange={() => isEnabled && toggleOptional(opt.id)}
+                                disabled={!isEnabled}
+                                className="mt-0.5"
+                              />
+                              <div className="flex-1 min-w-0 pr-5">
+                                <p className="text-sm font-medium leading-tight">{opt.name}</p>
+                                <p className="text-xs text-primary font-semibold mt-1">
+                                  + R$ {opt.price.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                                </p>
+                              </div>
+                            </label>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
               </div>
             )}
           </CardContent>
