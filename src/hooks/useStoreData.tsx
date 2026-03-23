@@ -29,7 +29,29 @@ export const useStoreData = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchStoreData();
+    // Wait for auth state to be ready before fetching
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (session) {
+        fetchStoreData();
+      } else {
+        setProfile(null);
+        setStore(null);
+        setStoreSettings(null);
+        setRole(null);
+        setLoading(false);
+      }
+    });
+
+    // Also check current session immediately
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) {
+        fetchStoreData();
+      } else {
+        setLoading(false);
+      }
+    });
+
+    return () => subscription.unsubscribe();
   }, []);
 
   const fetchStoreData = async () => {
