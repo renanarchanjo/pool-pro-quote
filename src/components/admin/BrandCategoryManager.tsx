@@ -5,11 +5,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
-import { Textarea } from "@/components/ui/textarea";
-import { Plus, Pencil, Loader2, Trash2, ChevronDown, ChevronRight, Tag } from "lucide-react";
+import { Plus, Pencil, Loader2, Trash2, ChevronDown, ChevronRight, Tag, CheckSquare, Square } from "lucide-react";
 import { toast } from "sonner";
 import { useStoreData } from "@/hooks/useStoreData";
 import { Badge } from "@/components/ui/badge";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel,
   AlertDialogContent, AlertDialogDescription, AlertDialogFooter,
@@ -43,16 +43,15 @@ const BrandCategoryManager = () => {
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Brand form
   const [editingBrand, setEditingBrand] = useState<string | null>(null);
   const [brandForm, setBrandForm] = useState({ name: "", description: "" });
-
-  // Category form
   const [editingCategory, setEditingCategory] = useState<string | null>(null);
   const [categoryForm, setCategoryForm] = useState({ name: "", description: "", brand_id: "" });
-
-  // Collapsible state
   const [expandedBrands, setExpandedBrands] = useState<string[]>([]);
+
+  // Bulk selection
+  const [selectedBrands, setSelectedBrands] = useState<string[]>([]);
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
 
   useEffect(() => {
     if (store) loadData();
@@ -83,12 +82,77 @@ const BrandCategoryManager = () => {
     );
   };
 
-  // ---- BRAND CRUD ----
+  const toggleSelectBrand = (id: string) => {
+    setSelectedBrands((prev) =>
+      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
+    );
+  };
+
+  const toggleSelectCategory = (id: string) => {
+    setSelectedCategories((prev) =>
+      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
+    );
+  };
+
+  const selectAllBrands = () => {
+    if (selectedBrands.length === brands.length) {
+      setSelectedBrands([]);
+    } else {
+      setSelectedBrands(brands.map((b) => b.id));
+    }
+  };
+
+  // Bulk brand actions
+  const bulkBrandAction = async (action: "activate" | "deactivate" | "delete") => {
+    if (selectedBrands.length === 0) return;
+    try {
+      if (action === "delete") {
+        for (const id of selectedBrands) {
+          await supabase.from("brands").delete().eq("id", id);
+        }
+        toast.success(`${selectedBrands.length} marca(s) excluída(s)`);
+      } else {
+        const active = action === "activate";
+        for (const id of selectedBrands) {
+          await supabase.from("brands").update({ active }).eq("id", id);
+        }
+        toast.success(`${selectedBrands.length} marca(s) ${active ? "ativada(s)" : "desativada(s)"}`);
+      }
+      setSelectedBrands([]);
+      loadData();
+    } catch {
+      toast.error("Erro na operação em lote");
+    }
+  };
+
+  // Bulk category actions
+  const bulkCategoryAction = async (action: "activate" | "deactivate" | "delete") => {
+    if (selectedCategories.length === 0) return;
+    try {
+      if (action === "delete") {
+        for (const id of selectedCategories) {
+          await supabase.from("categories").delete().eq("id", id);
+        }
+        toast.success(`${selectedCategories.length} categoria(s) excluída(s)`);
+      } else {
+        const active = action === "activate";
+        for (const id of selectedCategories) {
+          await supabase.from("categories").update({ active }).eq("id", id);
+        }
+        toast.success(`${selectedCategories.length} categoria(s) ${active ? "ativada(s)" : "desativada(s)"}`);
+      }
+      setSelectedCategories([]);
+      loadData();
+    } catch {
+      toast.error("Erro na operação em lote");
+    }
+  };
+
+  // Single CRUD
   const handleBrandSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!brandForm.name.trim()) { toast.error("Nome da marca é obrigatório"); return; }
     if (!store) return;
-
     try {
       if (editingBrand) {
         const { error } = await supabase.from("brands")
@@ -106,7 +170,6 @@ const BrandCategoryManager = () => {
       setEditingBrand(null);
       loadData();
     } catch (error) {
-      console.error("Error saving brand:", error);
       toast.error("Erro ao salvar marca");
     }
   };
@@ -117,30 +180,26 @@ const BrandCategoryManager = () => {
       if (error) throw error;
       toast.success("Marca excluída");
       loadData();
-    } catch (error) {
-      console.error("Error deleting brand:", error);
+    } catch {
       toast.error("Erro ao excluir marca. Verifique se não há categorias vinculadas.");
     }
   };
 
   const toggleBrandActive = async (id: string, active: boolean) => {
     try {
-      const { error } = await supabase.from("brands").update({ active: !active }).eq("id", id);
-      if (error) throw error;
+      await supabase.from("brands").update({ active: !active }).eq("id", id);
       toast.success("Status atualizado");
       loadData();
-    } catch (error) {
+    } catch {
       toast.error("Erro ao atualizar status");
     }
   };
 
-  // ---- CATEGORY CRUD ----
   const handleCategorySubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!categoryForm.name.trim()) { toast.error("Nome da categoria é obrigatório"); return; }
     if (!categoryForm.brand_id) { toast.error("Selecione uma marca"); return; }
     if (!store) return;
-
     try {
       if (editingCategory) {
         const { error } = await supabase.from("categories")
@@ -157,31 +216,27 @@ const BrandCategoryManager = () => {
       setCategoryForm({ name: "", description: "", brand_id: "" });
       setEditingCategory(null);
       loadData();
-    } catch (error) {
-      console.error("Error saving category:", error);
+    } catch {
       toast.error("Erro ao salvar categoria");
     }
   };
 
   const handleDeleteCategory = async (id: string) => {
     try {
-      const { error } = await supabase.from("categories").delete().eq("id", id);
-      if (error) throw error;
+      await supabase.from("categories").delete().eq("id", id);
       toast.success("Categoria excluída");
       loadData();
-    } catch (error) {
-      console.error("Error deleting category:", error);
+    } catch {
       toast.error("Erro ao excluir. Verifique se não há modelos vinculados.");
     }
   };
 
   const toggleCategoryActive = async (id: string, active: boolean) => {
     try {
-      const { error } = await supabase.from("categories").update({ active: !active }).eq("id", id);
-      if (error) throw error;
+      await supabase.from("categories").update({ active: !active }).eq("id", id);
       toast.success("Status atualizado");
       loadData();
-    } catch (error) {
+    } catch {
       toast.error("Erro ao atualizar status");
     }
   };
@@ -199,7 +254,7 @@ const BrandCategoryManager = () => {
 
   return (
     <div className="space-y-8">
-      {/* ====== MARCA FORM ====== */}
+      {/* MARCA FORM */}
       <Card className="p-6">
         <h2 className="text-2xl font-bold mb-4">
           {editingBrand ? "Editar Marca" : "Nova Marca"}
@@ -234,7 +289,7 @@ const BrandCategoryManager = () => {
         </form>
       </Card>
 
-      {/* ====== CATEGORIA FORM ====== */}
+      {/* CATEGORIA FORM */}
       {brands.length > 0 && (
         <Card className="p-6">
           <h2 className="text-2xl font-bold mb-4">
@@ -282,41 +337,131 @@ const BrandCategoryManager = () => {
         </Card>
       )}
 
-      {/* ====== LISTAGEM DE MARCAS COM CATEGORIAS ====== */}
+      {/* LISTAGEM */}
       <div className="space-y-4">
-        <h2 className="text-xl font-bold">Marcas e Categorias Cadastradas</h2>
+        <div className="flex items-center justify-between flex-wrap gap-3">
+          <h2 className="text-xl font-bold">Marcas e Categorias Cadastradas</h2>
+          {brands.length > 0 && (
+            <div className="flex items-center gap-2">
+              <Button variant="outline" size="sm" onClick={selectAllBrands}>
+                {selectedBrands.length === brands.length ? <CheckSquare className="w-4 h-4 mr-1" /> : <Square className="w-4 h-4 mr-1" />}
+                {selectedBrands.length === brands.length ? "Desmarcar" : "Selecionar"} todas
+              </Button>
+            </div>
+          )}
+        </div>
+
+        {/* Bulk brand actions bar */}
+        {selectedBrands.length > 0 && (
+          <Card className="p-3 bg-primary/5 border-primary/20">
+            <div className="flex items-center justify-between flex-wrap gap-2">
+              <p className="text-sm font-medium">{selectedBrands.length} marca(s) selecionada(s)</p>
+              <div className="flex gap-2">
+                <Button size="sm" variant="outline" onClick={() => bulkBrandAction("activate")}>
+                  Ativar
+                </Button>
+                <Button size="sm" variant="outline" onClick={() => bulkBrandAction("deactivate")}>
+                  Desativar
+                </Button>
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button size="sm" variant="destructive">
+                      <Trash2 className="w-3.5 h-3.5 mr-1" /> Excluir
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Excluir {selectedBrands.length} marca(s)?</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        Esta ação não pode ser desfeita. Categorias vinculadas também serão excluídas.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                      <AlertDialogAction onClick={() => bulkBrandAction("delete")}
+                        className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                        Excluir
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+              </div>
+            </div>
+          </Card>
+        )}
+
+        {/* Bulk category actions bar */}
+        {selectedCategories.length > 0 && (
+          <Card className="p-3 bg-accent/5 border-accent/20">
+            <div className="flex items-center justify-between flex-wrap gap-2">
+              <p className="text-sm font-medium">{selectedCategories.length} categoria(s) selecionada(s)</p>
+              <div className="flex gap-2">
+                <Button size="sm" variant="outline" onClick={() => bulkCategoryAction("activate")}>
+                  Ativar
+                </Button>
+                <Button size="sm" variant="outline" onClick={() => bulkCategoryAction("deactivate")}>
+                  Desativar
+                </Button>
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button size="sm" variant="destructive">
+                      <Trash2 className="w-3.5 h-3.5 mr-1" /> Excluir
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Excluir {selectedCategories.length} categoria(s)?</AlertDialogTitle>
+                      <AlertDialogDescription>Esta ação não pode ser desfeita.</AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                      <AlertDialogAction onClick={() => bulkCategoryAction("delete")}
+                        className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                        Excluir
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+              </div>
+            </div>
+          </Card>
+        )}
 
         {brands.length === 0 ? (
           <Card className="p-8 text-center">
             <Tag className="w-12 h-12 text-muted-foreground mx-auto mb-3" />
-            <p className="text-muted-foreground">Nenhuma marca cadastrada ainda. Comece criando uma marca acima.</p>
+            <p className="text-muted-foreground">Nenhuma marca cadastrada ainda.</p>
           </Card>
         ) : (
           brands.map((brand) => {
             const brandCategories = getCategoriesForBrand(brand.id);
             const isExpanded = expandedBrands.includes(brand.id);
+            const isSelected = selectedBrands.includes(brand.id);
 
             return (
               <Collapsible key={brand.id} open={isExpanded} onOpenChange={() => toggleExpanded(brand.id)}>
-                <Card className="overflow-hidden">
-                  <div className="p-4 flex items-center justify-between">
+                <Card className={`overflow-hidden transition-colors ${isSelected ? "ring-2 ring-primary/30" : ""}`}>
+                  <div className="p-4 flex items-center gap-3">
+                    <Checkbox
+                      checked={isSelected}
+                      onCheckedChange={() => toggleSelectBrand(brand.id)}
+                      className="shrink-0"
+                    />
                     <CollapsibleTrigger className="flex items-center gap-3 flex-1 text-left hover:opacity-80 transition-opacity">
                       {isExpanded ? <ChevronDown className="w-5 h-5 text-primary" /> : <ChevronRight className="w-5 h-5" />}
                       <div>
                         <h3 className="text-lg font-bold">{brand.name}</h3>
-                        {brand.description && (
-                          <p className="text-sm text-muted-foreground">{brand.description}</p>
-                        )}
+                        {brand.description && <p className="text-sm text-muted-foreground">{brand.description}</p>}
                       </div>
                       <Badge variant="secondary" className="ml-2">
                         {brandCategories.length} categoria{brandCategories.length !== 1 ? "s" : ""}
                       </Badge>
                     </CollapsibleTrigger>
 
-                    <div className="flex items-center gap-3 ml-4">
+                    <div className="flex items-center gap-3 ml-auto shrink-0">
                       <div className="flex items-center gap-2">
                         <Switch checked={brand.active} onCheckedChange={() => toggleBrandActive(brand.id, brand.active)} />
-                        <span className="text-sm">{brand.active ? "Ativo" : "Inativo"}</span>
+                        <span className="text-sm hidden sm:inline">{brand.active ? "Ativo" : "Inativo"}</span>
                       </div>
                       <Button variant="outline" size="sm" onClick={() => {
                         setEditingBrand(brand.id);
@@ -334,7 +479,7 @@ const BrandCategoryManager = () => {
                           <AlertDialogHeader>
                             <AlertDialogTitle>Excluir marca?</AlertDialogTitle>
                             <AlertDialogDescription>
-                              Tem certeza que deseja excluir "{brand.name}"? Todas as categorias vinculadas também serão excluídas.
+                              Excluir "{brand.name}"? Categorias vinculadas também serão excluídas.
                             </AlertDialogDescription>
                           </AlertDialogHeader>
                           <AlertDialogFooter>
@@ -353,18 +498,22 @@ const BrandCategoryManager = () => {
                     <div className="border-t border-border/50 p-4 bg-muted/20 space-y-2">
                       {brandCategories.length === 0 ? (
                         <p className="text-sm text-muted-foreground text-center py-3">
-                          Nenhuma categoria nesta marca. Crie uma acima selecionando esta marca.
+                          Nenhuma categoria nesta marca.
                         </p>
                       ) : (
                         brandCategories.map((cat) => (
-                          <div key={cat.id} className="flex items-center justify-between p-3 rounded-lg bg-background border border-border/50">
-                            <div>
+                          <div key={cat.id} className={`flex items-center gap-3 p-3 rounded-lg bg-background border transition-colors ${selectedCategories.includes(cat.id) ? "border-primary/40 ring-1 ring-primary/20" : "border-border/50"}`}>
+                            <Checkbox
+                              checked={selectedCategories.includes(cat.id)}
+                              onCheckedChange={() => toggleSelectCategory(cat.id)}
+                            />
+                            <div className="flex-1 min-w-0">
                               <p className="font-medium">{cat.name}</p>
                               {cat.description && <p className="text-sm text-muted-foreground">{cat.description}</p>}
                             </div>
-                            <div className="flex items-center gap-2">
+                            <div className="flex items-center gap-2 shrink-0">
                               <Switch checked={cat.active} onCheckedChange={() => toggleCategoryActive(cat.id, cat.active)} />
-                              <span className="text-xs">{cat.active ? "Ativo" : "Inativo"}</span>
+                              <span className="text-xs hidden sm:inline">{cat.active ? "Ativo" : "Inativo"}</span>
                               <Button variant="ghost" size="sm" onClick={() => {
                                 setEditingCategory(cat.id);
                                 setCategoryForm({ name: cat.name, description: cat.description || "", brand_id: cat.brand_id || "" });
@@ -380,9 +529,7 @@ const BrandCategoryManager = () => {
                                 <AlertDialogContent>
                                   <AlertDialogHeader>
                                     <AlertDialogTitle>Excluir categoria?</AlertDialogTitle>
-                                    <AlertDialogDescription>
-                                      Tem certeza que deseja excluir "{cat.name}"?
-                                    </AlertDialogDescription>
+                                    <AlertDialogDescription>Excluir "{cat.name}"?</AlertDialogDescription>
                                   </AlertDialogHeader>
                                   <AlertDialogFooter>
                                     <AlertDialogCancel>Cancelar</AlertDialogCancel>
