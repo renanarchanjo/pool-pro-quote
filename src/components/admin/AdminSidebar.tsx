@@ -22,7 +22,6 @@ import logoDark from "@/assets/simulapool-dark.png";
 const storeItems = [
   { title: "Dashboard", url: "/admin", icon: LayoutDashboard },
   { title: "Gerar Proposta", url: "/admin/gerar-proposta", icon: FilePlus },
-  { title: "Propostas", url: "/admin/propostas", icon: FileText },
   { title: "Categorias", url: "/admin/categorias", icon: FolderOpen },
   { title: "Categorias de Opcionais", url: "/admin/grupos", icon: Layers },
   { title: "Opcionais", url: "/admin/opcionais", icon: Package },

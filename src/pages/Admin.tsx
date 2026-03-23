@@ -75,7 +75,7 @@ const Admin = () => {
             <Routes>
               <Route index element={<AdminDashboard />} />
               <Route path="gerar-proposta" element={<ManualProposal />} />
-              <Route path="propostas" element={<ProposalsView />} />
+              {/* Propostas merged into Dashboard */}
               <Route path="categorias" element={<CategoryManager />} />
               <Route path="grupos" element={<OptionalGroupManager />} />
               <Route path="opcionais" element={<OptionalManager />} />
