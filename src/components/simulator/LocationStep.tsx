@@ -188,12 +188,13 @@ const LocationStep = ({ onSelectStore, onBack, onSkip }: LocationStepProps) => {
       )}
 
       <div className="mt-8 text-center">
-        <button
+        <Button
           onClick={onSkip}
-          className="text-sm text-muted-foreground hover:text-primary underline underline-offset-4 transition-colors"
+          variant="outline"
+          className="gradient-primary text-white border-0 hover:opacity-90"
         >
-          Pular localização e ver todos os modelos
-        </button>
+          Encontrar um lojista parceiro
+        </Button>
       </div>
     </div>
   );
