@@ -1,18 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import {
-  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
-} from "@/components/ui/table";
-import {
-  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
-} from "@/components/ui/select";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Calendar } from "@/components/ui/calendar";
-import { Loader2, FileText, TrendingUp, Users, Search, Download, Eye, Pencil, CalendarIcon, X } from "lucide-react";
+import { Loader2, Download } from "lucide-react";
 import { useStoreData } from "@/hooks/useStoreData";
 import { toast } from "sonner";
 import html2pdf from "html2pdf.js";
@@ -20,150 +9,43 @@ import {
   Dialog, DialogContent, DialogHeader, DialogTitle,
 } from "@/components/ui/dialog";
 import ProposalView from "@/components/simulator/ProposalView";
-import { format, startOfDay, endOfDay, subDays, startOfWeek, startOfMonth, endOfMonth, subMonths, subWeeks } from "date-fns";
-import { ptBR } from "date-fns/locale";
-
-type ProposalStatus = "nova" | "enviada" | "em_negociacao" | "fechada" | "perdida";
-
-interface Proposal {
-  id: string;
-  customer_name: string;
-  customer_city: string;
-  customer_whatsapp: string;
-  total_price: number;
-  created_at: string;
-  selected_optionals: any;
-  store_id: string | null;
-  status: ProposalStatus;
-  pool_models: { name: string; length: number | null; width: number | null; depth: number | null; photo_url: string | null; differentials: string[]; included_items: string[]; not_included_items: string[]; base_price: number; delivery_days: number; installation_days: number; payment_terms: string | null; notes: string | null; category_id: string } | null;
-  stores: { name: string } | null;
-}
-
-const statusConfig: Record<ProposalStatus, { label: string; className: string }> = {
-  nova: { label: "Nova", className: "bg-blue-100 text-blue-700 border-blue-200" },
-  enviada: { label: "Enviada", className: "bg-indigo-100 text-indigo-700 border-indigo-200" },
-  em_negociacao: { label: "Em Negociação", className: "bg-amber-100 text-amber-700 border-amber-200" },
-  fechada: { label: "Fechada", className: "bg-emerald-100 text-emerald-700 border-emerald-200" },
-  perdida: { label: "Perdida", className: "bg-red-100 text-red-700 border-red-200" },
-};
+import { Proposal, ProposalStatus } from "./dashboard/types";
+import DashboardKPIs from "./dashboard/DashboardKPIs";
+import DashboardFunnel from "./dashboard/DashboardFunnel";
+import DashboardAlerts from "./dashboard/DashboardAlerts";
+import DashboardPipeline from "./dashboard/DashboardPipeline";
 
 const AdminDashboard = () => {
   const { profile, store, storeSettings } = useStoreData();
-  const [stats, setStats] = useState({ total: 0, thisMonth: 0, thisWeek: 0, totalRevenue: 0 });
   const [proposals, setProposals] = useState<Proposal[]>([]);
-  const [filtered, setFiltered] = useState<Proposal[]>([]);
   const [loading, setLoading] = useState(true);
-  const [search, setSearch] = useState("");
-  const [statusFilter, setStatusFilter] = useState<string>("all");
-  const [datePreset, setDatePreset] = useState<string>("all");
-  const [dateFrom, setDateFrom] = useState<Date | undefined>(undefined);
-  const [dateTo, setDateTo] = useState<Date | undefined>(undefined);
-  const [datePopoverOpen, setDatePopoverOpen] = useState(false);
   const [viewingProposal, setViewingProposal] = useState<Proposal | null>(null);
   const reportRef = useRef<HTMLDivElement>(null);
-
-  const DATE_PRESETS: { label: string; value: string; getRange: () => { from: Date; to: Date } }[] = [
-    { label: "Hoje", value: "today", getRange: () => ({ from: startOfDay(new Date()), to: endOfDay(new Date()) }) },
-    { label: "Ontem", value: "yesterday", getRange: () => ({ from: startOfDay(subDays(new Date(), 1)), to: endOfDay(subDays(new Date(), 1)) }) },
-    { label: "Últimos 7 dias", value: "7days", getRange: () => ({ from: startOfDay(subDays(new Date(), 6)), to: endOfDay(new Date()) }) },
-    { label: "Últimos 14 dias", value: "14days", getRange: () => ({ from: startOfDay(subDays(new Date(), 13)), to: endOfDay(new Date()) }) },
-    { label: "Últimos 30 dias", value: "30days", getRange: () => ({ from: startOfDay(subDays(new Date(), 29)), to: endOfDay(new Date()) }) },
-    { label: "Esta semana", value: "thisWeek", getRange: () => ({ from: startOfWeek(new Date(), { weekStartsOn: 1 }), to: endOfDay(new Date()) }) },
-    { label: "Semana passada", value: "lastWeek", getRange: () => { const s = startOfWeek(subWeeks(new Date(), 1), { weekStartsOn: 1 }); return { from: s, to: endOfDay(subDays(startOfWeek(new Date(), { weekStartsOn: 1 }), 1)) }; } },
-    { label: "Este mês", value: "thisMonth", getRange: () => ({ from: startOfMonth(new Date()), to: endOfDay(new Date()) }) },
-    { label: "Mês passado", value: "lastMonth", getRange: () => ({ from: startOfMonth(subMonths(new Date(), 1)), to: endOfMonth(subMonths(new Date(), 1)) }) },
-  ];
-
-  const applyDatePreset = (presetValue: string) => {
-    if (presetValue === "all") {
-      setDateFrom(undefined);
-      setDateTo(undefined);
-      setDatePreset("all");
-      return;
-    }
-    const preset = DATE_PRESETS.find((p) => p.value === presetValue);
-    if (preset) {
-      const range = preset.getRange();
-      setDateFrom(range.from);
-      setDateTo(range.to);
-      setDatePreset(presetValue);
-    }
-  };
-
-  const getDateLabel = () => {
-    if (!dateFrom && !dateTo) return "Todas as datas";
-    const preset = DATE_PRESETS.find((p) => p.value === datePreset);
-    if (preset) return preset.label;
-    const parts: string[] = [];
-    if (dateFrom) parts.push(format(dateFrom, "dd/MM/yyyy"));
-    if (dateTo) parts.push(format(dateTo, "dd/MM/yyyy"));
-    return parts.join(" - ");
-  };
 
   useEffect(() => {
     loadData();
   }, []);
 
-  useEffect(() => {
-    let result = proposals;
-    if (statusFilter !== "all") {
-      result = result.filter((p) => p.status === statusFilter);
-    }
-    if (search.trim()) {
-      const q = search.toLowerCase();
-      result = result.filter(
-        (p) =>
-          p.customer_name.toLowerCase().includes(q) ||
-          p.customer_city.toLowerCase().includes(q) ||
-          p.customer_whatsapp.includes(q) ||
-          p.pool_models?.name?.toLowerCase().includes(q)
-      );
-    }
-    if (dateFrom) {
-      result = result.filter((p) => new Date(p.created_at) >= dateFrom);
-    }
-    if (dateTo) {
-      result = result.filter((p) => new Date(p.created_at) <= dateTo);
-    }
-    setFiltered(result);
-  }, [search, proposals, statusFilter, dateFrom, dateTo]);
-
   const loadData = async () => {
     try {
-      const now = new Date();
-      const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
-      const startOfWeek = new Date(now.setDate(now.getDate() - now.getDay())).toISOString();
-
-      const [totalRes, monthRes, weekRes, allRes] = await Promise.all([
-        supabase.from("proposals").select("total_price", { count: "exact" }),
-        supabase.from("proposals").select("*", { count: "exact", head: true }).gte("created_at", startOfMonth),
-        supabase.from("proposals").select("*", { count: "exact", head: true }).gte("created_at", startOfWeek),
-        supabase.from("proposals").select(`
+      const { data, error } = await supabase
+        .from("proposals")
+        .select(`
           id, customer_name, customer_city, customer_whatsapp,
           total_price, created_at, selected_optionals, store_id, status,
           pool_models (name, length, width, depth, photo_url, differentials, included_items, not_included_items, base_price, delivery_days, installation_days, payment_terms, notes, category_id),
           stores (name)
-        `).order("created_at", { ascending: false }),
-      ]);
+        `)
+        .order("created_at", { ascending: false });
 
-      const totalRevenue = (totalRes.data || []).reduce((sum, p) => sum + (p.total_price || 0), 0);
-
-      setStats({
-        total: totalRes.count || 0,
-        thisMonth: monthRes.count || 0,
-        thisWeek: weekRes.count || 0,
-        totalRevenue,
-      });
-      setProposals((allRes.data as any) || []);
+      if (error) throw error;
+      setProposals((data as any) || []);
     } catch (error) {
       console.error("Error loading dashboard:", error);
     } finally {
       setLoading(false);
     }
   };
-
-  const formatCurrency = (v: number) =>
-    `R$ ${v.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`;
 
   const updateStatus = async (id: string, newStatus: ProposalStatus) => {
     try {
@@ -175,7 +57,6 @@ const AdminDashboard = () => {
       toast.error("Erro ao atualizar status");
     }
   };
-
 
   const handleExportPDF = async () => {
     if (!reportRef.current) return;
@@ -196,10 +77,6 @@ const AdminDashboard = () => {
     }
   };
 
-  const handleExportSinglePDF = (p: Proposal) => {
-    setViewingProposal(p);
-  };
-
   if (loading) {
     return (
       <div className="flex justify-center p-8">
@@ -209,289 +86,41 @@ const AdminDashboard = () => {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" ref={reportRef}>
+      {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
-          <p className="text-muted-foreground mb-1">
+          <p className="text-muted-foreground text-sm">
             Olá, <span className="font-bold text-foreground">{profile?.full_name || "Lojista"}</span>
           </p>
-          <h1 className="text-3xl font-bold">Dashboard</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold">Painel Comercial</h1>
         </div>
-        <Button onClick={handleExportPDF} variant="outline" className="shrink-0">
+        <Button onClick={handleExportPDF} variant="outline" size="sm" className="shrink-0 print:hidden">
           <Download className="w-4 h-4 mr-2" />
-          Exportar Relatório
+          Exportar PDF
         </Button>
       </div>
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card className="border-border/50">
-          <CardContent className="p-5">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Total Propostas</p>
-                <p className="text-3xl font-bold mt-1">{stats.total}</p>
-              </div>
-              <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center">
-                <FileText className="h-5 w-5 text-primary" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card className="border-border/50">
-          <CardContent className="p-5">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Este Mês</p>
-                <p className="text-3xl font-bold mt-1">{stats.thisMonth}</p>
-              </div>
-              <div className="h-10 w-10 rounded-lg bg-accent/10 flex items-center justify-center">
-                <TrendingUp className="h-5 w-5 text-accent" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card className="border-border/50">
-          <CardContent className="p-5">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Receita Total</p>
-                <p className="text-2xl font-bold mt-1">{formatCurrency(stats.totalRevenue)}</p>
-              </div>
-              <div className="h-10 w-10 rounded-lg bg-accent/10 flex items-center justify-center">
-                <TrendingUp className="h-5 w-5 text-accent" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card className="border-border/50">
-          <CardContent className="p-5">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Ticket Médio</p>
-                <p className="text-2xl font-bold mt-1">
-                  {stats.total > 0 ? formatCurrency(stats.totalRevenue / stats.total) : "R$ 0,00"}
-                </p>
-              </div>
-              <div className="h-10 w-10 rounded-lg bg-secondary/10 flex items-center justify-center">
-                <Users className="h-5 w-5 text-secondary" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+      {/* (A) KPIs */}
+      <DashboardKPIs proposals={proposals} />
 
-      {/* Filters */}
-      <div className="flex flex-col sm:flex-row gap-3">
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-          <Input
-            className="pl-9"
-            placeholder="Buscar por nome, cidade, modelo ou data..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
+      {/* (B) Funnel + (D) Alerts side by side on desktop */}
+      <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
+        <div className="lg:col-span-2">
+          <DashboardFunnel proposals={proposals} />
         </div>
-        <Select value={statusFilter} onValueChange={setStatusFilter}>
-          <SelectTrigger className="w-full sm:w-[180px]">
-            <SelectValue placeholder="Filtrar por status" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">Todos os Status</SelectItem>
-            {Object.entries(statusConfig).map(([key, { label }]) => (
-              <SelectItem key={key} value={key}>{label}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-
-        {/* Date Filter */}
-        <Popover open={datePopoverOpen} onOpenChange={setDatePopoverOpen}>
-          <PopoverTrigger asChild>
-            <Button variant="outline" className="w-full sm:w-auto justify-start text-left font-normal gap-2">
-              <CalendarIcon className="w-4 h-4 text-muted-foreground" />
-              <span className="truncate">{getDateLabel()}</span>
-              {(dateFrom || dateTo) && (
-                <X
-                  className="w-3.5 h-3.5 ml-auto text-muted-foreground hover:text-foreground shrink-0"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setDateFrom(undefined);
-                    setDateTo(undefined);
-                    setDatePreset("all");
-                  }}
-                />
-              )}
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-auto p-0" align="end" sideOffset={8}>
-            <div className="flex flex-col sm:flex-row">
-              {/* Presets */}
-              <div className="border-b sm:border-b-0 sm:border-r border-border p-3 sm:w-[180px] max-h-[300px] overflow-y-auto">
-                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2 px-1">Período</p>
-                <div className="space-y-0.5">
-                  <button
-                    className={`w-full text-left text-sm px-2 py-1.5 rounded-md transition-colors ${datePreset === "all" ? "bg-primary text-primary-foreground" : "hover:bg-muted"}`}
-                    onClick={() => { applyDatePreset("all"); setDatePopoverOpen(false); }}
-                  >
-                    Todas as datas
-                  </button>
-                  {DATE_PRESETS.map((preset) => (
-                    <button
-                      key={preset.value}
-                      className={`w-full text-left text-sm px-2 py-1.5 rounded-md transition-colors ${datePreset === preset.value ? "bg-primary text-primary-foreground" : "hover:bg-muted"}`}
-                      onClick={() => { applyDatePreset(preset.value); setDatePopoverOpen(false); }}
-                    >
-                      {preset.label}
-                    </button>
-                  ))}
-                </div>
-              </div>
-              {/* Calendar */}
-              <div className="p-3">
-                <Calendar
-                  mode="range"
-                  selected={dateFrom && dateTo ? { from: dateFrom, to: dateTo } : undefined}
-                  onSelect={(range) => {
-                    setDateFrom(range?.from ? startOfDay(range.from) : undefined);
-                    setDateTo(range?.to ? endOfDay(range.to) : undefined);
-                    setDatePreset("custom");
-                    if (range?.from && range?.to) setDatePopoverOpen(false);
-                  }}
-                  numberOfMonths={1}
-                  locale={ptBR}
-                  className="pointer-events-auto"
-                />
-                <div className="flex justify-end gap-2 mt-2 pt-2 border-t border-border">
-                  <Button variant="outline" size="sm" onClick={() => { setDateFrom(undefined); setDateTo(undefined); setDatePreset("all"); setDatePopoverOpen(false); }}>
-                    Limpar
-                  </Button>
-                </div>
-              </div>
-            </div>
-          </PopoverContent>
-        </Popover>
+        <div className="lg:col-span-3">
+          <DashboardAlerts proposals={proposals} onSelectProposal={setViewingProposal} />
+        </div>
       </div>
 
-      {/* Proposals Table */}
-      <div ref={reportRef}>
-        <Card className="border-border/50 overflow-hidden">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-lg font-semibold">
-              Propostas {filtered.length !== proposals.length && `(${filtered.length} de ${proposals.length})`}
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="p-0">
-            {filtered.length === 0 ? (
-              <div className="p-8 text-center">
-                <FileText className="w-12 h-12 text-muted-foreground mx-auto mb-3" />
-                <p className="text-muted-foreground">
-                  {search || statusFilter !== "all" ? "Nenhuma proposta encontrada" : "Nenhuma proposta gerada ainda"}
-                </p>
-              </div>
-            ) : (
-              <>
-              {/* Mobile card view */}
-              <div className="block md:hidden space-y-3 p-3">
-                {filtered.map((p) => {
-                  const sc = statusConfig[p.status] || statusConfig.nova;
-                  return (
-                    <div key={p.id} className="border border-border rounded-lg p-3 space-y-2">
-                      <div className="flex items-start justify-between">
-                        <div>
-                          <p className="font-semibold text-sm">{p.customer_name}</p>
-                          <p className="text-xs text-muted-foreground">{p.customer_city} · {p.pool_models?.name || "N/A"}</p>
-                        </div>
-                        <span className="font-bold text-primary text-sm whitespace-nowrap">{formatCurrency(p.total_price)}</span>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <Select value={p.status} onValueChange={(v) => updateStatus(p.id, v as ProposalStatus)}>
-                          <SelectTrigger className={`w-[130px] h-7 text-xs font-medium border ${sc.className}`}>
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {Object.entries(statusConfig).map(([key, { label }]) => (
-                              <SelectItem key={key} value={key}>{label}</SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                        <span className="text-xs text-muted-foreground">{new Date(p.created_at).toLocaleDateString("pt-BR")}</span>
-                      </div>
-                      <div className="flex gap-2">
-                        <Button size="sm" variant="outline" className="h-7 text-xs gap-1 flex-1" onClick={() => setViewingProposal(p)}>
-                          <Eye className="w-3 h-3" /> Ver
-                        </Button>
-                        <Button size="sm" variant="outline" className="h-7 text-xs gap-1 flex-1" onClick={() => handleExportSinglePDF(p)}>
-                          <Download className="w-3 h-3" /> PDF
-                        </Button>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-
-              {/* Desktop table view */}
-              <div className="hidden md:block overflow-x-auto">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>CLIENTE</TableHead>
-                      <TableHead>MODELO</TableHead>
-                      <TableHead>TOTAL</TableHead>
-                      <TableHead>STATUS</TableHead>
-                      <TableHead>DATA</TableHead>
-                      <TableHead>AÇÕES</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {filtered.map((p) => {
-                      const sc = statusConfig[p.status] || statusConfig.nova;
-                      return (
-                        <TableRow key={p.id}>
-                          <TableCell>
-                            <div>
-                              <p className="font-semibold">{p.customer_name}</p>
-                              <p className="text-xs text-muted-foreground">{p.customer_city}</p>
-                            </div>
-                          </TableCell>
-                          <TableCell className="font-medium">{p.pool_models?.name || "N/A"}</TableCell>
-                          <TableCell className="font-bold text-primary whitespace-nowrap">{formatCurrency(p.total_price)}</TableCell>
-                          <TableCell>
-                            <Select value={p.status} onValueChange={(v) => updateStatus(p.id, v as ProposalStatus)}>
-                              <SelectTrigger className={`w-[150px] h-8 text-xs font-medium border ${sc.className}`}>
-                                <div className="flex items-center gap-1.5">
-                                  <Pencil className="w-3 h-3" />
-                                  <SelectValue />
-                                </div>
-                              </SelectTrigger>
-                              <SelectContent>
-                                {Object.entries(statusConfig).map(([key, { label }]) => (
-                                  <SelectItem key={key} value={key}>{label}</SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                          </TableCell>
-                          <TableCell className="whitespace-nowrap text-sm">{new Date(p.created_at).toLocaleDateString("pt-BR")}</TableCell>
-                          <TableCell>
-                            <div className="flex flex-wrap gap-1.5">
-                              <Button size="sm" variant="outline" className="h-7 text-xs gap-1" onClick={() => setViewingProposal(p)}>
-                                <Eye className="w-3 h-3" /> Ver
-                              </Button>
-                              <Button size="sm" variant="outline" className="h-7 text-xs gap-1" onClick={() => handleExportSinglePDF(p)}>
-                                <Download className="w-3 h-3" /> PDF
-                              </Button>
-                            </div>
-                          </TableCell>
-                        </TableRow>
-                      );
-                    })}
-                  </TableBody>
-                </Table>
-              </div>
-              </>
-            )}
-          </CardContent>
-        </Card>
-      </div>
+      {/* (C) Pipeline */}
+      <DashboardPipeline
+        proposals={proposals}
+        onUpdateStatus={updateStatus}
+        onViewProposal={setViewingProposal}
+        onExportPDF={setViewingProposal}
+      />
 
       {/* Proposal Detail Dialog */}
       <Dialog open={!!viewingProposal} onOpenChange={(open) => !open && setViewingProposal(null)}>
