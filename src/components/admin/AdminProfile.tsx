@@ -125,7 +125,7 @@ const AdminProfile = () => {
               )}
               {logoUrl ? "Trocar Logo" : "Enviar Logo"}
             </Button>
-            <p className="text-xs text-muted-foreground">Formato horizontal recomendado: 1500×1000px (3:2). PNG, JPG ou SVG.</p>
+            <p className="text-xs text-muted-foreground">Envie sua logo em qualquer formato (horizontal, vertical ou redonda). PNG, JPG ou SVG.</p>
           </div>
 
           {/* Fields */}
