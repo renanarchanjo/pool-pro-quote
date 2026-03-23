@@ -293,7 +293,10 @@ const PoolSimulator = ({ onBack }: PoolSimulatorProps) => {
             onSubmit={handleCustomerSubmit}
             onBack={() => setStep(2)}
             model={selectedModel}
-            optionals={optionals.filter(opt => selectedOptionals.includes(opt.id))}
+            optionals={[
+              ...optionals.filter(opt => selectedOptionals.includes(opt.id)),
+              ...modelOptionals.filter((opt: any) => selectedOptionals.includes(opt.id)).map((o: any) => ({ name: o.name, price: o.price, id: o.id, description: "", group_id: "", warning_note: null })),
+            ]}
           />
         )}
       </main>
