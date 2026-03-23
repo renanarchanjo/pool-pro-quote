@@ -637,6 +637,8 @@ const PoolModelManager = () => {
 
       {(() => {
         let filtered = models;
+        if (filterStatus === "active") filtered = filtered.filter((m) => m.active);
+        else if (filterStatus === "inactive") filtered = filtered.filter((m) => !m.active);
         if (filterCategory !== "all") {
           filtered = filtered.filter((m) => m.category_id === filterCategory);
         } else if (filterBrand !== "all") {
