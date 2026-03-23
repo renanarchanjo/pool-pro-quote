@@ -287,13 +287,13 @@ const AdminDashboard = () => {
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <Input
             className="pl-9"
-            placeholder="Buscar por nome, cidade, WhatsApp ou modelo..."
+            placeholder="Buscar por nome, cidade ou modelo..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
         </div>
         <Select value={statusFilter} onValueChange={setStatusFilter}>
-          <SelectTrigger className="w-full sm:w-[200px]">
+          <SelectTrigger className="w-full sm:w-[180px]">
             <SelectValue placeholder="Filtrar por status" />
           </SelectTrigger>
           <SelectContent>
@@ -303,6 +303,73 @@ const AdminDashboard = () => {
             ))}
           </SelectContent>
         </Select>
+
+        {/* Date Filter */}
+        <Popover open={datePopoverOpen} onOpenChange={setDatePopoverOpen}>
+          <PopoverTrigger asChild>
+            <Button variant="outline" className="w-full sm:w-auto justify-start text-left font-normal gap-2">
+              <CalendarIcon className="w-4 h-4 text-muted-foreground" />
+              <span className="truncate">{getDateLabel()}</span>
+              {(dateFrom || dateTo) && (
+                <X
+                  className="w-3.5 h-3.5 ml-auto text-muted-foreground hover:text-foreground shrink-0"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setDateFrom(undefined);
+                    setDateTo(undefined);
+                    setDatePreset("all");
+                  }}
+                />
+              )}
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-auto p-0" align="end" sideOffset={8}>
+            <div className="flex flex-col sm:flex-row">
+              {/* Presets */}
+              <div className="border-b sm:border-b-0 sm:border-r border-border p-3 sm:w-[180px] max-h-[300px] overflow-y-auto">
+                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2 px-1">Período</p>
+                <div className="space-y-0.5">
+                  <button
+                    className={`w-full text-left text-sm px-2 py-1.5 rounded-md transition-colors ${datePreset === "all" ? "bg-primary text-primary-foreground" : "hover:bg-muted"}`}
+                    onClick={() => { applyDatePreset("all"); setDatePopoverOpen(false); }}
+                  >
+                    Todas as datas
+                  </button>
+                  {DATE_PRESETS.map((preset) => (
+                    <button
+                      key={preset.value}
+                      className={`w-full text-left text-sm px-2 py-1.5 rounded-md transition-colors ${datePreset === preset.value ? "bg-primary text-primary-foreground" : "hover:bg-muted"}`}
+                      onClick={() => { applyDatePreset(preset.value); setDatePopoverOpen(false); }}
+                    >
+                      {preset.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              {/* Calendar */}
+              <div className="p-3">
+                <Calendar
+                  mode="range"
+                  selected={dateFrom && dateTo ? { from: dateFrom, to: dateTo } : undefined}
+                  onSelect={(range) => {
+                    setDateFrom(range?.from ? startOfDay(range.from) : undefined);
+                    setDateTo(range?.to ? endOfDay(range.to) : undefined);
+                    setDatePreset("custom");
+                    if (range?.from && range?.to) setDatePopoverOpen(false);
+                  }}
+                  numberOfMonths={1}
+                  locale={ptBR}
+                  className="pointer-events-auto"
+                />
+                <div className="flex justify-end gap-2 mt-2 pt-2 border-t border-border">
+                  <Button variant="outline" size="sm" onClick={() => { setDateFrom(undefined); setDateTo(undefined); setDatePreset("all"); setDatePopoverOpen(false); }}>
+                    Limpar
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </PopoverContent>
+        </Popover>
       </div>
 
       {/* Proposals Table */}
