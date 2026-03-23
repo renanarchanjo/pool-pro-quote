@@ -102,8 +102,12 @@ const OptionalsSelection = ({ optionals, modelOptionals = [], selectedOptionals:
   };
 
   const handleContinue = () => {
-    const allSelected = Object.values(selected).flat();
+    const allSelected = [...Object.values(selected).flat(), ...selectedModelOpts];
     onConfirm(allSelected);
+  };
+
+  const toggleModelOpt = (id: string) => {
+    setSelectedModelOpts((prev) => prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]);
   };
 
   const calculateTotal = () => {
@@ -111,6 +115,10 @@ const OptionalsSelection = ({ optionals, modelOptionals = [], selectedOptionals:
     Object.values(selected).flat().forEach((optId) => {
       const optional = optionals.find((o) => o.id === optId);
       if (optional) total += optional.price;
+    });
+    selectedModelOpts.forEach((optId) => {
+      const mOpt = modelOptionals.find((o) => o.id === optId);
+      if (mOpt) total += mOpt.price;
     });
     return total;
   };
