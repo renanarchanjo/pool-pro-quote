@@ -72,6 +72,7 @@ const ManualProposal = () => {
   const [enabledOptionalIds, setEnabledOptionalIds] = useState<string[]>([]);
 
   const [customerName, setCustomerName] = useState("");
+  const [customerUf, setCustomerUf] = useState("");
   const [customerCity, setCustomerCity] = useState("");
   const [customerWhatsapp, setCustomerWhatsapp] = useState("");
 
