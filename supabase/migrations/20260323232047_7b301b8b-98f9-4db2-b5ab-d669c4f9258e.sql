@@ -1,0 +1,1 @@
+UPDATE stores SET city = 'Londrina', state = 'PR' WHERE slug = 'simulapool-demo';
