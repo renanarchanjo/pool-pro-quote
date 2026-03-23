@@ -285,17 +285,20 @@ const PoolModelManager = () => {
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid md:grid-cols-2 gap-4">
             <div>
-              <Label htmlFor="category">Categoria *</Label>
+              <Label htmlFor="category">Categoria (Marca) *</Label>
               <Select value={formData.category_id} onValueChange={(v) => setFormData({ ...formData, category_id: v })}>
                 <SelectTrigger>
                   <SelectValue placeholder="Selecione" />
                 </SelectTrigger>
                 <SelectContent>
-                  {categories.map((cat) => (
-                    <SelectItem key={cat.id} value={cat.id}>
-                      {cat.name}
-                    </SelectItem>
-                  ))}
+                  {categories.map((cat) => {
+                    const brandName = getBrandName(cat.id);
+                    return (
+                      <SelectItem key={cat.id} value={cat.id}>
+                        {cat.name}{brandName ? ` — ${brandName}` : ""}
+                      </SelectItem>
+                    );
+                  })}
                 </SelectContent>
               </Select>
             </div>
