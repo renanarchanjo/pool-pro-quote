@@ -17,7 +17,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import logoDark from "@/assets/simulapool-dark.png";
+import logoHorizontal from "@/assets/simulapool-horizontal.png";
 
 const mainItems = [
   { title: "Dashboard", url: "/admin", icon: LayoutDashboard },
