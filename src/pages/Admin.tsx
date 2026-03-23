@@ -10,7 +10,7 @@ import CategoryManager from "@/components/admin/CategoryManager";
 import PoolModelManager from "@/components/admin/PoolModelManager";
 import OptionalGroupManager from "@/components/admin/OptionalGroupManager";
 import OptionalManager from "@/components/admin/OptionalManager";
-// ProposalsView merged into AdminDashboard
+// Proposals now integrated into AdminDashboard
 import StoreSettings from "@/components/admin/StoreSettings";
 import AdminProfile from "@/components/admin/AdminProfile";
 import ManualProposal from "@/components/admin/ManualProposal";
