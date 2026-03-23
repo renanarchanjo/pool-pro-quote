@@ -6,12 +6,9 @@ import { Button } from "@/components/ui/button";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import AdminSidebar from "@/components/admin/AdminSidebar";
 import AdminDashboard from "@/components/admin/AdminDashboard";
-import CategoryManager from "@/components/admin/CategoryManager";
+import BrandCategoryManager from "@/components/admin/BrandCategoryManager";
 import PoolModelManager from "@/components/admin/PoolModelManager";
-import OptionalGroupManager from "@/components/admin/OptionalGroupManager";
 import OptionalManager from "@/components/admin/OptionalManager";
-// Proposals now integrated into AdminDashboard
-import StoreSettings from "@/components/admin/StoreSettings";
 import AdminProfile from "@/components/admin/AdminProfile";
 import ManualProposal from "@/components/admin/ManualProposal";
 import StoresManager from "@/components/admin/StoresManager";
@@ -75,13 +72,10 @@ const Admin = () => {
             <Routes>
               <Route index element={<AdminDashboard />} />
               <Route path="gerar-proposta" element={<ManualProposal />} />
-              {/* Propostas merged into Dashboard */}
-              <Route path="categorias" element={<CategoryManager />} />
-              <Route path="grupos" element={<OptionalGroupManager />} />
-              <Route path="opcionais" element={<OptionalManager />} />
+              <Route path="marcas" element={<BrandCategoryManager />} />
               <Route path="modelos" element={<PoolModelManager />} />
+              <Route path="opcionais" element={<OptionalManager />} />
               <Route path="perfil" element={<AdminProfile />} />
-              <Route path="configuracoes" element={<StoreSettings />} />
               <Route path="lojistas" element={<StoresManager />} />
             </Routes>
           </main>

@@ -1,6 +1,6 @@
 import { useNavigate, useLocation } from "react-router-dom";
 import { 
-  LayoutDashboard, FileText, FilePlus, FolderOpen, Layers, Package, Box, User, Users, LogOut 
+  LayoutDashboard, FilePlus, Tag, Box, Package, User, Users, LogOut 
 } from "lucide-react";
 import {
   Sidebar,
@@ -19,13 +19,18 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import logoDark from "@/assets/simulapool-dark.png";
 
-const storeItems = [
+const mainItems = [
   { title: "Dashboard", url: "/admin", icon: LayoutDashboard },
   { title: "Gerar Proposta", url: "/admin/gerar-proposta", icon: FilePlus },
-  { title: "Categorias", url: "/admin/categorias", icon: FolderOpen },
-  { title: "Categorias de Opcionais", url: "/admin/grupos", icon: Layers },
-  { title: "Opcionais", url: "/admin/opcionais", icon: Package },
+];
+
+const catalogItems = [
+  { title: "Marca e Categoria", url: "/admin/marcas", icon: Tag },
   { title: "Modelos", url: "/admin/modelos", icon: Box },
+  { title: "Opcionais", url: "/admin/opcionais", icon: Package },
+];
+
+const profileItems = [
   { title: "Meu Perfil", url: "/admin/perfil", icon: User },
 ];
 
@@ -48,6 +53,28 @@ const AdminSidebar = () => {
     navigate("/");
   };
 
+  const renderGroup = (label: string, items: typeof mainItems) => (
+    <SidebarGroup>
+      <SidebarGroupLabel>{label}</SidebarGroupLabel>
+      <SidebarGroupContent>
+        <SidebarMenu>
+          {items.map((item) => (
+            <SidebarMenuItem key={item.title}>
+              <SidebarMenuButton
+                onClick={() => navigate(item.url)}
+                isActive={isActive(item.url)}
+                className="cursor-pointer"
+              >
+                <item.icon className="w-4 h-4" />
+                <span>{item.title}</span>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          ))}
+        </SidebarMenu>
+      </SidebarGroupContent>
+    </SidebarGroup>
+  );
+
   return (
     <Sidebar collapsible="offcanvas">
       <SidebarHeader className="p-4 border-b border-border/50">
@@ -57,45 +84,10 @@ const AdminSidebar = () => {
       </SidebarHeader>
 
       <SidebarContent>
-        <SidebarGroup>
-          <SidebarGroupLabel>ÁREA DO LOJISTA</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {storeItems.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton
-                    onClick={() => navigate(item.url)}
-                    isActive={isActive(item.url)}
-                    className="cursor-pointer"
-                  >
-                    <item.icon className="w-4 h-4" />
-                    <span>{item.title}</span>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-
-        <SidebarGroup>
-          <SidebarGroupLabel>ADMINISTRAÇÃO</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {adminItems.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton
-                    onClick={() => navigate(item.url)}
-                    isActive={isActive(item.url)}
-                    className="cursor-pointer"
-                  >
-                    <item.icon className="w-4 h-4" />
-                    <span>{item.title}</span>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
+        {renderGroup("PAINEL DO LOJISTA", mainItems)}
+        {renderGroup("CADASTROS", catalogItems)}
+        {renderGroup("CONTA", profileItems)}
+        {renderGroup("ADMINISTRAÇÃO", adminItems)}
       </SidebarContent>
 
       <SidebarFooter className="p-4">
