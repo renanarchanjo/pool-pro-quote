@@ -270,6 +270,7 @@ const AdminDashboard = () => {
                 </p>
               </div>
             ) : (
+              <>
               {/* Mobile card view */}
               <div className="block md:hidden space-y-3 p-3">
                 {filtered.map((p) => {
