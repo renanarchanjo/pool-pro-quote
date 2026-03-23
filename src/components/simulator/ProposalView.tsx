@@ -264,7 +264,7 @@ const ProposalView = ({
           </div>
 
           {/* ===== ITENS INCLUSOS + OPCIONAIS ===== */}
-          <div style={{ display: "flex", gap: "16px", marginBottom: "16px" }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: "16px", marginBottom: "16px" }} className="sm:!flex-row">
             {/* Itens Inclusos */}
             <div style={{ ...sectionStyle, flex: 1, marginBottom: 0 }}>
               <div style={sectionHeaderStyle}>Itens Inclusos</div>

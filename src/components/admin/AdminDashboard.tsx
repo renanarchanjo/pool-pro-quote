@@ -345,7 +345,7 @@ const AdminDashboard = () => {
 
       {/* Proposal Detail Dialog */}
       <Dialog open={!!viewingProposal} onOpenChange={(open) => !open && setViewingProposal(null)}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto w-[95vw] p-3 sm:p-6">
           <DialogHeader>
             <DialogTitle>Proposta — {viewingProposal?.customer_name}</DialogTitle>
           </DialogHeader>
