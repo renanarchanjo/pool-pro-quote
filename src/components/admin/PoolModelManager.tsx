@@ -17,9 +17,15 @@ import {
   AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 
+interface Brand {
+  id: string;
+  name: string;
+}
+
 interface Category {
   id: string;
   name: string;
+  brand_id: string | null;
 }
 
 interface PoolModel {
