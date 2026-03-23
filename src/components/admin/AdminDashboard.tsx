@@ -124,19 +124,6 @@ const AdminDashboard = () => {
     }
   };
 
-  const handleWhatsApp = (p: Proposal) => {
-    const msg = encodeURIComponent(
-      `Olá ${p.customer_name}! Segue sua proposta:\n\nModelo: ${p.pool_models?.name || "N/A"}\nValor: ${formatCurrency(p.total_price)}\n\nEntre em contato para mais detalhes!`
-    );
-    const phone = p.customer_whatsapp.replace(/\D/g, "");
-    window.open(`https://wa.me/55${phone}?text=${msg}`, "_blank");
-  };
-
-  const handleCopyLink = (p: Proposal) => {
-    const link = `${window.location.origin}/proposta/${p.id}`;
-    navigator.clipboard.writeText(link);
-    toast.success("Link copiado!");
-  };
 
   const handleExportPDF = async () => {
     if (!reportRef.current) return;
