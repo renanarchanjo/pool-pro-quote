@@ -1,6 +1,6 @@
 import { useNavigate, useLocation } from "react-router-dom";
 import { 
-  LayoutDashboard, FilePlus, Tag, Box, Package, User, Users, LogOut, UsersRound
+  LayoutDashboard, FilePlus, Tag, Box, Package, User, Users, LogOut, UsersRound, CreditCard
 } from "lucide-react";
 import {
   Sidebar,
