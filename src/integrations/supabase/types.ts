@@ -338,6 +338,7 @@ export type Database = {
           id: string
           model_id: string | null
           selected_optionals: Json | null
+          status: Database["public"]["Enums"]["proposal_status"]
           store_id: string | null
           total_price: number
         }
@@ -349,6 +350,7 @@ export type Database = {
           id?: string
           model_id?: string | null
           selected_optionals?: Json | null
+          status?: Database["public"]["Enums"]["proposal_status"]
           store_id?: string | null
           total_price: number
         }
@@ -360,6 +362,7 @@ export type Database = {
           id?: string
           model_id?: string | null
           selected_optionals?: Json | null
+          status?: Database["public"]["Enums"]["proposal_status"]
           store_id?: string | null
           total_price?: number
         }
@@ -481,6 +484,12 @@ export type Database = {
     }
     Enums: {
       app_role: "owner" | "seller"
+      proposal_status:
+        | "nova"
+        | "enviada"
+        | "em_negociacao"
+        | "fechada"
+        | "perdida"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -609,6 +618,13 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["owner", "seller"],
+      proposal_status: [
+        "nova",
+        "enviada",
+        "em_negociacao",
+        "fechada",
+        "perdida",
+      ],
     },
   },
 } as const
