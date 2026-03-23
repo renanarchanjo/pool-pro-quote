@@ -203,7 +203,7 @@ const ManualProposal = () => {
         <ProposalView
           model={selectedModel}
           selectedOptionals={[...selectedOptionalsList, ...selectedModelOptsList.map((o: any) => ({ name: o.name, price: o.price }))]}
-          customerData={{ name: customerName, city: customerCity, whatsapp: customerWhatsapp }}
+          customerData={{ name: customerName, city: `${customerCity} / ${customerUf}`, whatsapp: customerWhatsapp }}
           category={categories.find((c) => c.id === selectedModel.category_id)?.name || "Piscina"}
           onBack={handleReset}
           storeSettings={storeSettings}
