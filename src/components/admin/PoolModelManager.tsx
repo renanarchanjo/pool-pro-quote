@@ -7,7 +7,8 @@ import { Card } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus, Pencil, Loader2, X, Trash2 } from "lucide-react";
+import { Plus, Pencil, Loader2, X, Trash2, CheckSquare, Square } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { useStoreData } from "@/hooks/useStoreData";
@@ -54,6 +55,7 @@ const PoolModelManager = () => {
   const [brands, setBrands] = useState<Brand[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [models, setModels] = useState<PoolModel[]>([]);
+  const [selectedModels, setSelectedModels] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState<string | null>(null);
   const [formData, setFormData] = useState({
@@ -265,6 +267,36 @@ const PoolModelManager = () => {
     } catch (error) {
       console.error("Error updating model:", error);
       toast.error("Erro ao atualizar status");
+    }
+  };
+
+  const toggleSelectModel = (id: string) => {
+    setSelectedModels((prev) => prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]);
+  };
+
+  const selectAllModels = () => {
+    setSelectedModels(selectedModels.length === models.length ? [] : models.map((m) => m.id));
+  };
+
+  const bulkModelAction = async (action: "activate" | "deactivate" | "delete") => {
+    if (selectedModels.length === 0) return;
+    try {
+      if (action === "delete") {
+        for (const id of selectedModels) {
+          await supabase.from("pool_models").delete().eq("id", id);
+        }
+        toast.success(`${selectedModels.length} modelo(s) excluído(s)`);
+      } else {
+        const active = action === "activate";
+        for (const id of selectedModels) {
+          await supabase.from("pool_models").update({ active }).eq("id", id);
+        }
+        toast.success(`${selectedModels.length} modelo(s) ${active ? "ativado(s)" : "desativado(s)"}`);
+      }
+      setSelectedModels([]);
+      loadData();
+    } catch {
+      toast.error("Erro na operação em lote");
     }
   };
 
@@ -533,104 +565,151 @@ const PoolModelManager = () => {
         </form>
       </Card>
 
+      {/* Bulk actions header */}
+      {models.length > 0 && (
+        <div className="flex items-center justify-between flex-wrap gap-3">
+          <Button variant="outline" size="sm" onClick={selectAllModels}>
+            {selectedModels.length === models.length ? <CheckSquare className="w-4 h-4 mr-1" /> : <Square className="w-4 h-4 mr-1" />}
+            {selectedModels.length === models.length ? "Desmarcar" : "Selecionar"} todos
+          </Button>
+        </div>
+      )}
+
+      {selectedModels.length > 0 && (
+        <Card className="p-3 bg-primary/5 border-primary/20">
+          <div className="flex items-center justify-between flex-wrap gap-2">
+            <p className="text-sm font-medium">{selectedModels.length} modelo(s) selecionado(s)</p>
+            <div className="flex gap-2">
+              <Button size="sm" variant="outline" onClick={() => bulkModelAction("activate")}>Ativar</Button>
+              <Button size="sm" variant="outline" onClick={() => bulkModelAction("deactivate")}>Desativar</Button>
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button size="sm" variant="destructive">
+                    <Trash2 className="w-3.5 h-3.5 mr-1" /> Excluir
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Excluir {selectedModels.length} modelo(s)?</AlertDialogTitle>
+                    <AlertDialogDescription>Esta ação não pode ser desfeita.</AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                    <AlertDialogAction onClick={() => bulkModelAction("delete")}
+                      className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                      Excluir
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            </div>
+          </div>
+        </Card>
+      )}
+
       <div className="grid gap-4">
         {models.map((model) => (
-          <Card key={model.id} className="p-6">
-            <div className="flex justify-between items-start mb-4">
-              <div>
-                <div className="flex items-center gap-2 flex-wrap">
-                  <h3 className="text-xl font-semibold">{model.name}</h3>
-                  {getBrandName(model.category_id) && (
-                    <Badge variant="outline">{getBrandName(model.category_id)}</Badge>
-                  )}
-                  <Badge variant="secondary">
-                    {categories.find((c) => c.id === model.category_id)?.name || "Sem categoria"}
-                  </Badge>
-                </div>
-                <p className="text-2xl font-bold text-primary mt-1">
-                  R$ {model.base_price.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                </p>
-                {model.cost > 0 && (
-                  <div className="flex gap-3 mt-1 text-sm text-muted-foreground">
-                    <span>Custo: R$ {model.cost.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
-                    <span>Margem: {model.margin_percent}%</span>
-                    <span className="text-green-600 font-medium">
-                      Lucro: R$ {(model.base_price - model.cost).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                    </span>
-                  </div>
-                )}
-                {(model.length || model.width || model.depth) && (
-                  <p className="text-sm text-muted-foreground mt-1">
-                    Dimensões: {model.length}m × {model.width}m × {model.depth}m
-                  </p>
-                )}
-              </div>
-              <div className="flex items-center gap-4">
-                <div className="flex items-center gap-2">
-                  <Switch
-                    checked={model.active}
-                    onCheckedChange={() => toggleActive(model.id, model.active)}
-                  />
-                  <span className="text-sm">
-                    {model.active ? "Ativo" : "Inativo"}
-                  </span>
-                </div>
-                <Button variant="outline" size="sm" onClick={() => handleEdit(model)}>
-                  <Pencil className="w-4 h-4" />
-                </Button>
-                <AlertDialog>
-                  <AlertDialogTrigger asChild>
-                    <Button variant="outline" size="sm" className="text-destructive hover:text-destructive">
-                      <Trash2 className="w-4 h-4" />
-                    </Button>
-                  </AlertDialogTrigger>
-                  <AlertDialogContent>
-                    <AlertDialogHeader>
-                      <AlertDialogTitle>Excluir modelo?</AlertDialogTitle>
-                      <AlertDialogDescription>
-                        Tem certeza que deseja excluir "{model.name}"? Esta ação não pode ser desfeita.
-                      </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                      <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                      <AlertDialogAction onClick={() => handleDelete(model.id)}
-                        className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
-                        Excluir
-                      </AlertDialogAction>
-                    </AlertDialogFooter>
-                  </AlertDialogContent>
-                </AlertDialog>
-              </div>
-            </div>
-
-            {model.differentials?.length > 0 && (
-              <div className="mb-3">
-                <span className="font-semibold text-sm">Diferenciais:</span>
-                <div className="flex flex-wrap gap-1 mt-1">
-                  {model.differentials.map((d, i) => (
-                    <Badge key={i} variant="secondary">{d}</Badge>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            <div className="grid md:grid-cols-2 gap-2 text-sm text-muted-foreground">
-              <div>
-                Entrega: {model.delivery_days}d | Instalação: {model.installation_days}d
-              </div>
-              {model.payment_terms && (
+          <Card key={model.id} className={`p-6 transition-colors ${selectedModels.includes(model.id) ? "ring-2 ring-primary/30" : ""}`}>
+            <div className="flex gap-3">
+              <Checkbox
+                checked={selectedModels.includes(model.id)}
+                onCheckedChange={() => toggleSelectModel(model.id)}
+                className="mt-1 shrink-0"
+              />
+            <div className="flex-1 min-w-0">
+              <div className="flex justify-between items-start mb-4">
                 <div>
-                  Pagamento: {model.payment_terms}
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <h3 className="text-xl font-semibold">{model.name}</h3>
+                    {getBrandName(model.category_id) && (
+                      <Badge variant="outline">{getBrandName(model.category_id)}</Badge>
+                    )}
+                    <Badge variant="secondary">
+                      {categories.find((c) => c.id === model.category_id)?.name || "Sem categoria"}
+                    </Badge>
+                  </div>
+                  <p className="text-2xl font-bold text-primary mt-1">
+                    R$ {model.base_price.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                  </p>
+                  {model.cost > 0 && (
+                    <div className="flex gap-3 mt-1 text-sm text-muted-foreground flex-wrap">
+                      <span>Custo: R$ {model.cost.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
+                      <span>Margem: {model.margin_percent}%</span>
+                      <span className="text-emerald-600 font-medium">
+                        Lucro: R$ {(model.base_price - model.cost).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                      </span>
+                    </div>
+                  )}
+                  {(model.length || model.width || model.depth) && (
+                    <p className="text-sm text-muted-foreground mt-1">
+                      Dimensões: {model.length}m × {model.width}m × {model.depth}m
+                    </p>
+                  )}
+                </div>
+                <div className="flex items-center gap-4 shrink-0">
+                  <div className="flex items-center gap-2">
+                    <Switch
+                      checked={model.active}
+                      onCheckedChange={() => toggleActive(model.id, model.active)}
+                    />
+                    <span className="text-sm">{model.active ? "Ativo" : "Inativo"}</span>
+                  </div>
+                  <Button variant="outline" size="sm" onClick={() => handleEdit(model)}>
+                    <Pencil className="w-4 h-4" />
+                  </Button>
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button variant="outline" size="sm" className="text-destructive hover:text-destructive">
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Excluir modelo?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          Excluir "{model.name}"? Esta ação não pode ser desfeita.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                        <AlertDialogAction onClick={() => handleDelete(model.id)}
+                          className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                          Excluir
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                </div>
+              </div>
+
+              {model.differentials?.length > 0 && (
+                <div className="mb-3">
+                  <span className="font-semibold text-sm">Diferenciais:</span>
+                  <div className="flex flex-wrap gap-1 mt-1">
+                    {model.differentials.map((d, i) => (
+                      <Badge key={i} variant="secondary">{d}</Badge>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              <div className="grid md:grid-cols-2 gap-2 text-sm text-muted-foreground">
+                <div>
+                  Entrega: {model.delivery_days}d | Instalação: {model.installation_days}d
+                </div>
+                {model.payment_terms && (
+                  <div>Pagamento: {model.payment_terms}</div>
+                )}
+              </div>
+
+              {model.notes && (
+                <div className="mt-3 p-3 bg-muted/50 rounded-md">
+                  <span className="font-semibold text-sm">Observações:</span>
+                  <p className="text-sm mt-1">{model.notes}</p>
                 </div>
               )}
             </div>
-
-            {model.notes && (
-              <div className="mt-3 p-3 bg-muted/50 rounded-md">
-                <span className="font-semibold text-sm">Observações:</span>
-                <p className="text-sm mt-1">{model.notes}</p>
-              </div>
-            )}
+            </div>
           </Card>
         ))}
       </div>

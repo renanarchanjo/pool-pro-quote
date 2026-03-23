@@ -6,7 +6,8 @@ import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
-import { Plus, Pencil, Loader2, Trash2 } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Plus, Pencil, Loader2, Trash2, CheckSquare, Square } from "lucide-react";
 import { toast } from "sonner";
 import { useStoreData } from "@/hooks/useStoreData";
 import {
@@ -31,6 +32,7 @@ const OptionalManager = () => {
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState<string | null>(null);
   const [formData, setFormData] = useState({ name: "", description: "", price: "", cost: "", margin_percent: "" });
+  const [selected, setSelected] = useState<string[]>([]);
 
   useEffect(() => {
     if (store) loadOptionals();
@@ -43,19 +45,47 @@ const OptionalManager = () => {
         .select("*").eq("store_id", store.id).order("created_at", { ascending: false });
       if (error) throw error;
       setOptionals(data || []);
-    } catch (error) {
-      console.error("Error loading optionals:", error);
+    } catch {
       toast.error("Erro ao carregar opcionais");
     } finally {
       setLoading(false);
     }
   };
 
+  const toggleSelect = (id: string) => {
+    setSelected((prev) => prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]);
+  };
+
+  const selectAll = () => {
+    setSelected(selected.length === optionals.length ? [] : optionals.map((o) => o.id));
+  };
+
+  const bulkAction = async (action: "activate" | "deactivate" | "delete") => {
+    if (selected.length === 0) return;
+    try {
+      if (action === "delete") {
+        for (const id of selected) {
+          await supabase.from("optionals").delete().eq("id", id);
+        }
+        toast.success(`${selected.length} opcional(is) excluído(s)`);
+      } else {
+        const active = action === "activate";
+        for (const id of selected) {
+          await supabase.from("optionals").update({ active }).eq("id", id);
+        }
+        toast.success(`${selected.length} opcional(is) ${active ? "ativado(s)" : "desativado(s)"}`);
+      }
+      setSelected([]);
+      loadOptionals();
+    } catch {
+      toast.error("Erro na operação em lote");
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.name.trim() || !formData.price) { toast.error("Nome e preço são obrigatórios"); return; }
-    if (!store) { toast.error("Loja não encontrada"); return; }
-
+    if (!store) return;
     try {
       const data = {
         name: formData.name, description: formData.description,
@@ -64,7 +94,6 @@ const OptionalManager = () => {
         margin_percent: formData.margin_percent ? parseFloat(formData.margin_percent) : 0,
         ...(editing ? {} : { store_id: store.id }),
       };
-
       if (editing) {
         const { error } = await supabase.from("optionals").update(data).eq("id", editing);
         if (error) throw error;
@@ -77,37 +106,32 @@ const OptionalManager = () => {
       setFormData({ name: "", description: "", price: "", cost: "", margin_percent: "" });
       setEditing(null);
       loadOptionals();
-    } catch (error) {
-      console.error("Error saving optional:", error);
+    } catch {
       toast.error("Erro ao salvar opcional");
     }
   };
 
-  const handleEdit = (optional: Optional) => {
-    setEditing(optional.id);
-    setFormData({ name: optional.name, description: optional.description || "", price: optional.price.toString(), cost: optional.cost?.toString() || "", margin_percent: optional.margin_percent?.toString() || "" });
+  const handleEdit = (o: Optional) => {
+    setEditing(o.id);
+    setFormData({ name: o.name, description: o.description || "", price: o.price.toString(), cost: o.cost?.toString() || "", margin_percent: o.margin_percent?.toString() || "" });
   };
 
   const handleDelete = async (id: string) => {
     try {
-      const { error } = await supabase.from("optionals").delete().eq("id", id);
-      if (error) throw error;
+      await supabase.from("optionals").delete().eq("id", id);
       toast.success("Opcional excluído");
       loadOptionals();
-    } catch (error) {
-      console.error("Error deleting optional:", error);
+    } catch {
       toast.error("Erro ao excluir opcional");
     }
   };
 
   const toggleActive = async (id: string, active: boolean) => {
     try {
-      const { error } = await supabase.from("optionals").update({ active: !active }).eq("id", id);
-      if (error) throw error;
+      await supabase.from("optionals").update({ active: !active }).eq("id", id);
       toast.success("Status atualizado");
       loadOptionals();
-    } catch (error) {
-      console.error("Error updating optional:", error);
+    } catch {
       toast.error("Erro ao atualizar status");
     }
   };
@@ -182,67 +206,117 @@ const OptionalManager = () => {
             {editing && (
               <Button type="button" variant="outline" onClick={() => {
                 setEditing(null);
-              setFormData({ name: "", description: "", price: "", cost: "", margin_percent: "" });
+                setFormData({ name: "", description: "", price: "", cost: "", margin_percent: "" });
               }}>Cancelar</Button>
             )}
           </div>
         </form>
       </Card>
 
+      {/* Bulk actions header */}
+      {optionals.length > 0 && (
+        <div className="flex items-center justify-between flex-wrap gap-3">
+          <Button variant="outline" size="sm" onClick={selectAll}>
+            {selected.length === optionals.length ? <CheckSquare className="w-4 h-4 mr-1" /> : <Square className="w-4 h-4 mr-1" />}
+            {selected.length === optionals.length ? "Desmarcar" : "Selecionar"} todos
+          </Button>
+        </div>
+      )}
+
+      {/* Bulk actions bar */}
+      {selected.length > 0 && (
+        <Card className="p-3 bg-primary/5 border-primary/20">
+          <div className="flex items-center justify-between flex-wrap gap-2">
+            <p className="text-sm font-medium">{selected.length} opcional(is) selecionado(s)</p>
+            <div className="flex gap-2">
+              <Button size="sm" variant="outline" onClick={() => bulkAction("activate")}>Ativar</Button>
+              <Button size="sm" variant="outline" onClick={() => bulkAction("deactivate")}>Desativar</Button>
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button size="sm" variant="destructive">
+                    <Trash2 className="w-3.5 h-3.5 mr-1" /> Excluir
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Excluir {selected.length} opcional(is)?</AlertDialogTitle>
+                    <AlertDialogDescription>Esta ação não pode ser desfeita.</AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                    <AlertDialogAction onClick={() => bulkAction("delete")}
+                      className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                      Excluir
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            </div>
+          </div>
+        </Card>
+      )}
+
       <div className="grid md:grid-cols-2 gap-4">
         {optionals.map((optional) => (
-          <Card key={optional.id} className="p-6">
-            <div className="flex justify-between items-start">
-              <div className="flex-1">
-                <h3 className="text-xl font-semibold mb-1">{optional.name}</h3>
-                <p className="text-2xl font-bold text-primary mb-1">
-                  R$ {optional.price.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
-                </p>
-                {optional.cost > 0 && (
-                  <div className="flex gap-3 text-xs text-muted-foreground mb-2">
-                    <span>Custo: R$ {optional.cost.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</span>
-                    <span>Margem: {optional.margin_percent}%</span>
-                    <span className="text-green-600 font-medium">
-                      Lucro: R$ {(optional.price - optional.cost).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
-                    </span>
+          <Card key={optional.id} className={`p-6 transition-colors ${selected.includes(optional.id) ? "ring-2 ring-primary/30" : ""}`}>
+            <div className="flex gap-3">
+              <Checkbox
+                checked={selected.includes(optional.id)}
+                onCheckedChange={() => toggleSelect(optional.id)}
+                className="mt-1 shrink-0"
+              />
+              <div className="flex-1 min-w-0">
+                <div className="flex justify-between items-start">
+                  <div className="flex-1">
+                    <h3 className="text-xl font-semibold mb-1">{optional.name}</h3>
+                    <p className="text-2xl font-bold text-primary mb-1">
+                      R$ {optional.price.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                    </p>
+                    {optional.cost > 0 && (
+                      <div className="flex gap-3 text-xs text-muted-foreground mb-2 flex-wrap">
+                        <span>Custo: R$ {optional.cost.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</span>
+                        <span>Margem: {optional.margin_percent}%</span>
+                        <span className="text-emerald-600 font-medium">
+                          Lucro: R$ {(optional.price - optional.cost).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                        </span>
+                      </div>
+                    )}
+                    {optional.description && (
+                      <p className="text-sm text-muted-foreground">{optional.description}</p>
+                    )}
                   </div>
-                )}
-                {optional.description && (
-                  <p className="text-sm text-muted-foreground">{optional.description}</p>
-                )}
-              </div>
-              <div className="flex flex-col items-end gap-2">
-                <div className="flex items-center gap-2">
-                  <Switch checked={optional.active}
-                    onCheckedChange={() => toggleActive(optional.id, optional.active)} />
-                  <span className="text-sm">{optional.active ? "Ativo" : "Inativo"}</span>
-                </div>
-                <div className="flex gap-1">
-                  <Button variant="outline" size="sm" onClick={() => handleEdit(optional)}>
-                    <Pencil className="w-4 h-4" />
-                  </Button>
-                  <AlertDialog>
-                    <AlertDialogTrigger asChild>
-                      <Button variant="outline" size="sm" className="text-destructive hover:text-destructive">
-                        <Trash2 className="w-4 h-4" />
+                  <div className="flex flex-col items-end gap-2 shrink-0">
+                    <div className="flex items-center gap-2">
+                      <Switch checked={optional.active}
+                        onCheckedChange={() => toggleActive(optional.id, optional.active)} />
+                      <span className="text-sm">{optional.active ? "Ativo" : "Inativo"}</span>
+                    </div>
+                    <div className="flex gap-1">
+                      <Button variant="outline" size="sm" onClick={() => handleEdit(optional)}>
+                        <Pencil className="w-4 h-4" />
                       </Button>
-                    </AlertDialogTrigger>
-                    <AlertDialogContent>
-                      <AlertDialogHeader>
-                        <AlertDialogTitle>Excluir opcional?</AlertDialogTitle>
-                        <AlertDialogDescription>
-                          Tem certeza que deseja excluir "{optional.name}"? Esta ação não pode ser desfeita.
-                        </AlertDialogDescription>
-                      </AlertDialogHeader>
-                      <AlertDialogFooter>
-                        <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                        <AlertDialogAction onClick={() => handleDelete(optional.id)}
-                          className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
-                          Excluir
-                        </AlertDialogAction>
-                      </AlertDialogFooter>
-                    </AlertDialogContent>
-                  </AlertDialog>
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                          <Button variant="outline" size="sm" className="text-destructive hover:text-destructive">
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>Excluir opcional?</AlertDialogTitle>
+                            <AlertDialogDescription>Excluir "{optional.name}"?</AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                            <AlertDialogAction onClick={() => handleDelete(optional.id)}
+                              className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                              Excluir
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
