@@ -44,6 +44,7 @@ interface OptionalsSelectionProps {
 
 const OptionalsSelection = ({ optionals, modelOptionals = [], selectedOptionals: initialSelected, onConfirm, onBack, model }: OptionalsSelectionProps) => {
   const [selected, setSelected] = useState<Record<string, string[]>>({});
+  const [selectedModelOpts, setSelectedModelOpts] = useState<string[]>([]);
   const [groups, setGroups] = useState<OptionalGroup[]>([]);
   const [loading, setLoading] = useState(true);
 
