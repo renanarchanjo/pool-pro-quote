@@ -56,6 +56,7 @@ const AdminSidebar = () => {
 
   const adminItems = isOwner ? [
     { title: "Lojistas", url: "/admin/lojistas", icon: Users },
+    { title: "Assinatura", url: "/admin/assinatura", icon: CreditCard },
   ] : [];
 
   const renderGroup = (label: string, items: typeof mainItems) => {

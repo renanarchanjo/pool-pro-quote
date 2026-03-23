@@ -85,6 +85,7 @@ const Admin = () => {
                   <Route path="opcionais" element={<OptionalManager />} />
                   <Route path="equipe" element={<TeamManager />} />
                   <Route path="lojistas" element={<StoresManager />} />
+                  <Route path="assinatura" element={<SubscriptionManager />} />
                 </>
               )}
             </Routes>
