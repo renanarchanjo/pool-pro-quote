@@ -7,6 +7,7 @@ import { Card } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Plus, Pencil, Loader2, Trash2, CheckSquare, Square } from "lucide-react";
 import { toast } from "sonner";
 import { useStoreData } from "@/hooks/useStoreData";
@@ -24,27 +25,39 @@ interface Optional {
   cost: number;
   margin_percent: number;
   active: boolean;
+  group_id: string | null;
+}
+
+interface OptionalGroup {
+  id: string;
+  name: string;
+  description: string | null;
+  display_order: number;
 }
 
 const OptionalManager = () => {
   const { store } = useStoreData();
   const [optionals, setOptionals] = useState<Optional[]>([]);
+  const [groups, setGroups] = useState<OptionalGroup[]>([]);
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState<string | null>(null);
-  const [formData, setFormData] = useState({ name: "", description: "", price: "", cost: "", margin_percent: "" });
+  const [formData, setFormData] = useState({ name: "", description: "", price: "", cost: "", margin_percent: "", group_id: "" });
   const [selected, setSelected] = useState<string[]>([]);
 
   useEffect(() => {
-    if (store) loadOptionals();
+    if (store) loadData();
   }, [store]);
 
-  const loadOptionals = async () => {
+  const loadData = async () => {
     if (!store) return;
     try {
-      const { data, error } = await supabase.from("optionals")
-        .select("*").eq("store_id", store.id).order("created_at", { ascending: false });
-      if (error) throw error;
-      setOptionals(data || []);
+      const [optRes, groupRes] = await Promise.all([
+        supabase.from("optionals").select("*").eq("store_id", store.id).order("display_order"),
+        supabase.from("optional_groups").select("id, name, description, display_order").eq("store_id", store.id).eq("active", true).order("display_order"),
+      ]);
+      if (optRes.error) throw optRes.error;
+      setOptionals(optRes.data || []);
+      setGroups(groupRes.data || []);
     } catch {
       toast.error("Erro ao carregar opcionais");
     } finally {
@@ -76,7 +89,7 @@ const OptionalManager = () => {
         toast.success(`${selected.length} opcional(is) ${active ? "ativado(s)" : "desativado(s)"}`);
       }
       setSelected([]);
-      loadOptionals();
+      loadData();
     } catch {
       toast.error("Erro na operação em lote");
     }
@@ -92,6 +105,7 @@ const OptionalManager = () => {
         price: parseFloat(formData.price),
         cost: formData.cost ? parseFloat(formData.cost) : 0,
         margin_percent: formData.margin_percent ? parseFloat(formData.margin_percent) : 0,
+        group_id: formData.group_id || null,
         ...(editing ? {} : { store_id: store.id }),
       };
       if (editing) {
@@ -103,9 +117,9 @@ const OptionalManager = () => {
         if (error) throw error;
         toast.success("Opcional criado");
       }
-      setFormData({ name: "", description: "", price: "", cost: "", margin_percent: "" });
+      setFormData({ name: "", description: "", price: "", cost: "", margin_percent: "", group_id: "" });
       setEditing(null);
-      loadOptionals();
+      loadData();
     } catch {
       toast.error("Erro ao salvar opcional");
     }
@@ -113,14 +127,14 @@ const OptionalManager = () => {
 
   const handleEdit = (o: Optional) => {
     setEditing(o.id);
-    setFormData({ name: o.name, description: o.description || "", price: o.price.toString(), cost: o.cost?.toString() || "", margin_percent: o.margin_percent?.toString() || "" });
+    setFormData({ name: o.name, description: o.description || "", price: o.price.toString(), cost: o.cost?.toString() || "", margin_percent: o.margin_percent?.toString() || "", group_id: o.group_id || "" });
   };
 
   const handleDelete = async (id: string) => {
     try {
       await supabase.from("optionals").delete().eq("id", id);
       toast.success("Opcional excluído");
-      loadOptionals();
+      loadData();
     } catch {
       toast.error("Erro ao excluir opcional");
     }
@@ -130,11 +144,79 @@ const OptionalManager = () => {
     try {
       await supabase.from("optionals").update({ active: !active }).eq("id", id);
       toast.success("Status atualizado");
-      loadOptionals();
+      loadData();
     } catch {
       toast.error("Erro ao atualizar status");
     }
   };
+
+  const renderOptionalCard = (optional: Optional) => (
+    <Card key={optional.id} className={`p-4 transition-colors ${selected.includes(optional.id) ? "ring-2 ring-primary/30" : ""}`}>
+      <div className="flex gap-3">
+        <Checkbox
+          checked={selected.includes(optional.id)}
+          onCheckedChange={() => toggleSelect(optional.id)}
+          className="mt-1 shrink-0"
+        />
+        <div className="flex-1 min-w-0">
+          <div className="flex justify-between items-start">
+            <div className="flex-1">
+              <h3 className="text-lg font-semibold mb-1">{optional.name}</h3>
+              <p className="text-xl font-bold text-primary mb-1">
+                R$ {optional.price.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+              </p>
+              {optional.cost > 0 && (
+                <div className="flex gap-3 text-xs text-muted-foreground mb-2 flex-wrap">
+                  <span>Custo: R$ {optional.cost.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</span>
+                  <span>Margem: {optional.margin_percent}%</span>
+                  <span className="text-emerald-600 font-medium">
+                    Lucro: R$ {(optional.price - optional.cost).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                  </span>
+                </div>
+              )}
+              {optional.description && (
+                <p className="text-sm text-muted-foreground">{optional.description}</p>
+              )}
+            </div>
+            <div className="flex flex-col items-end gap-2 shrink-0">
+              <div className="flex items-center gap-2">
+                <Switch checked={optional.active}
+                  onCheckedChange={() => toggleActive(optional.id, optional.active)} />
+                <span className="text-xs">{optional.active ? "Ativo" : "Inativo"}</span>
+              </div>
+              <div className="flex gap-1">
+                <Button variant="outline" size="sm" onClick={() => handleEdit(optional)}>
+                  <Pencil className="w-4 h-4" />
+                </Button>
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button variant="outline" size="sm" className="text-destructive hover:text-destructive">
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Excluir opcional?</AlertDialogTitle>
+                      <AlertDialogDescription>Excluir "{optional.name}"?</AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                      <AlertDialogAction onClick={() => handleDelete(optional.id)}
+                        className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                        Excluir
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </Card>
+  );
+
+  const ungroupedOptionals = optionals.filter((o) => !o.group_id || !groups.some((g) => g.id === o.group_id));
 
   if (loading) {
     return (
@@ -151,7 +233,21 @@ const OptionalManager = () => {
           {editing ? "Editar Opcional" : "Novo Opcional"}
         </h2>
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="grid md:grid-cols-4 gap-4">
+          <div className="grid md:grid-cols-5 gap-4">
+            <div>
+              <Label htmlFor="group">Grupo</Label>
+              <Select value={formData.group_id} onValueChange={(v) => setFormData({ ...formData, group_id: v === "none" ? "" : v })}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecione o grupo" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">Sem grupo</SelectItem>
+                  {groups.map((g) => (
+                    <SelectItem key={g.id} value={g.id}>{g.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
             <div>
               <Label htmlFor="name">Nome *</Label>
               <Input id="name" value={formData.name}
@@ -206,7 +302,7 @@ const OptionalManager = () => {
             {editing && (
               <Button type="button" variant="outline" onClick={() => {
                 setEditing(null);
-                setFormData({ name: "", description: "", price: "", cost: "", margin_percent: "" });
+                setFormData({ name: "", description: "", price: "", cost: "", margin_percent: "", group_id: "" });
               }}>Cancelar</Button>
             )}
           </div>
@@ -256,72 +352,30 @@ const OptionalManager = () => {
         </Card>
       )}
 
-      <div className="grid md:grid-cols-2 gap-4">
-        {optionals.map((optional) => (
-          <Card key={optional.id} className={`p-6 transition-colors ${selected.includes(optional.id) ? "ring-2 ring-primary/30" : ""}`}>
-            <div className="flex gap-3">
-              <Checkbox
-                checked={selected.includes(optional.id)}
-                onCheckedChange={() => toggleSelect(optional.id)}
-                className="mt-1 shrink-0"
-              />
-              <div className="flex-1 min-w-0">
-                <div className="flex justify-between items-start">
-                  <div className="flex-1">
-                    <h3 className="text-xl font-semibold mb-1">{optional.name}</h3>
-                    <p className="text-2xl font-bold text-primary mb-1">
-                      R$ {optional.price.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
-                    </p>
-                    {optional.cost > 0 && (
-                      <div className="flex gap-3 text-xs text-muted-foreground mb-2 flex-wrap">
-                        <span>Custo: R$ {optional.cost.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</span>
-                        <span>Margem: {optional.margin_percent}%</span>
-                        <span className="text-emerald-600 font-medium">
-                          Lucro: R$ {(optional.price - optional.cost).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
-                        </span>
-                      </div>
-                    )}
-                    {optional.description && (
-                      <p className="text-sm text-muted-foreground">{optional.description}</p>
-                    )}
-                  </div>
-                  <div className="flex flex-col items-end gap-2 shrink-0">
-                    <div className="flex items-center gap-2">
-                      <Switch checked={optional.active}
-                        onCheckedChange={() => toggleActive(optional.id, optional.active)} />
-                      <span className="text-sm">{optional.active ? "Ativo" : "Inativo"}</span>
-                    </div>
-                    <div className="flex gap-1">
-                      <Button variant="outline" size="sm" onClick={() => handleEdit(optional)}>
-                        <Pencil className="w-4 h-4" />
-                      </Button>
-                      <AlertDialog>
-                        <AlertDialogTrigger asChild>
-                          <Button variant="outline" size="sm" className="text-destructive hover:text-destructive">
-                            <Trash2 className="w-4 h-4" />
-                          </Button>
-                        </AlertDialogTrigger>
-                        <AlertDialogContent>
-                          <AlertDialogHeader>
-                            <AlertDialogTitle>Excluir opcional?</AlertDialogTitle>
-                            <AlertDialogDescription>Excluir "{optional.name}"?</AlertDialogDescription>
-                          </AlertDialogHeader>
-                          <AlertDialogFooter>
-                            <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                            <AlertDialogAction onClick={() => handleDelete(optional.id)}
-                              className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
-                              Excluir
-                            </AlertDialogAction>
-                          </AlertDialogFooter>
-                        </AlertDialogContent>
-                      </AlertDialog>
-                    </div>
-                  </div>
-                </div>
+      {/* Optionals organized by group */}
+      <div className="space-y-6">
+        {groups.map((group) => {
+          const groupOpts = optionals.filter((o) => o.group_id === group.id);
+          if (groupOpts.length === 0) return null;
+          return (
+            <div key={group.id}>
+              <h3 className="text-lg font-bold text-foreground mb-1">{group.name}</h3>
+              {group.description && <p className="text-sm text-muted-foreground mb-3">{group.description}</p>}
+              <div className="grid md:grid-cols-2 gap-4">
+                {groupOpts.map(renderOptionalCard)}
               </div>
             </div>
-          </Card>
-        ))}
+          );
+        })}
+
+        {ungroupedOptionals.length > 0 && (
+          <div>
+            {groups.length > 0 && <h3 className="text-lg font-bold text-foreground mb-1">Outros</h3>}
+            <div className="grid md:grid-cols-2 gap-4">
+              {ungroupedOptionals.map(renderOptionalCard)}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
