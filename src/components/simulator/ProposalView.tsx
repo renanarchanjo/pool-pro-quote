@@ -187,7 +187,7 @@ const ProposalView = ({
           className="sm:p-8 print:shadow-none"
         >
           {/* ===== HEADER ===== */}
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "28px", borderBottom: "2px solid #e5e7eb", paddingBottom: "20px" }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: "12px", marginBottom: "28px", borderBottom: "2px solid #e5e7eb", paddingBottom: "20px" }} className="sm:!flex-row sm:!justify-between sm:!items-start">
             <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
               {storeSettings?.logo_url ? (
                 <img
