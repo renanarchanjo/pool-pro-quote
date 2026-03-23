@@ -282,6 +282,9 @@ const DashboardPipeline = ({ proposals, onUpdateStatus, onViewProposal, onExport
                               </SelectContent>
                             </Select>
                           </TableCell>
+                          <TableCell className="text-xs text-muted-foreground whitespace-nowrap">
+                            {new Date(p.created_at).toLocaleDateString("pt-BR")}
+                          </TableCell>
                           <TableCell>
                             <span className={`text-xs font-medium ${days > 7 ? "text-red-500" : days > 3 ? "text-amber-500" : "text-muted-foreground"}`}>
                               {days}d
