@@ -96,7 +96,6 @@ const ManualProposal = () => {
     };
     fetchCities();
   }, [customerUf]);
-  }, [profile?.store_id]);
 
   // Enable all optionals by default when loaded
   useEffect(() => {
