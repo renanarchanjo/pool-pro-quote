@@ -7,7 +7,7 @@ const corsHeaders = {
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
-    return new Response("ok", { headers: corsHeaders });
+    return new Response(null, { headers: corsHeaders });
   }
 
   try {
@@ -15,7 +15,6 @@ Deno.serve(async (req) => {
     const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabaseAdmin = createClient(supabaseUrl, serviceRoleKey);
 
-    // Get the calling user from auth header
     const authHeader = req.headers.get("Authorization");
     if (!authHeader) throw new Error("Não autorizado");
 
@@ -35,7 +34,7 @@ Deno.serve(async (req) => {
       .single();
 
     if (!callerRole || callerRole.role !== "owner") {
-      throw new Error("Apenas administradores podem convidar membros");
+      throw new Error("Apenas administradores podem gerenciar membros");
     }
 
     // Get caller's store
@@ -47,15 +46,56 @@ Deno.serve(async (req) => {
 
     if (!callerProfile?.store_id) throw new Error("Loja não encontrada");
 
-    const { email, password, full_name, role } = await req.json();
+    const body = await req.json();
+
+    // Handle role update
+    if (body.action === "update_role") {
+      const { target_user_id, role } = body;
+      if (!target_user_id || !role) throw new Error("Dados inválidos");
+
+      // Verify target belongs to same store
+      const { data: targetProfile } = await supabaseAdmin
+        .from("profiles")
+        .select("store_id")
+        .eq("id", target_user_id)
+        .single();
+
+      if (!targetProfile || targetProfile.store_id !== callerProfile.store_id) {
+        throw new Error("Usuário não pertence à sua loja");
+      }
+
+      const validRole = role === "owner" ? "owner" : "seller";
+
+      await supabaseAdmin
+        .from("user_roles")
+        .update({ role: validRole })
+        .eq("user_id", target_user_id);
+
+      return new Response(
+        JSON.stringify({ success: true }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // Handle invite (default action)
+    const { email, password, full_name, role } = body;
 
     if (!email || !password || !full_name) {
       throw new Error("Email, senha e nome são obrigatórios");
     }
 
+    // Check member limit
+    const { data: storeMembers } = await supabaseAdmin
+      .from("profiles")
+      .select("id")
+      .eq("store_id", callerProfile.store_id);
+
+    if (storeMembers && storeMembers.length >= 10) {
+      throw new Error("Limite de 10 usuários por loja atingido");
+    }
+
     const validRole = role === "owner" ? "owner" : "seller";
 
-    // Create the new user
     const { data: newUser, error: createError } = await supabaseAdmin.auth.admin.createUser({
       email,
       password,
@@ -69,14 +109,12 @@ Deno.serve(async (req) => {
       throw createError;
     }
 
-    // Create profile linked to same store
     await supabaseAdmin.from("profiles").insert({
       id: newUser.user.id,
       store_id: callerProfile.store_id,
       full_name,
     });
 
-    // Create role
     await supabaseAdmin.from("user_roles").insert({
       user_id: newUser.user.id,
       role: validRole,
