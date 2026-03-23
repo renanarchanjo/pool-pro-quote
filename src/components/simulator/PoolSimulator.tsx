@@ -74,9 +74,10 @@ const PoolSimulator = ({ onBack }: PoolSimulatorProps) => {
     try {
       setLoading(true);
       
-      const [modelsRes, optionalsRes] = await Promise.all([
+      const [modelsRes, optionalsRes, modelOptsRes] = await Promise.all([
         supabase.from("pool_models").select("*").eq("active", true).eq("store_id", storeId).order("display_order"),
-        supabase.from("optionals").select("*").eq("active", true).eq("store_id", storeId).order("display_order")
+        supabase.from("optionals").select("*").eq("active", true).eq("store_id", storeId).order("display_order"),
+        supabase.from("model_optionals").select("*").eq("active", true).eq("store_id", storeId).order("display_order"),
       ]);
 
       if (modelsRes.error) throw modelsRes.error;
@@ -85,6 +86,7 @@ const PoolSimulator = ({ onBack }: PoolSimulatorProps) => {
       setStoreId(storeId);
       setModels(modelsRes.data || []);
       setOptionals(optionalsRes.data || []);
+      setModelOptionals(modelOptsRes.data || []);
       setStep(1);
     } catch (error) {
       console.error("Error loading store data:", error);
