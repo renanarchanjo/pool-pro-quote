@@ -155,20 +155,26 @@ const ProposalView = ({
           className="sm:p-8 print:shadow-none"
         >
           {/* ===== HEADER ===== */}
-          <div style={{ display: "flex", flexDirection: "column", gap: "12px", marginBottom: "28px", borderBottom: "2px solid #e5e7eb", paddingBottom: "20px" }} className="sm:!flex-row sm:!justify-between sm:!items-start">
-            <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "28px", borderBottom: "2px solid #e5e7eb", paddingBottom: "20px" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
               {storeSettings?.logo_url ? (
                 <img
                   src={storeSettings.logo_url}
                   alt="Logo"
-                  style={{ height: "52px", maxWidth: "200px", objectFit: "contain" }}
+                  style={{ height: "72px", width: "auto", maxWidth: "240px", objectFit: "contain", borderRadius: "8px" }}
                   crossOrigin="anonymous"
                 />
-              ) : (
-                <div style={{ fontSize: "20px", fontWeight: 800, color: primaryColor }}>
+              ) : null}
+              <div>
+                <div style={{ fontSize: "18px", fontWeight: 800, color: "#111827" }}>
                   {storeName || "SIMULAPOOL"}
                 </div>
-              )}
+                {storeLocation && (
+                  <div style={{ fontSize: "12px", color: "#6b7280", marginTop: "2px" }}>
+                    {storeLocation}
+                  </div>
+                )}
+              </div>
             </div>
             <div style={{ textAlign: "right" }}>
               <h1 style={{ fontSize: "24px", fontWeight: 800, color: "#111827", margin: 0 }}>Proposta Comercial</h1>
