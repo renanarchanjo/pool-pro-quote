@@ -55,8 +55,50 @@ const AdminDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [datePreset, setDatePreset] = useState<string>("all");
+  const [dateFrom, setDateFrom] = useState<Date | undefined>(undefined);
+  const [dateTo, setDateTo] = useState<Date | undefined>(undefined);
+  const [datePopoverOpen, setDatePopoverOpen] = useState(false);
   const [viewingProposal, setViewingProposal] = useState<Proposal | null>(null);
   const reportRef = useRef<HTMLDivElement>(null);
+
+  const DATE_PRESETS: { label: string; value: string; getRange: () => { from: Date; to: Date } }[] = [
+    { label: "Hoje", value: "today", getRange: () => ({ from: startOfDay(new Date()), to: endOfDay(new Date()) }) },
+    { label: "Ontem", value: "yesterday", getRange: () => ({ from: startOfDay(subDays(new Date(), 1)), to: endOfDay(subDays(new Date(), 1)) }) },
+    { label: "Últimos 7 dias", value: "7days", getRange: () => ({ from: startOfDay(subDays(new Date(), 6)), to: endOfDay(new Date()) }) },
+    { label: "Últimos 14 dias", value: "14days", getRange: () => ({ from: startOfDay(subDays(new Date(), 13)), to: endOfDay(new Date()) }) },
+    { label: "Últimos 30 dias", value: "30days", getRange: () => ({ from: startOfDay(subDays(new Date(), 29)), to: endOfDay(new Date()) }) },
+    { label: "Esta semana", value: "thisWeek", getRange: () => ({ from: startOfWeek(new Date(), { weekStartsOn: 1 }), to: endOfDay(new Date()) }) },
+    { label: "Semana passada", value: "lastWeek", getRange: () => { const s = startOfWeek(subWeeks(new Date(), 1), { weekStartsOn: 1 }); return { from: s, to: endOfDay(subDays(startOfWeek(new Date(), { weekStartsOn: 1 }), 1)) }; } },
+    { label: "Este mês", value: "thisMonth", getRange: () => ({ from: startOfMonth(new Date()), to: endOfDay(new Date()) }) },
+    { label: "Mês passado", value: "lastMonth", getRange: () => ({ from: startOfMonth(subMonths(new Date(), 1)), to: endOfMonth(subMonths(new Date(), 1)) }) },
+  ];
+
+  const applyDatePreset = (presetValue: string) => {
+    if (presetValue === "all") {
+      setDateFrom(undefined);
+      setDateTo(undefined);
+      setDatePreset("all");
+      return;
+    }
+    const preset = DATE_PRESETS.find((p) => p.value === presetValue);
+    if (preset) {
+      const range = preset.getRange();
+      setDateFrom(range.from);
+      setDateTo(range.to);
+      setDatePreset(presetValue);
+    }
+  };
+
+  const getDateLabel = () => {
+    if (!dateFrom && !dateTo) return "Todas as datas";
+    const preset = DATE_PRESETS.find((p) => p.value === datePreset);
+    if (preset) return preset.label;
+    const parts: string[] = [];
+    if (dateFrom) parts.push(format(dateFrom, "dd/MM/yyyy"));
+    if (dateTo) parts.push(format(dateTo, "dd/MM/yyyy"));
+    return parts.join(" - ");
+  };
 
   useEffect(() => {
     loadData();
@@ -77,8 +119,14 @@ const AdminDashboard = () => {
           p.pool_models?.name?.toLowerCase().includes(q)
       );
     }
+    if (dateFrom) {
+      result = result.filter((p) => new Date(p.created_at) >= dateFrom);
+    }
+    if (dateTo) {
+      result = result.filter((p) => new Date(p.created_at) <= dateTo);
+    }
     setFiltered(result);
-  }, [search, proposals, statusFilter]);
+  }, [search, proposals, statusFilter, dateFrom, dateTo]);
 
   const loadData = async () => {
     try {
