@@ -73,11 +73,27 @@ const CustomerForm = ({ onSubmit, onBack, model, optionals }: CustomerFormProps)
           </div>
 
           <div>
+            <Label htmlFor="uf">Estado (UF) *</Label>
+            <select
+              id="uf"
+              value={uf}
+              onChange={(e) => setUf(e.target.value)}
+              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              required
+            >
+              <option value="">Selecione o estado</option>
+              {STATES.map((s) => (
+                <option key={s} value={s}>{s}</option>
+              ))}
+            </select>
+          </div>
+
+          <div>
             <Label htmlFor="city">Cidade *</Label>
             <Input
               id="city"
-              value={formData.city}
-              onChange={(e) => setFormData({ ...formData, city: e.target.value })}
+              value={city}
+              onChange={(e) => setCity(e.target.value)}
               placeholder="Sua cidade"
               required
             />
