@@ -6,7 +6,6 @@ import logoHorizontal from "@/assets/simulapool-horizontal.png";
 
 const navLinks = [
   { label: "Simular Agora!", to: "/" },
-  { label: "Preços", to: "/precos" },
   { label: "Parceiros", to: "/parceiros" },
 ];
 
