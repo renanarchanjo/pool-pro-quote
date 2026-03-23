@@ -10,7 +10,9 @@ import {
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
-import { Loader2, FileText, TrendingUp, Users, Search, Download, Eye, Pencil } from "lucide-react";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
+import { Loader2, FileText, TrendingUp, Users, Search, Download, Eye, Pencil, CalendarIcon, X } from "lucide-react";
 import { useStoreData } from "@/hooks/useStoreData";
 import { toast } from "sonner";
 import html2pdf from "html2pdf.js";
@@ -18,6 +20,8 @@ import {
   Dialog, DialogContent, DialogHeader, DialogTitle,
 } from "@/components/ui/dialog";
 import ProposalView from "@/components/simulator/ProposalView";
+import { format, startOfDay, endOfDay, subDays, startOfWeek, startOfMonth, endOfMonth, subMonths, subWeeks } from "date-fns";
+import { ptBR } from "date-fns/locale";
 
 type ProposalStatus = "nova" | "enviada" | "em_negociacao" | "fechada" | "perdida";
 
@@ -51,8 +55,50 @@ const AdminDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [datePreset, setDatePreset] = useState<string>("all");
+  const [dateFrom, setDateFrom] = useState<Date | undefined>(undefined);
+  const [dateTo, setDateTo] = useState<Date | undefined>(undefined);
+  const [datePopoverOpen, setDatePopoverOpen] = useState(false);
   const [viewingProposal, setViewingProposal] = useState<Proposal | null>(null);
   const reportRef = useRef<HTMLDivElement>(null);
+
+  const DATE_PRESETS: { label: string; value: string; getRange: () => { from: Date; to: Date } }[] = [
+    { label: "Hoje", value: "today", getRange: () => ({ from: startOfDay(new Date()), to: endOfDay(new Date()) }) },
+    { label: "Ontem", value: "yesterday", getRange: () => ({ from: startOfDay(subDays(new Date(), 1)), to: endOfDay(subDays(new Date(), 1)) }) },
+    { label: "Últimos 7 dias", value: "7days", getRange: () => ({ from: startOfDay(subDays(new Date(), 6)), to: endOfDay(new Date()) }) },
+    { label: "Últimos 14 dias", value: "14days", getRange: () => ({ from: startOfDay(subDays(new Date(), 13)), to: endOfDay(new Date()) }) },
+    { label: "Últimos 30 dias", value: "30days", getRange: () => ({ from: startOfDay(subDays(new Date(), 29)), to: endOfDay(new Date()) }) },
+    { label: "Esta semana", value: "thisWeek", getRange: () => ({ from: startOfWeek(new Date(), { weekStartsOn: 1 }), to: endOfDay(new Date()) }) },
+    { label: "Semana passada", value: "lastWeek", getRange: () => { const s = startOfWeek(subWeeks(new Date(), 1), { weekStartsOn: 1 }); return { from: s, to: endOfDay(subDays(startOfWeek(new Date(), { weekStartsOn: 1 }), 1)) }; } },
+    { label: "Este mês", value: "thisMonth", getRange: () => ({ from: startOfMonth(new Date()), to: endOfDay(new Date()) }) },
+    { label: "Mês passado", value: "lastMonth", getRange: () => ({ from: startOfMonth(subMonths(new Date(), 1)), to: endOfMonth(subMonths(new Date(), 1)) }) },
+  ];
+
+  const applyDatePreset = (presetValue: string) => {
+    if (presetValue === "all") {
+      setDateFrom(undefined);
+      setDateTo(undefined);
+      setDatePreset("all");
+      return;
+    }
+    const preset = DATE_PRESETS.find((p) => p.value === presetValue);
+    if (preset) {
+      const range = preset.getRange();
+      setDateFrom(range.from);
+      setDateTo(range.to);
+      setDatePreset(presetValue);
+    }
+  };
+
+  const getDateLabel = () => {
+    if (!dateFrom && !dateTo) return "Todas as datas";
+    const preset = DATE_PRESETS.find((p) => p.value === datePreset);
+    if (preset) return preset.label;
+    const parts: string[] = [];
+    if (dateFrom) parts.push(format(dateFrom, "dd/MM/yyyy"));
+    if (dateTo) parts.push(format(dateTo, "dd/MM/yyyy"));
+    return parts.join(" - ");
+  };
 
   useEffect(() => {
     loadData();
@@ -73,8 +119,14 @@ const AdminDashboard = () => {
           p.pool_models?.name?.toLowerCase().includes(q)
       );
     }
+    if (dateFrom) {
+      result = result.filter((p) => new Date(p.created_at) >= dateFrom);
+    }
+    if (dateTo) {
+      result = result.filter((p) => new Date(p.created_at) <= dateTo);
+    }
     setFiltered(result);
-  }, [search, proposals, statusFilter]);
+  }, [search, proposals, statusFilter, dateFrom, dateTo]);
 
   const loadData = async () => {
     try {
@@ -235,13 +287,13 @@ const AdminDashboard = () => {
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <Input
             className="pl-9"
-            placeholder="Buscar por nome, cidade, WhatsApp ou modelo..."
+            placeholder="Buscar por nome, cidade ou modelo..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
         </div>
         <Select value={statusFilter} onValueChange={setStatusFilter}>
-          <SelectTrigger className="w-full sm:w-[200px]">
+          <SelectTrigger className="w-full sm:w-[180px]">
             <SelectValue placeholder="Filtrar por status" />
           </SelectTrigger>
           <SelectContent>
@@ -251,6 +303,73 @@ const AdminDashboard = () => {
             ))}
           </SelectContent>
         </Select>
+
+        {/* Date Filter */}
+        <Popover open={datePopoverOpen} onOpenChange={setDatePopoverOpen}>
+          <PopoverTrigger asChild>
+            <Button variant="outline" className="w-full sm:w-auto justify-start text-left font-normal gap-2">
+              <CalendarIcon className="w-4 h-4 text-muted-foreground" />
+              <span className="truncate">{getDateLabel()}</span>
+              {(dateFrom || dateTo) && (
+                <X
+                  className="w-3.5 h-3.5 ml-auto text-muted-foreground hover:text-foreground shrink-0"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setDateFrom(undefined);
+                    setDateTo(undefined);
+                    setDatePreset("all");
+                  }}
+                />
+              )}
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-auto p-0" align="end" sideOffset={8}>
+            <div className="flex flex-col sm:flex-row">
+              {/* Presets */}
+              <div className="border-b sm:border-b-0 sm:border-r border-border p-3 sm:w-[180px] max-h-[300px] overflow-y-auto">
+                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2 px-1">Período</p>
+                <div className="space-y-0.5">
+                  <button
+                    className={`w-full text-left text-sm px-2 py-1.5 rounded-md transition-colors ${datePreset === "all" ? "bg-primary text-primary-foreground" : "hover:bg-muted"}`}
+                    onClick={() => { applyDatePreset("all"); setDatePopoverOpen(false); }}
+                  >
+                    Todas as datas
+                  </button>
+                  {DATE_PRESETS.map((preset) => (
+                    <button
+                      key={preset.value}
+                      className={`w-full text-left text-sm px-2 py-1.5 rounded-md transition-colors ${datePreset === preset.value ? "bg-primary text-primary-foreground" : "hover:bg-muted"}`}
+                      onClick={() => { applyDatePreset(preset.value); setDatePopoverOpen(false); }}
+                    >
+                      {preset.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              {/* Calendar */}
+              <div className="p-3">
+                <Calendar
+                  mode="range"
+                  selected={dateFrom && dateTo ? { from: dateFrom, to: dateTo } : undefined}
+                  onSelect={(range) => {
+                    setDateFrom(range?.from ? startOfDay(range.from) : undefined);
+                    setDateTo(range?.to ? endOfDay(range.to) : undefined);
+                    setDatePreset("custom");
+                    if (range?.from && range?.to) setDatePopoverOpen(false);
+                  }}
+                  numberOfMonths={1}
+                  locale={ptBR}
+                  className="pointer-events-auto"
+                />
+                <div className="flex justify-end gap-2 mt-2 pt-2 border-t border-border">
+                  <Button variant="outline" size="sm" onClick={() => { setDateFrom(undefined); setDateTo(undefined); setDatePreset("all"); setDatePopoverOpen(false); }}>
+                    Limpar
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </PopoverContent>
+        </Popover>
       </div>
 
       {/* Proposals Table */}
