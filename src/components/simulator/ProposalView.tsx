@@ -166,19 +166,7 @@ const ProposalView = ({
           </Button>
           <div className="flex gap-2 flex-wrap">
             <Button variant="outline" onClick={handleDownloadPDF}>
-              <FileDown className="w-4 h-4 mr-2" /> PDF
-            </Button>
-            <Button variant="outline" onClick={handlePrint}>
-              <Printer className="w-4 h-4 mr-2" /> Imprimir
-            </Button>
-            <Button variant="outline" onClick={handleSendEmail}>
-              <Mail className="w-4 h-4 mr-2" /> Email
-            </Button>
-            <Button
-              onClick={generateWhatsAppMessage}
-              style={{ background: primaryColor, color: "white" }}
-            >
-              <MessageCircle className="w-4 h-4 mr-2" /> WhatsApp
+              <FileDown className="w-4 h-4 mr-2" /> Baixar PDF
             </Button>
           </div>
         </div>

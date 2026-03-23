@@ -16,7 +16,13 @@ import {
   AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 
-const MAX_MEMBERS = 10;
+// Plan-based user limits
+const PLAN_USER_LIMITS: Record<string, number> = {
+  gratuito: 1,
+  premium: 3,
+  avancado: 7,
+  escala: 10,
+};
 
 interface TeamMember {
   id: string;

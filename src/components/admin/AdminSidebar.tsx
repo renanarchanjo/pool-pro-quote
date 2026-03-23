@@ -51,12 +51,14 @@ const AdminSidebar = () => {
 
   const accountItems = [
     { title: "Meu Perfil", url: "/admin/perfil", icon: User },
-    ...(isOwner ? [{ title: "Equipe", url: "/admin/equipe", icon: UsersRound }] : []),
+    ...(isOwner ? [
+      { title: "Assinatura", url: "/admin/assinatura", icon: CreditCard },
+      { title: "Equipe", url: "/admin/equipe", icon: UsersRound },
+    ] : []),
   ];
 
   const adminItems = isOwner ? [
     { title: "Lojistas", url: "/admin/lojistas", icon: Users },
-    { title: "Assinatura", url: "/admin/assinatura", icon: CreditCard },
   ] : [];
 
   const renderGroup = (label: string, items: typeof mainItems) => {

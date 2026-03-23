@@ -327,16 +327,8 @@ const AdminDashboard = () => {
                                 <Eye className="w-3 h-3" /> Ver
                               </Button>
                               <Button size="sm" variant="outline" className="h-7 text-xs gap-1"
-                                onClick={() => handleCopyLink(p)}>
-                                <Link2 className="w-3 h-3" /> Link
-                              </Button>
-                              <Button size="sm" variant="outline" className="h-7 text-xs gap-1"
                                 onClick={() => handleExportSinglePDF(p)}>
-                                <Download className="w-3 h-3 text-red-500" /> PDF
-                              </Button>
-                              <Button size="sm" className="h-7 text-xs gap-1 bg-emerald-600 hover:bg-emerald-700 text-white"
-                                onClick={() => handleWhatsApp(p)}>
-                                <Phone className="w-3 h-3" /> WhatsApp
+                                <Download className="w-3 h-3" /> PDF
                               </Button>
                             </div>
                           </TableCell>
