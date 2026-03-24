@@ -119,11 +119,10 @@ const DashboardAlerts = ({ proposals, onSelectProposal }: Props) => {
       empty: "Nenhuma proposta parada 🎉",
       emptyDesc: "Todas as propostas estão sendo acompanhadas.",
       renderValue: (p: Proposal) => `${daysSince(p.created_at)}d parada`,
+    },
   ];
 
-
-
-  if (stale.length === 0 && bestOpportunities.length === 0) {
+  if (stale.length === 0) {
     return null;
   }
 
