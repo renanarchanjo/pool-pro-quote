@@ -77,8 +77,8 @@ const PLANS = [
 ];
 
 const LEAD_PLAN = {
-  priceId: "price_1TELsVD4inSHTJNLmue5gkTP",
-  productId: "prod_UClPPxnoSh7tlx",
+  priceId: "price_1TEdKrDLDBZHKYifUm8XPOut",
+  productId: "prod_UD3Rpug8ULJMaT",
   price: "R$ 997,00",
 };
 
