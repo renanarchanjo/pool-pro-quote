@@ -97,7 +97,7 @@ const AdminSidebar = () => {
     <Sidebar collapsible="icon">
       <SidebarHeader className="border-b border-border/50 pt-12 md:pt-4 pb-3 flex items-center justify-center">
         <div className="flex items-center justify-center w-full px-1">
-          <img src={simulapoolIcon} alt="SimulaPool" className="w-full max-w-[90%] object-contain rounded-xl" />
+          <img src={simulapoolIcon} alt="SimulaPool" className="w-full max-w-[90%] object-contain rounded-lg" />
         </div>
       </SidebarHeader>
 
