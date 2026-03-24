@@ -57,9 +57,6 @@ const AdminSidebar = () => {
     ] : []),
   ];
 
-  const adminItems = isOwner ? [
-    { title: "Lojistas", url: "/admin/lojistas", icon: Users },
-  ] : [];
 
   const renderGroup = (label: string, items: typeof mainItems) => {
     if (items.length === 0) return null;
@@ -98,7 +95,7 @@ const AdminSidebar = () => {
         {renderGroup("PAINEL DO LOJISTA", mainItems)}
         {renderGroup("CADASTROS", catalogItems)}
         {renderGroup("CONTA", accountItems)}
-        {renderGroup("ADMINISTRAÇÃO", adminItems)}
+        
       </SidebarContent>
 
       <SidebarFooter className="p-4">
