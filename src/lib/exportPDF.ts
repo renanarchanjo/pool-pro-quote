@@ -1,4 +1,6 @@
+import html2canvas from "html2canvas";
 import html2pdf from "html2pdf.js";
+import { jsPDF } from "jspdf";
 import { toast } from "sonner";
 
 interface ExportPDFOptions {
@@ -7,7 +9,101 @@ interface ExportPDFOptions {
   orientation?: "portrait" | "landscape";
   /** Fixed width for consistent rendering (default: 1100 for landscape, 800 for portrait) */
   captureWidth?: number;
+  /** Capture each matching section separately to avoid broken page splits */
+  sectionSelector?: string;
 }
+
+const A4_SIZES = {
+  portrait: { width: 210, height: 297 },
+  landscape: { width: 297, height: 210 },
+} as const;
+
+const exportSectionedPDF = async ({
+  element,
+  filename,
+  orientation,
+  sectionSelector,
+}: Required<Pick<ExportPDFOptions, "element" | "filename" | "orientation" | "sectionSelector">>) => {
+  const page = A4_SIZES[orientation];
+  const margin = 10;
+  const contentWidth = page.width - margin * 2;
+  const contentHeight = page.height - margin * 2;
+  const sectionGap = 4;
+  const sections = Array.from(element.querySelectorAll<HTMLElement>(sectionSelector)).filter(
+    (section) => section.offsetWidth > 0 && section.offsetHeight > 0,
+  );
+
+  if (sections.length === 0) {
+    throw new Error(`Nenhuma seção encontrada para o seletor ${sectionSelector}`);
+  }
+
+  const pdf = new jsPDF({ unit: "mm", format: "a4", orientation });
+  let currentY = margin;
+
+  for (let index = 0; index < sections.length; index += 1) {
+    const section = sections[index];
+    const canvas = await html2canvas(section, {
+      scale: 2,
+      useCORS: true,
+      backgroundColor: "#ffffff",
+      logging: false,
+      windowWidth: section.scrollWidth,
+    });
+
+    const imgWidthMm = contentWidth;
+    const imgHeightMm = (canvas.height * imgWidthMm) / canvas.width;
+
+    if (currentY > margin && currentY + imgHeightMm > page.height - margin) {
+      pdf.addPage("a4", orientation);
+      currentY = margin;
+    }
+
+    if (imgHeightMm <= contentHeight) {
+      pdf.addImage(canvas.toDataURL("image/png"), "PNG", margin, currentY, imgWidthMm, imgHeightMm);
+      currentY += imgHeightMm + sectionGap;
+      continue;
+    }
+
+    const pxPerMm = canvas.width / imgWidthMm;
+    const pageSliceHeightPx = Math.floor(contentHeight * pxPerMm);
+    let sourceY = 0;
+
+    while (sourceY < canvas.height) {
+      const sliceHeightPx = Math.min(pageSliceHeightPx, canvas.height - sourceY);
+      const sliceCanvas = document.createElement("canvas");
+      sliceCanvas.width = canvas.width;
+      sliceCanvas.height = sliceHeightPx;
+
+      const sliceContext = sliceCanvas.getContext("2d");
+      if (!sliceContext) throw new Error("Falha ao preparar página do PDF");
+
+      sliceContext.drawImage(
+        canvas,
+        0,
+        sourceY,
+        canvas.width,
+        sliceHeightPx,
+        0,
+        0,
+        canvas.width,
+        sliceHeightPx,
+      );
+
+      const sliceHeightMm = sliceHeightPx / pxPerMm;
+      pdf.addImage(sliceCanvas.toDataURL("image/png"), "PNG", margin, currentY, imgWidthMm, sliceHeightMm);
+      sourceY += sliceHeightPx;
+
+      if (sourceY < canvas.height) {
+        pdf.addPage("a4", orientation);
+        currentY = margin;
+      } else {
+        currentY += sliceHeightMm + sectionGap;
+      }
+    }
+  }
+
+  pdf.save(filename);
+};
 
 /**
  * Standardized PDF export with consistent quality, background, 
@@ -18,6 +114,7 @@ export const exportPDF = async ({
   filename,
   orientation = "landscape",
   captureWidth,
+  sectionSelector,
 }: ExportPDFOptions): Promise<void> => {
   const width = captureWidth || (orientation === "landscape" ? 1100 : 800);
 
@@ -51,24 +148,28 @@ export const exportPDF = async ({
     element.style.background = "#ffffff";
     element.style.color = "#000000";
 
-    await (html2pdf() as any)
-      .set({
-        margin: [10, 10, 10, 10],
-        filename,
-        image: { type: "jpeg", quality: 0.98 },
-        html2canvas: {
-          scale: 2,
-          useCORS: true,
-          width,
-          windowWidth: width,
-          backgroundColor: "#ffffff",
-          logging: false,
-        },
-        jsPDF: { unit: "mm", format: "a4", orientation },
-        pagebreak: { mode: ["avoid-all", "css", "legacy"] },
-      })
-      .from(element)
-      .save();
+    if (sectionSelector) {
+      await exportSectionedPDF({ element, filename, orientation, sectionSelector });
+    } else {
+      await (html2pdf() as any)
+        .set({
+          margin: [10, 10, 10, 10],
+          filename,
+          image: { type: "jpeg", quality: 0.98 },
+          html2canvas: {
+            scale: 2,
+            useCORS: true,
+            width,
+            windowWidth: width,
+            backgroundColor: "#ffffff",
+            logging: false,
+          },
+          jsPDF: { unit: "mm", format: "a4", orientation },
+          pagebreak: { mode: ["avoid-all", "css", "legacy"] },
+        })
+        .from(element)
+        .save();
+    }
 
     toast.success("PDF exportado com sucesso!");
   } catch (error) {
