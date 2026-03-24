@@ -224,7 +224,7 @@ const AdminLeads = () => {
   const now = new Date();
   const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
   const consumed = leads.filter(l => l.status === "accepted" && l.accepted_at && new Date(l.accepted_at) >= monthStart).length;
-  const limit = storeInfo?.lead_limit_monthly || 40;
+  const limit = storeInfo?.lead_limit_monthly || 100;
   const excess = Math.max(0, consumed - limit);
   const excessPrice = storeInfo?.lead_price_excess || 25;
 

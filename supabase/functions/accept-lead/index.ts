@@ -68,7 +68,7 @@ serve(async (req) => {
       .gte("accepted_at", monthStart);
 
     const consumed = (count || 0) + 1;
-    const limit = store.lead_limit_monthly || 40;
+    const limit = store.lead_limit_monthly || 100;
     const isExcess = consumed > limit;
     const excessPrice = store.lead_price_excess || 25;
 
