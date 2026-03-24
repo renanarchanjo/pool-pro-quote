@@ -172,23 +172,39 @@ const AdminDashboard = () => {
           <DialogHeader>
             <DialogTitle>Proposta — {viewingProposal?.customer_name}</DialogTitle>
           </DialogHeader>
-          {viewingProposal?.pool_models && (
-            <ProposalView
-              model={viewingProposal.pool_models as any}
-              selectedOptionals={[]}
-              customerData={{
-                name: viewingProposal.customer_name,
-                city: viewingProposal.customer_city,
-                whatsapp: viewingProposal.customer_whatsapp,
-              }}
-              category={viewingProposal.pool_models.name}
-              onBack={() => setViewingProposal(null)}
-              storeSettings={storeSettings}
-              storeName={store?.name}
-              storeCity={store?.city}
-              storeState={store?.state}
-            />
-          )}
+          <Tabs defaultValue="proposal" className="w-full">
+            <TabsList className="w-full grid grid-cols-2">
+              <TabsTrigger value="proposal">Proposta</TabsTrigger>
+              <TabsTrigger value="notes">Anotações</TabsTrigger>
+            </TabsList>
+            <TabsContent value="proposal">
+              {viewingProposal?.pool_models && (
+                <ProposalView
+                  model={viewingProposal.pool_models as any}
+                  selectedOptionals={[]}
+                  customerData={{
+                    name: viewingProposal.customer_name,
+                    city: viewingProposal.customer_city,
+                    whatsapp: viewingProposal.customer_whatsapp,
+                  }}
+                  category={viewingProposal.pool_models.name}
+                  onBack={() => setViewingProposal(null)}
+                  storeSettings={storeSettings}
+                  storeName={store?.name}
+                  storeCity={store?.city}
+                  storeState={store?.state}
+                />
+              )}
+            </TabsContent>
+            <TabsContent value="notes">
+              {viewingProposal && store && (
+                <ProposalNotesPanel
+                  proposalId={viewingProposal.id}
+                  storeId={store.id}
+                />
+              )}
+            </TabsContent>
+          </Tabs>
         </DialogContent>
       </Dialog>
     </div>
