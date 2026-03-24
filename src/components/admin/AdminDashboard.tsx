@@ -115,7 +115,7 @@ const AdminDashboard = () => {
           <p className="text-muted-foreground text-sm">
             Olá, <span className="font-bold text-foreground">{profile?.full_name || "Lojista"}</span>
           </p>
-          <h1 className="text-xl md:text-3xl font-bold">Painel Comercial</h1>
+          <h1 className="text-lg md:text-3xl font-bold truncate">Painel Comercial</h1>
         </div>
         <div className="flex gap-2 print:hidden">
           <PushNotificationButton />

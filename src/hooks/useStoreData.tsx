@@ -121,14 +121,10 @@ export const useStoreData = () => {
     };
 
     document.addEventListener("visibilitychange", onVisibilityChange);
-    const interval = window.setInterval(() => {
-      void fetchStoreData();
-    }, 10000);
 
     return () => {
       subscription.unsubscribe();
       document.removeEventListener("visibilitychange", onVisibilityChange);
-      window.clearInterval(interval);
     };
   }, [fetchStoreData, resetState]);
 

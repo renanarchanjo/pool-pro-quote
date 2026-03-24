@@ -621,6 +621,7 @@ const AdminLeads = () => {
               }}
               category={viewingProposal.pool_models?.categories?.name || ""}
               onBack={() => setViewingProposal(null)}
+              storeSettings={storeSettings}
               storeName={store?.name}
               storeCity={store?.city}
               storeState={store?.state}

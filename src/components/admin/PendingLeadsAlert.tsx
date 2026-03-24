@@ -40,7 +40,7 @@ const PendingLeadsAlert = () => {
       if (count && count > 0) {
         setPendingCount(count);
         setOpen(true);
-        sessionStorage.setItem(STORAGE_KEY, "1");
+        localStorage.setItem(STORAGE_DATE_KEY, today);
       }
     };
 
