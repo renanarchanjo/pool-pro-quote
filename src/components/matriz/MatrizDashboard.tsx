@@ -28,10 +28,19 @@ interface PaymentRow {
   subscription_plans: { name: string; price_monthly: number } | null;
 }
 
+interface ProposalRow {
+  id: string;
+  total_price: number;
+  status: string;
+  store_id: string | null;
+  created_at: string | null;
+}
+
 interface DashboardData {
   stores: StoreRow[];
   payments: PaymentRow[];
   profileCount: number;
+  closedProposals: ProposalRow[];
 }
 
 /* ─── Helpers ─── */
