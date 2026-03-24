@@ -90,8 +90,8 @@ const AdminSidebar = () => {
       <SidebarHeader className="border-b border-border/50">
         <div className="h-3 bg-white md:hidden" />
         <div className="flex items-center gap-3 p-4">
-          <img src={simulapoolIcon} alt="SIMULAPOOL" className="h-12 w-12 object-contain" />
-          <span className="text-sm font-bold text-primary tracking-wider">SIMULA APP</span>
+          <img src={simulapoolIcon} alt="SIMULAPOOL" className="h-[62px] w-[62px] object-contain" />
+          <span className="text-sm font-bold text-primary tracking-wider">Simula Pool APP</span>
         </div>
       </SidebarHeader>
 
