@@ -104,6 +104,7 @@ export type Database = {
         Row: {
           accepted_at: string | null
           accepted_by: string | null
+          assigned_to: string | null
           created_at: string | null
           distributed_by: string
           id: string
@@ -114,6 +115,7 @@ export type Database = {
         Insert: {
           accepted_at?: string | null
           accepted_by?: string | null
+          assigned_to?: string | null
           created_at?: string | null
           distributed_by: string
           id?: string
@@ -124,6 +126,7 @@ export type Database = {
         Update: {
           accepted_at?: string | null
           accepted_by?: string | null
+          assigned_to?: string | null
           created_at?: string | null
           distributed_by?: string
           id?: string
@@ -135,6 +138,13 @@ export type Database = {
           {
             foreignKeyName: "lead_distributions_accepted_by_fkey"
             columns: ["accepted_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "lead_distributions_assigned_to_fkey"
+            columns: ["assigned_to"]
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
@@ -601,6 +611,7 @@ export type Database = {
       profiles: {
         Row: {
           created_at: string | null
+          daily_lead_limit: number | null
           full_name: string | null
           id: string
           store_id: string | null
@@ -608,6 +619,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string | null
+          daily_lead_limit?: number | null
           full_name?: string | null
           id: string
           store_id?: string | null
@@ -615,6 +627,7 @@ export type Database = {
         }
         Update: {
           created_at?: string | null
+          daily_lead_limit?: number | null
           full_name?: string | null
           id?: string
           store_id?: string | null
