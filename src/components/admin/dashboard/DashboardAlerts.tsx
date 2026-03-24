@@ -86,20 +86,22 @@ const DashboardAlerts = ({ proposals, onSelectProposal }: Props) => {
             {days === 0 ? "Hoje" : days === 1 ? "Ontem" : `${days} dias atrás`}
           </span>
           <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-            <button
+            <span
+              role="button"
               onClick={(e) => handleWhatsApp(e, p)}
-              className="p-1 rounded-md hover:bg-emerald-100 text-emerald-600 transition-colors"
+              className="p-1 rounded-md hover:bg-emerald-100 text-emerald-600 transition-colors cursor-pointer"
               title="WhatsApp"
             >
               <MessageCircle className="w-3.5 h-3.5" />
-            </button>
-            <button
+            </span>
+            <span
+              role="button"
               onClick={(e) => handleCall(e, p)}
-              className="p-1 rounded-md hover:bg-primary/10 text-primary transition-colors"
+              className="p-1 rounded-md hover:bg-primary/10 text-primary transition-colors cursor-pointer"
               title="Ligar"
             >
               <Phone className="w-3.5 h-3.5" />
-            </button>
+            </span>
           </div>
         </div>
       </button>

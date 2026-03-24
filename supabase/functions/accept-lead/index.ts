@@ -41,11 +41,43 @@ serve(async (req) => {
     // Verify user belongs to this store
     const { data: profile } = await supabaseAdmin
       .from("profiles")
-      .select("store_id")
+      .select("store_id, daily_lead_limit")
       .eq("id", user.id)
       .single();
 
     if (!profile || profile.store_id !== dist.store_id) throw new Error("Acesso negado");
+
+    // If lead is assigned to a specific user, only that user can accept
+    if (dist.assigned_to && dist.assigned_to !== user.id) {
+      // Check if user is owner (owners can always accept)
+      const { data: roleData } = await supabaseAdmin
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", user.id)
+        .eq("role", "owner")
+        .single();
+      if (!roleData) {
+        throw new Error("Este lead foi atribuído a outro membro da equipe");
+      }
+    }
+
+    // Check daily limit for this user (0 = unlimited)
+    const dailyLimit = profile.daily_lead_limit || 0;
+    if (dailyLimit > 0) {
+      const todayStart = new Date();
+      todayStart.setHours(0, 0, 0, 0);
+      const { count: todayCount } = await supabaseAdmin
+        .from("lead_distributions")
+        .select("*", { count: "exact", head: true })
+        .eq("store_id", dist.store_id)
+        .eq("accepted_by", user.id)
+        .eq("status", "accepted")
+        .gte("accepted_at", todayStart.toISOString());
+
+      if ((todayCount || 0) >= dailyLimit) {
+        throw new Error(`Limite diário atingido (${dailyLimit} leads/dia). Solicite ao administrador para aumentar seu limite.`);
+      }
+    }
 
     // Get store info
     const { data: store } = await supabaseAdmin
@@ -90,10 +122,8 @@ serve(async (req) => {
     });
 
     // TODO: Stripe metered billing for excess leads
-    // When configured, report +1 usage to the store's Stripe subscription metered item
     if (isExcess) {
       console.log(`[ACCEPT-LEAD] Excess lead for store ${dist.store_id}: ${consumed}/${limit}. Charge: ${excessPrice}`);
-      // Future: stripe.subscriptionItems.createUsageRecord(itemId, { quantity: 1, action: 'increment' })
     }
 
     return new Response(JSON.stringify({
