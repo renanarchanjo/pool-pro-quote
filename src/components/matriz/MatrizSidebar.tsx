@@ -15,6 +15,8 @@ import { useTheme } from "next-themes";
 
 const MatrizSidebar = () => {
   const navigate = useNavigate();
+  const { resolvedTheme } = useTheme();
+  const currentLogo = resolvedTheme === "dark" ? logoDark : logoHorizontal;
   const location = useLocation();
 
   const isActive = (url: string) => {

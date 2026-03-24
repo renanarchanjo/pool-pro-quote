@@ -25,6 +25,8 @@ import { useTheme } from "next-themes";
 
 const AdminSidebar = () => {
   const navigate = useNavigate();
+  const { resolvedTheme } = useTheme();
+  const currentLogo = resolvedTheme === "dark" ? logoDark : logoHorizontal;
   const location = useLocation();
   const { role } = useStoreData();
 
