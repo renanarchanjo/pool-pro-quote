@@ -58,19 +58,26 @@ const MatrizDashboard = () => {
 
   useEffect(() => {
     loadAll();
+    const channel = supabase
+      .channel("matriz-dashboard-proposals")
+      .on("postgres_changes", { event: "UPDATE", schema: "public", table: "proposals" }, () => loadAll())
+      .subscribe();
+    return () => { supabase.removeChannel(channel); };
   }, []);
 
   const loadAll = async () => {
     try {
-      const [storesRes, paymentsRes, profilesRes] = await Promise.all([
+      const [storesRes, paymentsRes, profilesRes, proposalsRes] = await Promise.all([
         supabase.from("stores").select("*, subscription_plans(name, price_monthly, slug)"),
         supabase.from("payment_history").select("*, subscription_plans(name, price_monthly)").order("payment_date", { ascending: false }),
         supabase.from("profiles").select("id"),
+        supabase.from("proposals").select("id, total_price, status, store_id, created_at").eq("status", "fechada"),
       ]);
       setData({
         stores: (storesRes.data as any) || [],
         payments: (paymentsRes.data as any) || [],
         profileCount: profilesRes.data?.length || 0,
+        closedProposals: (proposalsRes.data as any) || [],
       });
     } catch (e) {
       console.error("Error loading dashboard:", e);
