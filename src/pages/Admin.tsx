@@ -16,6 +16,7 @@ import TeamManager from "@/components/admin/TeamManager";
 import SubscriptionManager from "@/components/admin/SubscriptionManager";
 import AdminLeads from "@/components/admin/AdminLeads";
 import { useStoreData } from "@/hooks/useStoreData";
+import PendingLeadsAlert from "@/components/admin/PendingLeadsAlert";
 
 const Admin = () => {
   const [authLoading, setAuthLoading] = useState(true);
@@ -74,6 +75,7 @@ const Admin = () => {
             <SidebarTrigger />
           </header>
           <main className="flex-1 p-6 overflow-auto">
+            <PendingLeadsAlert />
             <Routes>
               <Route index element={<AdminDashboard />} />
               <Route path="gerar-proposta" element={<ManualProposal />} />

@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Loader2, Search, Users, TrendingUp, DollarSign, MapPin, Copy, Calendar, Filter, Download, Eye, Trash2, RefreshCw, Send } from "lucide-react";
+import { Loader2, Search, Users, TrendingUp, DollarSign, MapPin, Copy, Calendar, Filter, Download, Eye, Trash2, RefreshCw, Send, CheckCircle2, Bell } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -74,6 +74,8 @@ const MatrizLeads = () => {
   const [targetStoreId, setTargetStoreId] = useState("");
   const [distributing, setDistributing] = useState(false);
   const [updatingStatus, setUpdatingStatus] = useState<string | null>(null);
+  const [showSuccessDialog, setShowSuccessDialog] = useState(false);
+  const [successInfo, setSuccessInfo] = useState<{ count: number; storeName: string } | null>(null);
 
   const loadData = async () => {
     setLoading(true);
@@ -128,13 +130,16 @@ const MatrizLeads = () => {
     if (error) {
       toast.error("Erro ao distribuir leads");
     } else {
+      const storeName = stores.find(s => s.id === targetStoreId)?.name || "Lojista";
+      const count = selectedLeads.size;
+
       // Insert logs
       const logs = Array.from(selectedLeads).map(proposalId => ({
         proposal_id: proposalId,
         store_id: targetStoreId,
         action: "distributed",
         performed_by: user.id,
-        details: { count: selectedLeads.size },
+        details: { count },
       }));
       await (supabase as any).from("lead_logs").insert(logs);
 
@@ -145,24 +150,24 @@ const MatrizLeads = () => {
         .eq("store_id", targetStoreId);
 
       if (storeOwners?.length) {
-        const leadCount = selectedLeads.size;
         await Promise.all(
           storeOwners.map((owner) =>
             supabase.functions.invoke("notification-engine", {
               body: {
                 tipo: "lead_recebido",
                 userId: owner.id,
-                leadCount,
+                leadCount: count,
               },
             }).catch((err: any) => console.error("Push notification error:", err))
           )
         );
       }
 
-      toast.success(`${selectedLeads.size} lead(s) distribuído(s) com sucesso!`);
       setSelectedLeads(new Set());
       setShowDistributeDialog(false);
       setTargetStoreId("");
+      setSuccessInfo({ count, storeName });
+      setShowSuccessDialog(true);
       loadData();
     }
     setDistributing(false);
@@ -525,6 +530,36 @@ const MatrizLeads = () => {
             <Button variant="outline" onClick={() => setDeletingLead(null)}>Cancelar</Button>
             <Button variant="destructive" onClick={handleDelete}>Excluir</Button>
           </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Success Dialog */}
+      <Dialog open={showSuccessDialog} onOpenChange={setShowSuccessDialog}>
+        <DialogContent className="max-w-sm text-center">
+          <div className="flex flex-col items-center gap-4 py-4">
+            <div className="w-16 h-16 rounded-full bg-emerald-100 flex items-center justify-center">
+              <CheckCircle2 className="w-10 h-10 text-emerald-600" />
+            </div>
+            <DialogHeader className="text-center">
+              <DialogTitle className="text-xl">Leads Distribuídos!</DialogTitle>
+              <DialogDescription className="text-base mt-2">
+                {successInfo && (
+                  <>
+                    <span className="font-semibold text-foreground">{successInfo.count} lead{successInfo.count > 1 ? "s" : ""}</span>
+                    {" "}enviado{successInfo.count > 1 ? "s" : ""} para{" "}
+                    <span className="font-semibold text-foreground">{successInfo.storeName}</span>
+                  </>
+                )}
+              </DialogDescription>
+            </DialogHeader>
+            <div className="flex items-center gap-2 text-sm text-muted-foreground bg-muted/50 rounded-lg px-4 py-2">
+              <Bell className="w-4 h-4 text-primary" />
+              <span>Notificação push enviada ao lojista</span>
+            </div>
+            <Button onClick={() => setShowSuccessDialog(false)} className="w-full mt-2">
+              Fechar
+            </Button>
+          </div>
         </DialogContent>
       </Dialog>
     </div>
