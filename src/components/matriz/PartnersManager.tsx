@@ -308,6 +308,38 @@ const PartnersManager = () => {
                   <p className="text-xs text-muted-foreground">
                     {partner.active ? "Visível na página" : "Oculto"}
                   </p>
+                  <div className="mt-2 space-y-1">
+                    <div className="flex items-center gap-2">
+                      <Label className="text-xs w-20 shrink-0">Banner 1:</Label>
+                      <Input
+                        className="h-7 text-xs"
+                        placeholder="URL do banner lateral (postimages, etc)"
+                        defaultValue={partner.banner_1_url || ""}
+                        onBlur={async (e) => {
+                          const val = e.target.value.trim() || null;
+                          if (val !== partner.banner_1_url) {
+                            await supabase.from("partners").update({ banner_1_url: val }).eq("id", partner.id);
+                            setPartners(prev => prev.map(p => p.id === partner.id ? { ...p, banner_1_url: val } : p));
+                          }
+                        }}
+                      />
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Label className="text-xs w-20 shrink-0">Banner 2:</Label>
+                      <Input
+                        className="h-7 text-xs"
+                        placeholder="URL do banner rodapé (postimages, etc)"
+                        defaultValue={partner.banner_2_url || ""}
+                        onBlur={async (e) => {
+                          const val = e.target.value.trim() || null;
+                          if (val !== partner.banner_2_url) {
+                            await supabase.from("partners").update({ banner_2_url: val }).eq("id", partner.id);
+                            setPartners(prev => prev.map(p => p.id === partner.id ? { ...p, banner_2_url: val } : p));
+                          }
+                        }}
+                      />
+                    </div>
+                  </div>
                 </div>
 
                 <div>
