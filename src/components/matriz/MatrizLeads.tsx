@@ -227,6 +227,10 @@ const MatrizLeads = () => {
     }
     if (filterStatus !== "all" && l.status !== filterStatus) return false;
     if (filterCity !== "all" && l.customer_city !== filterCity) return false;
+    if (filterStore !== "all") {
+      const dist = distributionMap.get(l.id);
+      if (!dist || dist.stores?.name !== filterStore) return false;
+    }
     if (filterPeriod !== "all") {
       const diffDays = (now.getTime() - new Date(l.created_at).getTime()) / 86400000;
       if (filterPeriod === "7d" && diffDays > 7) return false;
