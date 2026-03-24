@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Loader2, Download, Search, FileText, Phone, MapPin, Calendar } from "lucide-react";
 import { toast } from "sonner";
-import html2pdf from "html2pdf.js";
+import { exportPDF } from "@/lib/exportPDF";
 
 interface Proposal {
   id: string;
