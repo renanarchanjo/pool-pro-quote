@@ -106,9 +106,9 @@ const MatrizLeads = () => {
     setDeletingLead(null);
   };
 
-  const handleWhatsApp = (lead: Lead) => {
-    const phone = lead.customer_whatsapp.replace(/\D/g, "");
-    window.open(`https://wa.me/55${phone}`, "_blank");
+  const handleCopyPhone = (lead: Lead) => {
+    navigator.clipboard.writeText(lead.customer_whatsapp);
+    toast.success("Número copiado!");
   };
 
   // Filters
