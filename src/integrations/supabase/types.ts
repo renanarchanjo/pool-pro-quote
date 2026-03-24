@@ -620,6 +620,51 @@ export type Database = {
           },
         ]
       }
+      proposal_notes: {
+        Row: {
+          author_id: string
+          content: string
+          created_at: string
+          id: string
+          note_type: string
+          proposal_id: string
+          store_id: string
+        }
+        Insert: {
+          author_id: string
+          content: string
+          created_at?: string
+          id?: string
+          note_type?: string
+          proposal_id: string
+          store_id: string
+        }
+        Update: {
+          author_id?: string
+          content?: string
+          created_at?: string
+          id?: string
+          note_type?: string
+          proposal_id?: string
+          store_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "proposal_notes_proposal_id_fkey"
+            columns: ["proposal_id"]
+            isOneToOne: false
+            referencedRelation: "proposals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "proposal_notes_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       proposals: {
         Row: {
           created_at: string | null
