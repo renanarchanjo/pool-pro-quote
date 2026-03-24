@@ -53,15 +53,22 @@ serve(async (req) => {
     let subscriptionEnd = null;
 
     // Collect all active product IDs
-    const activeProducts = subscriptions.data.map((sub) => ({
-      product_id: sub.items.data[0].price.product as string,
-      price_id: sub.items.data[0].price.id,
-      subscription_end: new Date(sub.current_period_end * 1000).toISOString(),
-    }));
+    const activeProducts = subscriptions.data.map((sub) => {
+      const endTs = sub.current_period_end;
+      const endDate = endTs ? new Date(endTs * 1000) : null;
+      const endIso = endDate && !isNaN(endDate.getTime()) ? endDate.toISOString() : null;
+      return {
+        product_id: sub.items.data[0].price.product as string,
+        price_id: sub.items.data[0].price.id,
+        subscription_end: endIso,
+      };
+    });
 
     if (hasActiveSub) {
       const subscription = subscriptions.data[0];
-      subscriptionEnd = new Date(subscription.current_period_end * 1000).toISOString();
+      const endTs = subscription.current_period_end;
+      const endDate = endTs ? new Date(endTs * 1000) : null;
+      subscriptionEnd = endDate && !isNaN(endDate.getTime()) ? endDate.toISOString() : null;
       productId = subscription.items.data[0].price.product;
       priceId = subscription.items.data[0].price.id;
     }
