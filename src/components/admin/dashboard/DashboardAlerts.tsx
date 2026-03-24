@@ -121,17 +121,6 @@ const DashboardAlerts = ({ proposals, onSelectProposal }: Props) => {
       renderValue: (p: Proposal) => `${daysSince(p.created_at)}d parada`,
     },
     {
-      title: "Maior Valor",
-      subtitle: `${formatCurrency(highValue.reduce((s, p) => s + p.total_price, 0))} em aberto`,
-      icon: DollarSign,
-      iconColor: "text-emerald-500",
-      iconBg: "bg-emerald-50",
-      items: highValue,
-      empty: "Sem propostas de alto valor",
-      emptyDesc: "Propostas acima do topo 20% aparecerão aqui.",
-      renderValue: (p: Proposal) => formatCurrency(p.total_price),
-    },
-    {
       title: "Prioridade de Fecho",
       subtitle: `${formatCurrency(bestOpportunities.reduce((s, p: any) => s + (p.expectedValue || 0), 0))} receita prevista`,
       icon: Flame,
