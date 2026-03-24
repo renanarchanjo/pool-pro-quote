@@ -190,7 +190,7 @@ const PoolSimulator = ({ onBack }: PoolSimulatorProps) => {
           model_id: selectedModel.id,
           selected_optionals: selectedOptionals,
           total_price: totalPrice,
-          store_id: null,
+          store_id: storeId,
         })
         .select()
         .single();
