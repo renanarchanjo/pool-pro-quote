@@ -18,7 +18,7 @@ const SiteHeader = () => {
       {/* Top utility bar for mobile touch area */}
       <div className="h-2 bg-primary/80 w-full" />
       
-      <nav className="sticky top-0 z-50 border-b border-border/30 bg-background/95 backdrop-blur-md">
+      <nav className="sticky top-0 z-50 border-b border-border/30 bg-white backdrop-blur-md">
         <div className="container mx-auto px-3 pt-6 pb-2 md:px-4 md:py-3 flex justify-between items-end">
           <Link to="/">
             <img src={logoHorizontal} alt="SIMULAPOOL" className="h-12 md:h-12 object-contain" />
