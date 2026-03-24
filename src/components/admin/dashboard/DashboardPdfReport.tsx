@@ -56,7 +56,7 @@ const DashboardPdfReport = ({ proposals, profileName, storeName }: Props) => {
 
   return (
     <div className="w-[1100px] bg-background text-foreground p-8 space-y-6">
-      <header className="border-b border-border pb-4">
+      <header className="border-b border-border pb-4" data-pdf-section>
         <div className="flex items-start justify-between gap-6">
           <div>
             <p className="text-sm text-muted-foreground">
@@ -75,7 +75,7 @@ const DashboardPdfReport = ({ proposals, profileName, storeName }: Props) => {
         </div>
       </header>
 
-      <section className="space-y-3" style={{ pageBreakInside: "avoid" }}>
+      <section className="space-y-3" style={{ pageBreakInside: "avoid" }} data-pdf-section>
         <div>
           <h2 className="text-lg font-semibold">Indicadores do mês</h2>
           <p className="text-sm text-muted-foreground">Resumo comercial do período atual</p>
@@ -114,7 +114,7 @@ const DashboardPdfReport = ({ proposals, profileName, storeName }: Props) => {
         </div>
       </section>
 
-      <section className="grid grid-cols-2 gap-4" style={{ pageBreakInside: "avoid" }}>
+      <section className="grid grid-cols-2 gap-4" style={{ pageBreakInside: "avoid" }} data-pdf-section>
         <div className="rounded-2xl border border-border bg-card p-5">
           <h2 className="text-lg font-semibold">Funil de vendas</h2>
           <div className="mt-4 space-y-3">
@@ -168,7 +168,7 @@ const DashboardPdfReport = ({ proposals, profileName, storeName }: Props) => {
         </div>
       </section>
 
-      <section className="rounded-2xl border border-border bg-card p-5">
+      <section className="rounded-2xl border border-border bg-card p-5" data-pdf-section>
         <div className="flex items-end justify-between gap-4 mb-4">
           <div>
             <h2 className="text-lg font-semibold">Pipeline resumido</h2>

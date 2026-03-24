@@ -106,6 +106,7 @@ const AdminDashboard = () => {
       filename: `relatorio-dashboard-${new Date().toISOString().split("T")[0]}.pdf`,
       orientation: "landscape",
       captureWidth: 1100,
+      sectionSelector: "[data-pdf-section]",
     });
   };
 
