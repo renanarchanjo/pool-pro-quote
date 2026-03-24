@@ -14,6 +14,7 @@ import DashboardKPIs from "./dashboard/DashboardKPIs";
 import DashboardFunnel from "./dashboard/DashboardFunnel";
 import DashboardAlerts from "./dashboard/DashboardAlerts";
 import DashboardPipeline from "./dashboard/DashboardPipeline";
+import PushNotificationButton from "./PushNotificationButton";
 
 const AdminDashboard = () => {
   const { profile, store, storeSettings } = useStoreData();
@@ -116,10 +117,13 @@ const AdminDashboard = () => {
           </p>
           <h1 className="text-2xl sm:text-3xl font-bold">Painel Comercial</h1>
         </div>
-        <Button onClick={handleExportPDF} variant="outline" size="sm" className="shrink-0 print:hidden">
-          <Download className="w-4 h-4 mr-2" />
-          Exportar PDF
-        </Button>
+        <div className="flex gap-2 print:hidden">
+          <PushNotificationButton />
+          <Button onClick={handleExportPDF} variant="outline" size="sm" className="shrink-0">
+            <Download className="w-4 h-4 mr-2" />
+            Exportar PDF
+          </Button>
+        </div>
       </div>
 
       {/* (A) KPIs */}

@@ -138,6 +138,20 @@ const MatrizLeads = () => {
       }));
       await (supabase as any).from("lead_logs").insert(logs);
 
+      // Trigger push notification for store owner
+      const { data: storeOwners } = await supabase
+        .from("profiles")
+        .select("id")
+        .eq("store_id", targetStoreId);
+
+      if (storeOwners?.length) {
+        for (const owner of storeOwners) {
+          supabase.functions.invoke("notification-engine", {
+            body: { tipo: "lead_recebido", userId: owner.id },
+          }).catch((err: any) => console.error("Push notification error:", err));
+        }
+      }
+
       toast.success(`${selectedLeads.size} lead(s) distribuído(s) com sucesso!`);
       setSelectedLeads(new Set());
       setShowDistributeDialog(false);

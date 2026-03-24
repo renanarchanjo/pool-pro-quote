@@ -250,6 +250,39 @@ export type Database = {
           },
         ]
       }
+      notification_logs: {
+        Row: {
+          alert_type: string
+          created_at: string
+          hash: string
+          id: string
+          message: string
+          priority: string
+          title: string
+          user_id: string
+        }
+        Insert: {
+          alert_type: string
+          created_at?: string
+          hash: string
+          id?: string
+          message: string
+          priority?: string
+          title: string
+          user_id: string
+        }
+        Update: {
+          alert_type?: string
+          created_at?: string
+          hash?: string
+          id?: string
+          message?: string
+          priority?: string
+          title?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       optional_groups: {
         Row: {
           active: boolean | null
@@ -640,6 +673,36 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      push_subscriptions: {
+        Row: {
+          created_at: string
+          enabled: boolean
+          id: string
+          onesignal_player_id: string | null
+          onesignal_subscription_id: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          enabled?: boolean
+          id?: string
+          onesignal_player_id?: string | null
+          onesignal_subscription_id?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          enabled?: boolean
+          id?: string
+          onesignal_player_id?: string | null
+          onesignal_subscription_id?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       store_settings: {
         Row: {
