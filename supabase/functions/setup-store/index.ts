@@ -12,17 +12,10 @@ serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
-  // Use service role to bypass RLS
   const supabaseAdmin = createClient(
     Deno.env.get("SUPABASE_URL") ?? "",
     Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
     { auth: { persistSession: false } }
-  );
-
-  // Also create a client with anon key to verify the user token
-  const supabaseAnon = createClient(
-    Deno.env.get("SUPABASE_URL") ?? "",
-    Deno.env.get("SUPABASE_ANON_KEY") ?? ""
   );
 
   try {
@@ -42,11 +35,21 @@ serve(async (req) => {
       throw new Error("Missing required fields: userId, storeName, slug");
     }
 
-    // Verify the user exists in auth
-    const { data: userData, error: userError } =
-      await supabaseAdmin.auth.admin.getUserById(userId);
-    if (userError || !userData.user) {
-      throw new Error("User not found");
+    console.log(`[SETUP-STORE] Starting for user ${userId}, store: ${storeName}`);
+
+    // Check if profile already exists (prevents duplicates on repeated signups)
+    const { data: existingProfile } = await supabaseAdmin
+      .from("profiles")
+      .select("id")
+      .eq("id", userId)
+      .maybeSingle();
+
+    if (existingProfile) {
+      console.log(`[SETUP-STORE] Profile already exists for user ${userId}`);
+      return new Response(
+        JSON.stringify({ success: true, message: "Store already configured" }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 200 }
+      );
     }
 
     // 1. Create store
@@ -67,6 +70,7 @@ serve(async (req) => {
       .single();
 
     if (storeError) throw new Error(`Store creation failed: ${storeError.message}`);
+    console.log(`[SETUP-STORE] Store created: ${storeData.id}`);
 
     // 2. Create profile
     const { error: profileError } = await supabaseAdmin
@@ -98,14 +102,11 @@ serve(async (req) => {
 
     if (settingsError) throw new Error(`Settings creation failed: ${settingsError.message}`);
 
-    console.log(`[SETUP-STORE] Store created for user ${userId}: ${storeData.id}`);
+    console.log(`[SETUP-STORE] Complete for user ${userId}`);
 
     return new Response(
       JSON.stringify({ success: true, storeId: storeData.id }),
-      {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-        status: 200,
-      }
+      { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 200 }
     );
   } catch (error) {
     const msg = error instanceof Error ? error.message : String(error);

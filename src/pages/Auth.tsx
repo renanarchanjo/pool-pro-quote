@@ -165,6 +165,11 @@ const Auth = () => {
         if (signUpError) throw signUpError;
         if (!authData.user) throw new Error("Erro ao criar usuário");
 
+        // Detect repeated signup (user already exists but unconfirmed)
+        if (authData.user.identities && authData.user.identities.length === 0) {
+          throw new Error("Este e-mail já está cadastrado. Verifique sua caixa de entrada ou faça login.");
+        }
+
         // Use edge function to create store (bypasses RLS when email not confirmed)
         const { data: storeResult, error: storeError } = await supabase.functions.invoke("setup-store", {
           body: {
