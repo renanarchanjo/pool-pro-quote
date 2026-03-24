@@ -568,6 +568,12 @@ const TeamManager = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+        </TabsContent>
+
+        <TabsContent value="performance" className="mt-4">
+          <TeamPerformance />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };
