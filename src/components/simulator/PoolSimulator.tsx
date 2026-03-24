@@ -194,7 +194,7 @@ const PoolSimulator = ({ onBack }: PoolSimulatorProps) => {
 
       const totalPrice = selectedModel.base_price + optionalsPrice + modelOptsPrice;
 
-      const { data: proposal, error } = await supabase
+      const { error } = await supabase
         .from("proposals")
         .insert({
           customer_name: data.name,
@@ -204,14 +204,11 @@ const PoolSimulator = ({ onBack }: PoolSimulatorProps) => {
           selected_optionals: selectedOptionals,
           total_price: totalPrice,
           store_id: targetStoreId,
-        })
-        .select()
-        .single();
+        });
 
       if (error) throw error;
 
       setCustomerData(data);
-      setProposalId(proposal.id);
       setStep(4);
       setShowCongrats(true);
       toast.success("Proposta gerada com sucesso!");
