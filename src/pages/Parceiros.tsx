@@ -1,15 +1,64 @@
 import { useState, useEffect } from "react";
-import { Loader2 } from "lucide-react";
+import { Loader2, Eye, FileText, BarChart3, Star, TrendingUp, Users, MapPin, MessageCircle, ArrowRight, CheckCircle2, Zap } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import SiteHeader from "@/components/landing/SiteHeader";
 import SiteFooter from "@/components/landing/SiteFooter";
 import { useForceLightTheme } from "@/hooks/useForceLightTheme";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
 
 interface Partner {
   id: string;
   name: string;
   logo_url: string | null;
 }
+
+const METRICS = [
+  { icon: FileText, value: "50.000+", label: "Orçamentos gerados/mês", accent: true },
+  { icon: Users, value: "800+", label: "Lojistas ativos" },
+  { icon: MapPin, value: "350+", label: "Cidades alcançadas" },
+  { icon: Eye, value: "2M+", label: "Impressões mensais em PDFs" },
+];
+
+const BENEFITS = [
+  {
+    icon: FileText,
+    title: "Sua marca em todo orçamento",
+    description: "Logo exibido em cada PDF gerado — milhares de propostas circulando via WhatsApp com sua marca em destaque.",
+  },
+  {
+    icon: Eye,
+    title: "Vitrine na plataforma",
+    description: "Destaque premium na landing page, página de parceiros e dentro do painel dos lojistas — visibilidade 24/7.",
+  },
+  {
+    icon: BarChart3,
+    title: "Relatórios de mercado exclusivos",
+    description: "Dados estratégicos mensais: cidades com mais demanda, modelos mais buscados, ticket médio e tendências do setor.",
+  },
+  {
+    icon: Star,
+    title: 'Selo "Recomendado SIMULAPOOL"',
+    description: "Use o selo oficial em seus materiais de marketing. Associe sua marca à plataforma líder do segmento.",
+  },
+  {
+    icon: TrendingUp,
+    title: "Prioridade no catálogo",
+    description: "Produtos e modelos da sua marca aparecem em destaque no simulador — diretamente na decisão de compra do consumidor.",
+  },
+  {
+    icon: Zap,
+    title: "CPM imbatível",
+    description: "Custo por impressão muito inferior à mídia tradicional. Alcance segmentado e qualificado no mercado de piscinas.",
+  },
+];
+
+const WHATSAPP_NUMBER = "5511999999999";
+const WHATSAPP_MESSAGE = encodeURIComponent(
+  "Olá! Tenho interesse em ser parceiro SIMULAPOOL. Gostaria de saber mais sobre os planos de parceria."
+);
 
 const Parceiros = () => {
   useForceLightTheme();
@@ -18,77 +67,276 @@ const Parceiros = () => {
 
   useEffect(() => {
     const fetchPartners = async () => {
-      const { data } = await supabase.
-      from("partners").
-      select("id, name, logo_url").
-      eq("active", true).
-      order("display_order", { ascending: true });
-
+      const { data } = await supabase
+        .from("partners")
+        .select("id, name, logo_url")
+        .eq("active", true)
+        .order("display_order", { ascending: true });
       setPartners(data || []);
       setLoading(false);
     };
     fetchPartners();
   }, []);
 
+  const handleCTA = () => {
+    window.open(
+      `https://wa.me/${WHATSAPP_NUMBER}?text=${WHATSAPP_MESSAGE}`,
+      "_blank"
+    );
+  };
+
   return (
-    <div className="min-h-screen bg-gradient-hero flex flex-col">
+    <div className="min-h-screen bg-background flex flex-col">
       <SiteHeader />
-      <main className="flex-1 container mx-auto px-4 py-20">
-        <div className="text-center mb-16">
-          <h1 className="text-4xl font-display font-extrabold mb-4 text-cyan-900 md:text-5xl">
-            Nossos Parceiros
-          </h1>
-          <p className="text-lg max-w-2xl mx-auto text-slate-950">
-            Trabalhamos com as maiores marcas do mercado de piscinas do Brasil
-          </p>
-        </div>
 
-        {loading ?
-        <div className="flex justify-center py-20">
-            <Loader2 className="w-8 h-8 animate-spin text-primary" />
-          </div> :
-        partners.length === 0 ?
-        <p className="text-center text-muted-foreground py-20">
-            Em breve nossos parceiros estarão aqui.
-          </p> :
+      {/* ── HERO ── */}
+      <section className="relative overflow-hidden pt-24 pb-20 md:pt-32 md:pb-28">
+        {/* Background decoration */}
+        <div className="absolute inset-0 bg-gradient-to-br from-sky-50 via-background to-cyan-50/30 pointer-events-none" />
+        <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-primary/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/4 pointer-events-none" />
+        <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-accent/5 rounded-full blur-3xl translate-y-1/2 -translate-x-1/4 pointer-events-none" />
 
-        <div className="flex flex-wrap justify-center gap-8 max-w-4xl mx-auto">
-            {partners.map((partner) =>
-          <div
-            key={partner.id}
-            className="backdrop-blur-sm border border-border/50 rounded-2xl p-8 flex flex-col items-center justify-center gap-4 hover:shadow-pool transition-all bg-cyan-50">
-            
-                <div className="w-28 h-28 flex items-center justify-center">
-                  {partner.logo_url ?
-              <img
-                src={partner.logo_url}
-                alt={partner.name}
-                className="max-w-full max-h-full object-contain" /> :
-
-
-              <span className="text-2xl font-display font-bold text-primary">
-                      {partner.name}
-                    </span>
-              }
-                </div>
-                <p className="text-sm font-semibold text-slate-950">{partner.name}</p>
-              </div>
-          )}
+        <div className="container mx-auto px-4 relative z-10">
+          <div className="max-w-4xl mx-auto text-center">
+            <Badge className="mb-6 px-4 py-1.5 text-sm font-semibold bg-primary/10 text-primary border-primary/20 hover:bg-primary/10">
+              Programa de Parceiros
+            </Badge>
+            <h1 className="text-4xl md:text-6xl font-display font-extrabold tracking-tight text-foreground mb-6 leading-[1.1]">
+              Sua marca no{" "}
+              <span className="text-primary">maior simulador</span>
+              <br />
+              de piscinas do Brasil
+            </h1>
+            <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-10 leading-relaxed">
+              Milhares de orçamentos circulam todos os meses pelo WhatsApp com a marca dos nossos parceiros. 
+              Esteja onde o lojista decide — e onde o consumidor compra.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Button
+                size="lg"
+                onClick={handleCTA}
+                className="gradient-primary text-white font-display font-bold text-lg px-8 py-6 shadow-pool"
+              >
+                <MessageCircle className="w-5 h-5 mr-2" />
+                Quero ser parceiro
+              </Button>
+              <Button
+                size="lg"
+                variant="outline"
+                onClick={() =>
+                  document.getElementById("beneficios")?.scrollIntoView({ behavior: "smooth" })
+                }
+                className="font-display font-semibold text-lg px-8 py-6"
+              >
+                Ver benefícios
+                <ArrowRight className="w-5 h-5 ml-2" />
+              </Button>
+            </div>
           </div>
-        }
 
-        <div className="text-center mt-16">
-          <p className="text-muted-foreground">
-            Quer ser um parceiro SIMULAPOOL?{" "}
-            <a href="mailto:simulapool@gmail.com" className="text-primary hover:underline font-semibold">
-              Entre em contato
-            </a>
-          </p>
+          {/* Metrics strip */}
+          <div className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto">
+            {METRICS.map((m, i) => (
+              <Card
+                key={i}
+                className={`p-5 text-center border-border/50 ${
+                  m.accent ? "bg-primary/5 border-primary/20" : "bg-card"
+                }`}
+              >
+                <m.icon className="w-6 h-6 mx-auto mb-2 text-primary" />
+                <div className="text-2xl md:text-3xl font-display font-extrabold text-foreground">
+                  {m.value}
+                </div>
+                <div className="text-xs md:text-sm text-muted-foreground mt-1">{m.label}</div>
+              </Card>
+            ))}
+          </div>
         </div>
-      </main>
-      <SiteFooter />
-    </div>);
+      </section>
 
+      {/* ── BENEFÍCIOS ── */}
+      <section id="beneficios" className="py-20 bg-muted/30">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-14">
+            <h2 className="text-3xl md:text-4xl font-display font-extrabold text-foreground mb-4">
+              Por que as marcas escolhem a SIMULAPOOL?
+            </h2>
+            <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
+              Exposição segmentada, dados estratégicos e presença onde a decisão de compra acontece.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
+            {BENEFITS.map((b, i) => (
+              <Card
+                key={i}
+                className="p-6 border-border/50 hover:shadow-pool hover:border-primary/20 transition-all group"
+              >
+                <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors">
+                  <b.icon className="w-6 h-6 text-primary" />
+                </div>
+                <h3 className="text-lg font-display font-bold text-foreground mb-2">{b.title}</h3>
+                <p className="text-sm text-muted-foreground leading-relaxed">{b.description}</p>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── O QUE ESTÁ INCLUSO ── */}
+      <section className="py-20">
+        <div className="container mx-auto px-4">
+          <div className="max-w-4xl mx-auto">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl md:text-4xl font-display font-extrabold text-foreground mb-4">
+                Tudo que o parceiro recebe
+              </h2>
+              <p className="text-muted-foreground text-lg">
+                Um investimento, múltiplos canais de exposição.
+              </p>
+            </div>
+
+            <Card className="p-8 md:p-10 border-primary/20 bg-gradient-to-br from-primary/[0.03] to-transparent">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-4">
+                {[
+                  "Logo em todos os orçamentos PDF gerados",
+                  "Destaque na página inicial da plataforma",
+                  "Página de parceiros com link para seu site",
+                  "Selo oficial 'Recomendado SIMULAPOOL'",
+                  "Relatório mensal de dados de mercado",
+                  "Prioridade de exibição no simulador",
+                  "Menções em campanhas de e-mail marketing",
+                  "Co-branding em materiais da plataforma",
+                  "Acesso a eventos exclusivos do setor",
+                  "Suporte dedicado e gestor de conta",
+                ].map((item, i) => (
+                  <div key={i} className="flex items-start gap-3 py-2">
+                    <CheckCircle2 className="w-5 h-5 text-primary mt-0.5 shrink-0" />
+                    <span className="text-sm md:text-base text-foreground">{item}</span>
+                  </div>
+                ))}
+              </div>
+
+              <Separator className="my-8" />
+
+              <div className="text-center">
+                <p className="text-muted-foreground text-sm mb-4">
+                  Planos a partir de
+                </p>
+                <div className="mb-6">
+                  <span className="text-5xl font-display font-extrabold text-foreground">R$ 5.000</span>
+                  <span className="text-muted-foreground text-lg">/mês</span>
+                </div>
+                <Button
+                  size="lg"
+                  onClick={handleCTA}
+                  className="gradient-primary text-white font-display font-bold text-lg px-10 py-6 shadow-pool"
+                >
+                  <MessageCircle className="w-5 h-5 mr-2" />
+                  Falar com comercial
+                </Button>
+                <p className="text-xs text-muted-foreground mt-3">
+                  Sem fidelidade · Cancele quando quiser
+                </p>
+              </div>
+            </Card>
+          </div>
+        </div>
+      </section>
+
+      {/* ── PARCEIROS ATUAIS (social proof) ── */}
+      <section className="py-20 bg-muted/30">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-display font-extrabold text-foreground mb-4">
+              Quem já faz parte
+            </h2>
+            <p className="text-muted-foreground text-lg">
+              Marcas que confiam na SIMULAPOOL para alcançar o mercado de piscinas.
+            </p>
+          </div>
+
+          {loading ? (
+            <div className="flex justify-center py-16">
+              <Loader2 className="w-8 h-8 animate-spin text-primary" />
+            </div>
+          ) : partners.length === 0 ? (
+            <div className="text-center py-16">
+              <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
+                <Star className="w-10 h-10 text-primary" />
+              </div>
+              <p className="text-muted-foreground text-lg font-medium">
+                Seja o primeiro parceiro oficial!
+              </p>
+              <p className="text-muted-foreground text-sm mt-2">
+                Garanta exclusividade de lançamento com condições especiais.
+              </p>
+            </div>
+          ) : (
+            <div className="flex flex-wrap justify-center gap-8 max-w-5xl mx-auto">
+              {partners.map((partner) => (
+                <Card
+                  key={partner.id}
+                  className="p-6 flex flex-col items-center justify-center gap-3 border-border/50 hover:shadow-pool hover:border-primary/20 transition-all min-w-[160px]"
+                >
+                  <div className="w-24 h-24 flex items-center justify-center">
+                    {partner.logo_url ? (
+                      <img
+                        src={partner.logo_url}
+                        alt={partner.name}
+                        className="max-w-full max-h-full object-contain"
+                      />
+                    ) : (
+                      <span className="text-xl font-display font-bold text-primary">
+                        {partner.name}
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-sm font-semibold text-foreground">{partner.name}</p>
+                </Card>
+              ))}
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* ── CTA FINAL ── */}
+      <section className="py-20">
+        <div className="container mx-auto px-4">
+          <Card className="max-w-3xl mx-auto p-10 md:p-14 text-center border-primary/20 bg-gradient-to-br from-primary/[0.05] to-accent/[0.03]">
+            <h2 className="text-3xl md:text-4xl font-display font-extrabold text-foreground mb-4">
+              Pronto para colocar sua marca
+              <br />
+              <span className="text-primary">onde o mercado decide?</span>
+            </h2>
+            <p className="text-muted-foreground text-lg max-w-xl mx-auto mb-8">
+              Entre em contato com nosso time comercial e descubra como a SIMULAPOOL pode impulsionar a presença da sua marca.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Button
+                size="lg"
+                onClick={handleCTA}
+                className="gradient-primary text-white font-display font-bold text-lg px-10 py-6 shadow-pool"
+              >
+                <MessageCircle className="w-5 h-5 mr-2" />
+                Conversar pelo WhatsApp
+              </Button>
+              <Button
+                size="lg"
+                variant="outline"
+                onClick={() => (window.location.href = "mailto:simulapool@gmail.com")}
+                className="font-display font-semibold text-lg px-10 py-6"
+              >
+                Enviar e-mail
+              </Button>
+            </div>
+          </Card>
+        </div>
+      </section>
+
+      <SiteFooter />
+    </div>
+  );
 };
 
 export default Parceiros;
