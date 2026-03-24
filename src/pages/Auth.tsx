@@ -224,7 +224,9 @@ const Auth = () => {
           toast.success("Loja criada com sucesso!");
           navigate("/admin", { replace: true });
         } else {
-          toast.success("Loja criada! Verifique seu e-mail para confirmar o cadastro.");
+          setPendingEmail(email);
+          setPendingConfirmation(true);
+          setResendCooldown(60);
         }
       }
     } catch (error: any) {
