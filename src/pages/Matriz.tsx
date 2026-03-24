@@ -57,6 +57,7 @@ const Matriz = () => {
       <div className="min-h-screen flex w-full bg-muted/30">
         <MatrizSidebar />
         <div className="flex-1 flex flex-col">
+          <div className="h-3 bg-primary md:hidden" />
           <header className="h-14 md:h-14 min-h-[3.5rem] flex items-center border-b border-border/50 bg-background px-4 mobile-matriz-header">
             <SidebarTrigger className="min-w-[56px] min-h-[56px] flex items-center justify-center [&>svg]:!w-8 [&>svg]:!h-8" />
             <span className="ml-3 text-sm font-medium text-muted-foreground">SIMULAPOOL Matriz</span>
