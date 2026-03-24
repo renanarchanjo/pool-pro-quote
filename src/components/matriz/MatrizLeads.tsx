@@ -101,9 +101,18 @@ const MatrizLeads = () => {
     return () => { supabase.removeChannel(channel); };
   }, []);
 
-  // Distribution map
+  // Distribution map - only active (pending/accepted) distributions count
   const distributionMap = new Map<string, Distribution>();
-  distributions.forEach((d: Distribution) => distributionMap.set(d.proposal_id, d));
+  const expiredDistributions = new Map<string, Distribution[]>();
+  distributions.forEach((d: Distribution) => {
+    if (d.status === 'expired') {
+      const existing = expiredDistributions.get(d.proposal_id) || [];
+      existing.push(d);
+      expiredDistributions.set(d.proposal_id, existing);
+    } else {
+      distributionMap.set(d.proposal_id, d);
+    }
+  });
 
   // --- Actions ---
   const handleDistribute = async () => {
