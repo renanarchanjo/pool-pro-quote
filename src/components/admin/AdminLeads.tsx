@@ -48,8 +48,13 @@ const AdminLeads = () => {
   const [leadSubActive, setLeadSubActive] = useState<boolean | null>(null);
   const [checkoutLoading, setCheckoutLoading] = useState(false);
 
-  // Check if lead plan subscription is paid
+  // Check if lead plan subscription is paid (or manually activated)
   useEffect(() => {
+    // If store already has lead_plan_active from DB, skip Stripe check
+    if (storeInfo?.lead_plan_active) {
+      setLeadSubActive(true);
+      return;
+    }
     const checkLeadSubscription = async () => {
       try {
         const { data, error } = await supabase.functions.invoke("check-subscription");
@@ -62,7 +67,7 @@ const AdminLeads = () => {
       }
     };
     checkLeadSubscription();
-  }, []);
+  }, [storeInfo]);
 
   const handleLeadCheckout = async () => {
     try {
