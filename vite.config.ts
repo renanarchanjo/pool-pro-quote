@@ -19,6 +19,32 @@ export default defineConfig(({ mode }) => ({
       workbox: {
         navigateFallbackDenylist: [/^\/~oauth/],
         globPatterns: ["**/*.{js,css,html,ico,png,svg,woff2}"],
+        // Skip waiting so the new SW activates immediately
+        skipWaiting: true,
+        clientsClaim: true,
+        // Don't cache-bust URLs with hashes (Vite already hashes filenames)
+        dontCacheBustURLsMatching: /\.[0-9a-f]{8}\./,
+        runtimeCaching: [
+          {
+            // Cache Google Fonts with stale-while-revalidate
+            urlPattern: /^https:\/\/fonts\.(googleapis|gstatic)\.com\/.*/i,
+            handler: "StaleWhileRevalidate",
+            options: {
+              cacheName: "google-fonts",
+              expiration: { maxEntries: 30, maxAgeSeconds: 60 * 60 * 24 * 365 },
+            },
+          },
+          {
+            // API calls: always network-first
+            urlPattern: /\/functions\/v1\//,
+            handler: "NetworkOnly",
+          },
+          {
+            // Supabase REST: always network-first
+            urlPattern: /\/rest\/v1\//,
+            handler: "NetworkOnly",
+          },
+        ],
       },
       manifest: {
         name: "SIMULAPOOL - Orçamentos de Piscinas",
