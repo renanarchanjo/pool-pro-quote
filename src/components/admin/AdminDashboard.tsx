@@ -108,20 +108,21 @@ const AdminDashboard = () => {
   }
 
   return (
-    <div className="space-y-6" ref={reportRef}>
+    <div className="space-y-4 md:space-y-6" ref={reportRef}>
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+      <div className="flex flex-col gap-3">
         <div>
           <p className="text-muted-foreground text-sm">
             Olá, <span className="font-bold text-foreground">{profile?.full_name || "Lojista"}</span>
           </p>
-          <h1 className="text-2xl sm:text-3xl font-bold">Painel Comercial</h1>
+          <h1 className="text-xl md:text-3xl font-bold">Painel Comercial</h1>
         </div>
         <div className="flex gap-2 print:hidden">
           <PushNotificationButton />
-          <Button onClick={handleExportPDF} variant="outline" size="sm" className="shrink-0">
+          <Button onClick={handleExportPDF} variant="outline" size="sm" className="shrink-0 min-h-[44px] md:min-h-0">
             <Download className="w-4 h-4 mr-2" />
-            Exportar PDF
+            <span className="hidden sm:inline">Exportar PDF</span>
+            <span className="sm:hidden">PDF</span>
           </Button>
         </div>
       </div>
