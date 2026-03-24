@@ -283,3 +283,11 @@
     }
   }
 }
+
+/* Matriz header - toque fácil no mobile */
+@media (max-width: 768px) {
+  .mobile-matriz-header {
+    height: 4.5rem;
+    min-height: 4.5rem;
+  }
+}
