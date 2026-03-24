@@ -9,7 +9,7 @@ import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { Loader2, Check, X, Crown, CreditCard, ExternalLink, Users, FileText, TrendingUp, Radio, XCircle, Settings } from "lucide-react";
+import { Loader2, Check, X, Crown, CreditCard, ExternalLink, Users, FileText, TrendingUp, Radio, XCircle, Settings, AlertTriangle } from "lucide-react";
 import { toast } from "sonner";
 
 const PLANS = [
