@@ -26,13 +26,11 @@ const DashboardAlerts = ({ proposals, onSelectProposal }: Props) => {
     .sort((a, b) => daysSince(b.created_at) - daysSince(a.created_at))
     .slice(0, 5);
 
-  const handleWhatsApp = (e: React.MouseEvent, p: Proposal) => {
+  const handleCopyPhone = (e: React.MouseEvent, p: Proposal) => {
     e.stopPropagation();
     const phone = p.customer_whatsapp.replace(/\D/g, "");
-    const msg = encodeURIComponent(
-      `Olá ${p.customer_name.split(" ")[0]}! Tudo bem? Vi que você demonstrou interesse em uma piscina. Gostaria de tirar alguma dúvida?`
-    );
-    window.open(`https://wa.me/55${phone}?text=${msg}`, "_blank");
+    navigator.clipboard.writeText(phone);
+    toast.success("Número copiado!");
   };
 
   const handleCall = (e: React.MouseEvent, p: Proposal) => {
