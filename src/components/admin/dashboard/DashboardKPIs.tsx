@@ -1,52 +1,35 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { TrendingUp, TrendingDown, DollarSign, Target, Receipt, BarChart3 } from "lucide-react";
 import { Proposal, ProposalStatus, STATUS_PROBABILITY, formatCurrency } from "./types";
-import { startOfMonth, subMonths, endOfMonth } from "date-fns";
 
 interface Props {
   proposals: Proposal[];
 }
 
 const DashboardKPIs = ({ proposals }: Props) => {
-  const now = new Date();
-  const monthStart = startOfMonth(now);
-  const lastMonthStart = startOfMonth(subMonths(now, 1));
-  const lastMonthEnd = endOfMonth(subMonths(now, 1));
+  // Use all proposals passed in (already date-filtered by parent)
+  const all = proposals;
 
-  const thisMonth = proposals.filter((p) => new Date(p.created_at) >= monthStart);
-  const lastMonth = proposals.filter(
-    (p) => new Date(p.created_at) >= lastMonthStart && new Date(p.created_at) <= lastMonthEnd
-  );
-
-  // Revenue closed this month
-  const revenueClosed = thisMonth
-    .filter((p) => p.status === "fechada")
-    .reduce((s, p) => s + p.total_price, 0);
-
-  const revenueClosedLast = lastMonth
+  // Revenue closed
+  const revenueClosed = all
     .filter((p) => p.status === "fechada")
     .reduce((s, p) => s + p.total_price, 0);
 
   // Predicted revenue (open proposals * probability)
-  const revenuePredicted = thisMonth
+  const revenuePredicted = all
     .filter((p) => p.status !== "fechada" && p.status !== "perdida")
     .reduce((s, p) => s + p.total_price * STATUS_PROBABILITY[p.status], 0);
 
-  // Conversion rate
-  const closedCount = thisMonth.filter((p) => p.status === "fechada").length;
-  const totalExclNew = thisMonth.filter((p) => p.status !== "nova").length;
-  const conversionRate = totalExclNew > 0 ? (closedCount / totalExclNew) * 100 : 0;
-
-  const closedCountLast = lastMonth.filter((p) => p.status === "fechada").length;
-  const totalExclNewLast = lastMonth.filter((p) => p.status !== "nova").length;
-  const conversionRateLast = totalExclNewLast > 0 ? (closedCountLast / totalExclNewLast) * 100 : 0;
+  // Conversion rate: closed / (all except "nova")
+  const closedCount = all.filter((p) => p.status === "fechada").length;
+  const totalWorked = all.filter((p) => p.status !== "nova").length;
+  const conversionRate = totalWorked > 0 ? (closedCount / totalWorked) * 100 : 0;
 
   // Ticket médio
   const ticketMedio = closedCount > 0 ? revenueClosed / closedCount : 0;
-  const ticketMedioLast = closedCountLast > 0 ? revenueClosedLast / closedCountLast : 0;
 
-  // Avg closing time (days)
-  const closedProposals = proposals.filter((p) => p.status === "fechada");
+  // Avg closing time (days) — only for closed proposals in the filtered set
+  const closedProposals = all.filter((p) => p.status === "fechada");
   const avgClosingDays = closedProposals.length > 0
     ? closedProposals.reduce((s, p) => {
         const days = Math.floor((Date.now() - new Date(p.created_at).getTime()) / (1000 * 60 * 60 * 24));
@@ -54,20 +37,18 @@ const DashboardKPIs = ({ proposals }: Props) => {
       }, 0) / closedProposals.length
     : 0;
 
-  // Loss rate this month
-  const lostCount = thisMonth.filter((p) => p.status === "perdida").length;
-  const lossRate = thisMonth.length > 0 ? (lostCount / thisMonth.length) * 100 : 0;
+  // Loss rate
+  const lostCount = all.filter((p) => p.status === "perdida").length;
+  const lossRate = all.length > 0 ? (lostCount / all.length) * 100 : 0;
 
-  const pctChange = (curr: number, prev: number) => {
-    if (prev === 0) return curr > 0 ? 100 : 0;
-    return ((curr - prev) / prev) * 100;
-  };
+  // Open proposals count for subtitle
+  const openCount = all.filter((p) => p.status !== "fechada" && p.status !== "perdida").length;
 
   const kpis = [
     {
       label: "Receita Fechada",
       value: formatCurrency(revenueClosed),
-      change: pctChange(revenueClosed, revenueClosedLast),
+      subtitle: closedCount > 0 ? `${closedCount} proposta${closedCount > 1 ? "s" : ""} fechada${closedCount > 1 ? "s" : ""}` : undefined,
       icon: DollarSign,
       iconBg: "bg-emerald-500/10",
       iconColor: "text-emerald-600",
@@ -75,7 +56,7 @@ const DashboardKPIs = ({ proposals }: Props) => {
     {
       label: "Receita Prevista",
       value: formatCurrency(revenuePredicted),
-      subtitle: "propostas em aberto",
+      subtitle: `${openCount} proposta${openCount !== 1 ? "s" : ""} em aberto`,
       icon: Target,
       iconBg: "bg-blue-500/10",
       iconColor: "text-blue-600",
@@ -83,7 +64,7 @@ const DashboardKPIs = ({ proposals }: Props) => {
     {
       label: "Taxa de Conversão",
       value: `${conversionRate.toFixed(1)}%`,
-      change: pctChange(conversionRate, conversionRateLast),
+      subtitle: totalWorked > 0 ? `${closedCount}/${totalWorked} trabalhadas` : undefined,
       icon: BarChart3,
       iconBg: "bg-primary/10",
       iconColor: "text-primary",
@@ -91,7 +72,7 @@ const DashboardKPIs = ({ proposals }: Props) => {
     {
       label: "Ticket Médio",
       value: formatCurrency(ticketMedio),
-      change: pctChange(ticketMedio, ticketMedioLast),
+      subtitle: closedCount > 0 ? `base: ${closedCount} venda${closedCount > 1 ? "s" : ""}` : undefined,
       icon: Receipt,
       iconBg: "bg-violet-500/10",
       iconColor: "text-violet-600",
@@ -112,12 +93,6 @@ const DashboardKPIs = ({ proposals }: Props) => {
                       {kpi.label}
                     </p>
                     <p className="text-base sm:text-2xl font-bold mt-0.5 md:mt-1 truncate">{kpi.value}</p>
-                    {kpi.change !== undefined && (
-                      <div className={`flex items-center gap-1 mt-0.5 md:mt-1 text-[10px] sm:text-xs font-medium ${kpi.change >= 0 ? "text-emerald-600" : "text-red-500"}`}>
-                        {kpi.change >= 0 ? <TrendingUp className="w-3 h-3 shrink-0" /> : <TrendingDown className="w-3 h-3 shrink-0" />}
-                        <span>{kpi.change >= 0 ? "+" : ""}{kpi.change.toFixed(1)}%</span>
-                      </div>
-                    )}
                     {kpi.subtitle && (
                       <p className="text-[10px] md:text-[11px] text-muted-foreground mt-0.5">{kpi.subtitle}</p>
                     )}
@@ -136,8 +111,8 @@ const DashboardKPIs = ({ proposals }: Props) => {
       <div className="grid grid-cols-3 gap-2 md:gap-3">
         <Card className="border-border/50">
           <CardContent className="p-2 md:p-3 text-center">
-            <p className="text-[10px] md:text-[11px] text-muted-foreground uppercase tracking-wider">Propostas/Mês</p>
-            <p className="text-lg md:text-xl font-bold mt-0.5">{thisMonth.length}</p>
+            <p className="text-[10px] md:text-[11px] text-muted-foreground uppercase tracking-wider">Propostas</p>
+            <p className="text-lg md:text-xl font-bold mt-0.5">{all.length}</p>
           </CardContent>
         </Card>
         <Card className="border-border/50">
