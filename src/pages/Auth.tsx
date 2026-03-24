@@ -82,7 +82,12 @@ const Auth = () => {
       toast.success("E-mail de confirmação reenviado! Verifique sua caixa de entrada e spam.");
       setResendCooldown(60);
     } catch (error: any) {
-      toast.error(error.message || "Erro ao reenviar e-mail");
+      if (error.message?.toLowerCase().includes("rate limit")) {
+        setResendCooldown(120);
+        toast.error("Você atingiu o limite de reenvio. Aguarde 2 minutos antes de tentar novamente.");
+      } else {
+        toast.error(error.message || "Erro ao reenviar e-mail");
+      }
     } finally {
       setResendLoading(false);
     }
