@@ -486,8 +486,8 @@ const MatrizDashboard = () => {
 
 /* ─── Sub-components ─── */
 
-function KPICard({ icon: Icon, label, value, iconBg, iconColor, valueColor }: {
-  icon: any; label: string; value: string; iconBg: string; iconColor: string; valueColor?: string;
+function KPICard({ icon: Icon, label, value, iconBg, iconColor, valueColor, subtitle }: {
+  icon: any; label: string; value: string; iconBg: string; iconColor: string; valueColor?: string; subtitle?: string;
 }) {
   return (
     <Card className="border-border/50">
@@ -496,6 +496,7 @@ function KPICard({ icon: Icon, label, value, iconBg, iconColor, valueColor }: {
           <div className="min-w-0 flex-1">
             <p className="text-[10px] sm:text-[11px] font-medium text-muted-foreground uppercase tracking-wider leading-tight">{label}</p>
             <p className={`text-lg sm:text-2xl font-bold mt-1 truncate ${valueColor || ""}`}>{value}</p>
+            {subtitle && <p className="text-[10px] text-muted-foreground mt-0.5">{subtitle}</p>}
           </div>
           <div className={`hidden sm:flex h-9 w-9 rounded-lg ${iconBg} items-center justify-center shrink-0`}>
             <Icon className={`h-4 w-4 ${iconColor}`} />
