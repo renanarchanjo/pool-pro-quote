@@ -41,6 +41,7 @@ const TeamManager = () => {
   const [submitting, setSubmitting] = useState(false);
   const [checkoutLoading, setCheckoutLoading] = useState(false);
   const [showForm, setShowForm] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const [showExtraDialog, setShowExtraDialog] = useState(false);
   const [extraQuantity, setExtraQuantity] = useState(1);
   const [editingRole, setEditingRole] = useState<string | null>(null);
