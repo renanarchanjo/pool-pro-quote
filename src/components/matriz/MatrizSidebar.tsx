@@ -29,6 +29,7 @@ const MatrizSidebar = () => {
     { title: "Dashboard Financeiro", url: "/matriz", icon: LayoutDashboard },
     { title: "Lojas Cadastradas", url: "/matriz/lojas", icon: Store },
     { title: "Pagamentos", url: "/matriz/pagamentos", icon: CreditCard },
+    { title: "Parceiros", url: "/matriz/parceiros", icon: Handshake },
   ];
 
   return (
