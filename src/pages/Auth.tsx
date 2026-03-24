@@ -173,6 +173,8 @@ const Auth = () => {
             cnpj: cnpjDigits,
             razao_social: razaoSocial,
             nome_fantasia: nomeFantasia,
+            plan_id: "08976d95-652c-4f59-926f-0080c335ea71",
+            plan_status: "active",
           })
           .select()
           .single();

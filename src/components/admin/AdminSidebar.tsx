@@ -52,8 +52,8 @@ const AdminSidebar = () => {
   const accountItems = [
     { title: "Meu Perfil", url: "/admin/perfil", icon: User },
     ...(isOwner ? [
-      { title: "Assinatura", url: "/admin/assinatura", icon: CreditCard },
       { title: "Equipe", url: "/admin/equipe", icon: UsersRound },
+      { title: "Assinatura", url: "/admin/assinatura", icon: CreditCard },
     ] : []),
   ];
 
