@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useStoreData } from "@/hooks/useStoreData";
 import { toast } from "sonner";
-import { Loader2, Plus, Minus, Trash2, UserPlus, Shield, Eye, EyeOff, Pencil, AlertTriangle, Users, CreditCard, ExternalLink } from "lucide-react";
+import { Loader2, Plus, Minus, Trash2, UserPlus, Shield, Eye, EyeOff, Pencil, AlertTriangle, Users, CreditCard, ExternalLink, Save, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -36,6 +36,7 @@ interface TeamMember {
   full_name: string | null;
   role: string;
   daily_lead_limit: number;
+  commission_percent: number;
 }
 
 const TeamManager = () => {
@@ -49,6 +50,10 @@ const TeamManager = () => {
   const [showExtraDialog, setShowExtraDialog] = useState(false);
   const [extraQuantity, setExtraQuantity] = useState(1);
   const [editingRole, setEditingRole] = useState<string | null>(null);
+  const [editingCommission, setEditingCommission] = useState<string | null>(null);
+  const [editCommissionPercent, setEditCommissionPercent] = useState("");
+  const [savingCommission, setSavingCommission] = useState(false);
+  const [commissionSettings, setCommissionSettings] = useState<any[]>([]);
   const [currentPlanSlug, setCurrentPlanSlug] = useState<string>("gratuito");
   const [formData, setFormData] = useState({
     email: "",
@@ -90,26 +95,36 @@ const TeamManager = () => {
   const loadMembers = async () => {
     if (!store) return;
     try {
-      const { data: profiles, error } = await (supabase as any)
+      const [profilesRes, commRes] = await Promise.all([
+        (supabase as any)
         .from("profiles")
         .select("id, full_name, daily_lead_limit")
-        .eq("store_id", store.id);
+        .eq("store_id", store.id),
+        (supabase as any)
+          .from("commission_settings")
+          .select("*")
+          .eq("store_id", store.id),
+      ]);
 
-      if (error) throw error;
+      if (profilesRes.error) throw profilesRes.error;
+      const commSettings = commRes.data || [];
+      setCommissionSettings(commSettings);
 
       const membersList: TeamMember[] = [];
-      for (const p of profiles || []) {
+      for (const p of profilesRes.data || []) {
         const { data: roleData } = await supabase
           .from("user_roles")
           .select("role")
           .eq("user_id", p.id)
           .single();
 
+        const cs = commSettings.find((c: any) => c.member_id === p.id);
         membersList.push({
           id: p.id,
           full_name: p.full_name,
           role: roleData?.role || "seller",
           daily_lead_limit: p.daily_lead_limit || 0,
+          commission_percent: cs ? cs.commission_percent : 0,
         });
       }
 
@@ -210,6 +225,34 @@ const TeamManager = () => {
       loadMembers();
     } catch (error) {
       toast.error("Erro ao remover membro");
+    }
+  };
+
+  const handleSaveCommission = async (memberId: string) => {
+    if (!store) return;
+    setSavingCommission(true);
+    try {
+      const percent = parseFloat(editCommissionPercent) || 0;
+      const existing = commissionSettings.find((s: any) => s.member_id === memberId);
+      if (existing) {
+        const { error } = await (supabase as any).from("commission_settings")
+          .update({ commission_percent: percent, updated_at: new Date().toISOString() })
+          .eq("id", existing.id);
+        if (error) throw error;
+      } else {
+        const { error } = await (supabase as any).from("commission_settings")
+          .insert({ store_id: store.id, member_id: memberId, commission_percent: percent });
+        if (error) throw error;
+      }
+      toast.success("Comissão atualizada");
+      setEditingCommission(null);
+      setMembers(prev => prev.map(m => m.id === memberId ? { ...m, commission_percent: percent } : m));
+      await loadMembers();
+    } catch (e: any) {
+      console.error(e);
+      toast.error("Erro ao salvar comissão");
+    } finally {
+      setSavingCommission(false);
     }
   };
 
@@ -508,6 +551,43 @@ const TeamManager = () => {
                         <SelectItem value="20">20 leads/dia</SelectItem>
                       </SelectContent>
                     </Select>
+                  </div>
+                </div>
+              )}
+              {/* Commission percent for sellers */}
+              {isSeller && !isCurrentUser && (
+                <div className="mt-3 pt-3 border-t border-border/50 flex items-center justify-between gap-3">
+                  <div className="text-sm text-muted-foreground">
+                    Comissão de venda:
+                  </div>
+                  <div className="flex items-center gap-2">
+                    {editingCommission === member.id ? (
+                      <div className="flex items-center gap-1">
+                        <Input
+                          type="number"
+                          step="0.5"
+                          min="0"
+                          max="100"
+                          value={editCommissionPercent}
+                          onChange={e => setEditCommissionPercent(e.target.value)}
+                          className="h-8 w-20 text-xs px-2"
+                        />
+                        <span className="text-xs text-muted-foreground">%</span>
+                        <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => handleSaveCommission(member.id)} disabled={savingCommission}>
+                          <Save className="w-4 h-4 text-emerald-600" />
+                        </Button>
+                        <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => setEditingCommission(null)}>
+                          <X className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    ) : (
+                      <div className="flex items-center gap-1">
+                        <span className="text-sm font-medium">{member.commission_percent}%</span>
+                        <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => { setEditingCommission(member.id); setEditCommissionPercent(String(member.commission_percent)); }}>
+                          <Pencil className="w-3.5 h-3.5 text-muted-foreground" />
+                        </Button>
+                      </div>
+                    )}
                   </div>
                 </div>
               )}
