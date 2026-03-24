@@ -259,9 +259,9 @@ const AdminLeads = () => {
 
       {/* Bulk Actions Bar */}
       {selectedIds.size > 0 && (
-        <div className="flex items-center gap-3 bg-primary/5 border border-primary/20 rounded-lg p-3 animate-fade-in">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-3 bg-primary/5 border border-primary/20 rounded-lg p-3 animate-fade-in">
           <span className="text-sm font-medium">{selectedIds.size} lead(s) selecionado(s)</span>
-          <div className="flex gap-2 ml-auto">
+          <div className="flex gap-2 sm:ml-auto w-full sm:w-auto">
             <Button
               size="sm"
               className="h-8 text-xs bg-emerald-600 hover:bg-emerald-700 text-white"
