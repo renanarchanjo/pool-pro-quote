@@ -31,6 +31,7 @@ const MatrizSidebar = () => {
     { title: "Pagamentos", url: "/matriz/pagamentos", icon: CreditCard },
     { title: "Parceiros", url: "/matriz/parceiros", icon: Handshake },
     { title: "Leads", url: "/matriz/leads", icon: Users },
+    { title: "Planos e Preços", url: "/matriz/planos", icon: Settings },
   ];
 
   return (
