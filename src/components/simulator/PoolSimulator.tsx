@@ -270,20 +270,28 @@ const PoolSimulator = ({ onBack }: PoolSimulatorProps) => {
             </DialogClose>
           </DialogContent>
         </Dialog>
-        <ProposalView
-          model={selectedModel}
-          selectedOptionals={[
-            ...optionals.filter(opt => selectedOptionals.includes(opt.id)),
-            ...modelOptionals.filter((opt: any) => selectedOptionals.includes(opt.id)).map((o: any) => ({ name: o.name, price: o.price })),
-          ]}
-          customerData={customerData}
-          category="Piscina de Fibra"
-          onBack={handleRestart}
-          storeSettings={storeSettings}
-          storeName={selectedStoreName !== "Todas as lojas" ? selectedStoreName : undefined}
-          storeCity={storeCity}
-          storeState={storeState}
-        />
+        {(() => {
+          const cat = categories.find(c => c.id === selectedModel.category_id);
+          const brand = cat?.brand_id ? brands.find(b => b.id === cat.brand_id) : null;
+          return (
+            <ProposalView
+              model={selectedModel}
+              selectedOptionals={[
+                ...optionals.filter(opt => selectedOptionals.includes(opt.id)),
+                ...modelOptionals.filter((opt: any) => selectedOptionals.includes(opt.id)).map((o: any) => ({ name: o.name, price: o.price })),
+              ]}
+              customerData={customerData}
+              category="Piscina de Fibra"
+              onBack={handleRestart}
+              storeSettings={storeSettings}
+              storeName={selectedStoreName !== "Todas as lojas" ? selectedStoreName : undefined}
+              storeCity={storeCity}
+              storeState={storeState}
+              brandLogoUrl={brand?.logo_url}
+              partners={partners}
+            />
+          );
+        })()}
       </>
     );
   }
