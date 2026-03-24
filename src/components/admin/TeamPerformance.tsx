@@ -84,6 +84,7 @@ const TeamPerformance = () => {
     return { from: r.from, to: r.to };
   });
   const [calendarOpen, setCalendarOpen] = useState(false);
+  const reportRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (store) loadData();
