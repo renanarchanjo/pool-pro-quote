@@ -49,6 +49,13 @@ interface Optional {
 interface Brand {
   id: string;
   name: string;
+  logo_url?: string | null;
+}
+
+interface Partner {
+  id: string;
+  name: string;
+  logo_url: string | null;
 }
 
 interface Category {
