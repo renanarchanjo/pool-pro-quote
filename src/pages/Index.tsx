@@ -1,16 +1,27 @@
-import { useState } from "react";
-import { ChevronRight, Sparkles } from "lucide-react";
+import { lazy, Suspense, useState } from "react";
+import { ChevronRight, Loader2, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import PoolSimulator from "@/components/simulator/PoolSimulator";
 import SiteHeader from "@/components/landing/SiteHeader";
 import SiteFooter from "@/components/landing/SiteFooter";
 import heroPattern from "@/assets/hero-pattern.png";
+
+const PoolSimulator = lazy(() => import("@/components/simulator/PoolSimulator"));
+
+const SimulatorLoader = () => (
+  <div className="min-h-screen flex items-center justify-center bg-gradient-hero">
+    <Loader2 className="w-8 h-8 animate-spin text-primary" />
+  </div>
+);
 
 const Index = () => {
   const [showSimulator, setShowSimulator] = useState(false);
 
   if (showSimulator) {
-    return <PoolSimulator onBack={() => setShowSimulator(false)} />;
+    return (
+      <Suspense fallback={<SimulatorLoader />}>
+        <PoolSimulator onBack={() => setShowSimulator(false)} />
+      </Suspense>
+    );
   }
 
   return (
