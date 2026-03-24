@@ -115,7 +115,8 @@ const AdminSidebar = () => {
 
       <SidebarContent>
         {renderGroup("PAINEL COMERCIAL", mainItems)}
-         {renderGroup("CADASTRO", catalogItems)}
+        {renderGroup("CADASTRO", catalogItems)}
+        {renderGroup("MINHA CONTA", sellerItems)}
         {renderGroup("CONTA", accountItems)}
       </SidebarContent>
 
