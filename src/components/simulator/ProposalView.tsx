@@ -33,6 +33,8 @@ interface Partner {
   id: string;
   name: string;
   logo_url: string | null;
+  banner_1_url: string | null;
+  banner_2_url: string | null;
 }
 
 interface ProposalViewProps {
@@ -51,6 +53,7 @@ interface ProposalViewProps {
   storeCity?: string | null;
   storeState?: string | null;
   brandLogoUrl?: string | null;
+  brandName?: string | null;
   partners?: Partner[];
 }
 
@@ -66,6 +69,7 @@ const ProposalView = ({
   storeCity,
   storeState,
   brandLogoUrl,
+  brandName,
   partners = [],
 }: ProposalViewProps) => {
   const hasAutoDownloaded = useRef(false);
@@ -78,6 +82,13 @@ const ProposalView = ({
 
   const fmt = (v: number) => `R$ ${v.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`;
 
+  // Banner logic: if brand matches a partner name, show only that partner's banners; else show all
+  const matchedPartner = brandName
+    ? partners.find(p => p.name.toLowerCase().trim() === brandName.toLowerCase().trim())
+    : null;
+  const bannersToShow = matchedPartner ? [matchedPartner] : partners;
+  const banner1Urls = bannersToShow.filter(p => p.banner_1_url).map(p => ({ url: p.banner_1_url!, name: p.name }));
+  const banner2Urls = bannersToShow.filter(p => p.banner_2_url).map(p => ({ url: p.banner_2_url!, name: p.name }));
   // Removed WhatsApp and email send functions - lead only gets PDF download and view
 
   const handleDownloadPDF = async () => {
@@ -244,25 +255,42 @@ const ProposalView = ({
               </div>
             </div>
 
-            {/* ===== CLIENTE ===== */}
-            <div style={sectionStyle}>
-              <div style={sectionHeaderStyle}>Cliente</div>
-              <div style={sectionBodyStyle}>
-                <table style={{ width: "100%", fontSize: "13px", borderCollapse: "collapse" }}>
-                  <tbody>
-                    {[
-                      ["Nome", customerData.name],
-                      ["WhatsApp", customerData.whatsapp],
-                      ["Cidade / UF", customerData.city],
-                    ].map(([label, value], i) => (
-                      <tr key={i} style={{ borderBottom: i < 2 ? "1px solid #f3f4f6" : "none" }}>
-                        <td style={{ fontWeight: 700, color: "#374151", padding: "8px 16px 8px 0", width: "140px" }}>{label}</td>
-                        <td style={{ padding: "8px 0", color: "#111827" }}>{value}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+            {/* ===== CLIENTE + BANNER LATERAL ===== */}
+            <div style={{ display: "flex", gap: "16px", marginBottom: "16px" }}>
+              <div style={{ ...sectionStyle, flex: 1, marginBottom: 0 }}>
+                <div style={sectionHeaderStyle}>Cliente</div>
+                <div style={sectionBodyStyle}>
+                  <table style={{ width: "100%", fontSize: "13px", borderCollapse: "collapse" }}>
+                    <tbody>
+                      {[
+                        ["Nome", customerData.name],
+                        ["WhatsApp", customerData.whatsapp],
+                        ["Cidade / UF", customerData.city],
+                      ].map(([label, value], i) => (
+                        <tr key={i} style={{ borderBottom: i < 2 ? "1px solid #f3f4f6" : "none" }}>
+                          <td style={{ fontWeight: 700, color: "#374151", padding: "8px 16px 8px 0", width: "140px" }}>{label}</td>
+                          <td style={{ padding: "8px 0", color: "#111827" }}>{value}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               </div>
+
+              {/* Banner lateral (banner_1) */}
+              {banner1Urls.length > 0 && (
+                <div style={{ width: "200px", flexShrink: 0, display: "flex", flexDirection: "column", gap: "8px", justifyContent: "center" }}>
+                  {banner1Urls.map((b, i) => (
+                    <img
+                      key={i}
+                      src={b.url}
+                      alt={`Banner ${b.name}`}
+                      style={{ width: "100%", height: "auto", borderRadius: "8px", objectFit: "contain" }}
+                      crossOrigin="anonymous"
+                    />
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* ===== PISCINA ===== */}
@@ -405,6 +433,21 @@ const ProposalView = ({
                 </table>
               </div>
             </div>
+
+            {/* ===== BANNER RODAPÉ (banner_2) ===== */}
+            {banner2Urls.length > 0 && (
+              <div style={{ marginTop: "24px", display: "flex", flexWrap: "wrap", justifyContent: "center", alignItems: "center", gap: "16px" }}>
+                {banner2Urls.map((b, i) => (
+                  <img
+                    key={i}
+                    src={b.url}
+                    alt={`Banner ${b.name}`}
+                    style={{ maxWidth: "100%", maxHeight: "120px", borderRadius: "8px", objectFit: "contain" }}
+                    crossOrigin="anonymous"
+                  />
+                ))}
+              </div>
+            )}
 
             {/* ===== PARCEIROS ===== */}
             {partners.length > 0 && (
