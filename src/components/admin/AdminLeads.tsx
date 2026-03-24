@@ -222,30 +222,30 @@ const AdminLeads = () => {
       <h1 className="text-xl md:text-2xl font-bold">Meus Leads</h1>
 
       {/* KPIs */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 gap-2 md:gap-4">
         <Card>
-          <CardContent className="pt-4 pb-3">
-            <p className="text-xs text-muted-foreground mb-1">Leads Recebidos</p>
-            <p className="text-2xl font-bold">{leads.length}</p>
-            <p className="text-xs text-muted-foreground">{pendingLeads.length} pendentes</p>
+          <CardContent className="pt-3 pb-2 md:pt-4 md:pb-3 px-3 md:px-6">
+            <p className="text-[11px] md:text-xs text-muted-foreground mb-0.5">Leads Recebidos</p>
+            <p className="text-xl md:text-2xl font-bold">{leads.length}</p>
+            <p className="text-[10px] md:text-xs text-muted-foreground">{pendingLeads.length} pendentes</p>
           </CardContent>
         </Card>
         <Card>
-          <CardContent className="pt-4 pb-3">
-            <p className="text-xs text-muted-foreground mb-1">Aceitos este mês</p>
-            <p className="text-2xl font-bold">{consumed} <span className="text-sm text-muted-foreground font-normal">/ {limit}</span></p>
+          <CardContent className="pt-3 pb-2 md:pt-4 md:pb-3 px-3 md:px-6">
+            <p className="text-[11px] md:text-xs text-muted-foreground mb-0.5">Aceitos este mês</p>
+            <p className="text-xl md:text-2xl font-bold">{consumed} <span className="text-xs md:text-sm text-muted-foreground font-normal">/ {limit}</span></p>
           </CardContent>
         </Card>
         <Card className={excess > 0 ? "border-amber-500/50" : ""}>
-          <CardContent className="pt-4 pb-3">
-            <p className="text-xs text-muted-foreground mb-1">Excedentes</p>
-            <p className={`text-2xl font-bold ${excess > 0 ? "text-amber-600" : ""}`}>{excess}</p>
+          <CardContent className="pt-3 pb-2 md:pt-4 md:pb-3 px-3 md:px-6">
+            <p className="text-[11px] md:text-xs text-muted-foreground mb-0.5">Excedentes</p>
+            <p className={`text-xl md:text-2xl font-bold ${excess > 0 ? "text-amber-600" : ""}`}>{excess}</p>
           </CardContent>
         </Card>
         <Card>
-          <CardContent className="pt-4 pb-3">
-            <p className="text-xs text-muted-foreground mb-1">Custo Adicional Previsto</p>
-            <p className={`text-2xl font-bold ${excess > 0 ? "text-red-600" : ""}`}>{formatCurrency(excess * excessPrice)}</p>
+          <CardContent className="pt-3 pb-2 md:pt-4 md:pb-3 px-3 md:px-6">
+            <p className="text-[11px] md:text-xs text-muted-foreground mb-0.5">Custo Adicional</p>
+            <p className={`text-xl md:text-2xl font-bold ${excess > 0 ? "text-red-600" : ""}`}>{formatCurrency(excess * excessPrice)}</p>
           </CardContent>
         </Card>
       </div>
