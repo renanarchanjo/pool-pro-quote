@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { useStoreData } from "@/hooks/useStoreData";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { Loader2, Check, X, Crown, CreditCard, ExternalLink, Users, FileText, TrendingUp } from "lucide-react";
+import { Loader2, Check, X, Crown, CreditCard, ExternalLink, Users, FileText, TrendingUp, Radio } from "lucide-react";
 import { toast } from "sonner";
 
 const PLANS = [
@@ -71,10 +72,18 @@ const PLANS = [
   },
 ];
 
+const LEAD_PLAN = {
+  priceId: "price_1TELsVD4inSHTJNLmue5gkTP",
+  productId: "prod_UClPPxnoSh7tlx",
+  price: "R$ 997,00",
+};
+
 const SubscriptionManager = () => {
+  const { store } = useStoreData();
   const [loading, setLoading] = useState(true);
   const [checkoutLoading, setCheckoutLoading] = useState<string | null>(null);
   const [portalLoading, setPortalLoading] = useState(false);
+  const [leadPlanActive, setLeadPlanActive] = useState(false);
   const [subscription, setSubscription] = useState<{
     subscribed: boolean;
     product_id: string | null;
@@ -85,6 +94,19 @@ const SubscriptionManager = () => {
   useEffect(() => {
     checkSubscription();
   }, []);
+
+  useEffect(() => {
+    if (store) {
+      supabase
+        .from("stores")
+        .select("lead_plan_active")
+        .eq("id", store.id)
+        .single()
+        .then(({ data }) => {
+          setLeadPlanActive(!!data?.lead_plan_active);
+        });
+    }
+  }, [store]);
 
   const checkSubscription = async () => {
     try {
@@ -293,6 +315,77 @@ const SubscriptionManager = () => {
           </Card>
         </div>
       </div>
+
+      {/* ── Plano Gestão de Leads ── */}
+      {leadPlanActive && (
+        <>
+          <Separator />
+          <div>
+            <h2 className="text-lg font-semibold flex items-center gap-2 mb-4">
+              <Radio className="w-5 h-5 text-primary" />
+              Gestão de Leads
+            </h2>
+            <Card className="p-6 border-primary/30 bg-primary/5">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div>
+                  <h3 className="font-bold text-lg">Plano de Captação de Leads</h3>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    Receba leads qualificados captados pelo simulador da plataforma, distribuídos diretamente para sua loja.
+                  </p>
+                  <ul className="mt-3 space-y-1.5 text-sm">
+                    <li className="flex items-center gap-2">
+                      <Check className="w-4 h-4 text-green-500 shrink-0" />
+                      Leads qualificados da sua região
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <Check className="w-4 h-4 text-green-500 shrink-0" />
+                      Dados completos do cliente (nome, cidade, WhatsApp)
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <Check className="w-4 h-4 text-green-500 shrink-0" />
+                      Modelo e orçamento já configurados
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <Check className="w-4 h-4 text-green-500 shrink-0" />
+                      Distribuição exclusiva por cidade
+                    </li>
+                  </ul>
+                </div>
+                <div className="text-center sm:text-right shrink-0">
+                  <div className="mb-3">
+                    <span className="text-3xl font-bold">{LEAD_PLAN.price}</span>
+                    <span className="text-sm text-muted-foreground">/mês</span>
+                  </div>
+                  {subscription?.product_id === LEAD_PLAN.productId ? (
+                    <div className="space-y-2">
+                      <Badge className="bg-emerald-500 text-white">
+                        <Crown className="w-3 h-3 mr-1" /> Ativo
+                      </Badge>
+                      <Button variant="outline" size="sm" onClick={handleManageSubscription} disabled={portalLoading} className="w-full">
+                        {portalLoading ? <Loader2 className="w-4 h-4 animate-spin mr-1" /> : <CreditCard className="w-4 h-4 mr-1" />}
+                        Gerenciar
+                      </Button>
+                    </div>
+                  ) : (
+                    <Button
+                      onClick={() => handleCheckout(LEAD_PLAN.priceId)}
+                      disabled={!!checkoutLoading}
+                      className="gradient-primary text-white"
+                    >
+                      {checkoutLoading === LEAD_PLAN.priceId ? (
+                        <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                      ) : (
+                        <ExternalLink className="w-4 h-4 mr-2" />
+                      )}
+                      Assinar Plano de Leads
+                    </Button>
+                  )}
+                </div>
+              </div>
+            </Card>
+          </div>
+        </>
+      )}
     </div>
   );
 };

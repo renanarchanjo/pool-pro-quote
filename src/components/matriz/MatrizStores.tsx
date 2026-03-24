@@ -5,7 +5,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Loader2, Search, Pencil, Trash2, Save, X, Store } from "lucide-react";
+import { Loader2, Search, Pencil, Trash2, Save, X, Store, Radio } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter,
@@ -28,6 +29,7 @@ interface StoreRow {
   plan_status: string | null;
   plan_started_at: string | null;
   created_at: string | null;
+  lead_plan_active: boolean | null;
   subscription_plans: { name: string; price_monthly: number; slug: string } | null;
 }
 
@@ -62,9 +64,9 @@ const MatrizStores = () => {
   }, []);
 
   const loadStores = async () => {
-    const { data } = await supabase
+    const { data } = await (supabase
       .from("stores")
-      .select("*, subscription_plans(name, price_monthly, slug)")
+      .select("*, subscription_plans(name, price_monthly, slug)") as any)
       .order("created_at", { ascending: false });
 
     setStores((data as any) || []);
@@ -146,6 +148,20 @@ const MatrizStores = () => {
       toast.error("Erro ao excluir: " + (err.message || "Tente novamente"));
     } finally {
       setDeleting(false);
+    }
+  };
+
+  const handleToggleLeadPlan = async (storeId: string, active: boolean) => {
+    try {
+      const { error } = await supabase
+        .from("stores")
+        .update({ lead_plan_active: active })
+        .eq("id", storeId);
+      if (error) throw error;
+      toast.success(active ? "Distribuição de leads habilitada!" : "Distribuição de leads desabilitada");
+      loadStores();
+    } catch (err: any) {
+      toast.error("Erro ao alterar: " + (err.message || "Tente novamente"));
     }
   };
 
@@ -239,7 +255,16 @@ const MatrizStores = () => {
                 </p>
               </div>
 
-              <div className="flex items-center gap-1 shrink-0">
+              <div className="flex items-center gap-2 shrink-0">
+                <div className="flex items-center gap-1.5 mr-2" title="Habilitar distribuição de leads">
+                  <Radio className="w-3.5 h-3.5 text-muted-foreground" />
+                  <Switch
+                    checked={!!store.lead_plan_active}
+                    onCheckedChange={(checked) => handleToggleLeadPlan(store.id, checked)}
+                    className="data-[state=checked]:bg-emerald-500"
+                  />
+                  <span className="text-xs text-muted-foreground hidden lg:inline">Leads</span>
+                </div>
                 <Button variant="ghost" size="icon" onClick={() => openEdit(store)} title="Editar">
                   <Pencil className="w-4 h-4" />
                 </Button>
