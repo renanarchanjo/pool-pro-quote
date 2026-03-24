@@ -5,7 +5,7 @@ const SiteFooter = () => {
         <p className="font-display">
           <strong className="text-foreground">SIMULAPOOL</strong> — Orçamentos de piscinas de fibra em segundos
         </p>
-        <p className="mt-2">© 2025 SIMULAPOOL. Todos os direitos reservados.</p>
+        <p className="mt-2">© 2026 SIMULAPOOL. Todos os direitos reservados.</p>
       </div>
     </footer>
   );
