@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { MapPin, Loader2, Navigation, ChevronRight } from "lucide-react";
+import { MapPin, Loader2, Navigation, ChevronRight, Locate } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -13,12 +13,28 @@ interface Store {
   name: string;
   state: string | null;
   city: string | null;
+  latitude?: number | null;
+  longitude?: number | null;
+  distance?: number;
 }
 
 interface LocationStepProps {
   onSelectStore: (store: Store) => void;
   onBack: () => void;
   onSkip?: () => void;
+}
+
+function haversineDistance(lat1: number, lon1: number, lat2: number, lon2: number): number {
+  const R = 6371;
+  const dLat = ((lat2 - lat1) * Math.PI) / 180;
+  const dLon = ((lon2 - lon1) * Math.PI) / 180;
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos((lat1 * Math.PI) / 180) *
+      Math.cos((lat2 * Math.PI) / 180) *
+      Math.sin(dLon / 2) *
+      Math.sin(dLon / 2);
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 }
 
 const LocationStep = ({ onSelectStore, onBack, onSkip }: LocationStepProps) => {
@@ -28,6 +44,7 @@ const LocationStep = ({ onSelectStore, onBack, onSkip }: LocationStepProps) => {
   const [stores, setStores] = useState<Store[]>([]);
   const [loadingStores, setLoadingStores] = useState(false);
   const [searched, setSearched] = useState(false);
+  const [radiusSearch, setRadiusSearch] = useState(false);
 
   useEffect(() => {
     detectLocation();
@@ -40,34 +57,69 @@ const LocationStep = ({ onSelectStore, onBack, onSkip }: LocationStepProps) => {
     }
   }, [location]);
 
+  // Auto-search by city when state+city are set
   useEffect(() => {
-    if (state) {
-      searchStores();
+    if (state && city) {
+      searchStoresByCity();
+    } else if (state && !city) {
+      setStores([]);
+      setSearched(false);
     }
   }, [state, city]);
 
-  const searchStores = async () => {
+  const searchStoresByCity = async () => {
     setLoadingStores(true);
     setSearched(true);
+    setRadiusSearch(false);
     try {
-      let query = supabase
+      const { data, error } = await supabase
         .from("stores")
-        .select("id, name, state, city")
-        .eq("state", state);
+        .select("id, name, state, city, latitude, longitude")
+        .eq("state", state)
+        .ilike("city", city.trim());
 
-      const { data, error } = await query;
       if (error) throw error;
-
-      // Sort: same city first, then others in the state
-      const sorted = (data || []).sort((a, b) => {
-        const aMatch = a.city?.toLowerCase() === city.toLowerCase() ? 0 : 1;
-        const bMatch = b.city?.toLowerCase() === city.toLowerCase() ? 0 : 1;
-        return aMatch - bMatch || (a.name || "").localeCompare(b.name || "");
-      });
-
-      setStores(sorted);
+      setStores((data as Store[]) || []);
     } catch (err) {
       console.error("Error searching stores:", err);
+      setStores([]);
+    } finally {
+      setLoadingStores(false);
+    }
+  };
+
+  const searchStoresNearby = async () => {
+    if (!location) {
+      const loc = await detectLocation();
+      if (!loc) return;
+    }
+
+    const userLat = location?.latitude;
+    const userLon = location?.longitude;
+    if (!userLat || !userLon) return;
+
+    setLoadingStores(true);
+    setSearched(true);
+    setRadiusSearch(true);
+    try {
+      const { data, error } = await supabase
+        .from("stores")
+        .select("id, name, state, city, latitude, longitude");
+
+      if (error) throw error;
+
+      const storesWithDistance = ((data as Store[]) || [])
+        .filter((s) => s.latitude != null && s.longitude != null)
+        .map((s) => ({
+          ...s,
+          distance: haversineDistance(userLat, userLon, s.latitude!, s.longitude!),
+        }))
+        .filter((s) => s.distance <= 100)
+        .sort((a, b) => a.distance - b.distance);
+
+      setStores(storesWithDistance);
+    } catch (err) {
+      console.error("Error searching nearby stores:", err);
       setStores([]);
     } finally {
       setLoadingStores(false);
@@ -147,13 +199,17 @@ const LocationStep = ({ onSelectStore, onBack, onSkip }: LocationStepProps) => {
         <div className="space-y-3 animate-fade-in">
           <h2 className="text-lg font-display font-semibold">
             {stores.length > 0
-              ? `${stores.length} lojista(s) encontrado(s)`
-              : "Nenhum lojista encontrado na sua região"}
+              ? `${stores.length} loja${stores.length !== 1 ? "s" : ""} encontrada${stores.length !== 1 ? "s" : ""}`
+              : radiusSearch
+              ? "Nenhuma loja encontrada em um raio de 100km"
+              : "Nenhuma loja encontrada nessa cidade"}
           </h2>
 
           {stores.length === 0 && (
             <p className="text-sm text-muted-foreground">
-              Tente selecionar outro estado ou cidade.
+              {radiusSearch
+                ? "Tente selecionar um estado e cidade manualmente."
+                : "Tente usar o botão abaixo para buscar lojas próximas."}
             </p>
           )}
 
@@ -168,7 +224,12 @@ const LocationStep = ({ onSelectStore, onBack, onSkip }: LocationStepProps) => {
                   <p className="font-display font-semibold text-lg">{store.name}</p>
                   <p className="text-sm text-muted-foreground">
                     {store.city && `${store.city} - `}{store.state}
-                    {store.city?.toLowerCase() === city.toLowerCase() && (
+                    {store.distance != null && (
+                      <span className="ml-2 text-primary font-medium">
+                        • {store.distance < 1 ? "< 1" : Math.round(store.distance)} km
+                      </span>
+                    )}
+                    {!radiusSearch && store.city?.toLowerCase() === city.toLowerCase() && (
                       <span className="ml-2 text-primary font-medium">• Sua cidade</span>
                     )}
                   </p>
@@ -183,17 +244,18 @@ const LocationStep = ({ onSelectStore, onBack, onSkip }: LocationStepProps) => {
       {loadingStores && (
         <div className="flex items-center justify-center gap-3 py-8">
           <Loader2 className="w-5 h-5 animate-spin text-primary" />
-          <span className="text-muted-foreground">Buscando lojistas...</span>
+          <span className="text-muted-foreground">Buscando lojas...</span>
         </div>
       )}
 
       <div className="mt-8 text-center">
         <Button
-          onClick={onSkip}
+          onClick={searchStoresNearby}
           variant="outline"
           className="gradient-primary text-white border-0 hover:opacity-90"
         >
-          Encontrar um lojista parceiro
+          <Locate className="w-4 h-4 mr-2" />
+          Encontrar uma Loja próxima
         </Button>
       </div>
     </div>

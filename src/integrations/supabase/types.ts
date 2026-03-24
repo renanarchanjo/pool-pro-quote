@@ -685,9 +685,11 @@ export type Database = {
           cnpj: string | null
           created_at: string | null
           id: string
+          latitude: number | null
           lead_limit_monthly: number | null
           lead_plan_active: boolean | null
           lead_price_excess: number | null
+          longitude: number | null
           name: string
           nome_fantasia: string | null
           plan_expires_at: string | null
@@ -706,9 +708,11 @@ export type Database = {
           cnpj?: string | null
           created_at?: string | null
           id?: string
+          latitude?: number | null
           lead_limit_monthly?: number | null
           lead_plan_active?: boolean | null
           lead_price_excess?: number | null
+          longitude?: number | null
           name: string
           nome_fantasia?: string | null
           plan_expires_at?: string | null
@@ -727,9 +731,11 @@ export type Database = {
           cnpj?: string | null
           created_at?: string | null
           id?: string
+          latitude?: number | null
           lead_limit_monthly?: number | null
           lead_plan_active?: boolean | null
           lead_price_excess?: number | null
+          longitude?: number | null
           name?: string
           nome_fantasia?: string | null
           plan_expires_at?: string | null
