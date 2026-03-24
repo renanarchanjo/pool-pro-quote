@@ -36,7 +36,7 @@ interface ReceivedLead {
 }
 
 const AdminLeads = () => {
-  const { store } = useStoreData();
+  const { store, storeSettings } = useStoreData();
   const [leads, setLeads] = useState<ReceivedLead[]>([]);
   const [loading, setLoading] = useState(true);
   const [accepting, setAccepting] = useState<string | null>(null);
@@ -621,6 +621,7 @@ const AdminLeads = () => {
               }}
               category={viewingProposal.pool_models?.categories?.name || ""}
               onBack={() => setViewingProposal(null)}
+              storeSettings={storeSettings}
               storeName={store?.name}
               storeCity={store?.city}
               storeState={store?.state}

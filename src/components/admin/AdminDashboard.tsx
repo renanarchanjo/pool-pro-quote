@@ -8,8 +8,10 @@ import html2pdf from "html2pdf.js";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle,
 } from "@/components/ui/dialog";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import ProposalView from "@/components/simulator/ProposalView";
-import { Proposal, ProposalStatus } from "./dashboard/types";
+import ProposalNotesPanel from "./dashboard/ProposalNotesPanel";
+import { Proposal, ProposalStatus, STATUS_CONFIG } from "./dashboard/types";
 import DashboardKPIs from "./dashboard/DashboardKPIs";
 import DashboardFunnel from "./dashboard/DashboardFunnel";
 import DashboardAlerts from "./dashboard/DashboardAlerts";
@@ -73,6 +75,22 @@ const AdminDashboard = () => {
     try {
       const { error } = await supabase.from("proposals").update({ status: newStatus }).eq("id", id);
       if (error) throw error;
+
+      // Log status change as a note
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user && store) {
+        const oldProposal = proposals.find(p => p.id === id);
+        const oldLabel = oldProposal ? (STATUS_CONFIG[oldProposal.status]?.label || oldProposal.status) : "?";
+        const newLabel = STATUS_CONFIG[newStatus]?.label || newStatus;
+        await supabase.from("proposal_notes" as any).insert({
+          proposal_id: id,
+          store_id: store.id,
+          author_id: user.id,
+          content: `Status alterado: ${oldLabel} → ${newLabel}`,
+          note_type: "status_change",
+        } as any);
+      }
+
       setProposals((prev) => prev.map((p) => (p.id === id ? { ...p, status: newStatus } : p)));
       toast.success("Status atualizado");
     } catch {
@@ -84,15 +102,27 @@ const AdminDashboard = () => {
     if (!reportRef.current) return;
     toast.info("Gerando PDF...");
     try {
+      // Temporarily set print-friendly styles
+      const el = reportRef.current;
+      const originalStyle = el.style.cssText;
+      el.style.width = "1100px";
+      el.style.maxWidth = "1100px";
+      el.style.padding = "24px";
+      el.style.background = "white";
+
       await html2pdf()
         .set({
-          margin: 10,
+          margin: [10, 10, 10, 10],
           filename: `relatorio-propostas-${new Date().toISOString().split("T")[0]}.pdf`,
-          html2canvas: { scale: 2 },
+          image: { type: "jpeg", quality: 0.95 },
+          html2canvas: { scale: 2, useCORS: true, width: 1100, windowWidth: 1100, backgroundColor: "#ffffff" },
           jsPDF: { unit: "mm", format: "a4", orientation: "landscape" },
-        })
-        .from(reportRef.current)
+          pagebreak: { mode: ["avoid-all", "css", "legacy"] },
+        } as any)
+        .from(el)
         .save();
+
+      el.style.cssText = originalStyle;
       toast.success("PDF exportado com sucesso!");
     } catch {
       toast.error("Erro ao gerar PDF");
@@ -110,17 +140,17 @@ const AdminDashboard = () => {
   return (
     <div className="space-y-4 md:space-y-6" ref={reportRef}>
       {/* Header */}
-      <div className="flex flex-col gap-3">
-        <div>
-          <p className="text-muted-foreground text-sm">
+      <div className="flex items-center justify-between gap-3">
+        <div className="min-w-0 flex-1">
+          <p className="text-muted-foreground text-xs sm:text-sm truncate">
             Olá, <span className="font-bold text-foreground">{profile?.full_name || "Lojista"}</span>
           </p>
-          <h1 className="text-xl md:text-3xl font-bold">Painel Comercial</h1>
+          <h1 className="text-lg sm:text-xl md:text-3xl font-bold truncate">Painel Comercial</h1>
         </div>
-        <div className="flex gap-2 print:hidden">
+        <div className="flex gap-2 shrink-0 print:hidden">
           <PushNotificationButton />
           <Button onClick={handleExportPDF} variant="outline" size="sm" className="shrink-0 min-h-[44px] md:min-h-0">
-            <Download className="w-4 h-4 mr-2" />
+            <Download className="w-4 h-4 mr-1 sm:mr-2" />
             <span className="hidden sm:inline">Exportar PDF</span>
             <span className="sm:hidden">PDF</span>
           </Button>
@@ -128,10 +158,12 @@ const AdminDashboard = () => {
       </div>
 
       {/* (A) KPIs */}
-      <DashboardKPIs proposals={proposals} />
+      <div style={{ pageBreakInside: "avoid" }}>
+        <DashboardKPIs proposals={proposals} />
+      </div>
 
       {/* (B) Funnel + (D) Alerts */}
-      <div className="grid grid-cols-1 lg:grid-cols-5 gap-3 md:gap-4">
+      <div className="grid grid-cols-1 lg:grid-cols-5 gap-3 md:gap-4" style={{ pageBreakInside: "avoid" }}>
         <div className="lg:col-span-2">
           <DashboardFunnel proposals={proposals} />
         </div>
@@ -154,23 +186,39 @@ const AdminDashboard = () => {
           <DialogHeader>
             <DialogTitle>Proposta — {viewingProposal?.customer_name}</DialogTitle>
           </DialogHeader>
-          {viewingProposal?.pool_models && (
-            <ProposalView
-              model={viewingProposal.pool_models as any}
-              selectedOptionals={[]}
-              customerData={{
-                name: viewingProposal.customer_name,
-                city: viewingProposal.customer_city,
-                whatsapp: viewingProposal.customer_whatsapp,
-              }}
-              category={viewingProposal.pool_models.name}
-              onBack={() => setViewingProposal(null)}
-              storeSettings={storeSettings}
-              storeName={store?.name}
-              storeCity={store?.city}
-              storeState={store?.state}
-            />
-          )}
+          <Tabs defaultValue="proposal" className="w-full">
+            <TabsList className="w-full grid grid-cols-2">
+              <TabsTrigger value="proposal">Proposta</TabsTrigger>
+              <TabsTrigger value="notes">Anotações</TabsTrigger>
+            </TabsList>
+            <TabsContent value="proposal">
+              {viewingProposal?.pool_models && (
+                <ProposalView
+                  model={viewingProposal.pool_models as any}
+                  selectedOptionals={[]}
+                  customerData={{
+                    name: viewingProposal.customer_name,
+                    city: viewingProposal.customer_city,
+                    whatsapp: viewingProposal.customer_whatsapp,
+                  }}
+                  category={viewingProposal.pool_models.name}
+                  onBack={() => setViewingProposal(null)}
+                  storeSettings={storeSettings}
+                  storeName={store?.name}
+                  storeCity={store?.city}
+                  storeState={store?.state}
+                />
+              )}
+            </TabsContent>
+            <TabsContent value="notes">
+              {viewingProposal && store && (
+                <ProposalNotesPanel
+                  proposalId={viewingProposal.id}
+                  storeId={store.id}
+                />
+              )}
+            </TabsContent>
+          </Tabs>
         </DialogContent>
       </Dialog>
     </div>
