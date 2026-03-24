@@ -55,6 +55,8 @@ const AdminLeads = () => {
       setLeadSubActive(true);
       return;
     }
+    // Don't check Stripe until storeInfo is loaded
+    if (storeInfo === null) return;
     const checkLeadSubscription = async () => {
       try {
         const { data, error } = await supabase.functions.invoke("check-subscription");
