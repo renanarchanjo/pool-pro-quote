@@ -19,13 +19,13 @@ const SiteHeader = () => {
       <div className="h-2 bg-primary/80 w-full" />
       
       <nav className="sticky top-0 z-50 border-b border-border/30 bg-background/95 backdrop-blur-md">
-        <div className="container mx-auto px-3 py-2.5 md:px-4 md:py-3 flex justify-between items-center">
+        <div className="container mx-auto px-3 pt-4 pb-2 md:px-4 md:py-3 flex justify-between items-end">
           <Link to="/">
-            <img src={logoHorizontal} alt="SIMULAPOOL" className="h-10 md:h-12 object-contain" />
+            <img src={logoHorizontal} alt="SIMULAPOOL" className="h-12 md:h-12 object-contain" />
           </Link>
 
           {/* Desktop Nav */}
-          <div className="hidden md:flex items-center gap-10">
+          <div className="hidden md:flex items-center gap-10 pb-0.5">
             {navLinks.map((link) => (
               <Link
                 key={link.to}
@@ -48,11 +48,11 @@ const SiteHeader = () => {
 
           {/* Mobile Toggle */}
           <button
-            className="md:hidden p-2.5 -mr-2 touch-manipulation"
+            className="md:hidden p-2.5 -mr-2 -mb-0.5 touch-manipulation"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             aria-label="Menu"
           >
-            {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            {mobileMenuOpen ? <X className="w-7 h-7" /> : <Menu className="w-7 h-7" />}
           </button>
         </div>
 
