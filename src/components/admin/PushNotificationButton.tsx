@@ -14,8 +14,11 @@ const PushNotificationButton = () => {
     support,
     statusMessage,
     isStandalonePwa,
+    hasSavedSubscription,
   } = useOneSignal();
   const [testLoading, setTestLoading] = useState(false);
+
+  const isActive = permission === "granted" || hasSavedSubscription;
 
   const handleClick = async () => {
     if (support === "unsupported") {
@@ -23,13 +26,13 @@ const PushNotificationButton = () => {
       return;
     }
 
-    if (!initialized) {
-      toast.info(statusMessage || "Aguarde o carregamento do serviço de notificações.");
+    if (isActive) {
+      toast.info("Notificações já estão ativas!");
       return;
     }
 
-    if (permission === "granted") {
-      toast.info("Notificações já estão ativas!");
+    if (!initialized) {
+      toast.info(statusMessage || "Aguarde o carregamento do serviço de notificações.");
       return;
     }
 
@@ -72,17 +75,17 @@ const PushNotificationButton = () => {
       if (!user) throw new Error("Não autenticado");
 
       const { data, error } = await supabase.functions.invoke("notification-engine", {
-        body: { tipo: "lead_recebido", userId: user.id },
+        body: { tipo: "lead_recebido", userId: user.id, bypassCooldown: true, bypassDailyLimit: true, bypassDeduplication: true },
       });
 
       if (error) throw error;
 
-      if (data?.action === "deduplicated") {
-        toast.info("Notificação já enviada recentemente (deduplicação ativa)");
-      } else if (data?.action === "throttled") {
-        toast.info("Limite anti-spam atingido. Tente novamente em 1 hora.");
-      } else if (data?.sent) {
+      if (data?.sent) {
         toast.success("🔔 Notificação de teste enviada! Verifique seu dispositivo.");
+      } else if (data?.action === "deduplicated") {
+        toast.info("Notificação já enviada recentemente.");
+      } else if (data?.action === "throttled") {
+        toast.info("Limite anti-spam atingido temporariamente.");
       } else {
         toast.warning("Notificação não enviada. O dispositivo pode ainda não ter concluído a inscrição push.");
       }
@@ -94,7 +97,7 @@ const PushNotificationButton = () => {
     }
   };
 
-  const icon = permission === "granted" ? (
+  const icon = isActive ? (
     <BellRing className="w-4 h-4 mr-2" />
   ) : permission === "denied" ? (
     <BellOff className="w-4 h-4 mr-2" />
@@ -102,7 +105,7 @@ const PushNotificationButton = () => {
     <Bell className="w-4 h-4 mr-2" />
   );
 
-  const label = permission === "granted"
+  const label = isActive
     ? "Notificações ativas"
     : permission === "denied"
       ? "Notificações bloqueadas"
@@ -114,7 +117,7 @@ const PushNotificationButton = () => {
         <Button
           onClick={handleClick}
           disabled={loading || support === "unsupported"}
-          variant={permission === "granted" ? "outline" : "default"}
+          variant={isActive ? "outline" : "default"}
           size="sm"
           className="shrink-0 min-h-[44px]"
         >
@@ -122,7 +125,7 @@ const PushNotificationButton = () => {
           {label}
         </Button>
 
-        {permission === "granted" && (
+        {isActive && (
           <Button
             onClick={handleTestPush}
             disabled={testLoading}
