@@ -71,9 +71,9 @@ const AdminSidebar = () => {
                 <SidebarMenuButton
                   onClick={() => navigate(item.url)}
                   isActive={isActive(item.url)}
-                  className="cursor-pointer"
+                  className="cursor-pointer min-h-[48px] md:min-h-0 text-base md:text-sm"
                 >
-                  <item.icon className="w-4 h-4" />
+                  <item.icon className="w-5 h-5 md:w-4 md:h-4" />
                   <span>{item.title}</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
