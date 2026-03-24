@@ -166,7 +166,6 @@ const MatrizPlans = () => {
                   {setting.label || setting.key}
                 </Label>
                 <div className="flex items-center gap-2">
-                  <span className="text-sm text-muted-foreground">R$</span>
                   <Input
                     id={setting.key}
                     type="number"
