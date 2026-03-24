@@ -63,8 +63,8 @@ const PLANS = [
     slug: "escala",
     name: "Escala",
     price: "R$ 299,90",
-    priceId: "price_1TEH5QD4inSHTJNL4PEeei2a",
-    productId: "prod_UCgSX4JTil25jU",
+    priceId: "price_1TEdJRDLDBZHKYifIP8NhqDm",
+    productId: "prod_UD3QKozvTgVova",
     proposals: 1000,
     features: [
       { text: "Até 1.000 orçamentos/mês", included: true },
