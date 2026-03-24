@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Loader2, Eye, FileText, BarChart3, Star, TrendingUp, Users, MapPin, MessageCircle, ArrowRight, CheckCircle2, Zap } from "lucide-react";
+import { Loader2, FileText, Eye, BarChart3, Star, TrendingUp, Zap, MessageCircle, ArrowRight, CheckCircle2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import SiteHeader from "@/components/landing/SiteHeader";
 import SiteFooter from "@/components/landing/SiteFooter";
@@ -7,20 +7,12 @@ import { useForceLightTheme } from "@/hooks/useForceLightTheme";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
 
 interface Partner {
   id: string;
   name: string;
   logo_url: string | null;
 }
-
-const METRICS = [
-  { icon: FileText, value: "50.000+", label: "Orçamentos gerados/mês", accent: true },
-  { icon: Users, value: "800+", label: "Lojistas ativos" },
-  { icon: MapPin, value: "350+", label: "Cidades alcançadas" },
-  { icon: Eye, value: "2M+", label: "Impressões mensais em PDFs" },
-];
 
 const BENEFITS = [
   {
@@ -89,9 +81,8 @@ const Parceiros = () => {
     <div className="min-h-screen bg-background flex flex-col">
       <SiteHeader />
 
-      {/* ── HERO ── */}
+      {/* ── HERO / SLOGAN ── */}
       <section className="relative overflow-hidden pt-24 pb-20 md:pt-32 md:pb-28">
-        {/* Background decoration */}
         <div className="absolute inset-0 bg-gradient-to-br from-sky-50 via-background to-cyan-50/30 pointer-events-none" />
         <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-primary/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/4 pointer-events-none" />
         <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-accent/5 rounded-full blur-3xl translate-y-1/2 -translate-x-1/4 pointer-events-none" />
@@ -108,7 +99,7 @@ const Parceiros = () => {
               de piscinas do Brasil
             </h1>
             <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-10 leading-relaxed">
-              Milhares de orçamentos circulam todos os meses pelo WhatsApp com a marca dos nossos parceiros. 
+              Milhares de orçamentos circulam todos os meses pelo WhatsApp com a marca dos nossos parceiros.
               Esteja onde o lojista decide — e onde o consumidor compra.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -132,24 +123,6 @@ const Parceiros = () => {
                 <ArrowRight className="w-5 h-5 ml-2" />
               </Button>
             </div>
-          </div>
-
-          {/* Metrics strip */}
-          <div className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto">
-            {METRICS.map((m, i) => (
-              <Card
-                key={i}
-                className={`p-5 text-center border-border/50 ${
-                  m.accent ? "bg-primary/5 border-primary/20" : "bg-card"
-                }`}
-              >
-                <m.icon className="w-6 h-6 mx-auto mb-2 text-primary" />
-                <div className="text-2xl md:text-3xl font-display font-extrabold text-foreground">
-                  {m.value}
-                </div>
-                <div className="text-xs md:text-sm text-muted-foreground mt-1">{m.label}</div>
-              </Card>
-            ))}
           </div>
         </div>
       </section>
@@ -183,69 +156,8 @@ const Parceiros = () => {
         </div>
       </section>
 
-      {/* ── O QUE ESTÁ INCLUSO ── */}
+      {/* ── PARCEIROS ATUAIS ── */}
       <section className="py-20">
-        <div className="container mx-auto px-4">
-          <div className="max-w-4xl mx-auto">
-            <div className="text-center mb-12">
-              <h2 className="text-3xl md:text-4xl font-display font-extrabold text-foreground mb-4">
-                Tudo que o parceiro recebe
-              </h2>
-              <p className="text-muted-foreground text-lg">
-                Um investimento, múltiplos canais de exposição.
-              </p>
-            </div>
-
-            <Card className="p-8 md:p-10 border-primary/20 bg-gradient-to-br from-primary/[0.03] to-transparent">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-4">
-                {[
-                  "Logo em todos os orçamentos PDF gerados",
-                  "Destaque na página inicial da plataforma",
-                  "Página de parceiros com link para seu site",
-                  "Selo oficial 'Recomendado SIMULAPOOL'",
-                  "Relatório mensal de dados de mercado",
-                  "Prioridade de exibição no simulador",
-                  "Menções em campanhas de e-mail marketing",
-                  "Co-branding em materiais da plataforma",
-                  "Acesso a eventos exclusivos do setor",
-                  "Suporte dedicado e gestor de conta",
-                ].map((item, i) => (
-                  <div key={i} className="flex items-start gap-3 py-2">
-                    <CheckCircle2 className="w-5 h-5 text-primary mt-0.5 shrink-0" />
-                    <span className="text-sm md:text-base text-foreground">{item}</span>
-                  </div>
-                ))}
-              </div>
-
-              <Separator className="my-8" />
-
-              <div className="text-center">
-                <p className="text-muted-foreground text-sm mb-4">
-                  Planos a partir de
-                </p>
-                <div className="mb-6">
-                  <span className="text-5xl font-display font-extrabold text-foreground">R$ 5.000</span>
-                  <span className="text-muted-foreground text-lg">/mês</span>
-                </div>
-                <Button
-                  size="lg"
-                  onClick={handleCTA}
-                  className="gradient-primary text-white font-display font-bold text-lg px-10 py-6 shadow-pool"
-                >
-                  <MessageCircle className="w-5 h-5 mr-2" />
-                  Falar com comercial
-                </Button>
-                <p className="text-xs text-muted-foreground mt-3">
-                  Sem fidelidade · Cancele quando quiser
-                </p>
-              </div>
-            </Card>
-          </div>
-        </div>
-      </section>
-
-      {/* ── PARCEIROS ATUAIS (social proof) ── */}
-      <section className="py-20 bg-muted/30">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-display font-extrabold text-foreground mb-4">
@@ -301,7 +213,7 @@ const Parceiros = () => {
       </section>
 
       {/* ── CTA FINAL ── */}
-      <section className="py-20">
+      <section className="py-20 bg-muted/30">
         <div className="container mx-auto px-4">
           <Card className="max-w-3xl mx-auto p-10 md:p-14 text-center border-primary/20 bg-gradient-to-br from-primary/[0.05] to-accent/[0.03]">
             <h2 className="text-3xl md:text-4xl font-display font-extrabold text-foreground mb-4">
