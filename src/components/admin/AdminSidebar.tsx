@@ -88,7 +88,7 @@ const AdminSidebar = () => {
   return (
     <Sidebar collapsible="offcanvas">
       <SidebarHeader className="border-b border-border/50">
-        <div className="h-3 bg-primary md:hidden" />
+        <div className="h-3 bg-white md:hidden" />
         <div className="flex justify-center p-4">
           <img src={logoHorizontal} alt="SIMULAPOOL" className="h-14 md:h-10 object-contain" />
         </div>
