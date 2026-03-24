@@ -223,6 +223,7 @@ const TeamPerformance = () => {
       element: reportRef.current,
       filename: `Performance-Equipe-${dateText}.pdf`,
       orientation: "landscape",
+      captureWidth: 1100,
     });
   };
 
