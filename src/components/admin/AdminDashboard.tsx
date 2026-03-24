@@ -130,8 +130,8 @@ const AdminDashboard = () => {
       {/* (A) KPIs */}
       <DashboardKPIs proposals={proposals} />
 
-      {/* (B) Funnel + (D) Alerts side by side on desktop */}
-      <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
+      {/* (B) Funnel + (D) Alerts */}
+      <div className="grid grid-cols-1 lg:grid-cols-5 gap-3 md:gap-4">
         <div className="lg:col-span-2">
           <DashboardFunnel proposals={proposals} />
         </div>
