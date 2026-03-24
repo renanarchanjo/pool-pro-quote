@@ -35,7 +35,7 @@ const PLANS = [
       { text: "Modelos ilimitados", included: true },
       { text: "Sem marca d'água", included: true },
       { text: "Personalização da marca", included: true },
-      { text: "Até 3 vendedores", included: true },
+      { text: "Até 3 colaboradores", included: true },
     ],
   },
   {
