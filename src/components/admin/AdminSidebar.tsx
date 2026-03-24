@@ -57,9 +57,6 @@ const AdminSidebar = () => {
     ] : []),
   ];
 
-  const adminItems = isOwner ? [
-    { title: "Lojistas", url: "/admin/lojistas", icon: Users },
-  ] : [];
 
   const renderGroup = (label: string, items: typeof mainItems) => {
     if (items.length === 0) return null;
