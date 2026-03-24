@@ -53,7 +53,10 @@ const TeamManager = () => {
     role: "seller",
   });
 
-  const maxMembers = PLAN_USER_LIMITS[currentPlanSlug] || 1;
+  // LIM PISCINAS has unlimited members
+  const LIM_PISCINAS_STORE_ID = "5e8165c0-64b6-4d06-b274-8eeb261a79c4";
+  const isUnlimited = store?.id === LIM_PISCINAS_STORE_ID;
+  const maxMembers = isUnlimited ? Infinity : (PLAN_USER_LIMITS[currentPlanSlug] || 1);
 
   useEffect(() => {
     if (store) {
