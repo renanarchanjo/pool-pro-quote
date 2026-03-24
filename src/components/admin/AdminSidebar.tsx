@@ -1,7 +1,7 @@
 import { useNavigate, useLocation } from "react-router-dom";
 import ThemeToggle from "@/components/ThemeToggle";
 import { 
-  LayoutDashboard, FilePlus, Tag, Box, Package, User, Users, LogOut, UsersRound, CreditCard, Receipt
+  LayoutDashboard, FilePlus, Tag, Box, Package, User, Users, LogOut, UsersRound, CreditCard, Receipt, TrendingUp, DollarSign
 } from "lucide-react";
 import {
   Sidebar,
@@ -59,11 +59,16 @@ const AdminSidebar = () => {
     { title: "Opcionais", url: "/admin/opcionais", icon: Package },
   ] : [];
 
+  const sellerItems = !isOwner ? [
+    { title: "Performance", url: "/admin/performance", icon: TrendingUp },
+    { title: "Comissão", url: "/admin/comissao", icon: DollarSign },
+  ] : [];
+
   const accountItems = [
     { title: "Minha Conta", url: "/admin/perfil", icon: User },
-    { title: "Minha Equipe", url: "/admin/equipe", icon: UsersRound },
-    { title: "Faturas", url: "/admin/faturas", icon: Receipt },
     ...(isOwner ? [
+      { title: "Minha Equipe", url: "/admin/equipe", icon: UsersRound },
+      { title: "Faturas", url: "/admin/faturas", icon: Receipt },
       { title: "Assinatura", url: "/admin/assinatura", icon: CreditCard },
     ] : []),
   ];
@@ -110,7 +115,8 @@ const AdminSidebar = () => {
 
       <SidebarContent>
         {renderGroup("PAINEL COMERCIAL", mainItems)}
-         {renderGroup("CADASTRO", catalogItems)}
+        {renderGroup("CADASTRO", catalogItems)}
+        {renderGroup("MINHA CONTA", sellerItems)}
         {renderGroup("CONTA", accountItems)}
       </SidebarContent>
 
