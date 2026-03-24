@@ -2,7 +2,7 @@ import { useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { FileDown, ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
-import { exportPDF } from "@/lib/exportPDF";
+
 
 interface PoolModel {
   name: string;
