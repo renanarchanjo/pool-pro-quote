@@ -53,7 +53,10 @@ const TeamManager = () => {
     role: "seller",
   });
 
-  const maxMembers = PLAN_USER_LIMITS[currentPlanSlug] || 1;
+  // LIM PISCINAS has unlimited members
+  const LIM_PISCINAS_STORE_ID = "5e8165c0-64b6-4d06-b274-8eeb261a79c4";
+  const isUnlimited = store?.id === LIM_PISCINAS_STORE_ID;
+  const maxMembers = isUnlimited ? Infinity : (PLAN_USER_LIMITS[currentPlanSlug] || 1);
 
   useEffect(() => {
     if (store) {
@@ -123,7 +126,7 @@ const TeamManager = () => {
       toast.error("A senha deve ter pelo menos 6 caracteres");
       return;
     }
-    if (members.length >= maxMembers) {
+    if (!isUnlimited && members.length >= maxMembers) {
       toast.error(`Limite de ${maxMembers} usuários no plano atual atingido. Faça upgrade para adicionar mais membros.`);
       return;
     }
@@ -250,7 +253,7 @@ const TeamManager = () => {
     }
   };
 
-  const isAtLimit = members.length >= maxMembers;
+  const isAtLimit = !isUnlimited && members.length >= maxMembers;
 
   return (
     <div className="space-y-6 max-w-3xl">
