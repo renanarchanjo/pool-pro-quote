@@ -1,5 +1,5 @@
 import { lazy, Suspense, useState } from "react";
-import { ChevronRight, Layers, Briefcase, TrendingUp, Loader2, Sparkles } from "lucide-react";
+import { ChevronRight, Layers, Briefcase, TrendingUp, Calculator, FileText, MessageCircle, Loader2, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import SiteHeader from "@/components/landing/SiteHeader";
 import SiteFooter from "@/components/landing/SiteFooter";
