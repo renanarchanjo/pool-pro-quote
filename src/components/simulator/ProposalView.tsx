@@ -29,6 +29,12 @@ interface CustomerData {
   whatsapp: string;
 }
 
+interface Partner {
+  id: string;
+  name: string;
+  logo_url: string | null;
+}
+
 interface ProposalViewProps {
   model: PoolModel;
   selectedOptionals: Optional[];
@@ -44,6 +50,8 @@ interface ProposalViewProps {
   storeName?: string | null;
   storeCity?: string | null;
   storeState?: string | null;
+  brandLogoUrl?: string | null;
+  partners?: Partner[];
 }
 
 const ProposalView = ({
