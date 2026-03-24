@@ -7,11 +7,17 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Loader2, Lock, CheckCircle, AlertTriangle, Copy, Package, XCircle, CheckCheck, Eye, FileDown } from "lucide-react";
+import { Loader2, Lock, CheckCircle, AlertTriangle, Copy, Package, XCircle, CheckCheck, Eye, FileDown, ExternalLink, Check, Radio, CreditCard } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import ProposalView from "@/components/simulator/ProposalView";
+
+const LEAD_PLAN = {
+  priceId: "price_1TELsVD4inSHTJNLmue5gkTP",
+  productId: "prod_UClPPxnoSh7tlx",
+  price: "R$ 997,00",
+};
 
 interface ReceivedLead {
   id: string;
@@ -39,6 +45,41 @@ const AdminLeads = () => {
   const [storeInfo, setStoreInfo] = useState<{ lead_limit_monthly: number; lead_price_excess: number; lead_plan_active: boolean } | null>(null);
   const [viewingProposal, setViewingProposal] = useState<any>(null);
   const [loadingProposal, setLoadingProposal] = useState(false);
+  const [leadSubActive, setLeadSubActive] = useState<boolean | null>(null);
+  const [checkoutLoading, setCheckoutLoading] = useState(false);
+
+  // Check if lead plan subscription is paid
+  useEffect(() => {
+    const checkLeadSubscription = async () => {
+      try {
+        const { data, error } = await supabase.functions.invoke("check-subscription");
+        if (error) throw error;
+        const activeProducts: { product_id: string }[] = data?.active_products || [];
+        const hasLeadPlan = activeProducts.some(p => p.product_id === LEAD_PLAN.productId);
+        setLeadSubActive(hasLeadPlan);
+      } catch {
+        setLeadSubActive(false);
+      }
+    };
+    checkLeadSubscription();
+  }, []);
+
+  const handleLeadCheckout = async () => {
+    try {
+      setCheckoutLoading(true);
+      const { data, error } = await supabase.functions.invoke("create-checkout", {
+        body: { priceId: LEAD_PLAN.priceId },
+      });
+      if (error) throw error;
+      if (data?.url) {
+        window.open(data.url, "_blank");
+      }
+    } catch (err: any) {
+      toast.error("Erro ao iniciar checkout: " + (err.message || "Tente novamente"));
+    } finally {
+      setCheckoutLoading(false);
+    }
+  };
 
   const loadData = async () => {
     if (!store) return;
@@ -205,7 +246,7 @@ const AdminLeads = () => {
     return "";
   };
 
-  if (loading) return <div className="flex items-center justify-center py-20"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
+  if (loading || leadSubActive === null) return <div className="flex items-center justify-center py-20"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
 
   if (!storeInfo?.lead_plan_active) {
     return (
@@ -213,6 +254,68 @@ const AdminLeads = () => {
         <Lock className="w-12 h-12 mx-auto mb-4 text-muted-foreground opacity-50" />
         <h2 className="text-xl font-bold mb-2">Plano de Leads não ativo</h2>
         <p className="text-muted-foreground">Entre em contato com a administração para ativar o recebimento de leads.</p>
+      </div>
+    );
+  }
+
+  if (!leadSubActive) {
+    return (
+      <div className="space-y-6 max-w-lg mx-auto py-10">
+        <div className="text-center">
+          <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-primary/10 flex items-center justify-center">
+            <Radio className="w-8 h-8 text-primary" />
+          </div>
+          <h2 className="text-xl font-bold mb-2">Ative seu Plano de Leads</h2>
+          <p className="text-muted-foreground text-sm">
+            Sua loja foi habilitada para receber leads qualificados! Para começar, finalize o pagamento do plano.
+          </p>
+        </div>
+
+        <Card className="p-6 border-primary/30 bg-primary/5">
+          <h3 className="font-bold text-lg mb-3">Plano de Captação de Leads</h3>
+          <ul className="space-y-2 text-sm mb-5">
+            <li className="flex items-center gap-2">
+              <Check className="w-4 h-4 text-emerald-500 shrink-0" />
+              Leads qualificados da sua região
+            </li>
+            <li className="flex items-center gap-2">
+              <Check className="w-4 h-4 text-emerald-500 shrink-0" />
+              Dados completos do cliente (nome, cidade, WhatsApp)
+            </li>
+            <li className="flex items-center gap-2">
+              <Check className="w-4 h-4 text-emerald-500 shrink-0" />
+              Modelo e orçamento já configurados
+            </li>
+            <li className="flex items-center gap-2">
+              <Check className="w-4 h-4 text-emerald-500 shrink-0" />
+              Distribuição exclusiva por cidade
+            </li>
+          </ul>
+
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-4 border-t border-border">
+            <div>
+              <span className="text-3xl font-bold">{LEAD_PLAN.price}</span>
+              <span className="text-sm text-muted-foreground">/mês</span>
+            </div>
+            <Button
+              onClick={handleLeadCheckout}
+              disabled={checkoutLoading}
+              className="gradient-primary text-white w-full sm:w-auto"
+              size="lg"
+            >
+              {checkoutLoading ? (
+                <Loader2 className="w-4 h-4 animate-spin mr-2" />
+              ) : (
+                <CreditCard className="w-4 h-4 mr-2" />
+              )}
+              Assinar e Ativar Leads
+            </Button>
+          </div>
+        </Card>
+
+        <p className="text-xs text-center text-muted-foreground">
+          Após a confirmação do pagamento, seus leads serão liberados automaticamente.
+        </p>
       </div>
     );
   }
