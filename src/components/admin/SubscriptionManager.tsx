@@ -20,7 +20,7 @@ const PLANS = [
       { text: "1 modelo de piscina", included: true },
       { text: "Marca d'água SIMULAPOOL", included: true },
       { text: "Personalização da marca", included: false },
-      { text: "Equipe de vendedores", included: false },
+      { text: "Equipe de colaboradores", included: false },
     ],
   },
   {
