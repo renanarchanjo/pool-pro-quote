@@ -16,6 +16,7 @@ import DashboardKPIs from "./dashboard/DashboardKPIs";
 import DashboardFunnel from "./dashboard/DashboardFunnel";
 import DashboardAlerts from "./dashboard/DashboardAlerts";
 import DashboardPipeline from "./dashboard/DashboardPipeline";
+import DashboardPdfReport from "./dashboard/DashboardPdfReport";
 import PushNotificationButton from "./PushNotificationButton";
 
 const AdminDashboard = () => {
