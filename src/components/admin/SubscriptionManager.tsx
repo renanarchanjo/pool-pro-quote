@@ -89,6 +89,7 @@ const SubscriptionManager = () => {
   const [cancelLoading, setCancelLoading] = useState<string | null>(null);
   const [leadPlanActive, setLeadPlanActive] = useState(false);
   const [activeProducts, setActiveProducts] = useState<ActiveProduct[]>([]);
+  const [dbPlans, setDbPlans] = useState<DBPlan[]>([]);
   const [subscription, setSubscription] = useState<{
     subscribed: boolean;
     product_id: string | null;
@@ -96,9 +97,39 @@ const SubscriptionManager = () => {
     subscription_end: string | null;
   } | null>(null);
 
+  // Load plans from DB
   useEffect(() => {
+    const loadPlans = async () => {
+      const { data } = await (supabase as any)
+        .from("subscription_plans")
+        .select("*")
+        .eq("active", true)
+        .order("display_order");
+      if (data) setDbPlans(data);
+    };
+    loadPlans();
     checkSubscription();
   }, []);
+
+  // Build PLANS array from DB data
+  const PLANS: PlanDisplay[] = dbPlans.map((p) => ({
+    slug: p.slug,
+    name: p.name,
+    price: p.price_monthly > 0
+      ? p.price_monthly.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })
+      : "R$ 0",
+    priceId: p.stripe_price_id,
+    productId: p.stripe_product_id,
+    proposals: p.max_proposals_per_month,
+    popular: p.slug === "avancado",
+    features: PLAN_FEATURES[p.slug] || [
+      { text: `Até ${p.max_proposals_per_month} orçamentos/mês`, included: true },
+      { text: `Até ${p.max_users || 1} colaborador(es)`, included: true },
+    ],
+  }));
+
+  // Lead plan uses fallback IDs
+  const LEAD_PLAN = LEAD_PLAN_FALLBACK;
 
   useEffect(() => {
     if (store) {
