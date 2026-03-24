@@ -9,7 +9,7 @@ import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { Loader2, Check, X, Crown, CreditCard, ExternalLink, Users, FileText, TrendingUp, Radio, XCircle, Settings } from "lucide-react";
+import { Loader2, Check, X, Crown, CreditCard, ExternalLink, Users, FileText, TrendingUp, Radio, XCircle, Settings, AlertTriangle } from "lucide-react";
 import { toast } from "sonner";
 
 const PLANS = [
@@ -414,7 +414,11 @@ const SubscriptionManager = () => {
                   <ul className="mt-3 space-y-1.5 text-sm">
                     <li className="flex items-center gap-2">
                       <Check className="w-4 h-4 text-green-500 shrink-0" />
-                      Leads qualificados da sua região
+                      <strong>100 leads por mês</strong> inclusos no plano
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <Check className="w-4 h-4 text-green-500 shrink-0" />
+                      Você escolhe quais leads aceitar ou recusar
                     </li>
                     <li className="flex items-center gap-2">
                       <Check className="w-4 h-4 text-green-500 shrink-0" />
@@ -427,6 +431,10 @@ const SubscriptionManager = () => {
                     <li className="flex items-center gap-2">
                       <Check className="w-4 h-4 text-green-500 shrink-0" />
                       Distribuição exclusiva por cidade
+                    </li>
+                    <li className="flex items-center gap-2 text-amber-600">
+                      <AlertTriangle className="w-4 h-4 shrink-0" />
+                      Ao exceder, R$ 25,00 por lead adicional
                     </li>
                   </ul>
                 </div>
