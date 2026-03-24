@@ -9,6 +9,7 @@ import { Card } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
 import logoDark from "@/assets/simulapool-icon.png";
+import { useForceLightTheme } from "@/hooks/useForceLightTheme";
 
 const formatCNPJ = (value: string) => {
   const digits = value.replace(/\D/g, "").slice(0, 14);
@@ -20,6 +21,7 @@ const formatCNPJ = (value: string) => {
 };
 
 const Auth = () => {
+  useForceLightTheme();
   const [loading, setLoading] = useState(false);
   const [isLogin, setIsLogin] = useState(true);
   const [showPassword, setShowPassword] = useState(false);

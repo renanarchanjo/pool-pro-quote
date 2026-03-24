@@ -7,8 +7,10 @@ import { Label } from "@/components/ui/label";
 import { Loader2, LogIn } from "lucide-react";
 import { toast } from "sonner";
 import logoDark from "@/assets/simulapool-icon.png";
+import { useForceLightTheme } from "@/hooks/useForceLightTheme";
 
 const MobileApp = () => {
+  useForceLightTheme();
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
