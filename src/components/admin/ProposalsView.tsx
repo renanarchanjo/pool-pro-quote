@@ -52,6 +52,7 @@ const ProposalsView = () => {
   }, [search, proposals]);
 
   const loadProposals = async () => {
+    if (!store) return;
     try {
       const { data, error } = await supabase
         .from("proposals")
@@ -61,6 +62,7 @@ const ProposalsView = () => {
           pool_models (name),
           stores (name)
         `)
+        .eq("store_id", store.id)
         .order("created_at", { ascending: false });
 
       if (error) throw error;
