@@ -121,17 +121,6 @@ const DashboardAlerts = ({ proposals, onSelectProposal }: Props) => {
       renderValue: (p: Proposal) => `${daysSince(p.created_at)}d parada`,
     },
     {
-      title: "Maior Valor",
-      subtitle: `${formatCurrency(highValue.reduce((s, p) => s + p.total_price, 0))} em aberto`,
-      icon: DollarSign,
-      iconColor: "text-emerald-500",
-      iconBg: "bg-emerald-50",
-      items: highValue,
-      empty: "Sem propostas de alto valor",
-      emptyDesc: "Propostas acima do topo 20% aparecerão aqui.",
-      renderValue: (p: Proposal) => formatCurrency(p.total_price),
-    },
-    {
       title: "Prioridade de Fecho",
       subtitle: `${formatCurrency(bestOpportunities.reduce((s, p: any) => s + (p.expectedValue || 0), 0))} receita prevista`,
       icon: Flame,
@@ -144,7 +133,7 @@ const DashboardAlerts = ({ proposals, onSelectProposal }: Props) => {
     },
   ];
 
-  if (stale.length === 0 && highValue.length === 0 && bestOpportunities.length === 0) {
+  if (stale.length === 0 && bestOpportunities.length === 0) {
     return null;
   }
 
@@ -154,7 +143,7 @@ const DashboardAlerts = ({ proposals, onSelectProposal }: Props) => {
         <AlertTriangle className="w-4 h-4" />
         Alertas e Oportunidades
       </h3>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
         {sections.map((section) => {
           const Icon = section.icon;
           return (
