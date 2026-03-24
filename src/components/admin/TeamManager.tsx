@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useStoreData } from "@/hooks/useStoreData";
 import { toast } from "sonner";
-import { Loader2, Plus, Trash2, UserPlus, Shield, Eye, EyeOff, Pencil, AlertTriangle, Users, CreditCard, ExternalLink } from "lucide-react";
+import { Loader2, Plus, Minus, Trash2, UserPlus, Shield, Eye, EyeOff, Pencil, AlertTriangle, Users, CreditCard, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -10,6 +10,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import {
+  Dialog, DialogContent, DialogDescription, DialogFooter,
+  DialogHeader, DialogTitle,
+} from "@/components/ui/dialog";
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel,
   AlertDialogContent, AlertDialogDescription, AlertDialogFooter,
@@ -38,6 +42,8 @@ const TeamManager = () => {
   const [checkoutLoading, setCheckoutLoading] = useState(false);
   const [showForm, setShowForm] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [showExtraDialog, setShowExtraDialog] = useState(false);
+  const [extraQuantity, setExtraQuantity] = useState(1);
   const [editingRole, setEditingRole] = useState<string | null>(null);
   const [currentPlanSlug, setCurrentPlanSlug] = useState<string>("gratuito");
   const [formData, setFormData] = useState({
@@ -228,11 +234,15 @@ const TeamManager = () => {
     try {
       setCheckoutLoading(true);
       const { data, error } = await supabase.functions.invoke("create-member-checkout", {
-        body: { quantity: 1 },
+        body: { quantity: extraQuantity },
       });
       if (error) throw error;
       if (data?.error) throw new Error(data.error);
-      if (data?.url) window.open(data.url, "_blank");
+      if (data?.url) {
+        window.open(data.url, "_blank");
+        setShowExtraDialog(false);
+        setExtraQuantity(1);
+      }
     } catch (err: any) {
       toast.error(err.message || "Erro ao iniciar checkout");
     } finally {
@@ -259,15 +269,10 @@ const TeamManager = () => {
           </Button>
         ) : (
           <Button
-            onClick={handleExtraMemberCheckout}
-            disabled={checkoutLoading}
+            onClick={() => setShowExtraDialog(true)}
             className="bg-amber-600 hover:bg-amber-700 text-white"
           >
-            {checkoutLoading ? (
-              <Loader2 className="w-4 h-4 animate-spin mr-2" />
-            ) : (
-              <CreditCard className="w-4 h-4 mr-2" />
-            )}
+            <CreditCard className="w-4 h-4 mr-2" />
             Contratar Colaborador Extra
           </Button>
         )}
@@ -452,6 +457,61 @@ const TeamManager = () => {
           );
         })}
       </div>
+
+      {/* Dialog para escolher quantidade de colaboradores extras */}
+      <Dialog open={showExtraDialog} onOpenChange={(open) => { setShowExtraDialog(open); if (!open) setExtraQuantity(1); }}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Contratar Colaboradores Extras</DialogTitle>
+            <DialogDescription>
+              Escolha quantos colaboradores extras deseja adicionar à sua equipe. Cada colaborador custa <strong>R$ 14,90/mês</strong>.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="flex flex-col items-center gap-4 py-4">
+            <div className="flex items-center gap-4">
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={() => setExtraQuantity(Math.max(1, extraQuantity - 1))}
+                disabled={extraQuantity <= 1}
+              >
+                <Minus className="w-4 h-4" />
+              </Button>
+              <span className="text-4xl font-bold w-16 text-center">{extraQuantity}</span>
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={() => setExtraQuantity(Math.min(20, extraQuantity + 1))}
+                disabled={extraQuantity >= 20}
+              >
+                <Plus className="w-4 h-4" />
+              </Button>
+            </div>
+            <p className="text-sm text-muted-foreground">
+              {extraQuantity} colaborador{extraQuantity > 1 ? "es" : ""} × R$ 14,90 = <strong>R$ {(extraQuantity * 14.9).toFixed(2).replace(".", ",")}/mês</strong>
+            </p>
+          </div>
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowExtraDialog(false)}>
+              Cancelar
+            </Button>
+            <Button
+              onClick={handleExtraMemberCheckout}
+              disabled={checkoutLoading}
+              className="gradient-primary text-white"
+            >
+              {checkoutLoading ? (
+                <Loader2 className="w-4 h-4 animate-spin mr-2" />
+              ) : (
+                <ExternalLink className="w-4 h-4 mr-2" />
+              )}
+              Ir para Pagamento
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
