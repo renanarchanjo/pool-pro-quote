@@ -43,6 +43,13 @@ interface Optional {
 interface Brand {
   id: string;
   name: string;
+  logo_url?: string | null;
+}
+
+interface Partner {
+  id: string;
+  name: string;
+  logo_url: string | null;
 }
 
 interface Category {
@@ -63,6 +70,7 @@ const ManualProposal = () => {
   const [optionals, setOptionals] = useState<Optional[]>([]);
   const [modelOptionals, setModelOptionals] = useState<any[]>([]);
   const [optionalGroups, setOptionalGroups] = useState<{ id: string; name: string; description: string | null; display_order: number }[]>([]);
+  const [partners, setPartners] = useState<Partner[]>([]);
 
   const [selectedBrandId, setSelectedBrandId] = useState<string>("");
   const [selectedCategoryId, setSelectedCategoryId] = useState<string>("");
@@ -105,13 +113,14 @@ const ManualProposal = () => {
   const loadData = async () => {
     try {
       const storeId = profile!.store_id!;
-      const [brandRes, catRes, modRes, optRes, modelOptRes, groupsRes] = await Promise.all([
-        supabase.from("brands").select("id, name").eq("store_id", storeId).eq("active", true).order("name"),
+      const [brandRes, catRes, modRes, optRes, modelOptRes, groupsRes, partnersRes] = await Promise.all([
+        supabase.from("brands").select("id, name, logo_url").eq("store_id", storeId).eq("active", true).order("name"),
         supabase.from("categories").select("id, name, brand_id").eq("store_id", storeId).eq("active", true).order("name"),
         supabase.from("pool_models").select("*").eq("store_id", storeId).eq("active", true).order("display_order"),
         supabase.from("optionals").select("*").eq("store_id", storeId).eq("active", true).order("display_order"),
         supabase.from("model_optionals").select("*").eq("store_id", storeId).eq("active", true).order("display_order"),
         supabase.from("optional_groups").select("id, name, description, display_order").eq("store_id", storeId).eq("active", true).order("display_order"),
+        supabase.from("partners").select("id, name, logo_url").eq("active", true).order("display_order"),
       ]);
       setBrands(brandRes.data || []);
       setCategories(catRes.data || []);
@@ -119,6 +128,7 @@ const ManualProposal = () => {
       setOptionals(optRes.data || []);
       setModelOptionals(modelOptRes.data || []);
       setOptionalGroups(groupsRes.data || []);
+      setPartners(partnersRes.data || []);
     } catch (e) {
       console.error(e);
       toast.error("Erro ao carregar dados");
@@ -218,17 +228,25 @@ const ManualProposal = () => {
         <Button variant="ghost" onClick={handleReset} className="mb-4">
           <ArrowLeft className="w-4 h-4 mr-2" /> Nova Proposta
         </Button>
-        <ProposalView
-          model={selectedModel}
-          selectedOptionals={[...selectedOptionalsList, ...selectedModelOptsList.map((o: any) => ({ name: o.name, price: o.price }))]}
-          customerData={{ name: customerName, city: `${customerCity} / ${customerUf}`, whatsapp: customerWhatsapp }}
-          category={categories.find((c) => c.id === selectedModel.category_id)?.name || "Piscina"}
-          onBack={handleReset}
-          storeSettings={storeSettings}
-          storeName={store?.name}
-          storeCity={store?.city}
-          storeState={store?.state}
-        />
+        {(() => {
+          const cat = categories.find(c => c.id === selectedModel.category_id);
+          const brand = cat?.brand_id ? brands.find(b => b.id === cat.brand_id) : null;
+          return (
+            <ProposalView
+              model={selectedModel}
+              selectedOptionals={[...selectedOptionalsList, ...selectedModelOptsList.map((o: any) => ({ name: o.name, price: o.price }))]}
+              customerData={{ name: customerName, city: `${customerCity} / ${customerUf}`, whatsapp: customerWhatsapp }}
+              category={cat?.name || "Piscina"}
+              onBack={handleReset}
+              storeSettings={storeSettings}
+              storeName={store?.name}
+              storeCity={store?.city}
+              storeState={store?.state}
+              brandLogoUrl={brand?.logo_url}
+              partners={partners}
+            />
+          );
+        })()}
       </div>
     );
   }

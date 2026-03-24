@@ -29,6 +29,12 @@ interface CustomerData {
   whatsapp: string;
 }
 
+interface Partner {
+  id: string;
+  name: string;
+  logo_url: string | null;
+}
+
 interface ProposalViewProps {
   model: PoolModel;
   selectedOptionals: Optional[];
@@ -44,6 +50,8 @@ interface ProposalViewProps {
   storeName?: string | null;
   storeCity?: string | null;
   storeState?: string | null;
+  brandLogoUrl?: string | null;
+  partners?: Partner[];
 }
 
 const ProposalView = ({
@@ -57,6 +65,8 @@ const ProposalView = ({
   storeName,
   storeCity,
   storeState,
+  brandLogoUrl,
+  partners = [],
 }: ProposalViewProps) => {
   const hasAutoDownloaded = useRef(false);
   const optionalsTotal = selectedOptionals.reduce((sum, opt) => sum + opt.price, 0);
@@ -259,6 +269,11 @@ const ProposalView = ({
             <div style={sectionStyle}>
               <div style={sectionHeaderStyle}>Piscina</div>
               <div style={{ ...sectionBodyStyle, display: "flex", alignItems: "flex-start", gap: "16px" }}>
+                {brandLogoUrl && (
+                  <div style={{ flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", width: "80px", height: "80px" }}>
+                    <img src={brandLogoUrl} alt="Marca" style={{ maxWidth: "80px", maxHeight: "80px", objectFit: "contain" }} crossOrigin="anonymous" />
+                  </div>
+                )}
                 <div style={{ flex: 1 }}>
                   <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "8px" }}>
                     <span style={{ fontSize: "20px", fontWeight: 800, color: "#111827" }}>{model.name}</span>
@@ -391,8 +406,28 @@ const ProposalView = ({
               </div>
             </div>
 
+            {/* ===== PARCEIROS ===== */}
+            {partners.length > 0 && (
+              <div style={{ marginTop: "24px", paddingTop: "16px", borderTop: "1px solid #e5e7eb" }}>
+                <p style={{ textAlign: "center", fontSize: "10px", color: "#9ca3af", marginBottom: "12px", textTransform: "uppercase", letterSpacing: "1px" }}>
+                  Parceiros oficiais
+                </p>
+                <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", alignItems: "center", gap: "20px" }}>
+                  {partners.map((p) => (
+                    <div key={p.id} style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
+                      {p.logo_url ? (
+                        <img src={p.logo_url} alt={p.name} style={{ maxHeight: "36px", maxWidth: "100px", objectFit: "contain" }} crossOrigin="anonymous" />
+                      ) : (
+                        <span style={{ fontSize: "11px", fontWeight: 700, color: "#6b7280" }}>{p.name}</span>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
             {/* ===== FOOTER ===== */}
-            <div style={{ textAlign: "center", fontSize: "11px", color: "#9ca3af", marginTop: "24px", paddingTop: "16px", borderTop: "1px solid #e5e7eb" }}>
+            <div style={{ textAlign: "center", fontSize: "11px", color: "#9ca3af", marginTop: "16px", paddingTop: "12px", borderTop: "1px solid #e5e7eb" }}>
               Documento gerado por SimulaPool
             </div>
           </div>

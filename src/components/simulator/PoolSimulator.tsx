@@ -49,6 +49,13 @@ interface Optional {
 interface Brand {
   id: string;
   name: string;
+  logo_url?: string | null;
+}
+
+interface Partner {
+  id: string;
+  name: string;
+  logo_url: string | null;
 }
 
 interface Category {
@@ -89,19 +96,21 @@ const PoolSimulator = ({ onBack }: PoolSimulatorProps) => {
   const [storeSettings, setStoreSettings] = useState<any>(null);
   const [storeCity, setStoreCity] = useState<string | null>(null);
   const [storeState, setStoreState] = useState<string | null>(null);
+  const [partners, setPartners] = useState<Partner[]>([]);
 
   const loadStoreData = async (sid: string) => {
     try {
       setLoading(true);
 
-      const [modelsRes, brandsRes, catsRes, optionalsRes, modelOptsRes, settingsRes, storeRes] = await Promise.all([
+      const [modelsRes, brandsRes, catsRes, optionalsRes, modelOptsRes, settingsRes, storeRes, partnersRes] = await Promise.all([
         supabase.from("pool_models").select("*").eq("active", true).eq("store_id", sid).order("display_order"),
-        supabase.from("brands").select("id, name").eq("active", true).eq("store_id", sid).order("name"),
+        supabase.from("brands").select("id, name, logo_url").eq("active", true).eq("store_id", sid).order("name"),
         supabase.from("categories").select("id, name, brand_id").eq("active", true).eq("store_id", sid).order("name"),
         supabase.from("optionals").select("*").eq("active", true).eq("store_id", sid).order("display_order"),
         supabase.from("model_optionals").select("*").eq("active", true).eq("store_id", sid).order("display_order"),
         supabase.from("store_settings").select("*").eq("store_id", sid).maybeSingle(),
         supabase.from("stores").select("name, city, state").eq("id", sid).single(),
+        supabase.from("partners").select("id, name, logo_url").eq("active", true).order("display_order"),
       ]);
 
       if (modelsRes.error) throw modelsRes.error;
@@ -113,6 +122,7 @@ const PoolSimulator = ({ onBack }: PoolSimulatorProps) => {
       setOptionals(optionalsRes.data || []);
       setModelOptionals(modelOptsRes.data || []);
       setStoreSettings(settingsRes.data || null);
+      setPartners(partnersRes.data || []);
       if (storeRes.data) {
         setSelectedStoreName(storeRes.data.name);
         setStoreCity(storeRes.data.city);
@@ -260,20 +270,28 @@ const PoolSimulator = ({ onBack }: PoolSimulatorProps) => {
             </DialogClose>
           </DialogContent>
         </Dialog>
-        <ProposalView
-          model={selectedModel}
-          selectedOptionals={[
-            ...optionals.filter(opt => selectedOptionals.includes(opt.id)),
-            ...modelOptionals.filter((opt: any) => selectedOptionals.includes(opt.id)).map((o: any) => ({ name: o.name, price: o.price })),
-          ]}
-          customerData={customerData}
-          category="Piscina de Fibra"
-          onBack={handleRestart}
-          storeSettings={storeSettings}
-          storeName={selectedStoreName !== "Todas as lojas" ? selectedStoreName : undefined}
-          storeCity={storeCity}
-          storeState={storeState}
-        />
+        {(() => {
+          const cat = categories.find(c => c.id === selectedModel.category_id);
+          const brand = cat?.brand_id ? brands.find(b => b.id === cat.brand_id) : null;
+          return (
+            <ProposalView
+              model={selectedModel}
+              selectedOptionals={[
+                ...optionals.filter(opt => selectedOptionals.includes(opt.id)),
+                ...modelOptionals.filter((opt: any) => selectedOptionals.includes(opt.id)).map((o: any) => ({ name: o.name, price: o.price })),
+              ]}
+              customerData={customerData}
+              category="Piscina de Fibra"
+              onBack={handleRestart}
+              storeSettings={storeSettings}
+              storeName={selectedStoreName !== "Todas as lojas" ? selectedStoreName : undefined}
+              storeCity={storeCity}
+              storeState={storeState}
+              brandLogoUrl={brand?.logo_url}
+              partners={partners}
+            />
+          );
+        })()}
       </>
     );
   }
