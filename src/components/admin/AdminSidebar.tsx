@@ -100,7 +100,11 @@ const AdminSidebar = () => {
         {renderGroup("CONTA", accountItems)}
       </SidebarContent>
 
-      <SidebarFooter className="p-4 safe-area-bottom">
+      <SidebarFooter className="p-4 safe-area-bottom space-y-2">
+        <div className="flex items-center justify-between">
+          <span className="text-xs text-muted-foreground">Tema</span>
+          <ThemeToggle />
+        </div>
         <Button
           variant="outline"
           onClick={handleLogout}
