@@ -76,16 +76,27 @@ const ProposalView = ({
       const element = document.getElementById("proposal-content");
       if (!element) return;
 
+      // Temporarily force a fixed width for consistent PDF rendering
+      const originalStyle = element.style.cssText;
+      element.style.width = "800px";
+      element.style.maxWidth = "800px";
+      element.style.padding = "32px";
+      element.style.margin = "0";
+
       await html2pdf()
         .set({
-          margin: 10,
+          margin: [8, 8, 8, 8],
           filename: `Proposta-${customerData.name.trim().replace(/\s+/g, "-")}-${today.replace(/\//g, "-")}.pdf`,
           image: { type: "jpeg", quality: 0.98 },
-          html2canvas: { scale: 2, useCORS: true },
+          html2canvas: { scale: 2, useCORS: true, width: 800, windowWidth: 800 },
           jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
+          pagebreak: { mode: ["avoid-all", "css", "legacy"] },
         })
         .from(element)
         .save();
+
+      // Restore original style
+      element.style.cssText = originalStyle;
 
       toast.success("PDF baixado com sucesso!");
     } catch (error) {
