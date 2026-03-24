@@ -189,10 +189,10 @@ const AdminDashboard = () => {
       {/* Header - excluded from PDF */}
       <div className="flex items-center justify-between gap-3">
         <div className="min-w-0 flex-1">
+          <h1 className="text-lg sm:text-xl md:text-3xl font-bold truncate">Painel Comercial</h1>
           <p className="text-muted-foreground text-xs sm:text-sm truncate">
             Olá, <span className="font-bold text-foreground">{profile?.full_name || "Lojista"}</span>
           </p>
-          <h1 className="text-lg sm:text-xl md:text-3xl font-bold truncate">Painel Comercial</h1>
         </div>
         <div className="flex items-center gap-2 shrink-0 flex-wrap justify-end">
           {isOwner && teamMembers.length > 1 && (
