@@ -69,6 +69,7 @@ const ProposalView = ({
   storeCity,
   storeState,
   brandLogoUrl,
+  brandName,
   partners = [],
 }: ProposalViewProps) => {
   const hasAutoDownloaded = useRef(false);
