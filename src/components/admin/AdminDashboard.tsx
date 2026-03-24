@@ -103,8 +103,9 @@ const AdminDashboard = () => {
     if (!reportRef.current) return;
     await exportPDF({
       element: reportRef.current,
-      filename: `relatorio-propostas-${new Date().toISOString().split("T")[0]}.pdf`,
+      filename: `relatorio-dashboard-${new Date().toISOString().split("T")[0]}.pdf`,
       orientation: "landscape",
+      captureWidth: 1100,
     });
   };
 
