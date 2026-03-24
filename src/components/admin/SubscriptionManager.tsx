@@ -72,10 +72,18 @@ const PLANS = [
   },
 ];
 
+const LEAD_PLAN = {
+  priceId: "price_1TELsVD4inSHTJNLmue5gkTP",
+  productId: "prod_UClPPxnoSh7tlx",
+  price: "R$ 997,00",
+};
+
 const SubscriptionManager = () => {
+  const { store } = useStoreData();
   const [loading, setLoading] = useState(true);
   const [checkoutLoading, setCheckoutLoading] = useState<string | null>(null);
   const [portalLoading, setPortalLoading] = useState(false);
+  const [leadPlanActive, setLeadPlanActive] = useState(false);
   const [subscription, setSubscription] = useState<{
     subscribed: boolean;
     product_id: string | null;
@@ -86,6 +94,19 @@ const SubscriptionManager = () => {
   useEffect(() => {
     checkSubscription();
   }, []);
+
+  useEffect(() => {
+    if (store) {
+      supabase
+        .from("stores")
+        .select("lead_plan_active")
+        .eq("id", store.id)
+        .single()
+        .then(({ data }) => {
+          setLeadPlanActive(!!data?.lead_plan_active);
+        });
+    }
+  }, [store]);
 
   const checkSubscription = async () => {
     try {
