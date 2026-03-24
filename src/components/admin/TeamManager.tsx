@@ -87,9 +87,9 @@ const TeamManager = () => {
   const loadMembers = async () => {
     if (!store) return;
     try {
-      const { data: profiles, error } = await supabase
+      const { data: profiles, error } = await (supabase as any)
         .from("profiles")
-        .select("id, full_name")
+        .select("id, full_name, daily_lead_limit")
         .eq("store_id", store.id);
 
       if (error) throw error;
@@ -106,6 +106,7 @@ const TeamManager = () => {
           id: p.id,
           full_name: p.full_name,
           role: roleData?.role || "seller",
+          daily_lead_limit: p.daily_lead_limit || 0,
         });
       }
 
