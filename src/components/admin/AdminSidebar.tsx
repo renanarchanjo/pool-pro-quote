@@ -110,7 +110,7 @@ const AdminSidebar = () => {
 
       <SidebarContent>
         {renderGroup("PAINEL COMERCIAL", mainItems)}
-        {renderGroup("CADASTRAL", catalogItems)}
+         {renderGroup("CADASTRO", catalogItems)}
         {renderGroup("CONTA", accountItems)}
       </SidebarContent>
 
