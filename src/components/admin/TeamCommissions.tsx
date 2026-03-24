@@ -231,27 +231,16 @@ const TeamCommissions = () => {
                       <p className="font-semibold text-sm">{m.name}</p>
                       <div className="flex items-center gap-2 mt-0.5">
                         {editingMember === m.memberId ? (
-                          <div className="flex items-center gap-1">
-                            <Input type="number" step="0.5" min="0" max="100" value={editPercent}
-                              onChange={e => setEditPercent(e.target.value)} className="h-6 w-16 text-xs px-1" />
-                            <span className="text-xs text-muted-foreground">%</span>
-                            <Button size="icon" variant="ghost" className="h-6 w-6" onClick={() => handleSave(m.memberId)} disabled={saving}>
-                              <Save className="w-3 h-3 text-emerald-600" />
-                            </Button>
-                            <Button size="icon" variant="ghost" className="h-6 w-6" onClick={() => setEditingMember(null)}>
-                              <X className="w-3 h-3" />
-                            </Button>
-                          </div>
+                          <>
+                            <Badge variant="outline" className="text-[10px] bg-primary/10 text-primary border-primary/20">
+                              {m.commissionPercent}% comissão
+                            </Badge>
+                          </>
                         ) : (
                           <>
                             <Badge variant="outline" className="text-[10px] bg-primary/10 text-primary border-primary/20">
                               {m.commissionPercent}% comissão
                             </Badge>
-                            {isOwner && (
-                              <Button size="icon" variant="ghost" className="h-5 w-5" onClick={() => handleStartEdit(m.memberId)}>
-                                <Pencil className="w-3 h-3 text-muted-foreground" />
-                              </Button>
-                            )}
                           </>
                         )}
                       </div>
