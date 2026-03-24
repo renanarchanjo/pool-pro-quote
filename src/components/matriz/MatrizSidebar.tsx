@@ -39,9 +39,12 @@ const MatrizSidebar = () => {
     <Sidebar collapsible="offcanvas">
       <SidebarHeader className="border-b border-border/50">
         <div className="h-3 bg-white md:hidden" />
-        <div className="flex items-center gap-3 p-4">
-          <img src={simulapoolIcon} alt="SIMULAPOOL" className="h-[62px] w-[62px] object-contain" />
-          <span className="text-sm font-bold text-primary tracking-wider">Simula Pool APP</span>
+        <div className="flex items-center gap-3 px-5 py-4">
+          <img src={simulapoolIcon} alt="SimulaPool" className="h-11 w-11 object-contain rounded-xl" />
+          <div className="flex flex-col">
+            <span className="text-base font-bold text-primary leading-tight">Simula Pool</span>
+            <span className="text-[10px] text-muted-foreground font-medium tracking-wide">Painel Matriz</span>
+          </div>
         </div>
       </SidebarHeader>
 
