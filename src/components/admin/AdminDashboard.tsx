@@ -158,10 +158,12 @@ const AdminDashboard = () => {
       </div>
 
       {/* (A) KPIs */}
-      <DashboardKPIs proposals={proposals} />
+      <div style={{ pageBreakInside: "avoid" }}>
+        <DashboardKPIs proposals={proposals} />
+      </div>
 
       {/* (B) Funnel + (D) Alerts */}
-      <div className="grid grid-cols-1 lg:grid-cols-5 gap-3 md:gap-4">
+      <div className="grid grid-cols-1 lg:grid-cols-5 gap-3 md:gap-4" style={{ pageBreakInside: "avoid" }}>
         <div className="lg:col-span-2">
           <DashboardFunnel proposals={proposals} />
         </div>
