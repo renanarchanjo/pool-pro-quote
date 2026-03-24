@@ -156,13 +156,14 @@ const ProposalView = ({
           id="proposal-content"
           style={{
             maxWidth: "800px",
+            width: "100%",
             margin: "0 auto",
             background: "white",
             fontFamily: "'Inter', 'Segoe UI', sans-serif",
             color: "#111827",
-            padding: "16px",
+            padding: "32px",
+            boxSizing: "border-box",
           }}
-          className="sm:p-8 print:shadow-none"
         >
           {/* ===== HEADER ===== */}
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "28px", borderBottom: "2px solid #e5e7eb", paddingBottom: "20px" }}>
