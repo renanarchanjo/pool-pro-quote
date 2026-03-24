@@ -1,15 +1,23 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, Search, Loader2, CheckCircle2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import logoDark from "@/assets/simulapool-icon.png";
+
+const formatCNPJ = (value: string) => {
+  const digits = value.replace(/\D/g, "").slice(0, 14);
+  return digits
+    .replace(/^(\d{2})(\d)/, "$1.$2")
+    .replace(/^(\d{2})\.(\d{3})(\d)/, "$1.$2.$3")
+    .replace(/\.(\d{3})(\d)/, ".$1/$2")
+    .replace(/(\d{4})(\d)/, "$1-$2");
+};
 
 const Auth = () => {
   const [loading, setLoading] = useState(false);
@@ -17,15 +25,34 @@ const Auth = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [name, setName] = useState("");
+  const [cnpj, setCnpj] = useState("");
+  const [razaoSocial, setRazaoSocial] = useState("");
+  const [nomeFantasia, setNomeFantasia] = useState("");
   const [city, setCity] = useState("");
   const [state, setState] = useState("");
+  const [cnpjLoading, setCnpjLoading] = useState(false);
+  const [cnpjFound, setCnpjFound] = useState(false);
+  const [cities, setCities] = useState<string[]>([]);
   const navigate = useNavigate();
 
   const brazilStates = [
     "AC","AL","AP","AM","BA","CE","DF","ES","GO","MA","MT","MS","MG",
     "PA","PB","PR","PE","PI","RJ","RN","RS","RO","RR","SC","SP","SE","TO"
   ];
+
+  // Fetch cities when state changes
+  useEffect(() => {
+    if (!state) {
+      setCities([]);
+      return;
+    }
+    fetch(`https://servicodados.ibge.gov.br/api/v1/localidades/estados/${state}/municipios?orderBy=nome`)
+      .then(res => res.json())
+      .then((data: any[]) => {
+        setCities(data.map((m: any) => m.nome));
+      })
+      .catch(() => setCities([]));
+  }, [state]);
 
   useEffect(() => {
     const redirectByRole = async (userId: string) => {
@@ -53,6 +80,34 @@ const Auth = () => {
     return () => subscription.unsubscribe();
   }, [navigate]);
 
+  const lookupCNPJ = async () => {
+    const digits = cnpj.replace(/\D/g, "");
+    if (digits.length !== 14) {
+      toast.error("CNPJ deve ter 14 dígitos");
+      return;
+    }
+
+    setCnpjLoading(true);
+    setCnpjFound(false);
+    try {
+      const res = await fetch(`https://brasilapi.com.br/api/cnpj/v1/${digits}`);
+      if (!res.ok) throw new Error("CNPJ não encontrado");
+      const data = await res.json();
+      
+      setRazaoSocial(data.razao_social || "");
+      setNomeFantasia(data.nome_fantasia || data.razao_social || "");
+      setCnpjFound(true);
+      toast.success("Dados da empresa carregados!");
+    } catch {
+      toast.error("CNPJ não encontrado. Verifique o número.");
+      setRazaoSocial("");
+      setNomeFantasia("");
+      setCnpjFound(false);
+    } finally {
+      setCnpjLoading(false);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -61,14 +116,20 @@ const Auth = () => {
       return;
     }
 
-    if (!isLogin && !name) {
-      toast.error("Preencha o nome da loja");
-      return;
-    }
-
-    if (!isLogin && (!city || !state)) {
-      toast.error("Preencha a cidade e o estado");
-      return;
+    if (!isLogin) {
+      const digits = cnpj.replace(/\D/g, "");
+      if (digits.length !== 14) {
+        toast.error("Informe um CNPJ válido");
+        return;
+      }
+      if (!razaoSocial) {
+        toast.error("Busque o CNPJ para preencher os dados da empresa");
+        return;
+      }
+      if (!city || !state) {
+        toast.error("Preencha a cidade e o estado");
+        return;
+      }
     }
 
     if (password.length < 6) {
@@ -88,10 +149,9 @@ const Auth = () => {
         if (error) throw error;
         toast.success("Login realizado com sucesso!");
       } else {
-        // Create store slug from email
         const slug = email.split('@')[0].toLowerCase().replace(/[^a-z0-9]/g, '') + '-' + Date.now();
+        const cnpjDigits = cnpj.replace(/\D/g, "");
         
-        // Sign up user
         const { data: authData, error: signUpError } = await supabase.auth.signUp({
           email,
           password,
@@ -103,27 +163,32 @@ const Auth = () => {
         if (signUpError) throw signUpError;
         if (!authData.user) throw new Error("Erro ao criar usuário");
 
-        // Create store
         const { data: storeData, error: storeError } = await supabase
           .from("stores")
-          .insert({ name, slug, city, state })
+          .insert({ 
+            name: nomeFantasia || razaoSocial, 
+            slug, 
+            city, 
+            state,
+            cnpj: cnpjDigits,
+            razao_social: razaoSocial,
+            nome_fantasia: nomeFantasia,
+          })
           .select()
           .single();
 
         if (storeError) throw storeError;
 
-        // Create profile
         const { error: profileError } = await supabase
           .from("profiles")
           .insert({
             id: authData.user.id,
             store_id: storeData.id,
-            full_name: name,
+            full_name: nomeFantasia || razaoSocial,
           });
 
         if (profileError) throw profileError;
 
-        // Create owner role
         const { error: roleError } = await supabase
           .from("user_roles")
           .insert({
@@ -133,7 +198,6 @@ const Auth = () => {
 
         if (roleError) throw roleError;
 
-        // Create default store settings
         const { error: settingsError } = await supabase
           .from("store_settings")
           .insert({
@@ -167,46 +231,99 @@ const Auth = () => {
 
         <form onSubmit={handleSubmit} className="space-y-4">
           {!isLogin && (
-            <div>
-              <Label htmlFor="name">Nome da Loja</Label>
-              <Input
-                id="name"
-                type="text"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder="Minha Loja de Piscinas"
-                disabled={loading}
-              />
-            </div>
-          )}
+            <>
+              {/* CNPJ with auto-lookup */}
+              <div>
+                <Label htmlFor="cnpj">CNPJ</Label>
+                <div className="flex gap-2">
+                  <Input
+                    id="cnpj"
+                    type="text"
+                    value={cnpj}
+                    onChange={(e) => {
+                      setCnpj(formatCNPJ(e.target.value));
+                      setCnpjFound(false);
+                    }}
+                    placeholder="00.000.000/0000-00"
+                    disabled={loading || cnpjLoading}
+                    className="flex-1"
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="icon"
+                    onClick={lookupCNPJ}
+                    disabled={loading || cnpjLoading || cnpj.replace(/\D/g, "").length !== 14}
+                    className="shrink-0"
+                  >
+                    {cnpjLoading ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : cnpjFound ? (
+                      <CheckCircle2 className="h-4 w-4 text-green-600" />
+                    ) : (
+                      <Search className="h-4 w-4" />
+                    )}
+                  </Button>
+                </div>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Digite o CNPJ e clique na lupa para buscar
+                </p>
+              </div>
 
-          {!isLogin && (
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <Label htmlFor="city">Cidade</Label>
-                <Input
-                  id="city"
-                  type="text"
-                  value={city}
-                  onChange={(e) => setCity(e.target.value)}
-                  placeholder="Ex: São Paulo"
-                  disabled={loading}
-                />
+              {/* Auto-filled fields */}
+              {cnpjFound && (
+                <div className="space-y-3 p-3 rounded-lg bg-muted/50 border border-border/50">
+                  <div>
+                    <Label htmlFor="razaoSocial" className="text-xs text-muted-foreground">Razão Social</Label>
+                    <Input
+                      id="razaoSocial"
+                      value={razaoSocial}
+                      readOnly
+                      className="bg-background/50 text-sm"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="nomeFantasia" className="text-xs text-muted-foreground">Nome Fantasia</Label>
+                    <Input
+                      id="nomeFantasia"
+                      value={nomeFantasia}
+                      readOnly
+                      className="bg-background/50 text-sm"
+                    />
+                  </div>
+                </div>
+              )}
+
+              {/* State and City */}
+              <div className="grid grid-cols-[120px_1fr] gap-3">
+                <div>
+                  <Label htmlFor="state">Estado</Label>
+                  <Select value={state} onValueChange={(v) => { setState(v); setCity(""); }} disabled={loading}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="UF" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {brazilStates.map((uf) => (
+                        <SelectItem key={uf} value={uf}>{uf}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label htmlFor="city">Cidade</Label>
+                  <Select value={city} onValueChange={setCity} disabled={loading || !state}>
+                    <SelectTrigger>
+                      <SelectValue placeholder={state ? "Selecione a cidade" : "Selecione o estado primeiro"} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {cities.map((c) => (
+                        <SelectItem key={c} value={c}>{c}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
-              <div>
-                <Label htmlFor="state">Estado</Label>
-                <Select value={state} onValueChange={setState} disabled={loading}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="UF" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {brazilStates.map((uf) => (
-                      <SelectItem key={uf} value={uf}>{uf}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
+            </>
           )}
           
           <div>
