@@ -180,7 +180,16 @@ const Auth = () => {
           password,
         });
 
-        if (error) throw error;
+        if (error) {
+          // If email not confirmed, show the confirmation screen
+          if (error.message?.toLowerCase().includes("email not confirmed")) {
+            setPendingEmail(email);
+            setPendingConfirmation(true);
+            setResendCooldown(0);
+            return;
+          }
+          throw error;
+        }
         toast.success("Login realizado com sucesso!");
       } else {
         const slug = email.split('@')[0].toLowerCase().replace(/[^a-z0-9]/g, '') + '-' + Date.now();
