@@ -276,7 +276,11 @@ const AdminLeads = () => {
           <ul className="space-y-2 text-sm mb-5">
             <li className="flex items-center gap-2">
               <Check className="w-4 h-4 text-emerald-500 shrink-0" />
-              Leads qualificados da sua região
+              <strong>100 leads por mês</strong> inclusos no plano
+            </li>
+            <li className="flex items-center gap-2">
+              <Check className="w-4 h-4 text-emerald-500 shrink-0" />
+              Você escolhe quais leads aceitar ou recusar
             </li>
             <li className="flex items-center gap-2">
               <Check className="w-4 h-4 text-emerald-500 shrink-0" />
@@ -289,6 +293,10 @@ const AdminLeads = () => {
             <li className="flex items-center gap-2">
               <Check className="w-4 h-4 text-emerald-500 shrink-0" />
               Distribuição exclusiva por cidade
+            </li>
+            <li className="flex items-center gap-2 text-amber-600">
+              <AlertTriangle className="w-4 h-4 shrink-0" />
+              Ao exceder, R$ 25,00 por lead adicional
             </li>
           </ul>
 
