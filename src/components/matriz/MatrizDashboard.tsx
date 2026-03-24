@@ -235,7 +235,7 @@ const MatrizDashboard = () => {
       </div>
 
       {/* ── 1. KPIs ── */}
-      <div className="grid grid-cols-2 lg:grid-cols-6 gap-3">
+      <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
         <KPICard icon={DollarSign} label="MRR" value={fmt(mrr)} iconBg="bg-emerald-500/10" iconColor="text-emerald-600" />
         <KPICard
           icon={mrrGrowth >= 0 ? TrendingUp : TrendingDown}
