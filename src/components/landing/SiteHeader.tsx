@@ -48,11 +48,10 @@ const SiteHeader = () => {
 
           {/* Mobile Toggle */}
           <button
-            className="md:hidden p-2.5 -mr-2 -mb-0.5 touch-manipulation"
+            className="md:hidden min-w-[56px] min-h-[56px] flex items-center justify-center -mr-2 touch-manipulation active:bg-muted/50 rounded-xl transition-colors"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             aria-label="Menu">
-            
-            {mobileMenuOpen ? <X className="w-7 h-7" /> : <Menu className="w-7 h-7" />}
+            {mobileMenuOpen ? <X className="w-8 h-8" /> : <Menu className="w-8 h-8" />}
           </button>
         </div>
 
