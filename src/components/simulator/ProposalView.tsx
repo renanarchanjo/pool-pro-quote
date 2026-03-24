@@ -406,8 +406,28 @@ const ProposalView = ({
               </div>
             </div>
 
+            {/* ===== PARCEIROS ===== */}
+            {partners.length > 0 && (
+              <div style={{ marginTop: "24px", paddingTop: "16px", borderTop: "1px solid #e5e7eb" }}>
+                <p style={{ textAlign: "center", fontSize: "10px", color: "#9ca3af", marginBottom: "12px", textTransform: "uppercase", letterSpacing: "1px" }}>
+                  Parceiros oficiais
+                </p>
+                <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", alignItems: "center", gap: "20px" }}>
+                  {partners.map((p) => (
+                    <div key={p.id} style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
+                      {p.logo_url ? (
+                        <img src={p.logo_url} alt={p.name} style={{ maxHeight: "36px", maxWidth: "100px", objectFit: "contain" }} crossOrigin="anonymous" />
+                      ) : (
+                        <span style={{ fontSize: "11px", fontWeight: 700, color: "#6b7280" }}>{p.name}</span>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
             {/* ===== FOOTER ===== */}
-            <div style={{ textAlign: "center", fontSize: "11px", color: "#9ca3af", marginTop: "24px", paddingTop: "16px", borderTop: "1px solid #e5e7eb" }}>
+            <div style={{ textAlign: "center", fontSize: "11px", color: "#9ca3af", marginTop: "16px", paddingTop: "12px", borderTop: "1px solid #e5e7eb" }}>
               Documento gerado por SimulaPool
             </div>
           </div>
