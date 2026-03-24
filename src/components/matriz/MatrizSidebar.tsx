@@ -1,5 +1,5 @@
 import { useNavigate, useLocation } from "react-router-dom";
-import { LayoutDashboard, Store, CreditCard, LogOut, Handshake } from "lucide-react";
+import { LayoutDashboard, Store, CreditCard, LogOut, Handshake, Users } from "lucide-react";
 import {
   Sidebar, SidebarContent, SidebarGroup, SidebarGroupLabel,
   SidebarGroupContent, SidebarMenu, SidebarMenuItem,
