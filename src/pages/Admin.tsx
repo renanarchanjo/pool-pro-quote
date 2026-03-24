@@ -15,6 +15,7 @@ import StoresManager from "@/components/admin/StoresManager";
 import TeamManager from "@/components/admin/TeamManager";
 import SubscriptionManager from "@/components/admin/SubscriptionManager";
 import AdminLeads from "@/components/admin/AdminLeads";
+import InvoiceHistory from "@/components/admin/InvoiceHistory";
 import { useStoreData } from "@/hooks/useStoreData";
 import PendingLeadsAlert from "@/components/admin/PendingLeadsAlert";
 
