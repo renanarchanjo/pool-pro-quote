@@ -290,10 +290,14 @@ const MatrizLeads = () => {
       </div>
 
       {/* KPIs */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
         <Card><CardContent className="pt-4 pb-3">
-          <div className="flex items-center gap-2 text-muted-foreground text-xs font-medium mb-1"><Users className="w-3.5 h-3.5" /> Total</div>
+          <div className="flex items-center gap-2 text-muted-foreground text-xs font-medium mb-1"><Users className="w-3.5 h-3.5" /> Total Captado</div>
           <p className="text-2xl font-bold">{filtered.length}</p>
+        </CardContent></Card>
+        <Card><CardContent className="pt-4 pb-3">
+          <div className="flex items-center gap-2 text-cyan-600 text-xs font-medium mb-1"><CheckCircle2 className="w-3.5 h-3.5" /> Aceitos</div>
+          <p className="text-2xl font-bold text-cyan-600">{aceitosCount}</p>
         </CardContent></Card>
         <Card><CardContent className="pt-4 pb-3">
           <div className="flex items-center gap-2 text-amber-600 text-xs font-medium mb-1"><Send className="w-3.5 h-3.5" /> Pendentes</div>
