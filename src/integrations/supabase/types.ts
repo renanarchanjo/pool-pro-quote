@@ -458,6 +458,8 @@ export type Database = {
       partners: {
         Row: {
           active: boolean | null
+          banner_1_url: string | null
+          banner_2_url: string | null
           created_at: string | null
           display_order: number | null
           id: string
@@ -467,6 +469,8 @@ export type Database = {
         }
         Insert: {
           active?: boolean | null
+          banner_1_url?: string | null
+          banner_2_url?: string | null
           created_at?: string | null
           display_order?: number | null
           id?: string
@@ -476,6 +480,8 @@ export type Database = {
         }
         Update: {
           active?: boolean | null
+          banner_1_url?: string | null
+          banner_2_url?: string | null
           created_at?: string | null
           display_order?: number | null
           id?: string
