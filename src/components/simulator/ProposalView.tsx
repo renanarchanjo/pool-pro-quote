@@ -255,25 +255,42 @@ const ProposalView = ({
               </div>
             </div>
 
-            {/* ===== CLIENTE ===== */}
-            <div style={sectionStyle}>
-              <div style={sectionHeaderStyle}>Cliente</div>
-              <div style={sectionBodyStyle}>
-                <table style={{ width: "100%", fontSize: "13px", borderCollapse: "collapse" }}>
-                  <tbody>
-                    {[
-                      ["Nome", customerData.name],
-                      ["WhatsApp", customerData.whatsapp],
-                      ["Cidade / UF", customerData.city],
-                    ].map(([label, value], i) => (
-                      <tr key={i} style={{ borderBottom: i < 2 ? "1px solid #f3f4f6" : "none" }}>
-                        <td style={{ fontWeight: 700, color: "#374151", padding: "8px 16px 8px 0", width: "140px" }}>{label}</td>
-                        <td style={{ padding: "8px 0", color: "#111827" }}>{value}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+            {/* ===== CLIENTE + BANNER LATERAL ===== */}
+            <div style={{ display: "flex", gap: "16px", marginBottom: "16px" }}>
+              <div style={{ ...sectionStyle, flex: 1, marginBottom: 0 }}>
+                <div style={sectionHeaderStyle}>Cliente</div>
+                <div style={sectionBodyStyle}>
+                  <table style={{ width: "100%", fontSize: "13px", borderCollapse: "collapse" }}>
+                    <tbody>
+                      {[
+                        ["Nome", customerData.name],
+                        ["WhatsApp", customerData.whatsapp],
+                        ["Cidade / UF", customerData.city],
+                      ].map(([label, value], i) => (
+                        <tr key={i} style={{ borderBottom: i < 2 ? "1px solid #f3f4f6" : "none" }}>
+                          <td style={{ fontWeight: 700, color: "#374151", padding: "8px 16px 8px 0", width: "140px" }}>{label}</td>
+                          <td style={{ padding: "8px 0", color: "#111827" }}>{value}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               </div>
+
+              {/* Banner lateral (banner_1) */}
+              {banner1Urls.length > 0 && (
+                <div style={{ width: "200px", flexShrink: 0, display: "flex", flexDirection: "column", gap: "8px", justifyContent: "center" }}>
+                  {banner1Urls.map((b, i) => (
+                    <img
+                      key={i}
+                      src={b.url}
+                      alt={`Banner ${b.name}`}
+                      style={{ width: "100%", height: "auto", borderRadius: "8px", objectFit: "contain" }}
+                      crossOrigin="anonymous"
+                    />
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* ===== PISCINA ===== */}
