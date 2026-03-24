@@ -13,6 +13,8 @@ import AdminProfile from "@/components/admin/AdminProfile";
 import ManualProposal from "@/components/admin/ManualProposal";
 import StoresManager from "@/components/admin/StoresManager";
 import TeamManager from "@/components/admin/TeamManager";
+import TeamPerformance from "@/components/admin/TeamPerformance";
+import TeamCommissions from "@/components/admin/TeamCommissions";
 import SubscriptionManager from "@/components/admin/SubscriptionManager";
 import AdminLeads from "@/components/admin/AdminLeads";
 import InvoiceHistory from "@/components/admin/InvoiceHistory";
