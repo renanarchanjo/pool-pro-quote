@@ -44,15 +44,9 @@ const MatrizSidebar = () => {
 
   return (
     <Sidebar collapsible="icon">
-      <SidebarHeader className="border-b border-border/50 pt-12 md:pt-4 pb-3 flex items-center">
-        <div className="flex items-center gap-3 px-3 w-full">
-          <img src={simulapoolIcon} alt="SimulaPool" className="h-20 w-20 md:h-16 md:w-16 object-contain rounded-xl shrink-0" />
-          {!collapsed && (
-            <div className="flex flex-col">
-              <span className="text-base font-bold text-primary leading-tight">Simula Pool</span>
-              <span className="text-[10px] text-muted-foreground font-medium tracking-wide">Painel Matriz</span>
-            </div>
-          )}
+      <SidebarHeader className="border-b border-border/50 pt-12 md:pt-4 pb-3 flex items-center justify-center">
+        <div className="flex items-center justify-center w-full px-1">
+          <img src={simulapoolIcon} alt="SimulaPool" className="w-full max-w-[90%] object-contain rounded-xl" />
         </div>
       </SidebarHeader>
 
