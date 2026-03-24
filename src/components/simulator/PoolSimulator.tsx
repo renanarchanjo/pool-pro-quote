@@ -112,7 +112,7 @@ const PoolSimulator = ({ onBack }: PoolSimulatorProps) => {
         supabase.from("model_optionals").select("*").eq("active", true).eq("store_id", sid).order("display_order"),
         supabase.from("store_settings").select("*").eq("store_id", sid).maybeSingle(),
         supabase.from("stores").select("name, city, state").eq("id", sid).single(),
-        supabase.from("partners").select("id, name, logo_url").eq("active", true).order("display_order"),
+        supabase.from("partners").select("id, name, logo_url, banner_1_url, banner_2_url").eq("active", true).order("display_order"),
       ]);
 
       if (modelsRes.error) throw modelsRes.error;
