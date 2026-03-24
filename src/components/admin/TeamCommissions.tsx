@@ -198,19 +198,6 @@ const TeamCommissions = () => {
                     <div>
                       <p className="font-semibold text-sm">{m.name}</p>
                       <div className="flex items-center gap-2 mt-0.5">
-                      {false ? (
-                          <>
-                            <Badge variant="outline" className="text-[10px] bg-primary/10 text-primary border-primary/20">
-                              {m.commissionPercent}% comissão
-                            </Badge>
-                          </>
-                        ) : (
-                          <>
-                            <Badge variant="outline" className="text-[10px] bg-primary/10 text-primary border-primary/20">
-                              {m.commissionPercent}% comissão
-                            </Badge>
-                          </>
-                        )}
                         <Badge variant="outline" className="text-[10px] bg-primary/10 text-primary border-primary/20">
                           {m.commissionPercent}% comissão
                         </Badge>
