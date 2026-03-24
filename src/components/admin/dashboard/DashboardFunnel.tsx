@@ -96,7 +96,7 @@ const DashboardFunnel = ({ proposals }: Props) => {
           })}
         </div>
 
-        <div className="mt-4 pt-3 border-t border-border flex items-center justify-between text-xs text-muted-foreground">
+        <div className="mt-3 pt-2 border-t border-border flex items-center justify-between text-[10px] text-muted-foreground">
           <span>{proposals.length} propostas no total</span>
           <span className="font-semibold text-emerald-600">
             {((counts.fechada / total) * 100).toFixed(1)}% taxa geral
