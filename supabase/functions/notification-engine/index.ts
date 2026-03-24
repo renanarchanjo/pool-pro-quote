@@ -320,10 +320,9 @@ async function enviarPush(payload: NotificationPayload, supabase: any): Promise<
     url: "/admin",
   };
 
-  // Detect v2 key format (os_v2_app_...) vs legacy key
-  const isV2Key = ONESIGNAL_REST_API_KEY.startsWith("os_v2_");
-  const authHeader = isV2Key ? `Basic ${ONESIGNAL_REST_API_KEY}` : `Key ${ONESIGNAL_REST_API_KEY}`;
-  console.log(`[push] Using ${isV2Key ? "v2 Basic" : "legacy Key"} auth for OneSignal`);
+  // OneSignal v2 keys (os_v2_app_...) and legacy keys both work with "Basic" auth
+  const authHeader = `Basic ${ONESIGNAL_REST_API_KEY}`;
+  console.log(`[push] Auth header prefix: Basic, key starts with: ${ONESIGNAL_REST_API_KEY.substring(0, 10)}...`);
 
   try {
     const res = await fetch("https://api.onesignal.com/notifications", {
