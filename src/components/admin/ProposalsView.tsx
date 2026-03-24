@@ -23,6 +23,7 @@ interface Proposal {
 }
 
 const ProposalsView = () => {
+  const { store } = useStoreData();
   const [proposals, setProposals] = useState<Proposal[]>([]);
   const [filtered, setFiltered] = useState<Proposal[]>([]);
   const [loading, setLoading] = useState(true);
@@ -30,8 +31,8 @@ const ProposalsView = () => {
   const reportRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    loadProposals();
-  }, []);
+    if (store) loadProposals();
+  }, [store]);
 
   useEffect(() => {
     if (!search.trim()) {
