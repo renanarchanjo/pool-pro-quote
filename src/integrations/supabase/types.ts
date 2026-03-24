@@ -955,6 +955,8 @@ export type Database = {
           name: string
           price_monthly: number
           slug: string
+          stripe_price_id: string | null
+          stripe_product_id: string | null
         }
         Insert: {
           active?: boolean | null
@@ -966,6 +968,8 @@ export type Database = {
           name: string
           price_monthly?: number
           slug: string
+          stripe_price_id?: string | null
+          stripe_product_id?: string | null
         }
         Update: {
           active?: boolean | null
@@ -977,6 +981,8 @@ export type Database = {
           name?: string
           price_monthly?: number
           slug?: string
+          stripe_price_id?: string | null
+          stripe_product_id?: string | null
         }
         Relationships: []
       }
