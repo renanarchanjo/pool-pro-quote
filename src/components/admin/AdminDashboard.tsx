@@ -35,11 +35,15 @@ const DATE_PRESETS = [
 ];
 
 const AdminDashboard = () => {
-  const { profile, store, storeSettings } = useStoreData();
+  const { profile, store, storeSettings, role } = useStoreData();
   const [proposals, setProposals] = useState<Proposal[]>([]);
   const [loading, setLoading] = useState(true);
   const [viewingProposal, setViewingProposal] = useState<Proposal | null>(null);
   const reportRef = useRef<HTMLDivElement>(null);
+  const [teamMembers, setTeamMembers] = useState<{ id: string; full_name: string | null }[]>([]);
+  const [filterMember, setFilterMember] = useState<string>("all");
+  const [leadDistributions, setLeadDistributions] = useState<{ proposal_id: string; accepted_by: string | null; status: string }[]>([]);
+  const isOwner = role === "owner";
   const [pdfDatePreset, setPdfDatePreset] = useState("month");
   const [pdfDateRange, setPdfDateRange] = useState<DateRange | undefined>(() => {
     const r = DATE_PRESETS[0].getRange();
@@ -62,7 +66,19 @@ const AdminDashboard = () => {
       : format(pdfDateRange.from, "dd/MM/yyyy", { locale: ptBR })
     : "Período";
 
-  const filteredProposals = proposals.filter(p => {
+  // Filter by member (owner filter or seller isolation)
+  const memberFilteredProposals = proposals.filter(p => {
+    if (isOwner) {
+      if (filterMember === "all") return true;
+      const dist = leadDistributions.find(d => d.proposal_id === p.id && d.status === "accepted");
+      return dist?.accepted_by === filterMember || (p as any).created_by === filterMember;
+    }
+    // Seller: only see own proposals
+    const dist = leadDistributions.find(d => d.proposal_id === p.id && d.status === "accepted");
+    return dist?.accepted_by === profile?.id || (p as any).created_by === profile?.id;
+  });
+
+  const filteredProposals = memberFilteredProposals.filter(p => {
     if (!pdfDateRange?.from) return true;
     const d = new Date(p.created_at);
     if (d < pdfDateRange.from) return false;
@@ -96,19 +112,25 @@ const AdminDashboard = () => {
   const loadData = async () => {
     if (!store) return;
     try {
-      const { data, error } = await supabase
+      const [proposalsRes, distRes, teamRes] = await Promise.all([
+        supabase
         .from("proposals")
         .select(`
-          id, customer_name, customer_city, customer_whatsapp,
+          id, customer_name, customer_city, customer_whatsapp, created_by,
           total_price, created_at, selected_optionals, store_id, status,
           pool_models (name, length, width, depth, photo_url, differentials, included_items, not_included_items, base_price, delivery_days, installation_days, payment_terms, notes, category_id),
           stores (name)
         `)
         .eq("store_id", store.id)
-        .order("created_at", { ascending: false });
+        .order("created_at", { ascending: false }),
+        supabase.from("lead_distributions").select("proposal_id, accepted_by, status").eq("store_id", store.id),
+        (supabase as any).from("profiles").select("id, full_name").eq("store_id", store.id),
+      ]);
 
-      if (error) throw error;
-      setProposals((data as any) || []);
+      if (proposalsRes.error) throw proposalsRes.error;
+      setProposals((proposalsRes.data as any) || []);
+      setLeadDistributions(distRes.data || []);
+      setTeamMembers(teamRes.data || []);
     } catch (error) {
       console.error("Error loading dashboard:", error);
     } finally {
@@ -173,6 +195,19 @@ const AdminDashboard = () => {
           <h1 className="text-lg sm:text-xl md:text-3xl font-bold truncate">Painel Comercial</h1>
         </div>
         <div className="flex items-center gap-2 shrink-0 flex-wrap justify-end">
+          {isOwner && teamMembers.length > 1 && (
+            <Select value={filterMember} onValueChange={setFilterMember}>
+              <SelectTrigger className="h-8 w-[150px] text-xs">
+                <SelectValue placeholder="Filtrar membro" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todos</SelectItem>
+                {teamMembers.map(m => (
+                  <SelectItem key={m.id} value={m.id}>{m.full_name || "Sem nome"}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
           <Select value={pdfDatePreset} onValueChange={applyPdfPreset}>
             <SelectTrigger className="h-8 w-[130px] text-xs">
               <SelectValue />
