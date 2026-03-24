@@ -1,0 +1,1 @@
+UPDATE auth.users SET email = 'simulapool@gmail.com', email_confirmed_at = now() WHERE id = 'b832c015-9e25-442b-8eb0-043e269dac49';
