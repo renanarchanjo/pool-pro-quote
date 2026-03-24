@@ -108,18 +108,18 @@ const Index = () => {
             {[
               {
                 icon: Calculator,
-                title: "Valores Calculados na Hora",
-                description: "Escolha modelo e opcionais. O sistema soma tudo automaticamente e gera o valor final sem erro.",
+                title: "Zero Conta de Cabeça",
+                description: "Modelo + opcionais + mão de obra. O sistema faz a matemática por você e entrega o valor exato, sem surpresas.",
               },
               {
                 icon: FileText,
-                title: "Orçamento Completo em PDF",
-                description: "Modelo, dimensões, itens inclusos, opcionais selecionados e valor total. Baixe ou imprima na hora.",
+                title: "PDF Pronto pra Impressionar",
+                description: "Seu cliente recebe um orçamento com cara de empresa grande: organizado, detalhado e pronto pra assinar.",
               },
               {
                 icon: MessageCircle,
-                title: "Pronto para WhatsApp",
-                description: "Orçamento formatado e pronto para envio direto ao cliente pelo WhatsApp.",
+                title: "Do Orçamento ao Zap em 1 Clique",
+                description: "Gerou? Enviou. O orçamento sai formatado direto pro WhatsApp do cliente, sem copiar e colar nada.",
               },
             ].map((card) => (
               <div
