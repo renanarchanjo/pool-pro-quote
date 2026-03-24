@@ -550,14 +550,11 @@ const MatrizLeads = () => {
               )}
 
               <div>
-                <p className="text-xs text-muted-foreground mb-2">Alterar Status</p>
-                <div className="flex flex-wrap gap-1.5">
-                  {Object.entries(statusConfig).map(([key, cfg]) => (
-                    <Button key={key} size="sm" variant={viewingLead.status === key ? "default" : "outline"} className="text-xs h-7" disabled={updatingStatus === viewingLead.id} onClick={() => handleUpdateStatus(viewingLead.id, key as ProposalStatus)}>
-                      {cfg.label}
-                    </Button>
-                  ))}
-                </div>
+                <p className="text-xs text-muted-foreground mb-2">Status Atual</p>
+                <Badge variant="outline" className={statusConfig[viewingLead.status]?.color || ""}>
+                  {statusConfig[viewingLead.status]?.label || viewingLead.status}
+                </Badge>
+                <p className="text-[11px] text-muted-foreground mt-1.5">O status é controlado pelo lojista</p>
               </div>
 
               <DialogFooter>
