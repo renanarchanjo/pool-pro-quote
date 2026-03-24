@@ -434,20 +434,6 @@ const ProposalView = ({
               </div>
             </div>
 
-            {/* ===== BANNER RODAPÉ (banner_2) ===== */}
-            {banner2Urls.length > 0 && (
-              <div style={{ marginTop: "24px", display: "flex", flexWrap: "wrap", justifyContent: "center", alignItems: "center", gap: "16px" }}>
-                {banner2Urls.map((b, i) => (
-                  <img
-                    key={i}
-                    src={b.url}
-                    alt={`Banner ${b.name}`}
-                    style={{ maxWidth: "100%", maxHeight: "120px", borderRadius: "8px", objectFit: "contain" }}
-                    crossOrigin="anonymous"
-                  />
-                ))}
-              </div>
-            )}
 
             {/* ===== PARCEIROS ===== */}
             {partners.length > 0 && (
