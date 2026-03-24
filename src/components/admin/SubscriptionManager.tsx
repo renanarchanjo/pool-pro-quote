@@ -5,7 +5,11 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { Loader2, Check, X, Crown, CreditCard, ExternalLink, Users, FileText, TrendingUp, Radio } from "lucide-react";
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { Loader2, Check, X, Crown, CreditCard, ExternalLink, Users, FileText, TrendingUp, Radio, XCircle, Settings } from "lucide-react";
 import { toast } from "sonner";
 
 const PLANS = [
@@ -78,12 +82,20 @@ const LEAD_PLAN = {
   price: "R$ 997,00",
 };
 
+interface ActiveProduct {
+  product_id: string;
+  price_id: string;
+  subscription_end: string;
+}
+
 const SubscriptionManager = () => {
   const { store } = useStoreData();
   const [loading, setLoading] = useState(true);
   const [checkoutLoading, setCheckoutLoading] = useState<string | null>(null);
   const [portalLoading, setPortalLoading] = useState(false);
+  const [cancelLoading, setCancelLoading] = useState<string | null>(null);
   const [leadPlanActive, setLeadPlanActive] = useState(false);
+  const [activeProducts, setActiveProducts] = useState<ActiveProduct[]>([]);
   const [subscription, setSubscription] = useState<{
     subscribed: boolean;
     product_id: string | null;
@@ -113,6 +125,7 @@ const SubscriptionManager = () => {
       const { data, error } = await supabase.functions.invoke("check-subscription");
       if (error) throw error;
       setSubscription(data);
+      setActiveProducts(data?.active_products || []);
     } catch (err) {
       console.error("Error checking subscription:", err);
     } finally {
@@ -137,6 +150,24 @@ const SubscriptionManager = () => {
     }
   };
 
+  const handleCancelSubscription = async (productId: string, planName: string) => {
+    try {
+      setCancelLoading(productId);
+      const { data, error } = await supabase.functions.invoke("cancel-subscription", {
+        body: { product_id: productId, cancel_immediately: false },
+      });
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+      toast.success(`Plano "${planName}" será cancelado ao final do período atual.`);
+      // Refresh subscription status
+      await checkSubscription();
+    } catch (err: any) {
+      toast.error("Erro ao cancelar: " + (err.message || "Tente novamente"));
+    } finally {
+      setCancelLoading(null);
+    }
+  };
+
   const handleManageSubscription = async () => {
     try {
       setPortalLoading(true);
@@ -151,6 +182,13 @@ const SubscriptionManager = () => {
       setPortalLoading(false);
     }
   };
+
+  const isProductActive = (productId: string | null) => {
+    if (!productId) return false;
+    return activeProducts.some(p => p.product_id === productId);
+  };
+
+  const isLeadPlanSubscribed = isProductActive(LEAD_PLAN.productId);
 
   const currentPlan = subscription?.subscribed
     ? PLANS.find((p) => p.productId === subscription.product_id)
@@ -182,8 +220,8 @@ const SubscriptionManager = () => {
         <div className="flex gap-2">
           {subscription?.subscribed && (
             <Button variant="outline" size="sm" onClick={handleManageSubscription} disabled={portalLoading}>
-              {portalLoading ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <CreditCard className="w-4 h-4 mr-2" />}
-              <span className="hidden sm:inline">Gerenciar</span> Assinatura
+              {portalLoading ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Settings className="w-4 h-4 mr-2" />}
+              <span className="hidden sm:inline">Gerenciar no</span> Portal Stripe
             </Button>
           )}
           <Button variant="ghost" size="sm" onClick={checkSubscription}>
@@ -240,9 +278,50 @@ const SubscriptionManager = () => {
               </ul>
 
               {isCurrent ? (
-                <Button disabled variant="outline" className="w-full">
-                  Plano Atual
-                </Button>
+                <div className="space-y-2">
+                  <Button disabled variant="outline" className="w-full">
+                    Plano Atual
+                  </Button>
+                  {plan.priceId && plan.productId && (
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="w-full text-destructive hover:text-destructive hover:bg-destructive/10"
+                          disabled={cancelLoading === plan.productId}
+                        >
+                          {cancelLoading === plan.productId ? (
+                            <Loader2 className="w-3.5 h-3.5 animate-spin mr-1" />
+                          ) : (
+                            <XCircle className="w-3.5 h-3.5 mr-1" />
+                          )}
+                          Cancelar Plano
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Cancelar plano {plan.name}?</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            Seu plano continuará ativo até o final do período atual
+                            {subscription?.subscription_end && (
+                              <> ({new Date(subscription.subscription_end).toLocaleDateString("pt-BR")})</>
+                            )}. Após isso, você será migrado para o plano Gratuito.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Manter Plano</AlertDialogCancel>
+                          <AlertDialogAction
+                            onClick={() => handleCancelSubscription(plan.productId!, plan.name)}
+                            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                          >
+                            Confirmar Cancelamento
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                  )}
+                </div>
               ) : plan.priceId ? (
                 <Button
                   onClick={() => handleCheckout(plan.priceId!)}
@@ -356,15 +435,51 @@ const SubscriptionManager = () => {
                     <span className="text-3xl font-bold">{LEAD_PLAN.price}</span>
                     <span className="text-sm text-muted-foreground">/mês</span>
                   </div>
-                  {subscription?.product_id === LEAD_PLAN.productId ? (
+                  {isLeadPlanSubscribed ? (
                     <div className="space-y-2">
                       <Badge className="bg-emerald-500 text-white">
                         <Crown className="w-3 h-3 mr-1" /> Ativo
                       </Badge>
-                      <Button variant="outline" size="sm" onClick={handleManageSubscription} disabled={portalLoading} className="w-full">
-                        {portalLoading ? <Loader2 className="w-4 h-4 animate-spin mr-1" /> : <CreditCard className="w-4 h-4 mr-1" />}
-                        Gerenciar
-                      </Button>
+                      <div className="flex flex-col gap-2">
+                        <Button variant="outline" size="sm" onClick={handleManageSubscription} disabled={portalLoading} className="w-full">
+                          {portalLoading ? <Loader2 className="w-4 h-4 animate-spin mr-1" /> : <CreditCard className="w-4 h-4 mr-1" />}
+                          Gerenciar
+                        </Button>
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="w-full text-destructive hover:text-destructive hover:bg-destructive/10"
+                              disabled={cancelLoading === LEAD_PLAN.productId}
+                            >
+                              {cancelLoading === LEAD_PLAN.productId ? (
+                                <Loader2 className="w-3.5 h-3.5 animate-spin mr-1" />
+                              ) : (
+                                <XCircle className="w-3.5 h-3.5 mr-1" />
+                              )}
+                              Cancelar Leads
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Cancelar Plano de Leads?</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                Seu plano de leads continuará ativo até o final do período atual. Após isso, você deixará de receber novos leads distribuídos pela plataforma.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Manter Plano</AlertDialogCancel>
+                              <AlertDialogAction
+                                onClick={() => handleCancelSubscription(LEAD_PLAN.productId, "Gestão de Leads")}
+                                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                              >
+                                Confirmar Cancelamento
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
+                      </div>
                     </div>
                   ) : (
                     <Button
