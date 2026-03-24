@@ -6,9 +6,10 @@ interface Props {
   proposals: Proposal[];
   profileName?: string | null;
   storeName?: string | null;
+  dateLabel?: string;
 }
 
-const DashboardPdfReport = ({ proposals, profileName, storeName }: Props) => {
+const DashboardPdfReport = ({ proposals, profileName, storeName, dateLabel }: Props) => {
   const now = new Date();
   const monthStart = startOfMonth(now);
   const lastMonthStart = startOfMonth(subMonths(now, 1));
@@ -64,7 +65,7 @@ const DashboardPdfReport = ({ proposals, profileName, storeName }: Props) => {
             </p>
             <h1 className="text-3xl font-bold tracking-tight mt-1">Painel Comercial</h1>
             <p className="text-sm text-muted-foreground mt-2">
-              {storeName ? `${storeName} · ` : ""}Gerado em {reportDate} às {reportTime}
+              {storeName ? `${storeName} · ` : ""}{dateLabel ? `Período: ${dateLabel} · ` : ""}Gerado em {reportDate} às {reportTime}
             </p>
           </div>
           <div className="text-right">

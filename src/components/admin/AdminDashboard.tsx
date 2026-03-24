@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Button } from "@/components/ui/button";
-import { Loader2, Download } from "lucide-react";
+import { Button } from "@/components/ui/button"; 
+import { Loader2, Download, CalendarIcon } from "lucide-react";
 import { useStoreData } from "@/hooks/useStoreData";
 import { toast } from "sonner";
 import { exportPDF } from "@/lib/exportPDF";
@@ -9,6 +9,9 @@ import {
   Dialog, DialogContent, DialogHeader, DialogTitle,
 } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import ProposalView from "@/components/simulator/ProposalView";
 import ProposalNotesPanel from "./dashboard/ProposalNotesPanel";
 import { Proposal, ProposalStatus, STATUS_CONFIG } from "./dashboard/types";
@@ -17,7 +20,19 @@ import DashboardFunnel from "./dashboard/DashboardFunnel";
 import DashboardAlerts from "./dashboard/DashboardAlerts";
 import DashboardPipeline from "./dashboard/DashboardPipeline";
 import DashboardPdfReport from "./dashboard/DashboardPdfReport";
-import PushNotificationButton from "./PushNotificationButton";
+import { format, startOfMonth, endOfMonth, subDays, subMonths, startOfDay, endOfDay } from "date-fns";
+import { ptBR } from "date-fns/locale";
+import { DateRange } from "react-day-picker";
+import { cn } from "@/lib/utils";
+
+const DATE_PRESETS = [
+  { label: "Mês atual", value: "month", getRange: () => ({ from: startOfMonth(new Date()), to: endOfDay(new Date()) }) },
+  { label: "Mês anterior", value: "last_month", getRange: () => ({ from: startOfMonth(subMonths(new Date(), 1)), to: endOfMonth(subMonths(new Date(), 1)) }) },
+  { label: "Últimos 7 dias", value: "7d", getRange: () => ({ from: startOfDay(subDays(new Date(), 7)), to: endOfDay(new Date()) }) },
+  { label: "Últimos 30 dias", value: "30d", getRange: () => ({ from: startOfDay(subDays(new Date(), 30)), to: endOfDay(new Date()) }) },
+  { label: "Últimos 90 dias", value: "90d", getRange: () => ({ from: startOfDay(subDays(new Date(), 90)), to: endOfDay(new Date()) }) },
+  { label: "Tudo", value: "all", getRange: () => ({ from: new Date(2020, 0, 1), to: endOfDay(new Date()) }) },
+];
 
 const AdminDashboard = () => {
   const { profile, store, storeSettings } = useStoreData();
@@ -25,6 +40,35 @@ const AdminDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [viewingProposal, setViewingProposal] = useState<Proposal | null>(null);
   const reportRef = useRef<HTMLDivElement>(null);
+  const [pdfDatePreset, setPdfDatePreset] = useState("month");
+  const [pdfDateRange, setPdfDateRange] = useState<DateRange | undefined>(() => {
+    const r = DATE_PRESETS[0].getRange();
+    return { from: r.from, to: r.to };
+  });
+  const [calendarOpen, setCalendarOpen] = useState(false);
+
+  const applyPdfPreset = (v: string) => {
+    setPdfDatePreset(v);
+    const preset = DATE_PRESETS.find(p => p.value === v);
+    if (preset) {
+      const r = preset.getRange();
+      setPdfDateRange({ from: r.from, to: r.to });
+    }
+  };
+
+  const pdfDateLabel = pdfDateRange?.from
+    ? pdfDateRange.to
+      ? `${format(pdfDateRange.from, "dd/MM", { locale: ptBR })} - ${format(pdfDateRange.to, "dd/MM", { locale: ptBR })}`
+      : format(pdfDateRange.from, "dd/MM/yyyy", { locale: ptBR })
+    : "Período";
+
+  const filteredForPdf = proposals.filter(p => {
+    if (!pdfDateRange?.from) return true;
+    const d = new Date(p.created_at);
+    if (d < pdfDateRange.from) return false;
+    if (pdfDateRange.to && d > pdfDateRange.to) return false;
+    return true;
+  });
 
   useEffect(() => {
     if (store) loadData();
@@ -103,7 +147,7 @@ const AdminDashboard = () => {
     if (!reportRef.current) return;
     await exportPDF({
       element: reportRef.current,
-      filename: `relatorio-dashboard-${new Date().toISOString().split("T")[0]}.pdf`,
+      filename: `relatorio-dashboard-${pdfDateLabel.replace(/\//g, "-")}.pdf`,
       orientation: "landscape",
       captureWidth: 1100,
       sectionSelector: "[data-pdf-section]",
@@ -128,9 +172,41 @@ const AdminDashboard = () => {
           </p>
           <h1 className="text-lg sm:text-xl md:text-3xl font-bold truncate">Painel Comercial</h1>
         </div>
-        <div className="flex gap-2 shrink-0">
-          <PushNotificationButton />
-          <Button onClick={handleExportPDF} variant="outline" size="sm" className="shrink-0 min-h-[44px] md:min-h-0">
+        <div className="flex items-center gap-2 shrink-0 flex-wrap justify-end">
+          <Select value={pdfDatePreset} onValueChange={applyPdfPreset}>
+            <SelectTrigger className="h-8 w-[130px] text-xs">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {DATE_PRESETS.map(p => (
+                <SelectItem key={p.value} value={p.value}>{p.label}</SelectItem>
+              ))}
+              <SelectItem value="custom">Personalizado</SelectItem>
+            </SelectContent>
+          </Select>
+          <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
+            <PopoverTrigger asChild>
+              <Button variant="outline" size="sm" className="h-8 text-xs gap-1">
+                <CalendarIcon className="w-3 h-3" />
+                {pdfDateLabel}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0" align="end">
+              <Calendar
+                mode="range"
+                selected={pdfDateRange}
+                onSelect={(range) => {
+                  setPdfDateRange(range);
+                  setPdfDatePreset("custom");
+                  if (range?.from && range?.to) setCalendarOpen(false);
+                }}
+                numberOfMonths={2}
+                locale={ptBR}
+                className={cn("p-3 pointer-events-auto")}
+              />
+            </PopoverContent>
+          </Popover>
+          <Button onClick={handleExportPDF} variant="outline" size="sm" className="h-8 shrink-0">
             <Download className="w-4 h-4 mr-1 sm:mr-2" />
             <span className="hidden sm:inline">Exportar PDF</span>
             <span className="sm:hidden">PDF</span>
@@ -141,9 +217,10 @@ const AdminDashboard = () => {
       {/* Printable content */}
       <div ref={reportRef} className="hidden">
         <DashboardPdfReport
-          proposals={proposals}
+          proposals={filteredForPdf}
           profileName={profile?.full_name}
           storeName={store?.name}
+          dateLabel={pdfDateLabel}
         />
       </div>
 
