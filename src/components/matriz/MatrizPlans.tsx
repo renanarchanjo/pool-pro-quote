@@ -71,17 +71,65 @@ const MatrizPlans = () => {
   const handleSavePlan = async () => {
     if (!editingPlan) return;
     setSaving(true);
-    const { error } = await supabase.from("subscription_plans").update({
-      name: editForm.name,
-      price_monthly: parseFloat(editForm.price_monthly) || 0,
-      max_proposals_per_month: parseInt(editForm.max_proposals_per_month) || 0,
-      max_users: parseInt(editForm.max_users) || 1,
-      active: editForm.active,
-    } as any).eq("id", editingPlan.id);
 
-    if (error) toast.error("Erro ao salvar plano");
-    else { toast.success("Plano atualizado!"); setEditingPlan(null); loadData(); }
-    setSaving(false);
+    const newPrice = parseFloat(editForm.price_monthly) || 0;
+    const priceChanged = newPrice !== editingPlan.price_monthly;
+    const nameChanged = editForm.name !== editingPlan.name;
+
+    try {
+      // If price or name changed and plan is paid, sync with Stripe
+      if ((priceChanged || nameChanged) && newPrice > 0) {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session) throw new Error("Sessão expirada");
+
+        const { data, error: fnError } = await supabase.functions.invoke("sync-stripe-price", {
+          body: {
+            plan_id: editingPlan.id,
+            new_price_monthly: newPrice,
+            plan_name: editForm.name,
+          },
+        });
+
+        if (fnError) throw new Error(fnError.message || "Erro ao sincronizar com Stripe");
+        if (data?.error) throw new Error(data.error);
+
+        // Also update non-price fields
+        const { error: updateError } = await supabase.from("subscription_plans").update({
+          max_proposals_per_month: parseInt(editForm.max_proposals_per_month) || 0,
+          max_users: parseInt(editForm.max_users) || 1,
+          active: editForm.active,
+        } as any).eq("id", editingPlan.id);
+
+        if (updateError) throw updateError;
+
+        const migrated = data?.migrated_subscriptions || 0;
+        toast.success(
+          migrated > 0
+            ? `Plano atualizado e ${migrated} assinatura(s) migrada(s) no Stripe!`
+            : "Plano atualizado e sincronizado com o Stripe!"
+        );
+      } else {
+        // No price change, just update DB
+        const { error } = await supabase.from("subscription_plans").update({
+          name: editForm.name,
+          price_monthly: newPrice,
+          max_proposals_per_month: parseInt(editForm.max_proposals_per_month) || 0,
+          max_users: parseInt(editForm.max_users) || 1,
+          active: editForm.active,
+        } as any).eq("id", editingPlan.id);
+
+        if (error) throw error;
+        toast.success("Plano atualizado!");
+      }
+
+      setEditingPlan(null);
+      loadData();
+    } catch (error: any) {
+      console.error("Error saving plan:", error);
+      toast.error(error.message || "Erro ao salvar plano");
+    } finally {
+      setSaving(false);
+    }
   };
 
   const handleSaveSettings = async () => {
