@@ -26,6 +26,25 @@ const AdminDashboard = () => {
     if (store) loadData();
   }, [store]);
 
+  // Realtime: auto-reload when proposals change for this store
+  useEffect(() => {
+    if (!store) return;
+    const channel = supabase
+      .channel('dashboard-proposals')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'proposals', filter: `store_id=eq.${store.id}` },
+        (payload) => {
+          if (payload.eventType === 'INSERT') {
+            toast.info(`🔔 Novo lead: ${(payload.new as any).customer_name}`, { duration: 8000 });
+          }
+          loadData();
+        }
+      )
+      .subscribe();
+    return () => { supabase.removeChannel(channel); };
+  }, [store]);
+
   const loadData = async () => {
     if (!store) return;
     try {

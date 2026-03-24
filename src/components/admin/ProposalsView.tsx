@@ -34,6 +34,20 @@ const ProposalsView = () => {
     if (store) loadProposals();
   }, [store]);
 
+  // Realtime: auto-reload when proposals change for this store
+  useEffect(() => {
+    if (!store) return;
+    const channel = supabase
+      .channel('proposals-list')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'proposals', filter: `store_id=eq.${store.id}` },
+        () => { loadProposals(); }
+      )
+      .subscribe();
+    return () => { supabase.removeChannel(channel); };
+  }, [store]);
+
   useEffect(() => {
     if (!search.trim()) {
       setFiltered(proposals);
