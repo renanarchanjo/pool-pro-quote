@@ -193,15 +193,18 @@ const DashboardPipeline = ({ proposals, onUpdateStatus, onViewProposal, onExport
                   const pc = PRIORITY_CONFIG[priority];
                   const days = daysSince(p.created_at);
                   return (
-                    <div key={p.id} className="p-3 space-y-2">
+                    <div key={p.id} className="p-3 space-y-2.5">
                       <div className="flex items-start justify-between gap-2">
                         <div className="min-w-0 flex-1">
                           <div className="flex items-center gap-1.5">
-                            <div className={`w-1.5 h-1.5 rounded-full shrink-0 ${pc.dot}`} />
-                            <p className="font-semibold text-sm truncate">{p.customer_name}</p>
+                            <div className={`w-2 h-2 rounded-full shrink-0 ${pc.dot}`} />
+                            <p className="font-semibold text-[13px] truncate">{p.customer_name}</p>
                           </div>
                           <p className="text-[11px] text-muted-foreground mt-0.5 truncate">
-                            {p.pool_models?.name || "N/A"} · {p.customer_city} · {new Date(p.created_at).toLocaleDateString("pt-BR")} · {days}d
+                            {p.pool_models?.name || "N/A"} · {p.customer_city}
+                          </p>
+                          <p className="text-[10px] text-muted-foreground">
+                            {new Date(p.created_at).toLocaleDateString("pt-BR")} · {days}d
                           </p>
                         </div>
                         <span className="font-bold text-primary text-sm whitespace-nowrap">
@@ -210,7 +213,7 @@ const DashboardPipeline = ({ proposals, onUpdateStatus, onViewProposal, onExport
                       </div>
                       <div className="flex items-center justify-between gap-2">
                         <Select value={p.status} onValueChange={(v) => onUpdateStatus(p.id, v as ProposalStatus)}>
-                          <SelectTrigger className={`w-[125px] h-7 text-[11px] font-medium border ${sc.className}`}>
+                          <SelectTrigger className={`w-[130px] h-9 text-xs font-medium border ${sc.className}`}>
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
@@ -219,12 +222,12 @@ const DashboardPipeline = ({ proposals, onUpdateStatus, onViewProposal, onExport
                             ))}
                           </SelectContent>
                         </Select>
-                        <div className="flex gap-1.5">
-                          <Button size="sm" variant="outline" className="h-7 w-7 p-0" onClick={() => onViewProposal(p)}>
-                            <Eye className="w-3 h-3" />
+                        <div className="flex gap-2">
+                          <Button size="sm" variant="outline" className="h-9 w-9 p-0" onClick={() => onViewProposal(p)}>
+                            <Eye className="w-4 h-4" />
                           </Button>
-                          <Button size="sm" variant="outline" className="h-7 w-7 p-0" onClick={() => onExportPDF(p)}>
-                            <Download className="w-3 h-3" />
+                          <Button size="sm" variant="outline" className="h-9 w-9 p-0" onClick={() => onExportPDF(p)}>
+                            <Download className="w-4 h-4" />
                           </Button>
                         </div>
                       </div>
