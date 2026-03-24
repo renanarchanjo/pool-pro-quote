@@ -172,7 +172,7 @@ const AdminLeads = () => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {leads.map(lead => {
+                {leads.filter(lead => lead.proposals != null).map(lead => {
                   const p = lead.proposals;
                   const isPending = lead.status === "pending";
                   return (
