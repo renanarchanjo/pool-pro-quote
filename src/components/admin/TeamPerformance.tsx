@@ -249,7 +249,7 @@ const TeamPerformance = () => {
       {/* Header with controls - excluded from PDF */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <h3 className="text-lg font-bold">Performance da Equipe</h3>
+          <h3 className="text-lg font-bold">Minha Performance</h3>
           
         </div>
         <div className="flex items-center gap-2">
