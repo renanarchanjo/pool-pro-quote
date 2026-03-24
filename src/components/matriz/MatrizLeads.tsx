@@ -433,8 +433,8 @@ const MatrizLeads = () => {
               </div>
 
               <DialogFooter>
-                <Button variant="outline" onClick={() => handleWhatsApp(viewingLead)}>
-                  <Phone className="w-4 h-4 mr-1 text-emerald-600" /> WhatsApp
+                <Button variant="outline" onClick={() => handleCopyPhone(viewingLead)}>
+                  <Copy className="w-4 h-4 mr-1" /> Copiar Número
                 </Button>
               </DialogFooter>
             </div>
