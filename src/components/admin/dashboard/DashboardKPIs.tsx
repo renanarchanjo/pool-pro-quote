@@ -1,70 +1,65 @@
 import { Card, CardContent } from "@/components/ui/card";
-import { TrendingUp, TrendingDown, DollarSign, Target, Receipt, BarChart3 } from "lucide-react";
-import { Proposal, ProposalStatus, STATUS_PROBABILITY, formatCurrency } from "./types";
+import { DollarSign, TrendingUp, BarChart3, Receipt } from "lucide-react";
+import { Proposal, formatCurrency } from "./types";
 
 interface Props {
   proposals: Proposal[];
 }
 
 const DashboardKPIs = ({ proposals }: Props) => {
-  // Use all proposals passed in (already date-filtered by parent)
   const all = proposals;
+  const closed = all.filter((p) => p.status === "fechada");
 
-  // Revenue closed
-  const revenueClosed = all
-    .filter((p) => p.status === "fechada")
-    .reduce((s, p) => s + p.total_price, 0);
+  // 1. Faturamento Bruto = soma total_price das fechadas
+  const faturamentoBruto = closed.reduce((s, p) => s + p.total_price, 0);
 
-  // Predicted revenue (open proposals * probability)
-  const revenuePredicted = all
-    .filter((p) => p.status !== "fechada" && p.status !== "perdida")
-    .reduce((s, p) => s + p.total_price * STATUS_PROBABILITY[p.status], 0);
+  // 2. Faturamento Líquido = bruto - custos dos modelos
+  const faturamentoLiquido = closed.reduce((s, p) => {
+    const cost = p.pool_models?.cost || 0;
+    return s + (p.total_price - cost);
+  }, 0);
 
-  // Conversion rate: closed / (all except "nova")
-  const closedCount = all.filter((p) => p.status === "fechada").length;
+  // 3. Taxa de Conversão FV = fechadas / (total - novas)
   const totalWorked = all.filter((p) => p.status !== "nova").length;
-  const conversionRate = totalWorked > 0 ? (closedCount / totalWorked) * 100 : 0;
+  const conversionRate = totalWorked > 0 ? (closed.length / totalWorked) * 100 : 0;
 
-  // Ticket médio
-  const ticketMedio = closedCount > 0 ? revenueClosed / closedCount : 0;
+  // 4. Ticket Médio = bruto / qtd fechadas
+  const ticketMedio = closed.length > 0 ? faturamentoBruto / closed.length : 0;
 
-  // Avg closing time (days) — only for closed proposals in the filtered set
-  const closedProposals = all.filter((p) => p.status === "fechada");
-  const avgClosingDays = closedProposals.length > 0
-    ? closedProposals.reduce((s, p) => {
+  // Secondary metrics
+  const avgClosingDays = closed.length > 0
+    ? closed.reduce((s, p) => {
         const days = Math.floor((Date.now() - new Date(p.created_at).getTime()) / (1000 * 60 * 60 * 24));
         return s + days;
-      }, 0) / closedProposals.length
+      }, 0) / closed.length
     : 0;
 
-  // Loss rate
   const lostCount = all.filter((p) => p.status === "perdida").length;
   const lossRate = all.length > 0 ? (lostCount / all.length) * 100 : 0;
 
-  // Open proposals count for subtitle
-  const openCount = all.filter((p) => p.status !== "fechada" && p.status !== "perdida").length;
+  const marginPct = faturamentoBruto > 0 ? (faturamentoLiquido / faturamentoBruto) * 100 : 0;
 
   const kpis = [
     {
-      label: "Receita Fechada",
-      value: formatCurrency(revenueClosed),
-      subtitle: closedCount > 0 ? `${closedCount} proposta${closedCount > 1 ? "s" : ""} fechada${closedCount > 1 ? "s" : ""}` : undefined,
+      label: "Faturamento Bruto",
+      value: formatCurrency(faturamentoBruto),
+      subtitle: closed.length > 0 ? `${closed.length} venda${closed.length > 1 ? "s" : ""} fechada${closed.length > 1 ? "s" : ""}` : undefined,
       icon: DollarSign,
       iconBg: "bg-emerald-500/10",
       iconColor: "text-emerald-600",
     },
     {
-      label: "Receita Prevista",
-      value: formatCurrency(revenuePredicted),
-      subtitle: `${openCount} proposta${openCount !== 1 ? "s" : ""} em aberto`,
-      icon: Target,
+      label: "Faturamento Líquido",
+      value: formatCurrency(faturamentoLiquido),
+      subtitle: faturamentoBruto > 0 ? `margem ${marginPct.toFixed(1)}%` : undefined,
+      icon: TrendingUp,
       iconBg: "bg-blue-500/10",
       iconColor: "text-blue-600",
     },
     {
-      label: "Taxa de Conversão",
+      label: "Taxa de Conversão FV",
       value: `${conversionRate.toFixed(1)}%`,
-      subtitle: totalWorked > 0 ? `${closedCount}/${totalWorked} trabalhadas` : undefined,
+      subtitle: totalWorked > 0 ? `${closed.length}/${totalWorked} trabalhadas` : undefined,
       icon: BarChart3,
       iconBg: "bg-primary/10",
       iconColor: "text-primary",
@@ -72,7 +67,7 @@ const DashboardKPIs = ({ proposals }: Props) => {
     {
       label: "Ticket Médio",
       value: formatCurrency(ticketMedio),
-      subtitle: closedCount > 0 ? `base: ${closedCount} venda${closedCount > 1 ? "s" : ""}` : undefined,
+      subtitle: closed.length > 0 ? `base: ${closed.length} venda${closed.length > 1 ? "s" : ""}` : undefined,
       icon: Receipt,
       iconBg: "bg-violet-500/10",
       iconColor: "text-violet-600",
@@ -105,28 +100,6 @@ const DashboardKPIs = ({ proposals }: Props) => {
             </Card>
           );
         })}
-      </div>
-
-      {/* Secondary metrics */}
-      <div className="grid grid-cols-3 gap-2 md:gap-3">
-        <Card className="border-border/50">
-          <CardContent className="p-2 md:p-3 text-center">
-            <p className="text-[10px] md:text-[11px] text-muted-foreground uppercase tracking-wider">Propostas</p>
-            <p className="text-lg md:text-xl font-bold mt-0.5">{all.length}</p>
-          </CardContent>
-        </Card>
-        <Card className="border-border/50">
-          <CardContent className="p-2 md:p-3 text-center">
-            <p className="text-[10px] md:text-[11px] text-muted-foreground uppercase tracking-wider">Tempo Médio</p>
-            <p className="text-lg md:text-xl font-bold mt-0.5">{avgClosingDays.toFixed(0)}d</p>
-          </CardContent>
-        </Card>
-        <Card className="border-border/50">
-          <CardContent className="p-2 md:p-3 text-center">
-            <p className="text-[10px] md:text-[11px] text-muted-foreground uppercase tracking-wider">Taxa Perda</p>
-            <p className="text-lg md:text-xl font-bold mt-0.5 text-red-500">{lossRate.toFixed(1)}%</p>
-          </CardContent>
-        </Card>
       </div>
     </div>
   );
