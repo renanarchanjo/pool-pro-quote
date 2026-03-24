@@ -237,6 +237,83 @@ const Auth = () => {
     }
   };
 
+  if (pendingConfirmation) {
+    return (
+      <div className="min-h-screen gradient-pool flex items-center justify-center p-4">
+        <Card className="w-full max-w-md p-8 shadow-pool border-border/50">
+          <div className="text-center mb-6">
+            <div className="flex justify-center mb-6">
+              <img src={logoDark} alt="SIMULAPOOL" className="h-20 object-contain" />
+            </div>
+            <div className="mx-auto w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mb-4">
+              <Mail className="h-8 w-8 text-primary" />
+            </div>
+            <h1 className="text-2xl font-display font-bold mb-2">Confirme seu e-mail</h1>
+            <p className="text-muted-foreground text-sm">
+              Enviamos um link de confirmação para:
+            </p>
+            <p className="font-semibold text-foreground mt-1">{pendingEmail}</p>
+          </div>
+
+          <div className="space-y-3 text-sm text-muted-foreground bg-muted/50 rounded-lg p-4 mb-6">
+            <p>📧 Verifique sua <strong>caixa de entrada</strong> e <strong>spam/lixo eletrônico</strong></p>
+            <p>⏳ O e-mail pode levar até 2 minutos para chegar</p>
+            <p>🔗 Clique no link do e-mail para ativar sua conta</p>
+          </div>
+
+          <Button
+            onClick={handleResendConfirmation}
+            disabled={resendLoading || resendCooldown > 0}
+            className="w-full gradient-primary text-white font-display font-semibold"
+          >
+            {resendLoading ? (
+              <>
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                Reenviando...
+              </>
+            ) : resendCooldown > 0 ? (
+              <>
+                <RefreshCw className="w-4 h-4 mr-2" />
+                Reenviar em {resendCooldown}s
+              </>
+            ) : (
+              <>
+                <RefreshCw className="w-4 h-4 mr-2" />
+                Reenviar e-mail de confirmação
+              </>
+            )}
+          </Button>
+
+          <div className="mt-4 text-center">
+            <button
+              type="button"
+              onClick={() => {
+                setPendingConfirmation(false);
+                setIsLogin(true);
+              }}
+              className="text-sm text-primary hover:underline font-medium"
+            >
+              Já confirmei, ir para login
+            </button>
+          </div>
+
+          <div className="mt-4 pt-4 border-t">
+            <Button
+              variant="outline"
+              className="w-full"
+              onClick={() => {
+                setPendingConfirmation(false);
+                setIsLogin(false);
+              }}
+            >
+              Voltar ao cadastro
+            </Button>
+          </div>
+        </Card>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen gradient-pool flex items-center justify-center p-4">
       <Card className="w-full max-w-md p-8 shadow-pool border-border/50">
