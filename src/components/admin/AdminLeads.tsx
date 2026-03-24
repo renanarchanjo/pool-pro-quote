@@ -96,7 +96,7 @@ const AdminLeads = () => {
   const loadData = async () => {
     if (!store) return;
     setLoading(true);
-    const [leadsRes, storeRes] = await Promise.all([
+    const [leadsRes, storeRes, teamRes] = await Promise.all([
       (supabase as any)
         .from("lead_distributions")
         .select("*, proposals(customer_name, customer_city, customer_whatsapp, total_price, created_at, pool_models(name)), accepted_by_profile:profiles!accepted_by(full_name)")
@@ -107,9 +107,14 @@ const AdminLeads = () => {
         .select("lead_limit_monthly, lead_price_excess, lead_plan_active")
         .eq("id", store.id)
         .single(),
+      supabase
+        .from("profiles")
+        .select("id, full_name")
+        .eq("store_id", store.id),
     ]);
     if (leadsRes.data) setLeads(leadsRes.data);
     if (storeRes.data) setStoreInfo(storeRes.data);
+    if (teamRes.data) setTeamMembers(teamRes.data);
     setLoading(false);
   };
 
