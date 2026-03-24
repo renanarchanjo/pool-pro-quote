@@ -269,15 +269,10 @@ const TeamManager = () => {
           </Button>
         ) : (
           <Button
-            onClick={handleExtraMemberCheckout}
-            disabled={checkoutLoading}
+            onClick={() => setShowExtraDialog(true)}
             className="bg-amber-600 hover:bg-amber-700 text-white"
           >
-            {checkoutLoading ? (
-              <Loader2 className="w-4 h-4 animate-spin mr-2" />
-            ) : (
-              <CreditCard className="w-4 h-4 mr-2" />
-            )}
+            <CreditCard className="w-4 h-4 mr-2" />
             Contratar Colaborador Extra
           </Button>
         )}
