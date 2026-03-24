@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, Users, FileText, CreditCard, TrendingUp } from "lucide-react";
+import { Loader2, Users, FileText, CreditCard, TrendingUp, MapPin } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 
 interface Payment {
@@ -112,6 +112,58 @@ const MatrizPayments = () => {
               </div>
             </Card>
           ))}
+        </div>
+      </div>
+
+      <Separator />
+
+      {/* Plano de Distribuição de Leads */}
+      <div>
+        <h2 className="text-lg font-semibold flex items-center gap-2 mb-4">
+          <MapPin className="w-5 h-5 text-primary" />
+          Plano de Distribuição de Leads
+        </h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <Card className="p-5 border-primary/30 bg-primary/5">
+            <div className="flex items-start gap-3">
+              <div className="p-2 rounded-lg bg-primary/10">
+                <MapPin className="w-5 h-5 text-primary" />
+              </div>
+              <div>
+                <h3 className="font-bold text-sm">Gestão de Leads</h3>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  Recebimento e gestão de leads distribuídos pela Matriz, com limite mensal configurável
+                </p>
+                <div className="mt-2">
+                  <span className="text-2xl font-bold">R$ 997,00</span>
+                  <span className="text-sm text-muted-foreground"> /mês</span>
+                </div>
+                <div className="flex gap-2 mt-2">
+                  <Badge variant="outline" className="text-xs">Recorrente</Badge>
+                  <Badge variant="outline" className="text-xs">Ativação manual pela Matriz</Badge>
+                </div>
+              </div>
+            </div>
+          </Card>
+
+          <Card className="p-5 border-orange-500/30 bg-orange-500/5">
+            <div className="flex items-start gap-3">
+              <div className="p-2 rounded-lg bg-orange-500/10">
+                <TrendingUp className="w-5 h-5 text-orange-600" />
+              </div>
+              <div>
+                <h3 className="font-bold text-sm">Leads Excedentes</h3>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  Cobrado por cada lead aceito além do limite mensal do plano de leads
+                </p>
+                <div className="mt-2">
+                  <span className="text-2xl font-bold">R$ 25,00</span>
+                  <span className="text-sm text-muted-foreground"> /lead excedente</span>
+                </div>
+                <Badge variant="outline" className="mt-2 text-xs">Conforme uso</Badge>
+              </div>
+            </div>
+          </Card>
         </div>
       </div>
 
