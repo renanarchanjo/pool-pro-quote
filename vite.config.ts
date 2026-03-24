@@ -84,7 +84,6 @@ export default defineConfig(({ mode }) => ({
   ].filter(Boolean),
   build: {
     target: "esnext",
-    cssMinify: "lightningcss",
     rollupOptions: {
       output: {
         manualChunks: {
