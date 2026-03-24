@@ -235,7 +235,7 @@ const MatrizDashboard = () => {
       </div>
 
       {/* ── 1. KPIs ── */}
-      <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">
+      <div className="grid grid-cols-2 lg:grid-cols-6 gap-3">
         <KPICard icon={DollarSign} label="MRR" value={fmt(mrr)} iconBg="bg-emerald-500/10" iconColor="text-emerald-600" />
         <KPICard
           icon={mrrGrowth >= 0 ? TrendingUp : TrendingDown}
@@ -262,6 +262,14 @@ const MatrizDashboard = () => {
           valueColor={revenueLost > 0 ? "text-red-500" : undefined}
         />
         <KPICard icon={Target} label="ARPU" value={fmt(arpu)} iconBg="bg-blue-500/10" iconColor="text-blue-600" />
+        <KPICard
+          icon={BarChart3}
+          label="Fat. Bruto Lojistas"
+          value={fmt(faturamentoBrutoLojistas)}
+          iconBg="bg-violet-500/10"
+          iconColor="text-violet-600"
+          subtitle={`${closedProposals.length} vendas fechadas`}
+        />
       </div>
 
       {/* ── 2. Revenue Breakdown + Plan Pie ── */}
