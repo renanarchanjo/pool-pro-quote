@@ -218,8 +218,8 @@ const AdminLeads = () => {
   }
 
   return (
-    <div className="space-y-6">
-      <h1 className="text-2xl font-bold">Meus Leads</h1>
+    <div className="space-y-4 md:space-y-6">
+      <h1 className="text-xl md:text-2xl font-bold">Meus Leads</h1>
 
       {/* KPIs */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
