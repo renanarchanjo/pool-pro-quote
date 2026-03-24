@@ -333,28 +333,6 @@ const PartnersManager = () => {
                           </p>
                         </div>
                       </div>
-                      <div className="flex items-start gap-2">
-                        <Label className="text-xs w-20 shrink-0 pt-1.5">Banner 2:</Label>
-                        <div className="flex-1">
-                          <Input
-                            className="h-7 text-xs"
-                            placeholder="URL do banner rodapé (postimages, etc)"
-                            defaultValue={partner.banner_2_url || ""}
-                            onBlur={async (e) => {
-                              const val = e.target.value.trim() || null;
-                              if (val !== partner.banner_2_url) {
-                                const { error } = await supabase.from("partners").update({ banner_2_url: val }).eq("id", partner.id);
-                                if (error) { toast.error("Erro ao salvar banner 2"); return; }
-                                setPartners(prev => prev.map(p => p.id === partner.id ? { ...p, banner_2_url: val } : p));
-                                toast.success("Banner 2 salvo!");
-                              }
-                            }}
-                          />
-                          <p className="text-[10px] text-muted-foreground mt-0.5">
-                            📐 Proporção <strong>16:3 horizontal</strong> — Tamanho ideal: <strong>1600×300px</strong> (aparece no rodapé da proposta)
-                          </p>
-                        </div>
-                      </div>
                     </div>
                   </div>
                 </div>

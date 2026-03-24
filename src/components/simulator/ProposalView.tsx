@@ -88,7 +88,7 @@ const ProposalView = ({
     : null;
   const bannersToShow = matchedPartner ? [matchedPartner] : partners;
   const banner1Urls = bannersToShow.filter(p => p.banner_1_url).map(p => ({ url: p.banner_1_url!, name: p.name }));
-  const banner2Urls = bannersToShow.filter(p => p.banner_2_url).map(p => ({ url: p.banner_2_url!, name: p.name }));
+  
   // Removed WhatsApp and email send functions - lead only gets PDF download and view
 
   const handleDownloadPDF = async () => {
