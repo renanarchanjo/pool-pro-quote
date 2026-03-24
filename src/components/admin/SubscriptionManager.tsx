@@ -326,8 +326,7 @@ const SubscriptionManager = () => {
                 <Button
                   onClick={() => handleCheckout(plan.priceId!)}
                   disabled={!!checkoutLoading}
-                  className={`w-full ${plan.popular ? "gradient-primary text-white" : ""}`}
-                  variant={plan.popular ? "default" : "outline"}
+                  className="w-full gradient-primary text-white"
                 >
                   {checkoutLoading === plan.priceId ? (
                     <Loader2 className="w-4 h-4 animate-spin mr-2" />
