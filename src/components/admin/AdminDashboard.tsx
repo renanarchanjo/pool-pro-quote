@@ -138,18 +138,16 @@ const AdminDashboard = () => {
       </div>
 
       {/* Printable content */}
-      <div ref={reportRef} className="space-y-4 md:space-y-6">
-        {/* PDF header - only visible during export */}
-        <div className="hidden" data-pdf-header>
-          <p className="text-muted-foreground text-sm">
-            Olá, <span className="font-bold text-foreground">{profile?.full_name || "Lojista"}</span>
-          </p>
-          <h1 className="text-2xl font-bold">Painel Comercial</h1>
-          <p className="text-xs text-muted-foreground mt-1">
-            Gerado em {new Date().toLocaleDateString("pt-BR")} às {new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}
-          </p>
-        </div>
+      <div ref={reportRef} className="hidden">
+        <DashboardPdfReport
+          proposals={proposals}
+          profileName={profile?.full_name}
+          storeName={store?.name}
+        />
+      </div>
 
+      {/* On-screen interactive dashboard */}
+      <div className="space-y-4 md:space-y-6">
         {/* (A) KPIs */}
         <div style={{ pageBreakInside: "avoid" }}>
           <DashboardKPIs proposals={proposals} />
