@@ -1,7 +1,9 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useStoreData } from "@/hooks/useStoreData";
-import { Loader2, CalendarIcon, TrendingUp, TrendingDown, Trophy, Clock, Target, DollarSign, BarChart3 } from "lucide-react";
+import { toast } from "sonner";
+import html2pdf from "html2pdf.js";
+import { Loader2, CalendarIcon, TrendingUp, TrendingDown, Trophy, Clock, Target, DollarSign, BarChart3, FileDown } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
