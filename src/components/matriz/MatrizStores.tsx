@@ -241,7 +241,16 @@ const MatrizStores = () => {
                 </p>
               </div>
 
-              <div className="flex items-center gap-1 shrink-0">
+              <div className="flex items-center gap-2 shrink-0">
+                <div className="flex items-center gap-1.5 mr-2" title="Habilitar distribuição de leads">
+                  <Radio className="w-3.5 h-3.5 text-muted-foreground" />
+                  <Switch
+                    checked={!!store.lead_plan_active}
+                    onCheckedChange={(checked) => handleToggleLeadPlan(store.id, checked)}
+                    className="data-[state=checked]:bg-emerald-500"
+                  />
+                  <span className="text-xs text-muted-foreground hidden lg:inline">Leads</span>
+                </div>
                 <Button variant="ghost" size="icon" onClick={() => openEdit(store)} title="Editar">
                   <Pencil className="w-4 h-4" />
                 </Button>
