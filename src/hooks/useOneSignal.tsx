@@ -19,7 +19,30 @@ export function useOneSignal() {
   const [initialized, setInitialized] = useState(false);
   const [support, setSupport] = useState<PushSupportState>("unknown");
   const [statusMessage, setStatusMessage] = useState<string>("");
+  const [hasSavedSubscription, setHasSavedSubscription] = useState(false);
   const initAttempted = useRef(false);
+
+  const loadSavedSubscription = useCallback(async () => {
+    try {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+      if (!session?.user) return false;
+
+      const { data } = await supabase
+        .from("push_subscriptions")
+        .select("enabled, onesignal_subscription_id")
+        .eq("user_id", session.user.id)
+        .maybeSingle();
+
+      const active = Boolean(data?.enabled && data?.onesignal_subscription_id);
+      setHasSavedSubscription(active);
+      return active;
+    } catch (err) {
+      console.error("Error loading saved push subscription:", err);
+      return false;
+    }
+  }, []);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -41,11 +64,11 @@ export function useOneSignal() {
 
     setSupport("supported");
     setPermission(Notification.permission === "default" ? "default" : Notification.permission === "granted" ? "granted" : "denied");
+    void loadSavedSubscription();
 
     if (initAttempted.current) return;
     initAttempted.current = true;
 
-    // SDK is loaded via <script> in index.html — use OneSignalDeferred
     setStatusMessage("Inicializando notificações...");
 
     const w = window as any;
@@ -54,7 +77,6 @@ export function useOneSignal() {
       try {
         await OneSignal.init({ appId: ONESIGNAL_APP_ID });
       } catch (err: any) {
-        // "SDK already initialized" is not a real error — SDK is ready
         if (err?.message !== "SDK already initialized") {
           console.error("OneSignal init error:", err);
           setStatusMessage("Falha ao inicializar notificações. Recarregue a página.");
@@ -70,7 +92,7 @@ export function useOneSignal() {
         }
       } catch (_) {}
     });
-  }, []);
+  }, [loadSavedSubscription]);
 
   const syncSubscription = useCallback(async () => {
     try {
@@ -88,7 +110,6 @@ export function useOneSignal() {
         console.warn("OneSignal login failed:", e);
       }
 
-      // Wait for OneSignal to finalize the subscription (up to 8s)
       let subscriptionId: string | null = null;
       let optedIn = false;
       for (let i = 0; i < 8; i++) {
@@ -108,6 +129,7 @@ export function useOneSignal() {
         { onConflict: "user_id" }
       );
 
+      setHasSavedSubscription(Boolean(subscriptionId && optedIn));
       return optedIn;
     } catch (err) {
       console.error("Error syncing push subscription:", err);
@@ -120,6 +142,12 @@ export function useOneSignal() {
       return { ok: false, reason: statusMessage || "unsupported" };
     }
 
+    if (hasSavedSubscription) {
+      setPermission("granted");
+      setStatusMessage("Notificações já estão ativas neste dispositivo.");
+      return { ok: true, reason: "already_active" };
+    }
+
     if (!initialized || !window.OneSignal?.Notifications) {
       return { ok: false, reason: "sdk_not_ready" };
     }
@@ -127,9 +155,15 @@ export function useOneSignal() {
     setLoading(true);
     setStatusMessage("Solicitando permissão de notificações...");
 
-    const safetyTimeout = window.setTimeout(() => {
+    const safetyTimeout = window.setTimeout(async () => {
+      const saved = await loadSavedSubscription();
+      if (saved) {
+        setPermission("granted");
+        setStatusMessage("Notificações já estão ativas neste dispositivo.");
+      } else {
+        setStatusMessage("A solicitação demorou demais. Tente novamente.");
+      }
       setLoading(false);
-      setStatusMessage("A solicitação demorou demais. Tente novamente.");
     }, 15000);
 
     try {
@@ -142,6 +176,13 @@ export function useOneSignal() {
       setPermission(granted ? "granted" : browserPermission === "denied" ? "denied" : "default");
 
       if (!granted) {
+        const saved = await loadSavedSubscription();
+        if (saved) {
+          setPermission("granted");
+          setStatusMessage("Notificações já estão ativas neste dispositivo.");
+          return { ok: true, reason: "already_active" };
+        }
+
         setStatusMessage(browserPermission === "denied" ? "Permissão bloqueada no navegador." : "Permissão não concedida.");
         return { ok: false, reason: browserPermission === "denied" ? "blocked" : "not_granted" };
       }
@@ -150,28 +191,52 @@ export function useOneSignal() {
       const synced = await syncSubscription();
 
       if (!synced) {
+        const saved = await loadSavedSubscription();
+        if (saved) {
+          setPermission("granted");
+          setStatusMessage("Notificações já estão ativas neste dispositivo.");
+          return { ok: true, reason: "already_active" };
+        }
+
         setStatusMessage("Permissão concedida, mas a inscrição do dispositivo ainda não foi concluída.");
         return { ok: false, reason: "subscription_pending" };
       }
 
+      setPermission("granted");
       setStatusMessage("Notificações ativadas com sucesso!");
       return { ok: true };
     } catch (err) {
       console.error("Error requesting push permission:", err);
+      const saved = await loadSavedSubscription();
+      if (saved) {
+        setPermission("granted");
+        setStatusMessage("Notificações já estão ativas neste dispositivo.");
+        return { ok: true, reason: "already_active" };
+      }
+
       setStatusMessage("Erro ao ativar notificações neste dispositivo.");
       return { ok: false, reason: "request_failed" };
     } finally {
       window.clearTimeout(safetyTimeout);
       setLoading(false);
     }
-  }, [initialized, statusMessage, support, syncSubscription]);
+  }, [hasSavedSubscription, initialized, loadSavedSubscription, statusMessage, support, syncSubscription]);
 
   useEffect(() => {
-    if (initialized && permission === "granted") {
-      syncSubscription();
+    if (initialized && (permission === "granted" || hasSavedSubscription)) {
+      void syncSubscription();
     }
-  }, [initialized, permission, syncSubscription]);
+  }, [hasSavedSubscription, initialized, permission, syncSubscription]);
 
   const isStandalone = typeof window !== "undefined" && (window.matchMedia("(display-mode: standalone)").matches || (window.navigator as any).standalone === true);
-  return { permission, loading, ativarNotificacoes, initialized, support, statusMessage, isStandalonePwa: isStandalone };
+  return {
+    permission,
+    loading,
+    ativarNotificacoes,
+    initialized,
+    support,
+    statusMessage,
+    isStandalonePwa: isStandalone,
+    hasSavedSubscription,
+  };
 }
