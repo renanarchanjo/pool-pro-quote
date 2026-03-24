@@ -358,7 +358,7 @@ async function enviarPush(payload: NotificationPayload, supabase: any): Promise<
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Key ${ONESIGNAL_REST_API_KEY}`,
+          "Authorization": authHeader,
         },
         body: JSON.stringify(fallbackBody),
       });
