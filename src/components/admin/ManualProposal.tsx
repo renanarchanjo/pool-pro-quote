@@ -245,6 +245,7 @@ const ManualProposal = () => {
               storeCity={store?.city}
               storeState={store?.state}
               brandLogoUrl={brand?.logo_url}
+              brandName={brand?.name}
               partners={partners}
             />
           );

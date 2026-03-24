@@ -290,6 +290,7 @@ const PoolSimulator = ({ onBack }: PoolSimulatorProps) => {
               storeCity={storeCity}
               storeState={storeState}
               brandLogoUrl={brand?.logo_url}
+              brandName={brand?.name}
               partners={partners}
             />
           );
