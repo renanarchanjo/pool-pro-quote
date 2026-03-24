@@ -53,16 +53,22 @@ export function useOneSignal() {
     w.OneSignalDeferred.push(async (OneSignal: any) => {
       try {
         await OneSignal.init({ appId: ONESIGNAL_APP_ID });
-        setInitialized(true);
-        setStatusMessage("");
+      } catch (err: any) {
+        // "SDK already initialized" is not a real error — SDK is ready
+        if (err?.message !== "SDK already initialized") {
+          console.error("OneSignal init error:", err);
+          setStatusMessage("Falha ao inicializar notificações. Recarregue a página.");
+          return;
+        }
+      }
+      setInitialized(true);
+      setStatusMessage("");
+      try {
         const perm = OneSignal.Notifications?.permission;
         if (perm !== undefined) {
           setPermission(perm ? "granted" : Notification.permission === "denied" ? "denied" : "default");
         }
-      } catch (err) {
-        console.error("OneSignal init error:", err);
-        setStatusMessage("Falha ao inicializar notificações. Recarregue a página.");
-      }
+      } catch (_) {}
     });
   }, []);
 
