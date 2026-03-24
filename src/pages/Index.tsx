@@ -70,6 +70,38 @@ const Index = () => {
               ✓ Sem cadastro • ✓ 100% gratuito • ✓ Orçamento pronto em segundos
             </p>
           </div>
+
+          {/* Feature Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 mt-12 md:mt-20 max-w-5xl mx-auto w-full">
+            {[
+              {
+                icon: Layers,
+                title: "Opcionais Flexíveis",
+                description: "Iluminação, aquecimento, cascata, hidromassagem e muito mais, tudo organizado por categoria.",
+              },
+              {
+                icon: Briefcase,
+                title: "Pensado para Lojistas",
+                description: "Ferramenta criada para facilitar o atendimento e aumentar a conversão de vendas.",
+              },
+              {
+                icon: TrendingUp,
+                title: "Mais Conversão e Agilidade",
+                description: "Atenda mais rápido, responda na hora e aumente suas chances de fechar a venda com propostas claras e profissionais.",
+              },
+            ].map((card) => (
+              <div
+                key={card.title}
+                className="bg-card/80 backdrop-blur-sm rounded-2xl p-6 text-left shadow-sm border border-border/30"
+              >
+                <div className="w-12 h-12 rounded-xl bg-primary flex items-center justify-center mb-4">
+                  <card.icon className="w-6 h-6 text-primary-foreground" />
+                </div>
+                <h3 className="font-display font-bold text-foreground text-lg mb-2">{card.title}</h3>
+                <p className="text-muted-foreground text-sm leading-relaxed">{card.description}</p>
+              </div>
+            ))}
+          </div>
         </main>
 
         <SiteFooter />
