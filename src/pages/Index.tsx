@@ -40,8 +40,8 @@ const Index = () => {
       <div className="relative z-10 flex flex-col flex-1">
         <SiteHeader />
 
-        <main className="flex-1 flex items-center justify-center container mx-auto px-4 py-8 md:py-16">
-          <div className="max-w-3xl mx-auto text-center animate-fade-in">
+        <main className="flex-1 container mx-auto px-4 py-8 md:py-16">
+          <div className="max-w-3xl mx-auto text-center animate-fade-in flex flex-col items-center justify-center min-h-[60vh]">
             <div className="inline-flex items-center gap-2 bg-primary/10 text-primary px-3 py-1.5 md:px-4 md:py-2 rounded-full text-xs md:text-sm font-medium mb-4 md:mb-6 animate-wave">
               <Sparkles className="w-3.5 h-3.5 md:w-4 md:h-4" />
               Orçamento completo em menos de 1 minuto
