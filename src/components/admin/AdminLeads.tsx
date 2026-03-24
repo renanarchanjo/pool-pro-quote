@@ -104,6 +104,23 @@ const AdminLeads = () => {
     }
   };
 
+  const handleViewProposal = async (proposalId: string) => {
+    setLoadingProposal(true);
+    try {
+      const { data: proposal, error } = await (supabase as any)
+        .from("proposals")
+        .select("*, pool_models(*, categories(name))")
+        .eq("id", proposalId)
+        .single();
+      if (error) throw error;
+      setViewingProposal(proposal);
+    } catch (err: any) {
+      toast.error("Erro ao carregar proposta: " + (err.message || ""));
+    } finally {
+      setLoadingProposal(false);
+    }
+  };
+
   const handleBulkAccept = async () => {
     if (selectedIds.size === 0) return;
     setBulkProcessing(true);
