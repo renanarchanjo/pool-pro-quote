@@ -3,12 +3,11 @@ import { supabase } from "@/integrations/supabase/client";
 import { useStoreData } from "@/hooks/useStoreData";
 import { toast } from "sonner";
 import {
-  Loader2, DollarSign, TrendingUp, Target, Trophy, Pencil, Save, X, CalendarIcon,
+  Loader2, DollarSign, TrendingUp, Target, Trophy, CalendarIcon,
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -42,9 +41,6 @@ const TeamCommissions = () => {
   const [commissionSettings, setCommissionSettings] = useState<CommissionSetting[]>([]);
   const [distributions, setDistributions] = useState<LeadDist[]>([]);
   const [proposals, setProposals] = useState<ProposalData[]>([]);
-  const [editingMember, setEditingMember] = useState<string | null>(null);
-  const [editPercent, setEditPercent] = useState("");
-  const [saving, setSaving] = useState(false);
   const [datePreset, setDatePreset] = useState("month");
   const [dateRange, setDateRange] = useState<DateRange | undefined>(() => {
     const r = DATE_PRESETS[0].getRange();
@@ -86,34 +82,6 @@ const TeamCommissions = () => {
   const getCommissionPercent = (memberId: string) => {
     const s = commissionSettings.find(s => (s as any).member_id === memberId);
     return s ? (s as any).commission_percent : 0;
-  };
-
-  const handleStartEdit = (memberId: string) => {
-    setEditingMember(memberId);
-    setEditPercent(String(getCommissionPercent(memberId)));
-  };
-
-  const handleSave = async (memberId: string) => {
-    if (!store) return;
-    setSaving(true);
-    try {
-      const percent = parseFloat(editPercent) || 0;
-      const existing = commissionSettings.find(s => (s as any).member_id === memberId);
-      if (existing) {
-        const { error } = await (supabase as any).from("commission_settings")
-          .update({ commission_percent: percent, updated_at: new Date().toISOString() })
-          .eq("id", existing.id);
-        if (error) throw error;
-      } else {
-        const { error } = await (supabase as any).from("commission_settings")
-          .insert({ store_id: store.id, member_id: memberId, commission_percent: percent });
-        if (error) throw error;
-      }
-      toast.success("Comissão atualizada");
-      setEditingMember(null);
-      await loadData();
-    } catch (e) { console.error(e); toast.error("Erro ao salvar comissão"); }
-    finally { setSaving(false); }
   };
 
   const commissionData = useMemo(() => {
@@ -230,7 +198,7 @@ const TeamCommissions = () => {
                     <div>
                       <p className="font-semibold text-sm">{m.name}</p>
                       <div className="flex items-center gap-2 mt-0.5">
-                        {editingMember === m.memberId ? (
+                      {false ? (
                           <>
                             <Badge variant="outline" className="text-[10px] bg-primary/10 text-primary border-primary/20">
                               {m.commissionPercent}% comissão
