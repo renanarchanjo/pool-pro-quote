@@ -267,6 +267,36 @@ export type Database = {
           },
         ]
       }
+      partners: {
+        Row: {
+          active: boolean | null
+          created_at: string | null
+          display_order: number | null
+          id: string
+          logo_url: string | null
+          name: string
+          updated_at: string | null
+        }
+        Insert: {
+          active?: boolean | null
+          created_at?: string | null
+          display_order?: number | null
+          id?: string
+          logo_url?: string | null
+          name: string
+          updated_at?: string | null
+        }
+        Update: {
+          active?: boolean | null
+          created_at?: string | null
+          display_order?: number | null
+          id?: string
+          logo_url?: string | null
+          name?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       payment_history: {
         Row: {
           amount: number
