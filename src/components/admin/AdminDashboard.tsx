@@ -8,8 +8,10 @@ import html2pdf from "html2pdf.js";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle,
 } from "@/components/ui/dialog";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import ProposalView from "@/components/simulator/ProposalView";
-import { Proposal, ProposalStatus } from "./dashboard/types";
+import ProposalNotesPanel from "./dashboard/ProposalNotesPanel";
+import { Proposal, ProposalStatus, STATUS_CONFIG } from "./dashboard/types";
 import DashboardKPIs from "./dashboard/DashboardKPIs";
 import DashboardFunnel from "./dashboard/DashboardFunnel";
 import DashboardAlerts from "./dashboard/DashboardAlerts";
