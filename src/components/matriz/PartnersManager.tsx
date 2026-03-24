@@ -309,7 +309,7 @@ const PartnersManager = () => {
                     {partner.active ? "Visível na página" : "Oculto"}
                   </p>
                   <div className="mt-3 space-y-2 border-t border-border/50 pt-3">
-                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Banners da Proposta</p>
+                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Banner da Proposta</p>
                     <div className="space-y-1.5">
                       <div className="flex items-start gap-2">
                         <Label className="text-xs w-20 shrink-0 pt-1.5">Banner 1:</Label>
