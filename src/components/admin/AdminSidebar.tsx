@@ -95,7 +95,7 @@ const AdminSidebar = () => {
         {renderGroup("PAINEL DO LOJISTA", mainItems)}
         {renderGroup("CADASTROS", catalogItems)}
         {renderGroup("CONTA", accountItems)}
-        {renderGroup("ADMINISTRAÇÃO", adminItems)}
+        
       </SidebarContent>
 
       <SidebarFooter className="p-4">
