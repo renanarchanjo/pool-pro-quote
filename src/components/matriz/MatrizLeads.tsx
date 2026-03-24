@@ -341,6 +341,13 @@ const MatrizLeads = () => {
                 {uniqueCities.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}
               </SelectContent>
             </Select>
+            <Select value={filterStore} onValueChange={setFilterStore}>
+              <SelectTrigger className="w-[180px] h-9"><SelectValue placeholder="Loja" /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todas lojas</SelectItem>
+                {stores.map(s => <SelectItem key={s.id} value={s.name}>{s.name}</SelectItem>)}
+              </SelectContent>
+            </Select>
             <Select value={filterStatus} onValueChange={setFilterStatus}>
               <SelectTrigger className="w-[140px] h-9"><SelectValue placeholder="Status" /></SelectTrigger>
               <SelectContent>
