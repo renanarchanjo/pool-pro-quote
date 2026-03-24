@@ -37,7 +37,7 @@ export const useStoreData = () => {
     setRole(null);
   }, []);
 
-  const fetchStoreData = useCallback(async (attempt = 0) => {
+  const fetchStoreData = useCallback(async (attempt = 0, silent = false) => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
@@ -57,7 +57,7 @@ export const useStoreData = () => {
       if (!profileData?.store_id) {
         if (attempt < 8) {
           await wait(500);
-          return fetchStoreData(attempt + 1);
+          return fetchStoreData(attempt + 1, silent);
         }
 
         resetState();
@@ -78,7 +78,7 @@ export const useStoreData = () => {
       if (!storeData || !roleData?.role) {
         if (attempt < 8) {
           await wait(500);
-          return fetchStoreData(attempt + 1);
+          return fetchStoreData(attempt + 1, silent);
         }
       }
 
