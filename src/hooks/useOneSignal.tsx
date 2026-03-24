@@ -82,8 +82,15 @@ export function useOneSignal() {
         console.warn("OneSignal login failed:", e);
       }
 
-      const subscriptionId = OneSignal.User?.PushSubscription?.id ?? null;
-      const optedIn = Boolean(OneSignal.User?.PushSubscription?.optedIn);
+      // Wait for OneSignal to finalize the subscription (up to 8s)
+      let subscriptionId: string | null = null;
+      let optedIn = false;
+      for (let i = 0; i < 8; i++) {
+        subscriptionId = OneSignal.User?.PushSubscription?.id ?? null;
+        optedIn = Boolean(OneSignal.User?.PushSubscription?.optedIn);
+        if (subscriptionId && optedIn) break;
+        await new Promise((r) => setTimeout(r, 1000));
+      }
 
       await supabase.from("push_subscriptions").upsert(
         {
