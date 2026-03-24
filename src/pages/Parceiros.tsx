@@ -16,11 +16,11 @@ const Parceiros = () => {
 
   useEffect(() => {
     const fetchPartners = async () => {
-      const { data } = await supabase
-        .from("partners")
-        .select("id, name, logo_url")
-        .eq("active", true)
-        .order("display_order", { ascending: true });
+      const { data } = await supabase.
+      from("partners").
+      select("id, name, logo_url").
+      eq("active", true).
+      order("display_order", { ascending: true });
 
       setPartners(data || []);
       setLoading(false);
@@ -33,47 +33,47 @@ const Parceiros = () => {
       <SiteHeader />
       <main className="flex-1 container mx-auto px-4 py-20">
         <div className="text-center mb-16">
-          <h1 className="text-4xl md:text-5xl font-display font-extrabold mb-4">
+          <h1 className="text-4xl font-display font-extrabold mb-4 md:text-[sidebar-primary-foreground] text-sidebar">
             Nossos Parceiros
           </h1>
-          <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
+          <p className="text-lg max-w-2xl mx-auto text-slate-950">
             Trabalhamos com as maiores marcas do mercado de piscinas do Brasil
           </p>
         </div>
 
-        {loading ? (
-          <div className="flex justify-center py-20">
+        {loading ?
+        <div className="flex justify-center py-20">
             <Loader2 className="w-8 h-8 animate-spin text-primary" />
-          </div>
-        ) : partners.length === 0 ? (
-          <p className="text-center text-muted-foreground py-20">
+          </div> :
+        partners.length === 0 ?
+        <p className="text-center text-muted-foreground py-20">
             Em breve nossos parceiros estarão aqui.
-          </p>
-        ) : (
-          <div className="flex flex-wrap justify-center gap-8 max-w-4xl mx-auto">
-            {partners.map((partner) => (
-              <div
-                key={partner.id}
-                className="bg-card/80 backdrop-blur-sm border border-border/50 rounded-2xl p-8 flex flex-col items-center justify-center gap-4 hover:shadow-pool transition-all"
-              >
+          </p> :
+
+        <div className="flex flex-wrap justify-center gap-8 max-w-4xl mx-auto">
+            {partners.map((partner) =>
+          <div
+            key={partner.id}
+            className="backdrop-blur-sm border border-border/50 rounded-2xl p-8 flex flex-col items-center justify-center gap-4 hover:shadow-pool transition-all bg-cyan-50">
+            
                 <div className="w-28 h-28 flex items-center justify-center">
-                  {partner.logo_url ? (
-                    <img
-                      src={partner.logo_url}
-                      alt={partner.name}
-                      className="max-w-full max-h-full object-contain"
-                    />
-                  ) : (
-                    <span className="text-2xl font-display font-bold text-primary">
+                  {partner.logo_url ?
+              <img
+                src={partner.logo_url}
+                alt={partner.name}
+                className="max-w-full max-h-full object-contain" /> :
+
+
+              <span className="text-2xl font-display font-bold text-primary">
                       {partner.name}
                     </span>
-                  )}
+              }
                 </div>
-                <p className="text-sm font-semibold text-muted-foreground">{partner.name}</p>
+                <p className="text-sm font-semibold text-slate-950">{partner.name}</p>
               </div>
-            ))}
+          )}
           </div>
-        )}
+        }
 
         <div className="text-center mt-16">
           <p className="text-muted-foreground">
@@ -85,8 +85,8 @@ const Parceiros = () => {
         </div>
       </main>
       <SiteFooter />
-    </div>
-  );
+    </div>);
+
 };
 
 export default Parceiros;
