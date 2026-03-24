@@ -43,6 +43,7 @@ const AdminDashboard = () => {
   const [teamMembers, setTeamMembers] = useState<{ id: string; full_name: string | null }[]>([]);
   const [filterMember, setFilterMember] = useState<string>("all");
   const [leadDistributions, setLeadDistributions] = useState<{ proposal_id: string; accepted_by: string | null; status: string }[]>([]);
+  const [commissionPercent, setCommissionPercent] = useState(0);
   const isOwner = role === "owner";
   const [pdfDatePreset, setPdfDatePreset] = useState("month");
   const [pdfDateRange, setPdfDateRange] = useState<DateRange | undefined>(() => {
@@ -131,6 +132,18 @@ const AdminDashboard = () => {
       setProposals((proposalsRes.data as any) || []);
       setLeadDistributions(distRes.data || []);
       setTeamMembers(teamRes.data || []);
+
+      // Fetch commission for current user (seller view)
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { data: commData } = await supabase
+          .from("commission_settings")
+          .select("commission_percent")
+          .eq("store_id", store.id)
+          .eq("member_id", user.id)
+          .maybeSingle();
+        setCommissionPercent(commData?.commission_percent || 0);
+      }
     } catch (error) {
       console.error("Error loading dashboard:", error);
     } finally {
@@ -263,7 +276,7 @@ const AdminDashboard = () => {
       <div className="space-y-4 md:space-y-6">
         {/* (A) KPIs */}
         <div style={{ pageBreakInside: "avoid" }}>
-          <DashboardKPIs proposals={filteredProposals} />
+          <DashboardKPIs proposals={filteredProposals} role={role} commissionPercent={commissionPercent} />
         </div>
 
         {/* (B) Funnel + (D) Alerts */}
