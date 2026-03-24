@@ -224,6 +224,7 @@ const TeamPerformance = () => {
       filename: `Performance-Equipe-${dateText}.pdf`,
       orientation: "landscape",
       captureWidth: 1100,
+      sectionSelector: "[data-pdf-section]",
     });
   };
 

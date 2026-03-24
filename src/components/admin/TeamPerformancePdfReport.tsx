@@ -35,14 +35,14 @@ const formatCurrency = (v: number) =>
 const TeamPerformancePdfReport = ({ dateLabel, totals, metrics }: Props) => {
   return (
     <div className="w-[1100px] bg-background text-foreground p-8 space-y-6">
-      <header className="border-b border-border pb-4">
+      <header className="border-b border-border pb-4" data-pdf-section>
         <h1 className="text-3xl font-bold tracking-tight">Performance da Equipe</h1>
         <p className="text-sm text-muted-foreground mt-2">
           Período: {dateLabel} · Gerado em {new Date().toLocaleDateString("pt-BR")}
         </p>
       </header>
 
-      <section className="grid grid-cols-5 gap-3" style={{ pageBreakInside: "avoid" }}>
+      <section className="grid grid-cols-5 gap-3" style={{ pageBreakInside: "avoid" }} data-pdf-section>
         {[
           { label: "Leads aceitos", value: `${totals.leads}` },
           { label: "Fechamentos", value: `${totals.closed}` },
@@ -63,7 +63,7 @@ const TeamPerformancePdfReport = ({ dateLabel, totals, metrics }: Props) => {
           const revenuePercent = (m.revenueClosed / maxRevenue) * 100;
 
           return (
-            <Card key={m.memberId} className="border-border/50 break-inside-avoid">
+            <Card key={m.memberId} className="border-border/50 break-inside-avoid" data-pdf-section>
               <CardContent className="p-5 space-y-4">
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex items-center gap-3">
