@@ -45,7 +45,7 @@ const DATE_PRESETS = [
 const DashboardPipeline = ({ proposals, onUpdateStatus, onViewProposal, onExportPDF }: Props) => {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
-  const [sortMode, setSortMode] = useState<SortMode>("valor");
+  const [sortMode, setSortMode] = useState<SortMode>("recente");
   const [datePreset, setDatePreset] = useState<string>("all");
   const [dateFrom, setDateFrom] = useState<Date | undefined>();
   const [dateTo, setDateTo] = useState<Date | undefined>();
