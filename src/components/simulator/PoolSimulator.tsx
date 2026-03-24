@@ -102,14 +102,15 @@ const PoolSimulator = ({ onBack }: PoolSimulatorProps) => {
     try {
       setLoading(true);
 
-      const [modelsRes, brandsRes, catsRes, optionalsRes, modelOptsRes, settingsRes, storeRes] = await Promise.all([
+      const [modelsRes, brandsRes, catsRes, optionalsRes, modelOptsRes, settingsRes, storeRes, partnersRes] = await Promise.all([
         supabase.from("pool_models").select("*").eq("active", true).eq("store_id", sid).order("display_order"),
-        supabase.from("brands").select("id, name").eq("active", true).eq("store_id", sid).order("name"),
+        supabase.from("brands").select("id, name, logo_url").eq("active", true).eq("store_id", sid).order("name"),
         supabase.from("categories").select("id, name, brand_id").eq("active", true).eq("store_id", sid).order("name"),
         supabase.from("optionals").select("*").eq("active", true).eq("store_id", sid).order("display_order"),
         supabase.from("model_optionals").select("*").eq("active", true).eq("store_id", sid).order("display_order"),
         supabase.from("store_settings").select("*").eq("store_id", sid).maybeSingle(),
         supabase.from("stores").select("name, city, state").eq("id", sid).single(),
+        supabase.from("partners").select("id, name, logo_url").eq("active", true).order("display_order"),
       ]);
 
       if (modelsRes.error) throw modelsRes.error;
