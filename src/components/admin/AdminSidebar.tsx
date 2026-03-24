@@ -94,7 +94,7 @@ const AdminSidebar = () => {
       <SidebarHeader className="border-b border-border/50">
         <div className="h-3 bg-white md:hidden" />
         <div className="flex justify-center p-4">
-          <img src={currentLogo} alt="SIMULAPOOL" className="h-14 md:h-10 object-contain" />
+          <img src={currentLogo} alt="SIMULAPOOL" className="h-14 md:h-10 max-w-[180px] md:max-w-[150px] object-contain" />
         </div>
       </SidebarHeader>
 
