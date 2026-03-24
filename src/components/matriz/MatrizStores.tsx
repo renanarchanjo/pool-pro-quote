@@ -29,6 +29,7 @@ interface StoreRow {
   plan_status: string | null;
   plan_started_at: string | null;
   created_at: string | null;
+  lead_plan_active: boolean | null;
   subscription_plans: { name: string; price_monthly: number; slug: string } | null;
 }
 
