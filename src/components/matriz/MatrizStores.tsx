@@ -2,9 +2,19 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, Search } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Loader2, Search, Pencil, Trash2, Save, X, Store } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter,
+} from "@/components/ui/dialog";
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { toast } from "sonner";
 
 interface StoreRow {
   id: string;
@@ -12,10 +22,24 @@ interface StoreRow {
   slug: string;
   city: string | null;
   state: string | null;
+  cnpj: string | null;
+  razao_social: string | null;
+  nome_fantasia: string | null;
   plan_status: string | null;
   plan_started_at: string | null;
   created_at: string | null;
   subscription_plans: { name: string; price_monthly: number; slug: string } | null;
+}
+
+interface EditForm {
+  name: string;
+  slug: string;
+  city: string;
+  state: string;
+  cnpj: string;
+  razao_social: string;
+  nome_fantasia: string;
+  plan_status: string;
 }
 
 const MatrizStores = () => {
@@ -23,6 +47,15 @@ const MatrizStores = () => {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [planFilter, setPlanFilter] = useState("all");
+
+  // Edit state
+  const [editingStore, setEditingStore] = useState<StoreRow | null>(null);
+  const [editForm, setEditForm] = useState<EditForm>({ name: "", slug: "", city: "", state: "", cnpj: "", razao_social: "", nome_fantasia: "", plan_status: "" });
+  const [saving, setSaving] = useState(false);
+
+  // Delete state
+  const [deletingStore, setDeletingStore] = useState<StoreRow | null>(null);
+  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
     loadStores();
@@ -36,6 +69,84 @@ const MatrizStores = () => {
 
     setStores((data as any) || []);
     setLoading(false);
+  };
+
+  const openEdit = (store: StoreRow) => {
+    setEditingStore(store);
+    setEditForm({
+      name: store.name,
+      slug: store.slug,
+      city: store.city || "",
+      state: store.state || "",
+      cnpj: store.cnpj || "",
+      razao_social: store.razao_social || "",
+      nome_fantasia: store.nome_fantasia || "",
+      plan_status: store.plan_status || "active",
+    });
+  };
+
+  const handleSave = async () => {
+    if (!editingStore) return;
+    if (!editForm.name.trim() || !editForm.slug.trim()) {
+      toast.error("Nome e slug são obrigatórios");
+      return;
+    }
+    setSaving(true);
+    try {
+      const { error } = await supabase
+        .from("stores")
+        .update({
+          name: editForm.name.trim(),
+          slug: editForm.slug.trim(),
+          city: editForm.city.trim() || null,
+          state: editForm.state.trim() || null,
+          cnpj: editForm.cnpj.trim() || null,
+          razao_social: editForm.razao_social.trim() || null,
+          nome_fantasia: editForm.nome_fantasia.trim() || null,
+          plan_status: editForm.plan_status || "active",
+        })
+        .eq("id", editingStore.id);
+
+      if (error) throw error;
+      toast.success("Loja atualizada com sucesso!");
+      setEditingStore(null);
+      loadStores();
+    } catch (err: any) {
+      toast.error("Erro ao salvar: " + (err.message || "Tente novamente"));
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!deletingStore) return;
+    setDeleting(true);
+    try {
+      // Delete related data first
+      await supabase.from("proposals").delete().eq("store_id", deletingStore.id);
+      await supabase.from("store_settings").delete().eq("store_id", deletingStore.id);
+      await supabase.from("pool_models").delete().eq("store_id", deletingStore.id);
+      await supabase.from("categories").delete().eq("store_id", deletingStore.id);
+      await supabase.from("brands").delete().eq("store_id", deletingStore.id);
+      await supabase.from("optionals").delete().eq("store_id", deletingStore.id);
+      await supabase.from("optional_groups").delete().eq("store_id", deletingStore.id);
+      await supabase.from("model_optionals").delete().eq("store_id", deletingStore.id);
+
+      // Delete profiles linked to this store
+      await supabase.from("profiles").delete().eq("store_id", deletingStore.id);
+
+      // Delete the store
+      const { error } = await supabase.from("stores").delete().eq("id", deletingStore.id);
+      if (error) throw error;
+
+      toast.success(`Loja "${deletingStore.name}" excluída com sucesso!`);
+      setDeletingStore(null);
+      loadStores();
+    } catch (err: any) {
+      toast.error("Erro ao excluir: " + (err.message || "Tente novamente"));
+    } finally {
+      setDeleting(false);
+    }
   };
 
   const filtered = stores.filter((s) => {
@@ -53,9 +164,10 @@ const MatrizStores = () => {
     new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(value);
 
   const statusBadge = (status: string | null) => {
-    if (status === "active") return <Badge className="bg-green-500/10 text-green-600 border-green-500/20">Ativo</Badge>;
+    if (status === "active") return <Badge className="bg-emerald-500/10 text-emerald-600 border-emerald-500/20">Ativo</Badge>;
     if (status === "overdue") return <Badge className="bg-red-500/10 text-red-600 border-red-500/20">Inadimplente</Badge>;
-    if (status === "canceled") return <Badge className="bg-gray-500/10 text-gray-600 border-gray-500/20">Cancelado</Badge>;
+    if (status === "cancelled" || status === "canceled") return <Badge className="bg-muted text-muted-foreground border-border">Cancelado</Badge>;
+    if (status === "expired") return <Badge className="bg-amber-500/10 text-amber-600 border-amber-500/20">Expirado</Badge>;
     return <Badge variant="outline">Sem plano</Badge>;
   };
 
@@ -101,24 +213,39 @@ const MatrizStores = () => {
       <div className="space-y-3">
         {filtered.map((store) => (
           <Card key={store.id} className="p-4">
-            <div className="flex items-center justify-between">
-              <div className="flex-1">
-                <div className="flex items-center gap-3">
+            <div className="flex items-center justify-between gap-4">
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-3 flex-wrap">
+                  <div className="p-1.5 rounded-lg bg-primary/10">
+                    <Store className="w-4 h-4 text-primary" />
+                  </div>
                   <h3 className="font-semibold">{store.name}</h3>
                   {statusBadge(store.plan_status)}
                 </div>
-                <div className="flex gap-4 mt-1 text-sm text-muted-foreground">
+                <div className="flex gap-4 mt-1.5 text-sm text-muted-foreground flex-wrap">
                   {store.city && <span>{store.city}/{store.state}</span>}
+                  {store.cnpj && <span>CNPJ: {store.cnpj}</span>}
                   <span>Cadastro: {formatDate(store.created_at)}</span>
+                  <span className="font-mono text-xs">/{store.slug}</span>
                 </div>
               </div>
-              <div className="text-right">
+
+              <div className="text-right shrink-0">
                 <p className="font-bold text-primary">
                   {formatCurrency(store.subscription_plans?.price_monthly || 0)}/mês
                 </p>
                 <p className="text-xs text-muted-foreground">
                   {store.subscription_plans?.name || "Gratuito"}
                 </p>
+              </div>
+
+              <div className="flex items-center gap-1 shrink-0">
+                <Button variant="ghost" size="icon" onClick={() => openEdit(store)} title="Editar">
+                  <Pencil className="w-4 h-4" />
+                </Button>
+                <Button variant="ghost" size="icon" className="text-red-500 hover:text-red-600 hover:bg-red-500/10" onClick={() => setDeletingStore(store)} title="Excluir">
+                  <Trash2 className="w-4 h-4" />
+                </Button>
               </div>
             </div>
           </Card>
@@ -128,6 +255,101 @@ const MatrizStores = () => {
           <p className="text-center text-muted-foreground py-8">Nenhuma loja encontrada.</p>
         )}
       </div>
+
+      {/* ── Edit Dialog ── */}
+      <Dialog open={!!editingStore} onOpenChange={(open) => !open && setEditingStore(null)}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Editar Loja</DialogTitle>
+            <DialogDescription>Altere os dados da loja e clique em salvar.</DialogDescription>
+          </DialogHeader>
+
+          <div className="grid gap-4 py-2">
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1.5">
+                <Label>Nome da Loja *</Label>
+                <Input value={editForm.name} onChange={(e) => setEditForm({ ...editForm, name: e.target.value })} />
+              </div>
+              <div className="space-y-1.5">
+                <Label>Slug *</Label>
+                <Input value={editForm.slug} onChange={(e) => setEditForm({ ...editForm, slug: e.target.value })} />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1.5">
+                <Label>Nome Fantasia</Label>
+                <Input value={editForm.nome_fantasia} onChange={(e) => setEditForm({ ...editForm, nome_fantasia: e.target.value })} />
+              </div>
+              <div className="space-y-1.5">
+                <Label>Razão Social</Label>
+                <Input value={editForm.razao_social} onChange={(e) => setEditForm({ ...editForm, razao_social: e.target.value })} />
+              </div>
+            </div>
+
+            <div className="space-y-1.5">
+              <Label>CNPJ</Label>
+              <Input value={editForm.cnpj} onChange={(e) => setEditForm({ ...editForm, cnpj: e.target.value })} />
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1.5">
+                <Label>Cidade</Label>
+                <Input value={editForm.city} onChange={(e) => setEditForm({ ...editForm, city: e.target.value })} />
+              </div>
+              <div className="space-y-1.5">
+                <Label>Estado</Label>
+                <Input value={editForm.state} onChange={(e) => setEditForm({ ...editForm, state: e.target.value })} maxLength={2} placeholder="SP" />
+              </div>
+            </div>
+
+            <div className="space-y-1.5">
+              <Label>Status do Plano</Label>
+              <Select value={editForm.plan_status} onValueChange={(v) => setEditForm({ ...editForm, plan_status: v })}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="active">Ativo</SelectItem>
+                  <SelectItem value="overdue">Inadimplente</SelectItem>
+                  <SelectItem value="cancelled">Cancelado</SelectItem>
+                  <SelectItem value="expired">Expirado</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setEditingStore(null)} disabled={saving}>
+              <X className="w-4 h-4 mr-1" /> Cancelar
+            </Button>
+            <Button onClick={handleSave} disabled={saving}>
+              {saving ? <Loader2 className="w-4 h-4 mr-1 animate-spin" /> : <Save className="w-4 h-4 mr-1" />}
+              Salvar
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* ── Delete Confirmation ── */}
+      <AlertDialog open={!!deletingStore} onOpenChange={(open) => !open && setDeletingStore(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Excluir loja "{deletingStore?.name}"?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Esta ação é irreversível. Todos os dados da loja serão excluídos permanentemente,
+              incluindo propostas, modelos, categorias, opcionais e perfis de usuários vinculados.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={deleting}>Cancelar</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDelete} disabled={deleting} className="bg-red-600 hover:bg-red-700">
+              {deleting ? <Loader2 className="w-4 h-4 mr-1 animate-spin" /> : <Trash2 className="w-4 h-4 mr-1" />}
+              Excluir Permanentemente
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
