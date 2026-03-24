@@ -92,7 +92,7 @@ const DashboardPipeline = ({ proposals, onUpdateStatus, onViewProposal, onExport
     <div className="space-y-3">
       <div className="flex items-center justify-between">
         <h3 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
-          Pipeline de Propostas
+          Controle e Acompanhamento de Propostas
         </h3>
         <span className="text-xs text-muted-foreground">
           {filtered.length} de {proposals.length}
