@@ -6,9 +6,9 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Loader2, Lock, CheckCircle, AlertTriangle, Copy, Package, XCircle, CheckCheck, Eye, FileDown, ExternalLink, Check, Radio, CreditCard, Users } from "lucide-react";
+import { Loader2, Lock, CheckCircle, AlertTriangle, Copy, Package, XCircle, CheckCheck, Eye, FileDown, ExternalLink, Check, Radio, CreditCard, Users, UserPlus, Send } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -26,8 +26,10 @@ interface ReceivedLead {
   status: string;
   accepted_at: string | null;
   accepted_by: string | null;
+  assigned_to: string | null;
   created_at: string;
   accepted_by_profile?: { full_name: string | null } | null;
+  assigned_to_profile?: { full_name: string | null } | null;
   proposals: {
     customer_name: string;
     customer_city: string;
@@ -39,7 +41,7 @@ interface ReceivedLead {
 }
 
 const AdminLeads = () => {
-  const { store, storeSettings } = useStoreData();
+  const { store, storeSettings, role, profile } = useStoreData();
   const [leads, setLeads] = useState<ReceivedLead[]>([]);
   const [loading, setLoading] = useState(true);
   const [accepting, setAccepting] = useState<string | null>(null);
@@ -52,15 +54,19 @@ const AdminLeads = () => {
   const [checkoutLoading, setCheckoutLoading] = useState(false);
   const [filterUser, setFilterUser] = useState<string>("all");
   const [teamMembers, setTeamMembers] = useState<{ id: string; full_name: string | null }[]>([]);
+  // Assignment dialog
+  const [assignDialogOpen, setAssignDialogOpen] = useState(false);
+  const [assigningLeadId, setAssigningLeadId] = useState<string | null>(null);
+  const [assignTargetUser, setAssignTargetUser] = useState<string>("");
+
+  const isOwner = role === "owner";
 
   // Check if lead plan subscription is paid (or manually activated)
   useEffect(() => {
-    // If store already has lead_plan_active from DB, skip Stripe check
     if (storeInfo?.lead_plan_active) {
       setLeadSubActive(true);
       return;
     }
-    // Don't check Stripe until storeInfo is loaded
     if (storeInfo === null) return;
     const checkLeadSubscription = async () => {
       try {
@@ -99,7 +105,7 @@ const AdminLeads = () => {
     const [leadsRes, storeRes, teamRes] = await Promise.all([
       (supabase as any)
         .from("lead_distributions")
-        .select("*, proposals(customer_name, customer_city, customer_whatsapp, total_price, created_at, pool_models(name)), accepted_by_profile:profiles!accepted_by(full_name)")
+        .select("*, proposals(customer_name, customer_city, customer_whatsapp, total_price, created_at, pool_models(name)), accepted_by_profile:profiles!accepted_by(full_name), assigned_to_profile:profiles!assigned_to(full_name)")
         .eq("store_id", store.id)
         .order("created_at", { ascending: false }),
       (supabase as any)
@@ -218,9 +224,46 @@ const AdminLeads = () => {
     loadData();
   };
 
-  const pendingLeads = leads.filter(l => l.status === "pending" && l.proposals != null);
-  const validLeads = leads.filter(l => {
-    if (!l.proposals) return false;
+  const handleAssignLead = async () => {
+    if (!assigningLeadId || !assignTargetUser) return;
+    try {
+      const { error } = await (supabase as any)
+        .from("lead_distributions")
+        .update({ assigned_to: assignTargetUser })
+        .eq("id", assigningLeadId);
+      if (error) throw error;
+      toast.success("Lead atribuído com sucesso!");
+      setAssignDialogOpen(false);
+      setAssigningLeadId(null);
+      setAssignTargetUser("");
+      loadData();
+    } catch (err: any) {
+      toast.error(err.message || "Erro ao atribuir lead");
+    }
+  };
+
+  const openAssignDialog = (leadId: string) => {
+    setAssigningLeadId(leadId);
+    setAssignTargetUser("");
+    setAssignDialogOpen(true);
+  };
+
+  // Visibility: owners see all, sellers see only their own accepted leads + pending assigned to them
+  const getVisibleLeads = () => {
+    if (isOwner) return leads.filter(l => l.proposals != null);
+
+    // Seller: sees pending leads assigned to them (or unassigned) + leads they accepted
+    return leads.filter(l => {
+      if (!l.proposals) return false;
+      if (l.status === "accepted" && l.accepted_by === profile?.id) return true;
+      if (l.status === "pending" && (!l.assigned_to || l.assigned_to === profile?.id)) return true;
+      return false;
+    });
+  };
+
+  const allVisibleLeads = getVisibleLeads();
+  const pendingLeads = allVisibleLeads.filter(l => l.status === "pending");
+  const validLeads = allVisibleLeads.filter(l => {
     if (filterUser !== "all" && l.accepted_by !== filterUser) return false;
     return true;
   });
@@ -351,14 +394,16 @@ const AdminLeads = () => {
 
   return (
     <div className="space-y-4 md:space-y-6">
-      <h1 className="text-xl md:text-2xl font-bold">Meus Leads</h1>
+      <h1 className="text-xl md:text-2xl font-bold">
+        {isOwner ? "Gestão de Leads" : "Meus Leads"}
+      </h1>
 
       {/* KPIs */}
       <div className="grid grid-cols-2 gap-2 md:gap-4">
         <Card>
           <CardContent className="pt-3 pb-2 md:pt-4 md:pb-3 px-3 md:px-6">
             <p className="text-[11px] md:text-xs text-muted-foreground mb-0.5">Leads Recebidos</p>
-            <p className="text-xl md:text-2xl font-bold">{leads.length}</p>
+            <p className="text-xl md:text-2xl font-bold">{allVisibleLeads.length}</p>
             <p className="text-[10px] md:text-xs text-muted-foreground">{pendingLeads.length} pendentes</p>
           </CardContent>
         </Card>
@@ -368,24 +413,36 @@ const AdminLeads = () => {
             <p className="text-xl md:text-2xl font-bold">{consumed} <span className="text-xs md:text-sm text-muted-foreground font-normal">/ {limit}</span></p>
           </CardContent>
         </Card>
-        <Card className={excess > 0 ? "border-amber-500/50" : ""}>
-          <CardContent className="pt-3 pb-2 md:pt-4 md:pb-3 px-3 md:px-6">
-            <p className="text-[11px] md:text-xs text-muted-foreground mb-0.5">Excedentes</p>
-            <p className={`text-xl md:text-2xl font-bold ${excess > 0 ? "text-amber-600" : ""}`}>{excess}</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="pt-3 pb-2 md:pt-4 md:pb-3 px-3 md:px-6">
-            <p className="text-[11px] md:text-xs text-muted-foreground mb-0.5">Custo Adicional</p>
-            <p className={`text-xl md:text-2xl font-bold ${excess > 0 ? "text-red-600" : ""}`}>{formatCurrency(excess * excessPrice)}</p>
-          </CardContent>
-        </Card>
+        {isOwner && (
+          <>
+            <Card className={excess > 0 ? "border-amber-500/50" : ""}>
+              <CardContent className="pt-3 pb-2 md:pt-4 md:pb-3 px-3 md:px-6">
+                <p className="text-[11px] md:text-xs text-muted-foreground mb-0.5">Excedentes</p>
+                <p className={`text-xl md:text-2xl font-bold ${excess > 0 ? "text-amber-600" : ""}`}>{excess}</p>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="pt-3 pb-2 md:pt-4 md:pb-3 px-3 md:px-6">
+                <p className="text-[11px] md:text-xs text-muted-foreground mb-0.5">Custo Adicional</p>
+                <p className={`text-xl md:text-2xl font-bold ${excess > 0 ? "text-red-600" : ""}`}>{formatCurrency(excess * excessPrice)}</p>
+              </CardContent>
+            </Card>
+          </>
+        )}
       </div>
 
-      {excess > 0 && (
+      {isOwner && excess > 0 && (
         <div className="flex items-center gap-2 bg-amber-500/10 border border-amber-500/20 text-amber-700 rounded-lg p-3 text-sm">
           <AlertTriangle className="w-4 h-4 flex-shrink-0" />
           Você atingiu seu limite mensal de {limit} leads. Leads adicionais serão cobrados a {formatCurrency(excessPrice)} por lead na fatura mensal.
+        </div>
+      )}
+
+      {/* Info for sellers */}
+      {!isOwner && (
+        <div className="flex items-center gap-2 bg-primary/5 border border-primary/20 text-primary rounded-lg p-3 text-sm">
+          <Users className="w-4 h-4 flex-shrink-0" />
+          Você visualiza apenas os leads atribuídos a você ou que você aceitou.
         </div>
       )}
 
@@ -421,7 +478,7 @@ const AdminLeads = () => {
       <Card>
         <CardHeader className="pb-2 px-3 md:px-6 flex flex-row items-center justify-between gap-2">
           <CardTitle className="text-sm md:text-base">Leads Recebidos ({validLeads.length})</CardTitle>
-          {teamMembers.length > 1 && (
+          {isOwner && teamMembers.length > 1 && (
             <Select value={filterUser} onValueChange={setFilterUser}>
               <SelectTrigger className="w-[180px] h-8 text-xs">
                 <Users className="w-3.5 h-3.5 mr-1.5 text-muted-foreground" />
@@ -442,8 +499,8 @@ const AdminLeads = () => {
           {validLeads.length === 0 ? (
             <div className="text-center py-12 text-muted-foreground">
               <Package className="w-10 h-10 mx-auto mb-2 opacity-40" />
-              <p>Nenhum lead recebido ainda</p>
-              <p className="text-xs mt-1">Leads serão distribuídos pela administração</p>
+              <p>{isOwner ? "Nenhum lead recebido ainda" : "Nenhum lead atribuído a você"}</p>
+              <p className="text-xs mt-1">{isOwner ? "Leads serão distribuídos pela administração" : "Aguarde o admin atribuir leads para você"}</p>
             </div>
           ) : (
             <>
@@ -470,6 +527,11 @@ const AdminLeads = () => {
                             <p className="text-[11px] text-muted-foreground truncate">
                               {p.pool_models?.name || "-"} · {p.customer_city}
                             </p>
+                            {lead.assigned_to_profile?.full_name && (
+                              <p className="text-[10px] text-primary mt-0.5">
+                                → {lead.assigned_to_profile.full_name}
+                              </p>
+                            )}
                           </div>
                         </div>
                         <div className="text-right shrink-0">
@@ -479,7 +541,7 @@ const AdminLeads = () => {
                           </Badge>
                           {lead.status === "accepted" && lead.accepted_by_profile?.full_name && (
                             <p className="text-[10px] text-muted-foreground mt-0.5">
-                              por {lead.accepted_by_profile.full_name}
+                              Aceito por {lead.accepted_by_profile.full_name}
                             </p>
                           )}
                         </div>
@@ -492,6 +554,16 @@ const AdminLeads = () => {
 
                         {isPending ? (
                           <div className="flex gap-2">
+                            {isOwner && teamMembers.length > 1 && (
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="h-9 text-xs"
+                                onClick={() => openAssignDialog(lead.id)}
+                              >
+                                <Send className="w-3.5 h-3.5 mr-1" /> Atribuir
+                              </Button>
+                            )}
                             <Button
                               size="sm"
                               className="h-9 text-xs bg-emerald-600 hover:bg-emerald-700 text-white px-4"
@@ -557,6 +629,7 @@ const AdminLeads = () => {
                       <TableHead>WhatsApp</TableHead>
                       <TableHead>Recebido em</TableHead>
                       <TableHead>Status</TableHead>
+                      {isOwner && <TableHead>Atribuído a</TableHead>}
                       <TableHead className="text-right">Ação</TableHead>
                     </TableRow>
                   </TableHeader>
@@ -598,10 +671,30 @@ const AdminLeads = () => {
                             </Badge>
                             {lead.status === "accepted" && lead.accepted_by_profile?.full_name && (
                               <p className="text-[10px] text-muted-foreground mt-1">
-                                por {lead.accepted_by_profile.full_name}
+                                Aceito por {lead.accepted_by_profile.full_name}
                               </p>
                             )}
                           </TableCell>
+                          {isOwner && (
+                            <TableCell>
+                              {lead.assigned_to_profile?.full_name ? (
+                                <Badge variant="secondary" className="text-[10px]">
+                                  {lead.assigned_to_profile.full_name}
+                                </Badge>
+                              ) : isPending ? (
+                                <Button
+                                  size="sm"
+                                  variant="ghost"
+                                  className="h-7 text-[11px] text-muted-foreground hover:text-primary"
+                                  onClick={() => openAssignDialog(lead.id)}
+                                >
+                                  <Send className="w-3 h-3 mr-1" /> Atribuir
+                                </Button>
+                              ) : (
+                                <span className="text-xs text-muted-foreground">—</span>
+                              )}
+                            </TableCell>
+                          )}
                           <TableCell className="text-right">
                             {isPending ? (
                               <div className="flex items-center justify-end gap-1">
@@ -669,6 +762,52 @@ const AdminLeads = () => {
               storeState={store?.state}
             />
           )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Assign Lead Dialog */}
+      <Dialog open={assignDialogOpen} onOpenChange={setAssignDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Atribuir Lead</DialogTitle>
+            <DialogDescription>
+              Escolha o membro da equipe que receberá este lead. Apenas ele poderá aceitá-lo.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-3 py-4">
+            {teamMembers.filter(m => m.id !== profile?.id).map(m => (
+              <button
+                key={m.id}
+                onClick={() => setAssignTargetUser(m.id)}
+                className={`w-full flex items-center gap-3 p-3 rounded-lg border transition-colors ${
+                  assignTargetUser === m.id
+                    ? "border-primary bg-primary/5"
+                    : "border-border hover:bg-muted/50"
+                }`}
+              >
+                <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                  <span className="text-sm font-bold text-primary">
+                    {(m.full_name || "?")[0].toUpperCase()}
+                  </span>
+                </div>
+                <span className="text-sm font-medium">{m.full_name || "Sem nome"}</span>
+                {assignTargetUser === m.id && (
+                  <Check className="w-4 h-4 text-primary ml-auto" />
+                )}
+              </button>
+            ))}
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setAssignDialogOpen(false)}>Cancelar</Button>
+            <Button
+              onClick={handleAssignLead}
+              disabled={!assignTargetUser}
+              className="gradient-primary text-white"
+            >
+              <Send className="w-4 h-4 mr-2" />
+              Atribuir Lead
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>
