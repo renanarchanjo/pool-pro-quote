@@ -409,8 +409,8 @@ async function executarRotina(supabase: any, periodo: string) {
     const payload: NotificationPayload = { userId, titulo, mensagem, prioridade, alertType };
     const ok = await enviarPush(payload, supabase);
 
-    // Salvar log sempre
-    await salvarLog(supabase, payload, hash);
+    // Salvar log apenas quando enviou com sucesso
+    if (ok) await salvarLog(supabase, payload, hash);
 
     if (ok) sent++;
     else skipped++;
@@ -462,7 +462,7 @@ serve(async (req) => {
       }
 
       const sent = await enviarPush(payload, supabaseAdmin);
-      await salvarLog(supabaseAdmin, payload, hash);
+      if (sent) await salvarLog(supabaseAdmin, payload, hash);
 
       return new Response(JSON.stringify({ ok: true, sent }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
