@@ -296,7 +296,7 @@ const AdminLeads = () => {
             </li>
             <li className="flex items-center gap-2 text-amber-600">
               <AlertTriangle className="w-4 h-4 shrink-0" />
-              Ao exceder, R$ 25,00 por lead adicional
+              R$ 25,00 por LEAD extra aprovado!
             </li>
           </ul>
 
