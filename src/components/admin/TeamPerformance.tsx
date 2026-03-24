@@ -215,6 +215,27 @@ const TeamPerformance = () => {
       : format(dateRange.from, "dd/MM/yyyy", { locale: ptBR })
     : "Selecionar período";
 
+  const handleExportPDF = async () => {
+    if (!reportRef.current) return;
+    toast.info("Gerando PDF...");
+    const el = reportRef.current;
+    const prevWidth = el.style.width;
+    el.style.width = "1100px";
+
+    const dateText = dateLabel.replace(/\//g, "-");
+    await html2pdf().set({
+      margin: [10, 10, 10, 10],
+      filename: `Performance-Equipe-${dateText}.pdf`,
+      image: { type: "jpeg", quality: 0.98 },
+      html2canvas: { scale: 2, useCORS: true, backgroundColor: "#ffffff" },
+      jsPDF: { unit: "mm", format: "a4", orientation: "landscape" },
+      pagebreak: { mode: ["avoid-all", "css", "legacy"] },
+    }).from(el).save();
+
+    el.style.width = prevWidth;
+    toast.success("PDF exportado!");
+  };
+
   if (loading) {
     return (
       <div className="flex justify-center p-8">
