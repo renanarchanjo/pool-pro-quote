@@ -269,6 +269,11 @@ const ProposalView = ({
             <div style={sectionStyle}>
               <div style={sectionHeaderStyle}>Piscina</div>
               <div style={{ ...sectionBodyStyle, display: "flex", alignItems: "flex-start", gap: "16px" }}>
+                {brandLogoUrl && (
+                  <div style={{ flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", width: "80px", height: "80px" }}>
+                    <img src={brandLogoUrl} alt="Marca" style={{ maxWidth: "80px", maxHeight: "80px", objectFit: "contain" }} crossOrigin="anonymous" />
+                  </div>
+                )}
                 <div style={{ flex: 1 }}>
                   <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "8px" }}>
                     <span style={{ fontSize: "20px", fontWeight: 800, color: "#111827" }}>{model.name}</span>
