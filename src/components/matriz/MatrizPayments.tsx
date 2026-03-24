@@ -149,13 +149,13 @@ const MatrizPayments = () => {
                 <FileText className="w-5 h-5 text-blue-600" />
               </div>
               <div>
-                <h3 className="font-bold text-sm">Orçamento Adicional</h3>
+                <h3 className="font-bold text-sm">Propostas Extras</h3>
                 <p className="text-xs text-muted-foreground mt-0.5">
-                  Cobrado por orçamento gerado além do limite mensal do plano
+                  Cobrado por proposta gerada além do limite mensal do plano
                 </p>
                 <div className="mt-2">
                   <span className="text-2xl font-bold">{formatCurrency(ADDITIONAL_COSTS.perProposal)}</span>
-                  <span className="text-sm text-muted-foreground"> /orçamento</span>
+                  <span className="text-sm text-muted-foreground"> /proposta gerada</span>
                 </div>
                 <Badge variant="outline" className="mt-2 text-xs">Conforme uso</Badge>
               </div>
