@@ -284,10 +284,80 @@
   }
 }
 
+/* ============================
+   MOBILE APP OPTIMIZATION
+   iOS & Android PWA styles
+   ============================ */
+
+/* Safe area insets for notch/dynamic island */
+:root {
+  --safe-area-top: env(safe-area-inset-top, 0px);
+  --safe-area-bottom: env(safe-area-inset-bottom, 0px);
+}
+
 /* Matriz header - toque fácil no mobile */
 @media (max-width: 768px) {
   .mobile-matriz-header {
     height: 4.5rem;
     min-height: 4.5rem;
+    padding-top: var(--safe-area-top);
+  }
+
+  /* Global mobile typography scaling */
+  html {
+    -webkit-text-size-adjust: 100%;
+    font-size: 16px;
+  }
+
+  /* Prevent iOS zoom on input focus */
+  input, select, textarea {
+    font-size: 16px !important;
+  }
+
+  /* Larger touch targets for all interactive elements */
+  button, [role="button"], a {
+    min-height: 44px;
+  }
+
+  /* Better spacing for main content areas */
+  main.flex-1 {
+    padding: 1rem !important;
+  }
+
+  /* Card mobile optimization */
+  .mobile-card-compact {
+    padding: 0.75rem;
+  }
+
+  /* Safe area padding for bottom navigation/buttons */
+  .safe-area-bottom {
+    padding-bottom: calc(var(--safe-area-bottom) + 0.5rem);
+  }
+
+  /* Sidebar top safe area */
+  .sidebar-safe-top {
+    padding-top: var(--safe-area-top);
+  }
+
+  /* Smoother scrolling on iOS */
+  .overflow-auto, .overflow-y-auto {
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Disable text selection on interactive elements */
+  button, [role="button"] {
+    -webkit-user-select: none;
+    user-select: none;
+  }
+
+  /* Table mobile improvements */
+  table {
+    font-size: 0.8125rem;
+  }
+
+  /* Dialog mobile improvements */
+  [role="dialog"] {
+    max-height: calc(100vh - var(--safe-area-top) - var(--safe-area-bottom) - 2rem) !important;
+    margin: 1rem;
   }
 }
