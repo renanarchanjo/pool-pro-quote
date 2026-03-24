@@ -382,6 +382,7 @@ const TeamManager = () => {
       <div className="space-y-3">
         {members.map((member) => {
           const isCurrentUser = member.id === profile?.id;
+          const isSeller = member.role === "seller";
           return (
             <Card key={member.id} className="p-4">
               <div className="flex items-center justify-between">
@@ -458,6 +459,47 @@ const TeamManager = () => {
                   </div>
                 )}
               </div>
+              {/* Daily lead limit for sellers */}
+              {isSeller && !isCurrentUser && (
+                <div className="mt-3 pt-3 border-t border-border/50 flex items-center justify-between gap-3">
+                  <div className="text-sm text-muted-foreground">
+                    Limite diário de leads:
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Select
+                      value={String(member.daily_lead_limit)}
+                      onValueChange={async (v) => {
+                        const newLimit = parseInt(v);
+                        try {
+                          const { error } = await (supabase as any)
+                            .from("profiles")
+                            .update({ daily_lead_limit: newLimit })
+                            .eq("id", member.id);
+                          if (error) throw error;
+                          setMembers(prev => prev.map(m => m.id === member.id ? { ...m, daily_lead_limit: newLimit } : m));
+                          toast.success(`Limite atualizado para ${newLimit === 0 ? "ilimitado" : newLimit + " leads/dia"}`);
+                        } catch (err: any) {
+                          toast.error(err.message || "Erro ao atualizar limite");
+                        }
+                      }}
+                    >
+                      <SelectTrigger className="h-8 w-[140px] text-xs">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="0">Ilimitado</SelectItem>
+                        <SelectItem value="1">1 lead/dia</SelectItem>
+                        <SelectItem value="2">2 leads/dia</SelectItem>
+                        <SelectItem value="3">3 leads/dia</SelectItem>
+                        <SelectItem value="5">5 leads/dia</SelectItem>
+                        <SelectItem value="10">10 leads/dia</SelectItem>
+                        <SelectItem value="15">15 leads/dia</SelectItem>
+                        <SelectItem value="20">20 leads/dia</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+              )}
             </Card>
           );
         })}
