@@ -27,6 +27,8 @@ const AdminSidebar = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { role } = useStoreData();
+  const { theme } = useTheme();
+  const logo = theme === "dark" ? logoHorizontalDark : logoHorizontal;
 
   const isOwner = role === "owner";
 
