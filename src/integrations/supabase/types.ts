@@ -538,13 +538,16 @@ export type Database = {
       stores: {
         Row: {
           city: string | null
+          cnpj: string | null
           created_at: string | null
           id: string
           name: string
+          nome_fantasia: string | null
           plan_expires_at: string | null
           plan_id: string | null
           plan_started_at: string | null
           plan_status: string | null
+          razao_social: string | null
           slug: string
           state: string | null
           stripe_customer_id: string | null
@@ -553,13 +556,16 @@ export type Database = {
         }
         Insert: {
           city?: string | null
+          cnpj?: string | null
           created_at?: string | null
           id?: string
           name: string
+          nome_fantasia?: string | null
           plan_expires_at?: string | null
           plan_id?: string | null
           plan_started_at?: string | null
           plan_status?: string | null
+          razao_social?: string | null
           slug: string
           state?: string | null
           stripe_customer_id?: string | null
@@ -568,13 +574,16 @@ export type Database = {
         }
         Update: {
           city?: string | null
+          cnpj?: string | null
           created_at?: string | null
           id?: string
           name?: string
+          nome_fantasia?: string | null
           plan_expires_at?: string | null
           plan_id?: string | null
           plan_started_at?: string | null
           plan_status?: string | null
+          razao_social?: string | null
           slug?: string
           state?: string | null
           stripe_customer_id?: string | null
