@@ -462,7 +462,7 @@ serve(async (req) => {
       { auth: { persistSession: false } }
     );
 
-    const { periodo = "manual", tipo, userId, leadCount } = await req.json().catch(() => ({}));
+    const { periodo = "manual", tipo, userId, leadCount, bypassCooldown, bypassDailyLimit, bypassDeduplication } = await req.json().catch(() => ({}));
 
     // Modo manual: enviar notificação avulsa (ex: novo lead em tempo real)
     if (tipo === "lead_recebido" && userId) {
@@ -478,12 +478,12 @@ serve(async (req) => {
       };
 
       const hash = generateHash(userId, payload.titulo, payload.mensagem);
-      if (await hashJaExiste(supabaseAdmin, hash)) {
+      if (!bypassDeduplication && await hashJaExiste(supabaseAdmin, hash)) {
         return new Response(JSON.stringify({ ok: true, action: "deduplicated" }), {
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
-      if (!(await podeEnviar(supabaseAdmin, userId, "lead_recebido"))) {
+      if (!bypassCooldown && !bypassDailyLimit && !(await podeEnviar(supabaseAdmin, userId, "lead_recebido"))) {
         return new Response(JSON.stringify({ ok: true, action: "throttled" }), {
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
