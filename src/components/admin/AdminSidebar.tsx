@@ -103,7 +103,7 @@ const AdminSidebar = () => {
         {renderGroup("CONTA", accountItems)}
       </SidebarContent>
 
-      <SidebarFooter className="p-4 safe-area-bottom space-y-2">
+      <SidebarFooter className="p-4 safe-area-bottom space-y-3">
         <div className="flex items-center justify-between">
           <span className="text-xs text-muted-foreground">Tema</span>
           <ThemeToggle />
@@ -111,7 +111,7 @@ const AdminSidebar = () => {
         <Button
           variant="outline"
           onClick={handleLogout}
-          className="w-full min-h-[48px] text-destructive border-destructive/30 hover:bg-destructive/10 text-base md:text-sm md:min-h-0"
+          className="w-full h-12 text-destructive border-destructive/30 hover:bg-destructive/10 text-base md:text-sm md:h-9"
         >
           <LogOut className="w-5 h-5 md:w-4 md:h-4 mr-2" />
           Sair
