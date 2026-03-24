@@ -253,6 +253,10 @@ const TeamPerformance = () => {
           <p className="text-xs text-muted-foreground">Acompanhe o funil de vendas de cada colaborador</p>
         </div>
         <div className="flex items-center gap-2">
+          <Button variant="outline" size="sm" className="h-8 text-xs gap-1" onClick={handleExportPDF} disabled={metrics.length === 0}>
+            <FileDown className="w-3 h-3" />
+            PDF
+          </Button>
           <Select value={datePreset} onValueChange={applyPreset}>
             <SelectTrigger className="h-8 w-[140px] text-xs">
               <SelectValue />
