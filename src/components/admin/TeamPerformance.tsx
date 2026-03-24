@@ -424,6 +424,7 @@ const TeamPerformance = () => {
           })}
         </div>
       )}
+      </div>
     </div>
   );
 };
