@@ -35,7 +35,7 @@ const Parceiros = () => {
       <SiteHeader />
       <main className="flex-1 container mx-auto px-4 py-20">
         <div className="text-center mb-16">
-          <h1 className="text-4xl font-display font-extrabold mb-4 md:text-[sidebar-primary-foreground] text-sidebar">
+          <h1 className="text-4xl font-display font-extrabold mb-4 text-cyan-900 md:text-5xl">
             Nossos Parceiros
           </h1>
           <p className="text-lg max-w-2xl mx-auto text-slate-950">
