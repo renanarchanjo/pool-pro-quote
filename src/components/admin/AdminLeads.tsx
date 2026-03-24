@@ -219,7 +219,11 @@ const AdminLeads = () => {
   };
 
   const pendingLeads = leads.filter(l => l.status === "pending" && l.proposals != null);
-  const validLeads = leads.filter(l => l.proposals != null);
+  const validLeads = leads.filter(l => {
+    if (!l.proposals) return false;
+    if (filterUser !== "all" && l.accepted_by !== filterUser) return false;
+    return true;
+  });
 
   const toggleSelect = (id: string) => {
     setSelectedIds(prev => {
