@@ -132,6 +132,18 @@ const AdminDashboard = () => {
       setProposals((proposalsRes.data as any) || []);
       setLeadDistributions(distRes.data || []);
       setTeamMembers(teamRes.data || []);
+
+      // Fetch commission for current user (seller view)
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { data: commData } = await supabase
+          .from("commission_settings")
+          .select("commission_percent")
+          .eq("store_id", store.id)
+          .eq("member_id", user.id)
+          .maybeSingle();
+        setCommissionPercent(commData?.commission_percent || 0);
+      }
     } catch (error) {
       console.error("Error loading dashboard:", error);
     } finally {
