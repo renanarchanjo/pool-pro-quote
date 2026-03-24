@@ -276,7 +276,7 @@ const AdminDashboard = () => {
       <div className="space-y-4 md:space-y-6">
         {/* (A) KPIs */}
         <div style={{ pageBreakInside: "avoid" }}>
-          <DashboardKPIs proposals={filteredProposals} />
+          <DashboardKPIs proposals={filteredProposals} role={role} commissionPercent={commissionPercent} />
         </div>
 
         {/* (B) Funnel + (D) Alerts */}
