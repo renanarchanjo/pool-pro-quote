@@ -100,6 +100,48 @@ export type Database = {
           },
         ]
       }
+      commission_settings: {
+        Row: {
+          commission_percent: number
+          created_at: string | null
+          id: string
+          member_id: string
+          store_id: string
+          updated_at: string | null
+        }
+        Insert: {
+          commission_percent?: number
+          created_at?: string | null
+          id?: string
+          member_id: string
+          store_id: string
+          updated_at?: string | null
+        }
+        Update: {
+          commission_percent?: number
+          created_at?: string | null
+          id?: string
+          member_id?: string
+          store_id?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "commission_settings_member_id_fkey"
+            columns: ["member_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "commission_settings_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       lead_distributions: {
         Row: {
           accepted_at: string | null
