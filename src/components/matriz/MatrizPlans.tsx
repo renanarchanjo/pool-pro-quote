@@ -185,9 +185,20 @@ const MatrizPlans = () => {
                   <TableCell>{plan.max_proposals_per_month}</TableCell>
                   <TableCell>{plan.max_users || 1}</TableCell>
                   <TableCell>
-                    <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${plan.active ? "bg-emerald-500/10 text-emerald-600" : "bg-red-500/10 text-red-600"}`}>
-                      {plan.active ? "Ativo" : "Inativo"}
-                    </span>
+                    <div className="flex items-center gap-1.5">
+                      <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${plan.active ? "bg-emerald-500/10 text-emerald-600" : "bg-red-500/10 text-red-600"}`}>
+                        {plan.active ? "Ativo" : "Inativo"}
+                      </span>
+                      {plan.stripe_price_id ? (
+                        <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-medium bg-primary/10 text-primary">
+                          Stripe ✓
+                        </span>
+                      ) : plan.price_monthly > 0 ? (
+                        <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-medium bg-amber-500/10 text-amber-600">
+                          Sem Stripe
+                        </span>
+                      ) : null}
+                    </div>
                   </TableCell>
                   <TableCell className="text-right">
                     <Button variant="ghost" size="sm" onClick={() => openEditPlan(plan)}>
