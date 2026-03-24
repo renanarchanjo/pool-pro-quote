@@ -74,7 +74,6 @@ const MatrizLeads = () => {
   const [showDistributeDialog, setShowDistributeDialog] = useState(false);
   const [targetStoreId, setTargetStoreId] = useState("");
   const [distributing, setDistributing] = useState(false);
-  const [updatingStatus, setUpdatingStatus] = useState<string | null>(null);
   const [showSuccessDialog, setShowSuccessDialog] = useState(false);
   const [successInfo, setSuccessInfo] = useState<{ count: number; storeName: string } | null>(null);
 
