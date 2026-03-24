@@ -120,20 +120,9 @@ const DashboardAlerts = ({ proposals, onSelectProposal }: Props) => {
       emptyDesc: "Todas as propostas estão sendo acompanhadas.",
       renderValue: (p: Proposal) => `${daysSince(p.created_at)}d parada`,
     },
-    {
-      title: "Prioridade de Fecho",
-      subtitle: `${formatCurrency(bestOpportunities.reduce((s, p: any) => s + (p.expectedValue || 0), 0))} receita prevista`,
-      icon: Flame,
-      iconColor: "text-red-500",
-      iconBg: "bg-red-50",
-      items: bestOpportunities,
-      empty: "Nenhuma oportunidade",
-      emptyDesc: "Propostas com maior probabilidade de fechamento aparecerão aqui.",
-      renderValue: (p: any) => `${formatCurrency(p.expectedValue)} prev.`,
-    },
   ];
 
-  if (stale.length === 0 && bestOpportunities.length === 0) {
+  if (stale.length === 0) {
     return null;
   }
 
@@ -143,7 +132,7 @@ const DashboardAlerts = ({ proposals, onSelectProposal }: Props) => {
         <AlertTriangle className="w-4 h-4" />
         Alertas e Oportunidades
       </h3>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 gap-3">
         {sections.map((section) => {
           const Icon = section.icon;
           return (
