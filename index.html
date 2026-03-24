@@ -26,6 +26,14 @@
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:site" content="@SIMULAPOOL" />
     <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+    <script>
+      window.OneSignalDeferred = window.OneSignalDeferred || [];
+      OneSignalDeferred.push(async function(OneSignal) {
+        await OneSignal.init({
+          appId: "5f4c1578-23d5-49ff-b055-49a63c4c3074",
+        });
+      });
+    </script>
   </head>
 
   <body>
