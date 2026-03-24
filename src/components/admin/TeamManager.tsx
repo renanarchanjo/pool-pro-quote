@@ -260,7 +260,14 @@ const TeamManager = () => {
   const isAtLimit = !isUnlimited && members.length >= maxMembers;
 
   return (
-    <div className="space-y-6 max-w-3xl">
+    <div className="space-y-6 max-w-4xl">
+      <Tabs defaultValue="membros" className="w-full">
+        <TabsList>
+          <TabsTrigger value="membros">Membros</TabsTrigger>
+          <TabsTrigger value="performance">Performance</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="membros" className="space-y-6 mt-4">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
           <h2 className="text-2xl font-bold">Equipe</h2>
