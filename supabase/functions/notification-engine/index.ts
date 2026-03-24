@@ -320,12 +320,16 @@ async function enviarPush(payload: NotificationPayload, supabase: any): Promise<
     url: "/admin",
   };
 
+  // OneSignal v2 keys (os_v2_app_...) and legacy keys both work with "Basic" auth
+  const authHeader = `Basic ${ONESIGNAL_REST_API_KEY}`;
+  console.log(`[push] Auth header prefix: Basic, key starts with: ${ONESIGNAL_REST_API_KEY.substring(0, 10)}...`);
+
   try {
     const res = await fetch("https://api.onesignal.com/notifications", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": `Key ${ONESIGNAL_REST_API_KEY}`,
+        "Authorization": authHeader,
       },
       body: JSON.stringify(body),
     });
@@ -353,7 +357,7 @@ async function enviarPush(payload: NotificationPayload, supabase: any): Promise<
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Key ${ONESIGNAL_REST_API_KEY}`,
+          "Authorization": authHeader,
         },
         body: JSON.stringify(fallbackBody),
       });
