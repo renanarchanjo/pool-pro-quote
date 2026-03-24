@@ -98,7 +98,7 @@ const TeamPerformance = () => {
       const [membersRes, distRes, proposalsRes] = await Promise.all([
         (supabase as any).from("profiles").select("id, full_name").eq("store_id", store.id),
         supabase.from("lead_distributions").select("id, proposal_id, store_id, status, accepted_by, accepted_at, created_at").eq("store_id", store.id),
-        supabase.from("proposals").select("id, status, total_price, created_at, customer_name").eq("store_id", store.id),
+        supabase.from("proposals").select("id, status, total_price, created_at, customer_name, created_by").eq("store_id", store.id),
       ]);
 
       setMembers(membersRes.data || []);
@@ -136,14 +136,22 @@ const TeamPerformance = () => {
     proposals.forEach(p => proposalMap.set(p.id, p));
 
     return members.map(member => {
-      // Leads distributed to this member (accepted_by)
+      // Flow 1: Leads accepted by this member
       const memberDists = filteredDist.filter(d => d.accepted_by === member.id);
       const acceptedDists = memberDists.filter(d => d.status === "accepted");
+      const acceptedIds = new Set(acceptedDists.map(d => d.proposal_id));
 
-      // Get proposals for accepted leads
-      const memberProposals = acceptedDists
-        .map(d => proposalMap.get(d.proposal_id))
-        .filter(Boolean) as ProposalData[];
+      // Flow 2: Proposals manually created by this member (created_by)
+      const manualIds = new Set(
+        Array.from(proposalMap.values())
+          .filter(p => (p as any).created_by === member.id && !acceptedIds.has(p.id))
+          .filter(p => { const dt = new Date(p.created_at); return dt >= from && dt <= to; })
+          .map(p => p.id)
+      );
+
+      // Merge both flows
+      const allIds = new Set([...acceptedIds, ...manualIds]);
+      const memberProposals = Array.from(allIds).map(id => proposalMap.get(id)).filter(Boolean) as ProposalData[];
 
       const closed = memberProposals.filter(p => p.status === "fechada");
       const lost = memberProposals.filter(p => p.status === "perdida");
