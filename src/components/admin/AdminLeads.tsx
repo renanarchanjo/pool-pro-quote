@@ -63,6 +63,25 @@ const AdminLeads = () => {
     };
     checkLeadSubscription();
   }, []);
+
+  const handleLeadCheckout = async () => {
+    try {
+      setCheckoutLoading(true);
+      const { data, error } = await supabase.functions.invoke("create-checkout", {
+        body: { priceId: LEAD_PLAN.priceId },
+      });
+      if (error) throw error;
+      if (data?.url) {
+        window.open(data.url, "_blank");
+      }
+    } catch (err: any) {
+      toast.error("Erro ao iniciar checkout: " + (err.message || "Tente novamente"));
+    } finally {
+      setCheckoutLoading(false);
+    }
+  };
+
+  const loadData = async () => {
     if (!store) return;
     setLoading(true);
     const [leadsRes, storeRes] = await Promise.all([
