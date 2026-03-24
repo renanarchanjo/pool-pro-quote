@@ -32,8 +32,8 @@ const SiteHeader = () => {
                 to={link.to}
                 className={`text-sm font-medium transition-colors ${
                   location.pathname === link.to
-                    ? "text-foreground font-semibold"
-                    : "text-muted-foreground hover:text-foreground"
+                    ? "text-primary font-semibold"
+                    : "text-primary hover:text-primary/80"
                 }`}
               >
                 {link.label}
