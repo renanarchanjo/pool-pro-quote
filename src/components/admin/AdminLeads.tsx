@@ -50,6 +50,8 @@ const AdminLeads = () => {
   const [loadingProposal, setLoadingProposal] = useState(false);
   const [leadSubActive, setLeadSubActive] = useState<boolean | null>(null);
   const [checkoutLoading, setCheckoutLoading] = useState(false);
+  const [filterUser, setFilterUser] = useState<string>("all");
+  const [teamMembers, setTeamMembers] = useState<{ id: string; full_name: string | null }[]>([]);
 
   // Check if lead plan subscription is paid (or manually activated)
   useEffect(() => {
