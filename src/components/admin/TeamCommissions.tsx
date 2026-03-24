@@ -41,7 +41,7 @@ const TeamCommissions = () => {
   const [members, setMembers] = useState<MemberProfile[]>([]);
   const [commissionSettings, setCommissionSettings] = useState<CommissionSetting[]>([]);
   const [distributions, setDistributions] = useState<LeadDist[]>([]);
-  const [proposals, setProposals] = useState<ProposalData[]>([]);
+  const [proposals, setProposals] = useState<ProposalDataFull[]>([]);
   const [datePreset, setDatePreset] = useState("month");
   const [dateRange, setDateRange] = useState<DateRange | undefined>(() => {
     const r = DATE_PRESETS[0].getRange();
@@ -65,6 +65,7 @@ const TeamCommissions = () => {
       setCommissionSettings((settingsRes.data as any) || []);
       setDistributions(distRes.data || []);
       setProposals(proposalsRes.data || []);
+
     } catch (e) { console.error(e); } finally { setLoading(false); }
   };
 
