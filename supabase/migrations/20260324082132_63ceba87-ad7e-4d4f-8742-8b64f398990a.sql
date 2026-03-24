@@ -1,0 +1,2 @@
+ALTER TABLE public.model_optionals DROP CONSTRAINT model_optionals_store_id_fkey;
+ALTER TABLE public.model_optionals ADD CONSTRAINT model_optionals_store_id_fkey FOREIGN KEY (store_id) REFERENCES public.stores(id) ON DELETE CASCADE;
