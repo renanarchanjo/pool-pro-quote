@@ -37,7 +37,7 @@ const Index = () => {
             <h1 className="text-3xl md:text-5xl lg:text-7xl font-display font-extrabold mb-4 md:mb-6 leading-tight">
               <span className="text-gradient">Sua piscina dos sonhos</span>
               <br />
-              <span className="text-foreground">começa aqui.</span>
+              <span className="text-secondary">começa aqui.</span>
             </h1>
             
             <p className="text-base md:text-xl lg:text-2xl text-muted-foreground mb-6 md:mb-10 font-light max-w-2xl mx-auto px-2">
