@@ -82,6 +82,7 @@ const Admin = () => {
               <Route index element={<AdminDashboard />} />
               <Route path="gerar-proposta" element={<ManualProposal />} />
               <Route path="leads" element={<AdminLeads />} />
+              <Route path="faturas" element={<InvoiceHistory />} />
               <Route path="perfil" element={<AdminProfile />} />
               {/* Owner-only routes */}
               {isOwner && (

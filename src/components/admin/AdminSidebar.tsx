@@ -61,6 +61,7 @@ const AdminSidebar = () => {
 
   const accountItems = [
     { title: "Meu Perfil", url: "/admin/perfil", icon: User },
+    { title: "Faturas", url: "/admin/faturas", icon: Receipt },
     ...(isOwner ? [
       { title: "Equipe", url: "/admin/equipe", icon: UsersRound },
       { title: "Assinatura", url: "/admin/assinatura", icon: CreditCard },
