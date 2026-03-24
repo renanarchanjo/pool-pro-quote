@@ -75,12 +75,62 @@ const ProposalView = ({
     if (!element) return;
 
     const nameSlug = customerData.name.trim().replace(/\s+/g, "-");
-    await exportPDF({
-      element,
-      filename: `Proposta-${nameSlug}-${today.replace(/\//g, "-")}.pdf`,
-      orientation: "portrait",
-      captureWidth: 800,
-    });
+    const filename = `Proposta-${nameSlug}-${today.replace(/\//g, "-")}.pdf`;
+    const width = 800;
+
+    try {
+      toast.info("Gerando PDF...", { duration: 3000 });
+
+      // Hide interactive elements for capture
+      const interactiveEls = element.querySelectorAll<HTMLElement>("button, [data-no-pdf], select");
+      const hiddenOriginals: { el: HTMLElement; display: string }[] = [];
+      interactiveEls.forEach((el) => {
+        hiddenOriginals.push({ el, display: el.style.display });
+        el.style.display = "none";
+      });
+
+      // Save original styles
+      const origWidth = element.style.width;
+      const origMaxWidth = element.style.maxWidth;
+      const origPadding = element.style.padding;
+
+      element.style.width = `${width}px`;
+      element.style.maxWidth = `${width}px`;
+      element.style.padding = "32px";
+
+      const { default: html2pdf } = await import("html2pdf.js");
+      await (html2pdf() as any)
+        .set({
+          margin: [10, 10, 10, 10],
+          filename,
+          image: { type: "jpeg", quality: 0.98 },
+          html2canvas: {
+            scale: 2,
+            useCORS: true,
+            width,
+            windowWidth: width,
+            backgroundColor: "#ffffff",
+            logging: false,
+          },
+          jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
+          pagebreak: { mode: ["avoid-all", "css", "legacy"] },
+        })
+        .from(element)
+        .save();
+
+      // Restore styles
+      element.style.width = origWidth;
+      element.style.maxWidth = origMaxWidth;
+      element.style.padding = origPadding;
+      hiddenOriginals.forEach(({ el, display }) => {
+        el.style.display = display;
+      });
+
+      toast.success("PDF exportado com sucesso!");
+    } catch (error) {
+      console.error("Erro ao gerar PDF:", error);
+      toast.error("Erro ao gerar PDF. Tente novamente.");
+    }
   };
 
   const storeLocation = [storeCity, storeState].filter(Boolean).join(" / ");
