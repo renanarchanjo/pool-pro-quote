@@ -43,10 +43,6 @@ const MatrizSidebar = () => {
     <Sidebar collapsible="offcanvas">
       <SidebarHeader className="border-b border-border/50">
         <div className="h-3 bg-white md:hidden" />
-        <div className="flex flex-col items-center gap-1 p-4">
-          <img src={currentLogo} alt="SIMULAPOOL" className="h-16 max-w-[200px] object-contain" />
-          <span className="text-[10px] font-bold text-primary tracking-widest uppercase">MATRIZ</span>
-        </div>
       </SidebarHeader>
 
       <SidebarContent>
