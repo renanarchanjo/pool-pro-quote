@@ -49,21 +49,21 @@ const AdminSidebar = () => {
 
   const mainItems = [
     { title: "Dashboard", url: "/admin", icon: LayoutDashboard },
-    { title: "Gerar Proposta", url: "/admin/gerar-proposta", icon: FilePlus },
-    { title: "Leads", url: "/admin/leads", icon: Users },
+    { title: "Gerar Nova Proposta", url: "/admin/gerar-proposta", icon: FilePlus },
+    { title: "Leads (Tráfego)", url: "/admin/leads", icon: Users },
   ];
 
   const catalogItems = isOwner ? [
-    { title: "Marca e Categoria", url: "/admin/marcas", icon: Tag },
-    { title: "Modelos", url: "/admin/modelos", icon: Box },
+    { title: "Marcas e Categorias", url: "/admin/marcas", icon: Tag },
+    { title: "Modelos e Opcionais Exclusivos", url: "/admin/modelos", icon: Box },
     { title: "Opcionais", url: "/admin/opcionais", icon: Package },
   ] : [];
 
   const accountItems = [
-    { title: "Meu Perfil", url: "/admin/perfil", icon: User },
+    { title: "Minha Conta", url: "/admin/perfil", icon: User },
+    { title: "Minha Equipe", url: "/admin/equipe", icon: UsersRound },
     { title: "Faturas", url: "/admin/faturas", icon: Receipt },
     ...(isOwner ? [
-      { title: "Equipe", url: "/admin/equipe", icon: UsersRound },
       { title: "Assinatura", url: "/admin/assinatura", icon: CreditCard },
     ] : []),
   ];
@@ -109,8 +109,8 @@ const AdminSidebar = () => {
       </SidebarHeader>
 
       <SidebarContent>
-        {renderGroup("PAINEL DO LOJISTA", mainItems)}
-        {renderGroup("CADASTROS", catalogItems)}
+        {renderGroup("PAINEL EMPRESARIAL", mainItems)}
+        {renderGroup("CADASTRAL", catalogItems)}
         {renderGroup("CONTA", accountItems)}
       </SidebarContent>
 
