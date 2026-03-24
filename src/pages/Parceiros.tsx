@@ -1,26 +1,33 @@
+import { useState, useEffect } from "react";
+import { Loader2 } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 import SiteHeader from "@/components/landing/SiteHeader";
 import SiteFooter from "@/components/landing/SiteFooter";
 
-const partners = [
-  {
-    name: "Splash",
-    logo: "https://logo.clearbit.com/splash.com",
-  },
-  {
-    name: "iGUi",
-    logo: "https://www.igui.com.br/wp-content/themes/flavor/assets/images/logo.png",
-  },
-  {
-    name: "Rio Piscinas",
-    logo: "https://logo.clearbit.com/riopiscinas.com.br",
-  },
-  {
-    name: "Up Piscinas",
-    logo: "https://logo.clearbit.com/uppiscinas.com.br",
-  },
-];
+interface Partner {
+  id: string;
+  name: string;
+  logo_url: string | null;
+}
 
 const Parceiros = () => {
+  const [partners, setPartners] = useState<Partner[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchPartners = async () => {
+      const { data } = await supabase
+        .from("partners")
+        .select("id, name, logo_url")
+        .eq("active", true)
+        .order("display_order", { ascending: true });
+
+      setPartners(data || []);
+      setLoading(false);
+    };
+    fetchPartners();
+  }, []);
+
   return (
     <div className="min-h-screen bg-gradient-hero flex flex-col">
       <SiteHeader />
@@ -34,27 +41,39 @@ const Parceiros = () => {
           </p>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-4xl mx-auto">
-          {partners.map((partner) => (
-            <div
-              key={partner.name}
-              className="bg-card/80 backdrop-blur-sm border border-border/50 rounded-2xl p-8 flex flex-col items-center justify-center gap-4 hover:shadow-pool transition-all"
-            >
-              <div className="w-24 h-24 flex items-center justify-center">
-                <img
-                  src={partner.logo}
-                  alt={partner.name}
-                  className="max-w-full max-h-full object-contain"
-                  onError={(e) => {
-                    e.currentTarget.style.display = "none";
-                    e.currentTarget.parentElement!.innerHTML = `<span class="text-2xl font-display font-bold text-primary">${partner.name}</span>`;
-                  }}
-                />
+        {loading ? (
+          <div className="flex justify-center py-20">
+            <Loader2 className="w-8 h-8 animate-spin text-primary" />
+          </div>
+        ) : partners.length === 0 ? (
+          <p className="text-center text-muted-foreground py-20">
+            Em breve nossos parceiros estarão aqui.
+          </p>
+        ) : (
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-4xl mx-auto">
+            {partners.map((partner) => (
+              <div
+                key={partner.id}
+                className="bg-card/80 backdrop-blur-sm border border-border/50 rounded-2xl p-8 flex flex-col items-center justify-center gap-4 hover:shadow-pool transition-all"
+              >
+                <div className="w-28 h-28 flex items-center justify-center">
+                  {partner.logo_url ? (
+                    <img
+                      src={partner.logo_url}
+                      alt={partner.name}
+                      className="max-w-full max-h-full object-contain"
+                    />
+                  ) : (
+                    <span className="text-2xl font-display font-bold text-primary">
+                      {partner.name}
+                    </span>
+                  )}
+                </div>
+                <p className="text-sm font-semibold text-muted-foreground">{partner.name}</p>
               </div>
-              <p className="text-sm font-semibold text-muted-foreground">{partner.name}</p>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
 
         <div className="text-center mt-16">
           <p className="text-muted-foreground">

@@ -7,6 +7,7 @@ import MatrizSidebar from "@/components/matriz/MatrizSidebar";
 import MatrizDashboard from "@/components/matriz/MatrizDashboard";
 import MatrizStores from "@/components/matriz/MatrizStores";
 import MatrizPayments from "@/components/matriz/MatrizPayments";
+import PartnersManager from "@/components/matriz/PartnersManager";
 
 const Matriz = () => {
   const [loading, setLoading] = useState(true);
@@ -63,6 +64,7 @@ const Matriz = () => {
               <Route index element={<MatrizDashboard />} />
               <Route path="lojas" element={<MatrizStores />} />
               <Route path="pagamentos" element={<MatrizPayments />} />
+              <Route path="parceiros" element={<PartnersManager />} />
             </Routes>
           </main>
         </div>
