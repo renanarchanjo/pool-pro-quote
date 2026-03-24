@@ -15,8 +15,8 @@ const SiteHeader = () => {
 
   return (
     <>
-      {/* Top utility bar for mobile touch area */}
-      <div className="h-3 bg-white w-full" />
+      {/* Safe area bar for mobile notch/status bar - only visible on mobile */}
+      <div className="h-3 bg-white w-full md:hidden" style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }} />
       
       <nav className="sticky top-0 z-50 border-b border-border/30 bg-white backdrop-blur-md">
         <div className="container mx-auto md:px-4 flex justify-between items-center px-[14px] py-px">
