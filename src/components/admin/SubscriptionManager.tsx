@@ -3,7 +3,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, Check, X, Crown, CreditCard, ExternalLink } from "lucide-react";
+import { Separator } from "@/components/ui/separator";
+import { Loader2, Check, X, Crown, CreditCard, ExternalLink, Users, FileText, TrendingUp } from "lucide-react";
 import { toast } from "sonner";
 
 const PLANS = [
