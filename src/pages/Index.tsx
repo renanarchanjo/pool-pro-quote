@@ -48,9 +48,25 @@ const Index = () => {
             </div>
             
             <h1 className="text-3xl md:text-5xl lg:text-7xl font-display font-extrabold mb-4 md:mb-6 leading-tight">
-              <span className="text-gradient">Sua piscina dos sonhos</span>
+              {["Sua", "piscina", "dos", "sonhos"].map((word, i) => (
+                <span
+                  key={word}
+                  className="inline-block animate-hero-word text-gradient opacity-0 mr-[0.25em]"
+                  style={{ animationDelay: `${i * 0.12}s` }}
+                >
+                  {word}
+                </span>
+              ))}
               <br />
-              <span className="text-blue-950">começa aqui.</span>
+              {["começa", "aqui."].map((word, i) => (
+                <span
+                  key={word}
+                  className="inline-block animate-hero-word text-blue-950 opacity-0 mr-[0.25em]"
+                  style={{ animationDelay: `${(i + 4) * 0.12}s` }}
+                >
+                  {word}
+                </span>
+              ))}
             </h1>
             
             <p className="text-base md:text-xl lg:text-2xl text-muted-foreground mb-6 md:mb-10 font-light max-w-2xl mx-auto px-2">
