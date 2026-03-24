@@ -60,7 +60,35 @@ const Auth = () => {
       .catch(() => setCities([]));
   }, [state]);
 
+  // Cooldown timer for resend
   useEffect(() => {
+    if (resendCooldown <= 0) return;
+    const timer = setTimeout(() => setResendCooldown(resendCooldown - 1), 1000);
+    return () => clearTimeout(timer);
+  }, [resendCooldown]);
+
+  const handleResendConfirmation = useCallback(async () => {
+    if (resendCooldown > 0 || resendLoading) return;
+    setResendLoading(true);
+    try {
+      const { error } = await supabase.auth.resend({
+        type: "signup",
+        email: pendingEmail,
+        options: {
+          emailRedirectTo: `${window.location.origin}/admin`,
+        },
+      });
+      if (error) throw error;
+      toast.success("E-mail de confirmação reenviado! Verifique sua caixa de entrada e spam.");
+      setResendCooldown(60);
+    } catch (error: any) {
+      toast.error(error.message || "Erro ao reenviar e-mail");
+    } finally {
+      setResendLoading(false);
+    }
+  }, [pendingEmail, resendCooldown, resendLoading]);
+
+
     const redirectByRole = async (userId: string) => {
       const { data: roleData } = await supabase
         .from("user_roles")
