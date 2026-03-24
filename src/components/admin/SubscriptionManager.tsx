@@ -47,8 +47,8 @@ const PLANS = [
     slug: "avancado",
     name: "Avançado",
     price: "R$ 199,90",
-    priceId: "price_1TEH59D4inSHTJNL3Pv8cwj5",
-    productId: "prod_UCgScAiO19M68R",
+    priceId: "price_1TEdJ4DLDBZHKYif5sFUfHLO",
+    productId: "prod_UD3PdH9NRCfw5t",
     proposals: 500,
     popular: true,
     features: [
