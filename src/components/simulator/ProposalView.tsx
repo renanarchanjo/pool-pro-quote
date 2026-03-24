@@ -65,6 +65,8 @@ const ProposalView = ({
   storeName,
   storeCity,
   storeState,
+  brandLogoUrl,
+  partners = [],
 }: ProposalViewProps) => {
   const hasAutoDownloaded = useRef(false);
   const optionalsTotal = selectedOptionals.reduce((sum, opt) => sum + opt.price, 0);
