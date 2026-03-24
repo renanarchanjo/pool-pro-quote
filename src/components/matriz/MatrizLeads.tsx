@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
-import { Loader2, Search, Users, TrendingUp, DollarSign, MapPin, Phone, Calendar, Filter, Download, Eye, Trash2, RefreshCw } from "lucide-react";
+import { Loader2, Search, Users, TrendingUp, DollarSign, MapPin, Copy, Calendar, Filter, Download, Eye, Trash2, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -106,9 +106,9 @@ const MatrizLeads = () => {
     setDeletingLead(null);
   };
 
-  const handleWhatsApp = (lead: Lead) => {
-    const phone = lead.customer_whatsapp.replace(/\D/g, "");
-    window.open(`https://wa.me/55${phone}`, "_blank");
+  const handleCopyPhone = (lead: Lead) => {
+    navigator.clipboard.writeText(lead.customer_whatsapp);
+    toast.success("Número copiado!");
   };
 
   // Filters
@@ -336,8 +336,8 @@ const MatrizLeads = () => {
                         <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setViewingLead(lead)}>
                           <Eye className="w-4 h-4" />
                         </Button>
-                        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleWhatsApp(lead)}>
-                          <Phone className="w-4 h-4 text-emerald-600" />
+                        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleCopyPhone(lead)}>
+                          <Copy className="w-4 h-4 text-muted-foreground" />
                         </Button>
                         <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => setDeletingLead(lead)}>
                           <Trash2 className="w-4 h-4" />
@@ -433,8 +433,8 @@ const MatrizLeads = () => {
               </div>
 
               <DialogFooter>
-                <Button variant="outline" onClick={() => handleWhatsApp(viewingLead)}>
-                  <Phone className="w-4 h-4 mr-1 text-emerald-600" /> WhatsApp
+                <Button variant="outline" onClick={() => handleCopyPhone(viewingLead)}>
+                  <Copy className="w-4 h-4 mr-1" /> Copiar Número
                 </Button>
               </DialogFooter>
             </div>
