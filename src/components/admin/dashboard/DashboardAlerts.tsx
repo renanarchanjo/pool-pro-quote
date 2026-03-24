@@ -75,11 +75,11 @@ const DashboardAlerts = ({ proposals, onSelectProposal }: Props) => {
           <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
             <span
               role="button"
-              onClick={(e) => handleWhatsApp(e, p)}
-              className="p-1 rounded-md hover:bg-emerald-100 text-emerald-600 transition-colors cursor-pointer"
-              title="WhatsApp"
+              onClick={(e) => handleCopyPhone(e, p)}
+              className="p-1 rounded-md hover:bg-muted text-muted-foreground transition-colors cursor-pointer"
+              title="Copiar número"
             >
-              <MessageCircle className="w-3.5 h-3.5" />
+              <Copy className="w-3.5 h-3.5" />
             </span>
             <span
               role="button"
