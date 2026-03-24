@@ -293,35 +293,32 @@ async function enviarPush(payload: NotificationPayload, supabase: any): Promise<
     return false;
   }
 
-  // Buscar subscription do usuário
+  // Check if user has push enabled
   const { data: sub } = await supabase
     .from("push_subscriptions")
-    .select("onesignal_subscription_id, onesignal_player_id")
+    .select("onesignal_subscription_id, onesignal_player_id, enabled")
     .eq("user_id", payload.userId)
     .eq("enabled", true)
     .single();
 
-  if (!sub?.onesignal_subscription_id && !sub?.onesignal_player_id) {
+  if (!sub) {
     console.log(`No push subscription for user ${payload.userId}`);
     return false;
   }
 
   const priority = payload.prioridade === "CRITICO" ? 10 : payload.prioridade === "URGENTE" ? 8 : 5;
 
+  // Use external_id targeting (set via OneSignal.login(userId) on client)
+  // This is the most reliable method for OneSignal v16 SDK
   const body: Record<string, unknown> = {
     app_id: ONESIGNAL_APP_ID,
     headings: { en: payload.titulo },
     contents: { en: payload.mensagem },
     priority,
+    target_channel: "push",
+    include_aliases: { external_id: [payload.userId] },
     url: "/admin",
   };
-
-  // Use subscription_id (v16 SDK) or player_id (legacy)
-  if (sub.onesignal_subscription_id) {
-    body.include_subscription_ids = [sub.onesignal_subscription_id];
-  } else if (sub.onesignal_player_id) {
-    body.include_player_ids = [sub.onesignal_player_id];
-  }
 
   try {
     const res = await fetch("https://api.onesignal.com/notifications", {
@@ -334,6 +331,37 @@ async function enviarPush(payload: NotificationPayload, supabase: any): Promise<
     });
     const result = await res.json();
     console.log("OneSignal response:", JSON.stringify(result));
+    
+    // If external_id fails, fallback to subscription_id or player_id
+    if (!res.ok && (sub.onesignal_subscription_id || sub.onesignal_player_id)) {
+      console.log("Falling back to direct subscription/player targeting");
+      const fallbackBody: Record<string, unknown> = {
+        app_id: ONESIGNAL_APP_ID,
+        headings: { en: payload.titulo },
+        contents: { en: payload.mensagem },
+        priority,
+        url: "/admin",
+      };
+      
+      if (sub.onesignal_subscription_id) {
+        fallbackBody.include_subscription_ids = [sub.onesignal_subscription_id];
+      } else {
+        fallbackBody.include_player_ids = [sub.onesignal_player_id];
+      }
+      
+      const fallbackRes = await fetch("https://api.onesignal.com/notifications", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Key ${ONESIGNAL_REST_API_KEY}`,
+        },
+        body: JSON.stringify(fallbackBody),
+      });
+      const fallbackResult = await fallbackRes.json();
+      console.log("OneSignal fallback response:", JSON.stringify(fallbackResult));
+      return fallbackRes.ok;
+    }
+    
     return res.ok;
   } catch (err) {
     console.error("OneSignal send error:", err);
