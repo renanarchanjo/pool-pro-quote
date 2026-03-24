@@ -287,7 +287,7 @@ const AdminLeads = () => {
 
       {/* Table */}
       <Card>
-        <CardHeader className="pb-2"><CardTitle className="text-base">Leads Recebidos ({validLeads.length})</CardTitle></CardHeader>
+        <CardHeader className="pb-2 px-3 md:px-6"><CardTitle className="text-sm md:text-base">Leads Recebidos ({validLeads.length})</CardTitle></CardHeader>
         <CardContent className="p-0">
           {validLeads.length === 0 ? (
             <div className="text-center py-12 text-muted-foreground">
@@ -296,89 +296,179 @@ const AdminLeads = () => {
               <p className="text-xs mt-1">Leads serão distribuídos pela administração</p>
             </div>
           ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  {pendingLeads.length > 0 && (
-                    <TableHead className="w-10">
-                      <Checkbox
-                        checked={selectedIds.size === pendingLeads.length && pendingLeads.length > 0}
-                        onCheckedChange={toggleSelectAll}
-                      />
-                    </TableHead>
-                  )}
-                  <TableHead>Cliente</TableHead>
-                  <TableHead>Cidade</TableHead>
-                  <TableHead>Piscina</TableHead>
-                  <TableHead>Valor</TableHead>
-                  <TableHead>WhatsApp</TableHead>
-                  <TableHead>Recebido em</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead className="text-right">Ação</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
+            <>
+              {/* Mobile Card View */}
+              <div className="block md:hidden divide-y divide-border">
                 {validLeads.map(lead => {
                   const p = lead.proposals;
                   const isPending = lead.status === "pending";
                   return (
-                    <TableRow key={lead.id} className={selectedIds.has(lead.id) ? "bg-primary/5" : ""}>
-                      {pendingLeads.length > 0 && (
-                        <TableCell>
-                          {isPending ? (
+                    <div key={lead.id} className="p-3 space-y-2">
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="flex items-start gap-2 min-w-0 flex-1">
+                          {isPending && (
                             <Checkbox
                               checked={selectedIds.has(lead.id)}
                               onCheckedChange={() => toggleSelect(lead.id)}
+                              className="mt-0.5"
                             />
-                          ) : <span className="w-4" />}
-                        </TableCell>
-                      )}
-                      <TableCell className="font-medium">{isPending ? maskName(p.customer_name) : p.customer_name}</TableCell>
-                      <TableCell className="text-sm text-muted-foreground">{p.customer_city}</TableCell>
-                      <TableCell className="text-sm">{p.pool_models?.name || "-"}</TableCell>
-                      <TableCell className="text-sm font-medium">{formatCurrency(p.total_price)}</TableCell>
-                      <TableCell className="text-sm">
+                          )}
+                          <div className="min-w-0 flex-1">
+                            <p className="font-semibold text-sm truncate">
+                              {isPending ? maskName(p.customer_name) : p.customer_name}
+                            </p>
+                            <p className="text-[11px] text-muted-foreground truncate">
+                              {p.pool_models?.name || "-"} · {p.customer_city}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="text-right shrink-0">
+                          <p className="font-bold text-sm text-primary">{formatCurrency(p.total_price)}</p>
+                          <Badge variant="outline" className={`text-[10px] mt-0.5 ${statusClass(lead.status)}`}>
+                            {statusLabel(lead.status)}
+                          </Badge>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="text-[11px] text-muted-foreground">
+                          {format(new Date(lead.created_at), "dd/MM/yy HH:mm", { locale: ptBR })}
+                        </span>
+
                         {isPending ? (
-                          <span className="flex items-center gap-1 text-muted-foreground"><Lock className="w-3 h-3" />{maskPhone()}</span>
-                        ) : lead.status === "rejected" ? (
-                          <span className="text-muted-foreground text-xs">—</span>
-                        ) : (
-                          <Button variant="ghost" size="sm" className="h-7 text-xs" onClick={() => { navigator.clipboard.writeText(p.customer_whatsapp); toast.success("Número copiado!"); }}>
-                            <Copy className="w-3 h-3 mr-1" />{p.customer_whatsapp}
-                          </Button>
-                        )}
-                      </TableCell>
-                      <TableCell className="text-sm text-muted-foreground">{format(new Date(lead.created_at), "dd/MM/yy HH:mm", { locale: ptBR })}</TableCell>
-                      <TableCell>
-                        <Badge variant="outline" className={statusClass(lead.status)}>
-                          {statusLabel(lead.status)}
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="text-right">
-                        {isPending ? (
-                          <div className="flex items-center justify-end gap-1">
-                            <Button size="sm" className="h-7 text-xs bg-emerald-600 hover:bg-emerald-700 text-white" onClick={() => handleAccept(lead.id)} disabled={accepting === lead.id || bulkProcessing}>
-                              {accepting === lead.id ? <Loader2 className="w-3 h-3 animate-spin" /> : <><CheckCircle className="w-3 h-3 mr-1" /> Aceitar</>}
+                          <div className="flex gap-2">
+                            <Button
+                              size="sm"
+                              className="h-9 text-xs bg-emerald-600 hover:bg-emerald-700 text-white px-4"
+                              onClick={() => handleAccept(lead.id)}
+                              disabled={accepting === lead.id || bulkProcessing}
+                            >
+                              {accepting === lead.id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <><CheckCircle className="w-3.5 h-3.5 mr-1" /> Aceitar</>}
                             </Button>
-                            <Button size="sm" variant="ghost" className="h-7 text-xs text-red-500 hover:text-red-700 hover:bg-red-50" onClick={() => handleReject(lead.id)} disabled={bulkProcessing}>
-                              <XCircle className="w-3 h-3" />
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="h-9 text-xs border-red-500/30 text-red-600 px-3"
+                              onClick={() => handleReject(lead.id)}
+                              disabled={bulkProcessing}
+                            >
+                              <XCircle className="w-3.5 h-3.5" />
                             </Button>
                           </div>
                         ) : lead.status === "accepted" ? (
-                          <div className="flex items-center justify-end gap-1">
-                            <Button size="sm" variant="outline" className="h-7 text-xs" onClick={() => handleViewProposal(lead.proposal_id)} disabled={loadingProposal}>
-                              {loadingProposal ? <Loader2 className="w-3 h-3 animate-spin" /> : <><Eye className="w-3 h-3 mr-1" /> Ver Proposta</>}
+                          <div className="flex gap-2">
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              className="h-9 text-xs"
+                              onClick={() => { navigator.clipboard.writeText(p.customer_whatsapp); toast.success("Número copiado!"); }}
+                            >
+                              <Copy className="w-3.5 h-3.5 mr-1" /> Copiar
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="h-9 text-xs"
+                              onClick={() => handleViewProposal(lead.proposal_id)}
+                              disabled={loadingProposal}
+                            >
+                              <Eye className="w-3.5 h-3.5 mr-1" /> Ver
                             </Button>
                           </div>
-                        ) : (
-                          <span className="text-xs text-muted-foreground">—</span>
-                        )}
-                      </TableCell>
-                    </TableRow>
+                        ) : null}
+                      </div>
+                    </div>
                   );
                 })}
-              </TableBody>
-            </Table>
+              </div>
+
+              {/* Desktop Table View */}
+              <div className="hidden md:block">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      {pendingLeads.length > 0 && (
+                        <TableHead className="w-10">
+                          <Checkbox
+                            checked={selectedIds.size === pendingLeads.length && pendingLeads.length > 0}
+                            onCheckedChange={toggleSelectAll}
+                          />
+                        </TableHead>
+                      )}
+                      <TableHead>Cliente</TableHead>
+                      <TableHead>Cidade</TableHead>
+                      <TableHead>Piscina</TableHead>
+                      <TableHead>Valor</TableHead>
+                      <TableHead>WhatsApp</TableHead>
+                      <TableHead>Recebido em</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead className="text-right">Ação</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {validLeads.map(lead => {
+                      const p = lead.proposals;
+                      const isPending = lead.status === "pending";
+                      return (
+                        <TableRow key={lead.id} className={selectedIds.has(lead.id) ? "bg-primary/5" : ""}>
+                          {pendingLeads.length > 0 && (
+                            <TableCell>
+                              {isPending ? (
+                                <Checkbox
+                                  checked={selectedIds.has(lead.id)}
+                                  onCheckedChange={() => toggleSelect(lead.id)}
+                                />
+                              ) : <span className="w-4" />}
+                            </TableCell>
+                          )}
+                          <TableCell className="font-medium">{isPending ? maskName(p.customer_name) : p.customer_name}</TableCell>
+                          <TableCell className="text-sm text-muted-foreground">{p.customer_city}</TableCell>
+                          <TableCell className="text-sm">{p.pool_models?.name || "-"}</TableCell>
+                          <TableCell className="text-sm font-medium">{formatCurrency(p.total_price)}</TableCell>
+                          <TableCell className="text-sm">
+                            {isPending ? (
+                              <span className="flex items-center gap-1 text-muted-foreground"><Lock className="w-3 h-3" />{maskPhone()}</span>
+                            ) : lead.status === "rejected" ? (
+                              <span className="text-muted-foreground text-xs">—</span>
+                            ) : (
+                              <Button variant="ghost" size="sm" className="h-7 text-xs" onClick={() => { navigator.clipboard.writeText(p.customer_whatsapp); toast.success("Número copiado!"); }}>
+                                <Copy className="w-3 h-3 mr-1" />{p.customer_whatsapp}
+                              </Button>
+                            )}
+                          </TableCell>
+                          <TableCell className="text-sm text-muted-foreground">{format(new Date(lead.created_at), "dd/MM/yy HH:mm", { locale: ptBR })}</TableCell>
+                          <TableCell>
+                            <Badge variant="outline" className={statusClass(lead.status)}>
+                              {statusLabel(lead.status)}
+                            </Badge>
+                          </TableCell>
+                          <TableCell className="text-right">
+                            {isPending ? (
+                              <div className="flex items-center justify-end gap-1">
+                                <Button size="sm" className="h-7 text-xs bg-emerald-600 hover:bg-emerald-700 text-white" onClick={() => handleAccept(lead.id)} disabled={accepting === lead.id || bulkProcessing}>
+                                  {accepting === lead.id ? <Loader2 className="w-3 h-3 animate-spin" /> : <><CheckCircle className="w-3 h-3 mr-1" /> Aceitar</>}
+                                </Button>
+                                <Button size="sm" variant="ghost" className="h-7 text-xs text-red-500 hover:text-red-700 hover:bg-red-50" onClick={() => handleReject(lead.id)} disabled={bulkProcessing}>
+                                  <XCircle className="w-3 h-3" />
+                                </Button>
+                              </div>
+                            ) : lead.status === "accepted" ? (
+                              <div className="flex items-center justify-end gap-1">
+                                <Button size="sm" variant="outline" className="h-7 text-xs" onClick={() => handleViewProposal(lead.proposal_id)} disabled={loadingProposal}>
+                                  {loadingProposal ? <Loader2 className="w-3 h-3 animate-spin" /> : <><Eye className="w-3 h-3 mr-1" /> Ver Proposta</>}
+                                </Button>
+                              </div>
+                            ) : (
+                              <span className="text-xs text-muted-foreground">—</span>
+                            )}
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })}
+                  </TableBody>
+                </Table>
+              </div>
+            </>
           )}
         </CardContent>
       </Card>
