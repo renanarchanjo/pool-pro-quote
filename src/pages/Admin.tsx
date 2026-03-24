@@ -14,6 +14,7 @@ import ManualProposal from "@/components/admin/ManualProposal";
 import StoresManager from "@/components/admin/StoresManager";
 import TeamManager from "@/components/admin/TeamManager";
 import SubscriptionManager from "@/components/admin/SubscriptionManager";
+import AdminLeads from "@/components/admin/AdminLeads";
 import { useStoreData } from "@/hooks/useStoreData";
 
 const Admin = () => {
