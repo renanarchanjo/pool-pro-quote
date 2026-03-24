@@ -250,7 +250,7 @@ const TeamPerformance = () => {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
           <h3 className="text-lg font-bold">Performance da Equipe</h3>
-          <p className="text-xs text-muted-foreground">Acompanhe o funil de vendas de cada colaborador</p>
+          
         </div>
         <div className="flex items-center gap-2">
           <Button variant="outline" size="sm" className="h-8 text-xs gap-1" onClick={handleExportPDF} disabled={metrics.length === 0}>
