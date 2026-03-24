@@ -10,6 +10,8 @@ import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import logoHorizontal from "@/assets/simulapool-horizontal.png";
+import logoHorizontalDark from "@/assets/simulapool-horizontal-dark.png";
+import { useTheme } from "next-themes";
 
 const MatrizSidebar = () => {
   const navigate = useNavigate();
