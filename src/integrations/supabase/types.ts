@@ -100,6 +100,96 @@ export type Database = {
           },
         ]
       }
+      lead_distributions: {
+        Row: {
+          accepted_at: string | null
+          created_at: string | null
+          distributed_by: string
+          id: string
+          proposal_id: string
+          status: string
+          store_id: string
+        }
+        Insert: {
+          accepted_at?: string | null
+          created_at?: string | null
+          distributed_by: string
+          id?: string
+          proposal_id: string
+          status?: string
+          store_id: string
+        }
+        Update: {
+          accepted_at?: string | null
+          created_at?: string | null
+          distributed_by?: string
+          id?: string
+          proposal_id?: string
+          status?: string
+          store_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lead_distributions_proposal_id_fkey"
+            columns: ["proposal_id"]
+            isOneToOne: false
+            referencedRelation: "proposals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "lead_distributions_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      lead_logs: {
+        Row: {
+          action: string
+          created_at: string | null
+          details: Json | null
+          id: string
+          performed_by: string | null
+          proposal_id: string | null
+          store_id: string | null
+        }
+        Insert: {
+          action: string
+          created_at?: string | null
+          details?: Json | null
+          id?: string
+          performed_by?: string | null
+          proposal_id?: string | null
+          store_id?: string | null
+        }
+        Update: {
+          action?: string
+          created_at?: string | null
+          details?: Json | null
+          id?: string
+          performed_by?: string | null
+          proposal_id?: string | null
+          store_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lead_logs_proposal_id_fkey"
+            columns: ["proposal_id"]
+            isOneToOne: false
+            referencedRelation: "proposals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "lead_logs_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       model_optionals: {
         Row: {
           active: boolean | null
@@ -571,6 +661,9 @@ export type Database = {
           cnpj: string | null
           created_at: string | null
           id: string
+          lead_limit_monthly: number | null
+          lead_plan_active: boolean | null
+          lead_price_excess: number | null
           name: string
           nome_fantasia: string | null
           plan_expires_at: string | null
@@ -589,6 +682,9 @@ export type Database = {
           cnpj?: string | null
           created_at?: string | null
           id?: string
+          lead_limit_monthly?: number | null
+          lead_plan_active?: boolean | null
+          lead_price_excess?: number | null
           name: string
           nome_fantasia?: string | null
           plan_expires_at?: string | null
@@ -607,6 +703,9 @@ export type Database = {
           cnpj?: string | null
           created_at?: string | null
           id?: string
+          lead_limit_monthly?: number | null
+          lead_plan_active?: boolean | null
+          lead_price_excess?: number | null
           name?: string
           nome_fantasia?: string | null
           plan_expires_at?: string | null

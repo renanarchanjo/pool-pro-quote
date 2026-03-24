@@ -14,6 +14,7 @@ import ManualProposal from "@/components/admin/ManualProposal";
 import StoresManager from "@/components/admin/StoresManager";
 import TeamManager from "@/components/admin/TeamManager";
 import SubscriptionManager from "@/components/admin/SubscriptionManager";
+import AdminLeads from "@/components/admin/AdminLeads";
 import { useStoreData } from "@/hooks/useStoreData";
 
 const Admin = () => {
@@ -76,6 +77,7 @@ const Admin = () => {
             <Routes>
               <Route index element={<AdminDashboard />} />
               <Route path="gerar-proposta" element={<ManualProposal />} />
+              <Route path="leads" element={<AdminLeads />} />
               <Route path="perfil" element={<AdminProfile />} />
               {/* Owner-only routes */}
               {isOwner && (
