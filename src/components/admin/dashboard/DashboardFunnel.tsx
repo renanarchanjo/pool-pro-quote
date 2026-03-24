@@ -30,7 +30,7 @@ const DashboardFunnel = ({ proposals }: Props) => {
   const maxCount = Math.max(...Object.values(counts), 1);
 
   return (
-    <Card className="border-border/50 h-full">
+    <Card className="border-border/50 h-full text-base font-sans font-extrabold">
       <CardContent className="p-3 sm:p-4">
         <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">
           Funil de Vendas
