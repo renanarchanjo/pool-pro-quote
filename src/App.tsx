@@ -4,6 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
+import MobileApp from "./pages/MobileApp";
 import Auth from "./pages/Auth";
 import Admin from "./pages/Admin";
 import Matriz from "./pages/Matriz";
@@ -26,6 +27,7 @@ const App = () => (
           <Route path="/auth" element={<Auth />} />
           <Route path="/admin/*" element={<Admin />} />
           <Route path="/matriz/*" element={<Matriz />} />
+          <Route path="/login/app" element={<MobileApp />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
