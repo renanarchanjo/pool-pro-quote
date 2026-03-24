@@ -19,6 +19,8 @@ interface Plan {
   max_users: number;
   active: boolean;
   display_order: number;
+  stripe_price_id: string | null;
+  stripe_product_id: string | null;
 }
 
 interface PlatformSetting {
