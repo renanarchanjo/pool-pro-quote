@@ -24,8 +24,25 @@ export const exportPDF = async ({
   // Save original styles
   const originalStyle = element.style.cssText;
 
+  // Show hidden PDF headers, hide interactive elements
+  const pdfHeaders = element.querySelectorAll<HTMLElement>("[data-pdf-header]");
+  const interactiveEls = element.querySelectorAll<HTMLElement>("button, [data-no-pdf], select");
+  const hiddenOriginals: { el: HTMLElement; display: string }[] = [];
+
   try {
     toast.info("Gerando PDF...", { duration: 3000 });
+
+    // Show PDF-only headers
+    pdfHeaders.forEach((el) => {
+      hiddenOriginals.push({ el, display: el.style.display });
+      el.style.display = "block";
+    });
+
+    // Hide interactive elements
+    interactiveEls.forEach((el) => {
+      hiddenOriginals.push({ el, display: el.style.display });
+      el.style.display = "none";
+    });
 
     // Force print-friendly styles
     element.style.width = `${width}px`;
