@@ -125,6 +125,7 @@ const DashboardPipeline = ({ proposals, onUpdateStatus, onViewProposal, onExport
             </div>
           </SelectTrigger>
           <SelectContent>
+            <SelectItem value="recente">Mais Recente</SelectItem>
             <SelectItem value="valor">Maior Valor</SelectItem>
             <SelectItem value="probabilidade">Maior Probabilidade</SelectItem>
             <SelectItem value="tempo">Mais Antigo</SelectItem>
