@@ -364,8 +364,14 @@ const AdminLeads = () => {
                               <XCircle className="w-3 h-3" />
                             </Button>
                           </div>
+                        ) : lead.status === "accepted" ? (
+                          <div className="flex items-center justify-end gap-1">
+                            <Button size="sm" variant="outline" className="h-7 text-xs" onClick={() => handleViewProposal(lead.proposal_id)} disabled={loadingProposal}>
+                              {loadingProposal ? <Loader2 className="w-3 h-3 animate-spin" /> : <><Eye className="w-3 h-3 mr-1" /> Ver Proposta</>}
+                            </Button>
+                          </div>
                         ) : (
-                          <span className="text-xs text-muted-foreground">{lead.accepted_at ? format(new Date(lead.accepted_at), "dd/MM HH:mm") : ""}</span>
+                          <span className="text-xs text-muted-foreground">—</span>
                         )}
                       </TableCell>
                     </TableRow>
@@ -376,6 +382,44 @@ const AdminLeads = () => {
           )}
         </CardContent>
       </Card>
+
+      {/* Proposal View Dialog */}
+      <Dialog open={!!viewingProposal} onOpenChange={(open) => !open && setViewingProposal(null)}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto p-0">
+          {viewingProposal && (
+            <ProposalView
+              model={{
+                name: viewingProposal.pool_models?.name || "Modelo",
+                length: viewingProposal.pool_models?.length,
+                width: viewingProposal.pool_models?.width,
+                depth: viewingProposal.pool_models?.depth,
+                differentials: viewingProposal.pool_models?.differentials || [],
+                included_items: viewingProposal.pool_models?.included_items || [],
+                not_included_items: viewingProposal.pool_models?.not_included_items || [],
+                base_price: viewingProposal.pool_models?.base_price || 0,
+                delivery_days: viewingProposal.pool_models?.delivery_days || 30,
+                installation_days: viewingProposal.pool_models?.installation_days || 5,
+                payment_terms: viewingProposal.pool_models?.payment_terms,
+              }}
+              selectedOptionals={
+                Array.isArray(viewingProposal.selected_optionals)
+                  ? viewingProposal.selected_optionals.map((o: any) => ({ name: o.name || o, price: o.price || 0 }))
+                  : []
+              }
+              customerData={{
+                name: viewingProposal.customer_name,
+                city: viewingProposal.customer_city,
+                whatsapp: viewingProposal.customer_whatsapp,
+              }}
+              category={viewingProposal.pool_models?.categories?.name || ""}
+              onBack={() => setViewingProposal(null)}
+              storeName={store?.name}
+              storeCity={store?.city}
+              storeState={store?.state}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
