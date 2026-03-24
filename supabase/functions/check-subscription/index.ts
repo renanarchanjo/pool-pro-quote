@@ -35,7 +35,7 @@ serve(async (req) => {
     const customers = await stripe.customers.list({ email: user.email, limit: 1 });
 
     if (customers.data.length === 0) {
-      return new Response(JSON.stringify({ subscribed: false }), {
+      return new Response(JSON.stringify({ subscribed: false, active_products: [] }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
@@ -44,13 +44,20 @@ serve(async (req) => {
     const subscriptions = await stripe.subscriptions.list({
       customer: customerId,
       status: "active",
-      limit: 1,
+      limit: 10,
     });
 
     const hasActiveSub = subscriptions.data.length > 0;
     let productId = null;
     let priceId = null;
     let subscriptionEnd = null;
+
+    // Collect all active product IDs
+    const activeProducts = subscriptions.data.map((sub) => ({
+      product_id: sub.items.data[0].price.product as string,
+      price_id: sub.items.data[0].price.id,
+      subscription_end: new Date(sub.current_period_end * 1000).toISOString(),
+    }));
 
     if (hasActiveSub) {
       const subscription = subscriptions.data[0];
@@ -64,6 +71,7 @@ serve(async (req) => {
       product_id: productId,
       price_id: priceId,
       subscription_end: subscriptionEnd,
+      active_products: activeProducts,
     }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
