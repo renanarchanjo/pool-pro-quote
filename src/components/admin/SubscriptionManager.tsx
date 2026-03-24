@@ -231,10 +231,24 @@ const SubscriptionManager = () => {
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {PLANS.map((plan) => {
+        {PLANS.map((plan, planIndex) => {
           const isCurrent =
             (!subscription?.subscribed && plan.slug === "gratuito") ||
             plan.productId === subscription?.product_id;
+
+          const currentPlanIndex = subscription?.subscribed
+            ? PLANS.findIndex((p) => p.productId === subscription.product_id)
+            : 0;
+
+          const isUpgrade = planIndex > currentPlanIndex;
+          const isDowngrade = planIndex < currentPlanIndex;
+
+          const getButtonLabel = () => {
+            if (!subscription?.subscribed) return "Assinar";
+            if (isUpgrade) return "Fazer Upgrade";
+            if (isDowngrade) return "Downgrade";
+            return "Assinar";
+          };
 
           return (
             <Card
@@ -326,14 +340,15 @@ const SubscriptionManager = () => {
                 <Button
                   onClick={() => handleCheckout(plan.priceId!)}
                   disabled={!!checkoutLoading}
-                  className="w-full gradient-primary text-white"
+                  className={`w-full ${isDowngrade ? "bg-muted text-muted-foreground hover:bg-muted/80" : "gradient-primary text-white"}`}
+                  variant={isDowngrade ? "outline" : "default"}
                 >
                   {checkoutLoading === plan.priceId ? (
                     <Loader2 className="w-4 h-4 animate-spin mr-2" />
                   ) : (
                     <ExternalLink className="w-4 h-4 mr-2" />
                   )}
-                  Assinar
+                  {getButtonLabel()}
                 </Button>
               ) : (
                 <Button disabled variant="ghost" className="w-full text-muted-foreground">
