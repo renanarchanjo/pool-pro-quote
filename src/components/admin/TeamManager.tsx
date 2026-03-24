@@ -555,7 +555,7 @@ const TeamManager = () => {
                 </div>
               )}
               {/* Commission percent */}
-              {!isCurrentUser && (
+              {(
                 <div className="mt-3 pt-3 border-t border-border/50 flex items-center justify-between gap-3">
                   <div className="text-sm text-muted-foreground">
                     Comissão de venda:
