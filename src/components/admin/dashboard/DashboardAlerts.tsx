@@ -133,7 +133,7 @@ const DashboardAlerts = ({ proposals, onSelectProposal }: Props) => {
     },
   ];
 
-  if (stale.length === 0 && highValue.length === 0 && bestOpportunities.length === 0) {
+  if (stale.length === 0 && bestOpportunities.length === 0) {
     return null;
   }
 
