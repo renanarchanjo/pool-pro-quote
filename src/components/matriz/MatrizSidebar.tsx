@@ -46,7 +46,7 @@ const MatrizSidebar = () => {
     <Sidebar collapsible="icon">
       <SidebarHeader className="border-b border-border/50 pt-12 md:pt-4 pb-3 flex items-center">
         <div className="flex items-center gap-3 px-3 w-full">
-          <img src={simulapoolIcon} alt="SimulaPool" className="h-10 w-10 md:h-8 md:w-8 object-contain rounded-xl shrink-0" />
+          <img src={simulapoolIcon} alt="SimulaPool" className="h-20 w-20 md:h-16 md:w-16 object-contain rounded-xl shrink-0" />
           {!collapsed && (
             <div className="flex flex-col">
               <span className="text-base font-bold text-primary leading-tight">Simula Pool</span>
