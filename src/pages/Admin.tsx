@@ -75,6 +75,7 @@ const Admin = () => {
             <SidebarTrigger />
           </header>
           <main className="flex-1 p-6 overflow-auto">
+            <PendingLeadsAlert />
             <Routes>
               <Route index element={<AdminDashboard />} />
               <Route path="gerar-proposta" element={<ManualProposal />} />
