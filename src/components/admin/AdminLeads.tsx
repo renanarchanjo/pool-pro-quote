@@ -246,7 +246,7 @@ const AdminLeads = () => {
     return "";
   };
 
-  if (loading) return <div className="flex items-center justify-center py-20"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
+  if (loading || leadSubActive === null) return <div className="flex items-center justify-center py-20"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
 
   if (!storeInfo?.lead_plan_active) {
     return (
@@ -254,6 +254,68 @@ const AdminLeads = () => {
         <Lock className="w-12 h-12 mx-auto mb-4 text-muted-foreground opacity-50" />
         <h2 className="text-xl font-bold mb-2">Plano de Leads não ativo</h2>
         <p className="text-muted-foreground">Entre em contato com a administração para ativar o recebimento de leads.</p>
+      </div>
+    );
+  }
+
+  if (!leadSubActive) {
+    return (
+      <div className="space-y-6 max-w-lg mx-auto py-10">
+        <div className="text-center">
+          <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-primary/10 flex items-center justify-center">
+            <Radio className="w-8 h-8 text-primary" />
+          </div>
+          <h2 className="text-xl font-bold mb-2">Ative seu Plano de Leads</h2>
+          <p className="text-muted-foreground text-sm">
+            Sua loja foi habilitada para receber leads qualificados! Para começar, finalize o pagamento do plano.
+          </p>
+        </div>
+
+        <Card className="p-6 border-primary/30 bg-primary/5">
+          <h3 className="font-bold text-lg mb-3">Plano de Captação de Leads</h3>
+          <ul className="space-y-2 text-sm mb-5">
+            <li className="flex items-center gap-2">
+              <Check className="w-4 h-4 text-emerald-500 shrink-0" />
+              Leads qualificados da sua região
+            </li>
+            <li className="flex items-center gap-2">
+              <Check className="w-4 h-4 text-emerald-500 shrink-0" />
+              Dados completos do cliente (nome, cidade, WhatsApp)
+            </li>
+            <li className="flex items-center gap-2">
+              <Check className="w-4 h-4 text-emerald-500 shrink-0" />
+              Modelo e orçamento já configurados
+            </li>
+            <li className="flex items-center gap-2">
+              <Check className="w-4 h-4 text-emerald-500 shrink-0" />
+              Distribuição exclusiva por cidade
+            </li>
+          </ul>
+
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-4 border-t border-border">
+            <div>
+              <span className="text-3xl font-bold">{LEAD_PLAN.price}</span>
+              <span className="text-sm text-muted-foreground">/mês</span>
+            </div>
+            <Button
+              onClick={handleLeadCheckout}
+              disabled={checkoutLoading}
+              className="gradient-primary text-white w-full sm:w-auto"
+              size="lg"
+            >
+              {checkoutLoading ? (
+                <Loader2 className="w-4 h-4 animate-spin mr-2" />
+              ) : (
+                <CreditCard className="w-4 h-4 mr-2" />
+              )}
+              Assinar e Ativar Leads
+            </Button>
+          </div>
+        </Card>
+
+        <p className="text-xs text-center text-muted-foreground">
+          Após a confirmação do pagamento, seus leads serão liberados automaticamente.
+        </p>
       </div>
     );
   }
