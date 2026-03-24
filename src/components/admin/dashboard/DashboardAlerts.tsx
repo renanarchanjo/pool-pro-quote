@@ -13,28 +13,16 @@ const DashboardAlerts = ({ proposals, onSelectProposal }: Props) => {
     (p) => p.status !== "fechada" && p.status !== "perdida"
   );
 
-  // Stale proposals (>5 days without change) - lowered threshold for earlier action
+  // Stale proposals (>3 days without change)
   const stale = activeProposals
-    .filter((p) => daysSince(p.created_at) > 5)
+    .filter((p) => daysSince(p.created_at) > 3)
     .sort((a, b) => daysSince(b.created_at) - daysSince(a.created_at))
     .slice(0, 5);
 
-  // High-value open proposals (dynamic threshold: top 20% or > 30k)
-  const sortedByValue = [...activeProposals].sort((a, b) => b.total_price - a.total_price);
-  const dynamicThreshold = sortedByValue.length >= 5
-    ? sortedByValue[Math.floor(sortedByValue.length * 0.2)]?.total_price || 30000
-    : 30000;
-  const highValue = sortedByValue
-    .filter((p) => p.total_price >= dynamicThreshold)
-    .slice(0, 5);
-
-  // Best closing opportunities (highest expected value)
-  const bestOpportunities = activeProposals
-    .map((p) => ({
-      ...p,
-      expectedValue: p.total_price * STATUS_PROBABILITY[p.status],
-    }))
-    .sort((a, b) => b.expectedValue - a.expectedValue)
+  // Proposals in negotiation — remind to close
+  const inNegotiation = activeProposals
+    .filter((p) => p.status === "em_negociacao")
+    .sort((a, b) => daysSince(b.created_at) - daysSince(a.created_at))
     .slice(0, 5);
 
   const handleWhatsApp = (e: React.MouseEvent, p: Proposal) => {
@@ -52,7 +40,7 @@ const DashboardAlerts = ({ proposals, onSelectProposal }: Props) => {
     window.open(`tel:+55${phone}`, "_self");
   };
 
-  const renderItem = (p: Proposal & { expectedValue?: number }, section: typeof sections[0]) => {
+  const renderItem = (p: Proposal, renderValue: (p: Proposal) => string) => {
     const days = daysSince(p.created_at);
     const priority = getPriority(p);
     const priorityConf = PRIORITY_CONFIG[priority];
@@ -62,26 +50,26 @@ const DashboardAlerts = ({ proposals, onSelectProposal }: Props) => {
       <button
         key={p.id}
         onClick={() => onSelectProposal(p)}
-        className="w-full text-left p-2.5 rounded-lg hover:bg-muted/60 transition-colors border border-transparent hover:border-border/50 group"
+        className="w-full text-left p-2 rounded-lg hover:bg-muted/60 transition-colors border border-transparent hover:border-border/50 group"
       >
         <div className="flex items-start justify-between gap-2">
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-1.5 mb-0.5">
               <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${priorityConf.dot}`} />
-              <span className="text-sm font-semibold truncate max-w-[140px]">{p.customer_name}</span>
+              <span className="text-xs font-semibold truncate max-w-[140px]">{p.customer_name}</span>
             </div>
-            <p className="text-[11px] text-muted-foreground">
+            <p className="text-[10px] text-muted-foreground">
               {p.pool_models?.name || "Sem modelo"} · {p.customer_city}
             </p>
           </div>
           <div className="text-right shrink-0">
-            <p className="text-xs font-semibold">{section.renderValue(p)}</p>
+            <p className="text-[10px] font-semibold">{renderValue(p)}</p>
             <Badge variant="outline" className={`text-[9px] px-1.5 py-0 mt-0.5 ${statusConf.className}`}>
               {statusConf.label}
             </Badge>
           </div>
         </div>
-        <div className="flex items-center justify-between mt-1.5">
+        <div className="flex items-center justify-between mt-1">
           <span className="text-[10px] text-muted-foreground">
             {days === 0 ? "Hoje" : days === 1 ? "Ontem" : `${days} dias atrás`}
           </span>
@@ -110,19 +98,30 @@ const DashboardAlerts = ({ proposals, onSelectProposal }: Props) => {
 
   const sections = [
     {
-      title: "Precisam de Ação",
-      subtitle: `${stale.length} sem contato há +5 dias`,
+      title: "Sem Atualização",
+      subtitle: `${stale.length} sem contato há +3 dias`,
       icon: Clock,
       iconColor: "text-amber-500",
       iconBg: "bg-amber-50",
       items: stale,
-      empty: "Nenhuma proposta parada 🎉",
-      emptyDesc: "Todas as propostas estão sendo acompanhadas.",
+      empty: "Tudo em dia 🎉",
+      emptyDesc: "Nenhuma proposta parada.",
       renderValue: (p: Proposal) => `${daysSince(p.created_at)}d parada`,
+    },
+    {
+      title: "Aguardando Fechamento",
+      subtitle: `${inNegotiation.length} em negociação`,
+      icon: Flame,
+      iconColor: "text-orange-500",
+      iconBg: "bg-orange-50",
+      items: inNegotiation,
+      empty: "Nenhuma em negociação",
+      emptyDesc: "Não há propostas neste estágio.",
+      renderValue: (p: Proposal) => formatCurrency(p.total_price),
     },
   ];
 
-  if (stale.length === 0) {
+  if (stale.length === 0 && inNegotiation.length === 0) {
     return null;
   }
 
@@ -154,7 +153,7 @@ const DashboardAlerts = ({ proposals, onSelectProposal }: Props) => {
                   </div>
                 ) : (
                   <div className="space-y-1 mt-3">
-                    {section.items.map((p) => renderItem(p as any, section))}
+                    {section.items.map((p) => renderItem(p, section.renderValue))}
                   </div>
                 )}
               </CardContent>
