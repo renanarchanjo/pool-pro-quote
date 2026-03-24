@@ -41,6 +41,7 @@ const AdminSidebar = () => {
   const mainItems = [
     { title: "Dashboard", url: "/admin", icon: LayoutDashboard },
     { title: "Gerar Proposta", url: "/admin/gerar-proposta", icon: FilePlus },
+    { title: "Leads", url: "/admin/leads", icon: Users },
   ];
 
   const catalogItems = isOwner ? [
