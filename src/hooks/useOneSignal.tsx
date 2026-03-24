@@ -3,6 +3,13 @@ import { supabase } from "@/integrations/supabase/client";
 
 const ONESIGNAL_APP_ID = "5f4c1578-23d5-49ff-b055-49a63c4c3074";
 
+declare global {
+  interface Window {
+    OneSignalDeferred?: Array<(OneSignal: any) => Promise<void>>;
+    OneSignal?: any;
+  }
+}
+
 type PermissionState = "default" | "granted" | "denied";
 type PushSupportState = "supported" | "unsupported" | "unknown";
 
