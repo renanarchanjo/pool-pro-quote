@@ -116,7 +116,8 @@ export const useStoreData = () => {
 
     const onVisibilityChange = () => {
       if (document.visibilityState === "visible") {
-        void fetchStoreData();
+        // Silent refresh — don't show loading spinner
+        void fetchStoreData(0, true);
       }
     };
 
