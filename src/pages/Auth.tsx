@@ -1,6 +1,6 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { Eye, EyeOff, Search, Loader2, CheckCircle2 } from "lucide-react";
+import { Eye, EyeOff, Search, Loader2, CheckCircle2, Mail, RefreshCw } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -35,6 +35,10 @@ const Auth = () => {
   const [cnpjLoading, setCnpjLoading] = useState(false);
   const [cnpjFound, setCnpjFound] = useState(false);
   const [cities, setCities] = useState<string[]>([]);
+  const [pendingConfirmation, setPendingConfirmation] = useState(false);
+  const [pendingEmail, setPendingEmail] = useState("");
+  const [resendLoading, setResendLoading] = useState(false);
+  const [resendCooldown, setResendCooldown] = useState(0);
   const navigate = useNavigate();
 
   const brazilStates = [
@@ -55,6 +59,34 @@ const Auth = () => {
       })
       .catch(() => setCities([]));
   }, [state]);
+
+  // Cooldown timer for resend
+  useEffect(() => {
+    if (resendCooldown <= 0) return;
+    const timer = setTimeout(() => setResendCooldown(resendCooldown - 1), 1000);
+    return () => clearTimeout(timer);
+  }, [resendCooldown]);
+
+  const handleResendConfirmation = useCallback(async () => {
+    if (resendCooldown > 0 || resendLoading) return;
+    setResendLoading(true);
+    try {
+      const { error } = await supabase.auth.resend({
+        type: "signup",
+        email: pendingEmail,
+        options: {
+          emailRedirectTo: `${window.location.origin}/admin`,
+        },
+      });
+      if (error) throw error;
+      toast.success("E-mail de confirmação reenviado! Verifique sua caixa de entrada e spam.");
+      setResendCooldown(60);
+    } catch (error: any) {
+      toast.error(error.message || "Erro ao reenviar e-mail");
+    } finally {
+      setResendLoading(false);
+    }
+  }, [pendingEmail, resendCooldown, resendLoading]);
 
   useEffect(() => {
     const redirectByRole = async (userId: string) => {
@@ -192,7 +224,9 @@ const Auth = () => {
           toast.success("Loja criada com sucesso!");
           navigate("/admin", { replace: true });
         } else {
-          toast.success("Loja criada! Verifique seu e-mail para confirmar o cadastro.");
+          setPendingEmail(email);
+          setPendingConfirmation(true);
+          setResendCooldown(60);
         }
       }
     } catch (error: any) {
@@ -202,6 +236,83 @@ const Auth = () => {
       setLoading(false);
     }
   };
+
+  if (pendingConfirmation) {
+    return (
+      <div className="min-h-screen gradient-pool flex items-center justify-center p-4">
+        <Card className="w-full max-w-md p-8 shadow-pool border-border/50">
+          <div className="text-center mb-6">
+            <div className="flex justify-center mb-6">
+              <img src={logoDark} alt="SIMULAPOOL" className="h-20 object-contain" />
+            </div>
+            <div className="mx-auto w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mb-4">
+              <Mail className="h-8 w-8 text-primary" />
+            </div>
+            <h1 className="text-2xl font-display font-bold mb-2">Confirme seu e-mail</h1>
+            <p className="text-muted-foreground text-sm">
+              Enviamos um link de confirmação para:
+            </p>
+            <p className="font-semibold text-foreground mt-1">{pendingEmail}</p>
+          </div>
+
+          <div className="space-y-3 text-sm text-muted-foreground bg-muted/50 rounded-lg p-4 mb-6">
+            <p>📧 Verifique sua <strong>caixa de entrada</strong> e <strong>spam/lixo eletrônico</strong></p>
+            <p>⏳ O e-mail pode levar até 2 minutos para chegar</p>
+            <p>🔗 Clique no link do e-mail para ativar sua conta</p>
+          </div>
+
+          <Button
+            onClick={handleResendConfirmation}
+            disabled={resendLoading || resendCooldown > 0}
+            className="w-full gradient-primary text-white font-display font-semibold"
+          >
+            {resendLoading ? (
+              <>
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                Reenviando...
+              </>
+            ) : resendCooldown > 0 ? (
+              <>
+                <RefreshCw className="w-4 h-4 mr-2" />
+                Reenviar em {resendCooldown}s
+              </>
+            ) : (
+              <>
+                <RefreshCw className="w-4 h-4 mr-2" />
+                Reenviar e-mail de confirmação
+              </>
+            )}
+          </Button>
+
+          <div className="mt-4 text-center">
+            <button
+              type="button"
+              onClick={() => {
+                setPendingConfirmation(false);
+                setIsLogin(true);
+              }}
+              className="text-sm text-primary hover:underline font-medium"
+            >
+              Já confirmei, ir para login
+            </button>
+          </div>
+
+          <div className="mt-4 pt-4 border-t">
+            <Button
+              variant="outline"
+              className="w-full"
+              onClick={() => {
+                setPendingConfirmation(false);
+                setIsLogin(false);
+              }}
+            >
+              Voltar ao cadastro
+            </Button>
+          </div>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen gradient-pool flex items-center justify-center p-4">
