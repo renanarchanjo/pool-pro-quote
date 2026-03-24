@@ -37,6 +37,8 @@ const AdminLeads = () => {
   const [bulkProcessing, setBulkProcessing] = useState(false);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [storeInfo, setStoreInfo] = useState<{ lead_limit_monthly: number; lead_price_excess: number; lead_plan_active: boolean } | null>(null);
+  const [viewingProposal, setViewingProposal] = useState<any>(null);
+  const [loadingProposal, setLoadingProposal] = useState(false);
 
   const loadData = async () => {
     if (!store) return;
