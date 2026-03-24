@@ -159,7 +159,7 @@ const PricingSection = () => {
       </div>
 
       <p className="text-center text-xs text-muted-foreground mt-8 max-w-2xl mx-auto">
-        * Orçamentos extras além do limite do plano: R$ 0,50 por orçamento adicional.
+        * Propostas extras além do limite do plano: R$ 0,50 por proposta gerada.
         Todos os planos incluem atualizações automáticas e sem fidelidade.
       </p>
     </section>
