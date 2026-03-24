@@ -208,7 +208,11 @@ const Auth = () => {
 
         if (settingsError) throw settingsError;
 
-        toast.success("Loja criada com sucesso! Você será redirecionado...");
+        toast.success("Loja criada com sucesso!");
+
+        if (authData.session) {
+          navigate("/admin", { replace: true });
+        }
       }
     } catch (error: any) {
       console.error("Auth error:", error);

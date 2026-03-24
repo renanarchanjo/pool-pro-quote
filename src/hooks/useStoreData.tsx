@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
 interface Profile {
@@ -21,6 +21,8 @@ interface StoreSettings {
   secondary_color: string;
 }
 
+const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
 export const useStoreData = () => {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [store, setStore] = useState<Store | null>(null);
@@ -28,91 +30,112 @@ export const useStoreData = () => {
   const [role, setRole] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    // Wait for auth state to be ready before fetching
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if (session) {
-        fetchStoreData();
-      } else {
-        setProfile(null);
-        setStore(null);
-        setStoreSettings(null);
-        setRole(null);
-        setLoading(false);
-      }
-    });
-
-    // Also check current session immediately
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session) {
-        fetchStoreData();
-      } else {
-        setLoading(false);
-      }
-    });
-
-    return () => subscription.unsubscribe();
+  const resetState = useCallback(() => {
+    setProfile(null);
+    setStore(null);
+    setStoreSettings(null);
+    setRole(null);
   }, []);
 
-  const fetchStoreData = async () => {
+  const fetchStoreData = useCallback(async (attempt = 0) => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
+        resetState();
         setLoading(false);
         return;
       }
 
-      // Fetch profile
-      const { data: profileData } = await supabase
+      const { data: profileData, error: profileError } = await supabase
         .from("profiles")
         .select("*")
         .eq("id", user.id)
-        .single();
+        .maybeSingle();
 
-      setProfile(profileData);
+      if (profileError) throw profileError;
 
       if (!profileData?.store_id) {
+        if (attempt < 8) {
+          await wait(500);
+          return fetchStoreData(attempt + 1);
+        }
+
+        resetState();
         setLoading(false);
         return;
       }
 
-      // Fetch store
-      const { data: storeData } = await supabase
-        .from("stores")
-        .select("*")
-        .eq("id", profileData.store_id)
-        .single();
+      const [{ data: storeData, error: storeError }, { data: settingsData, error: settingsError }, { data: roleData, error: roleError }] = await Promise.all([
+        supabase.from("stores").select("*").eq("id", profileData.store_id).maybeSingle(),
+        supabase.from("store_settings").select("*").eq("store_id", profileData.store_id).maybeSingle(),
+        supabase.from("user_roles").select("role").eq("user_id", user.id).maybeSingle(),
+      ]);
 
-      setStore(storeData);
+      if (storeError) throw storeError;
+      if (settingsError) throw settingsError;
+      if (roleError) throw roleError;
 
-      // Fetch store settings
-      const { data: settingsData } = await supabase
-        .from("store_settings")
-        .select("*")
-        .eq("store_id", profileData.store_id)
-        .single();
+      if (!storeData || !roleData?.role) {
+        if (attempt < 8) {
+          await wait(500);
+          return fetchStoreData(attempt + 1);
+        }
+      }
 
-      setStoreSettings(settingsData);
-
-      // Fetch role
-      const { data: roleData } = await supabase
-        .from("user_roles")
-        .select("role")
-        .eq("user_id", user.id)
-        .single();
-
-      setRole(roleData?.role || null);
+      setProfile(profileData);
+      setStore(storeData ?? null);
+      setStoreSettings(settingsData ?? null);
+      setRole(roleData?.role ?? null);
     } catch (error) {
       console.error("Error fetching store data:", error);
     } finally {
       setLoading(false);
     }
-  };
+  }, [resetState]);
 
-  const refetch = () => {
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session) {
+        setLoading(true);
+        void fetchStoreData();
+      } else {
+        resetState();
+        setLoading(false);
+      }
+    });
+
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) {
+        setLoading(true);
+        void fetchStoreData();
+      } else {
+        resetState();
+        setLoading(false);
+      }
+    });
+
+    const onVisibilityChange = () => {
+      if (document.visibilityState === "visible") {
+        void fetchStoreData();
+      }
+    };
+
+    document.addEventListener("visibilitychange", onVisibilityChange);
+    const interval = window.setInterval(() => {
+      void fetchStoreData();
+    }, 10000);
+
+    return () => {
+      subscription.unsubscribe();
+      document.removeEventListener("visibilitychange", onVisibilityChange);
+      window.clearInterval(interval);
+    };
+  }, [fetchStoreData, resetState]);
+
+  const refetch = useCallback(() => {
     setLoading(true);
-    fetchStoreData();
-  };
+    void fetchStoreData();
+  }, [fetchStoreData]);
 
   return { profile, store, storeSettings, role, loading, refetch };
 };
