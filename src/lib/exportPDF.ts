@@ -13,10 +13,48 @@ interface ExportPDFOptions {
   sectionSelector?: string;
 }
 
+interface ElementSnapshot {
+  cssText: string;
+  className: string;
+  ariaHidden: string | null;
+}
+
 const A4_SIZES = {
   portrait: { width: 210, height: 297 },
   landscape: { width: 297, height: 210 },
 } as const;
+
+const prepareElementForCapture = (element: HTMLElement): ElementSnapshot => {
+  const snapshot: ElementSnapshot = {
+    cssText: element.style.cssText,
+    className: element.className,
+    ariaHidden: element.getAttribute("aria-hidden"),
+  };
+
+  element.classList.remove("hidden");
+  element.removeAttribute("aria-hidden");
+  element.style.display = "block";
+  element.style.visibility = "visible";
+  element.style.opacity = "1";
+  element.style.position = "fixed";
+  element.style.left = "-10000px";
+  element.style.top = "0";
+  element.style.zIndex = "-1";
+  element.style.pointerEvents = "none";
+
+  return snapshot;
+};
+
+const restorePreparedElement = (element: HTMLElement, snapshot: ElementSnapshot) => {
+  element.style.cssText = snapshot.cssText;
+  element.className = snapshot.className;
+
+  if (snapshot.ariaHidden === null) {
+    element.removeAttribute("aria-hidden");
+  } else {
+    element.setAttribute("aria-hidden", snapshot.ariaHidden);
+  }
+};
 
 const exportSectionedPDF = async ({
   element,
@@ -118,8 +156,7 @@ export const exportPDF = async ({
 }: ExportPDFOptions): Promise<void> => {
   const width = captureWidth || (orientation === "landscape" ? 1100 : 800);
 
-  // Save original styles
-  const originalStyle = element.style.cssText;
+  const preparedSnapshot = prepareElementForCapture(element);
 
   // Show hidden PDF headers, hide interactive elements
   const pdfHeaders = element.querySelectorAll<HTMLElement>("[data-pdf-header]");
@@ -176,8 +213,7 @@ export const exportPDF = async ({
     console.error("Erro ao gerar PDF:", error);
     toast.error("Erro ao gerar PDF. Tente novamente.");
   } finally {
-    // Restore original styles
-    element.style.cssText = originalStyle;
+    restorePreparedElement(element, preparedSnapshot);
     // Restore hidden/shown elements
     hiddenOriginals.forEach(({ el, display }) => {
       el.style.display = display;
