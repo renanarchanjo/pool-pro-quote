@@ -3,30 +3,8 @@ import { supabase } from "@/integrations/supabase/client";
 
 const ONESIGNAL_APP_ID = "5f4c1578-23d5-49ff-b055-49a63c4c3074";
 
-declare global {
-  interface Window {
-    OneSignalDeferred?: Array<(OneSignal: any) => Promise<void>>;
-    OneSignal?: any;
-  }
-}
-
 type PermissionState = "default" | "granted" | "denied";
 type PushSupportState = "supported" | "unsupported" | "unknown";
-
-const isStandalonePwa = () => {
-  if (typeof window === "undefined") return false;
-  return window.matchMedia("(display-mode: standalone)").matches || (window.navigator as any).standalone === true;
-};
-
-const isSecureContextForPush = () => {
-  if (typeof window === "undefined") return false;
-  return window.isSecureContext && window.location.protocol === "https:";
-};
-
-const isAppleMobile = () => {
-  if (typeof navigator === "undefined") return false;
-  return /iPhone|iPad|iPod/i.test(navigator.userAgent);
-};
 
 export function useOneSignal() {
   const [permission, setPermission] = useState<PermissionState>("default");
@@ -39,13 +17,16 @@ export function useOneSignal() {
   useEffect(() => {
     if (typeof window === "undefined") return;
 
-    if (!("Notification" in window) || !("serviceWorker" in navigator) || !isSecureContextForPush()) {
+    const isSecure = window.isSecureContext && window.location.protocol === "https:";
+    if (!("Notification" in window) || !("serviceWorker" in navigator) || !isSecure) {
       setSupport("unsupported");
       setStatusMessage("Este dispositivo/navegador não suporta notificações web neste contexto.");
       return;
     }
 
-    if (isAppleMobile() && !isStandalonePwa()) {
+    const isApple = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+    const isStandalone = window.matchMedia("(display-mode: standalone)").matches || (window.navigator as any).standalone === true;
+    if (isApple && !isStandalone) {
       setSupport("unsupported");
       setStatusMessage("No iPhone, instale o app na tela inicial para ativar notificações push.");
       return;
@@ -57,77 +38,25 @@ export function useOneSignal() {
     if (initAttempted.current) return;
     initAttempted.current = true;
 
-    if (window.OneSignal?.Notifications) {
-      setInitialized(true);
-      return;
-    }
+    // SDK is loaded via <script> in index.html — use OneSignalDeferred
+    setStatusMessage("Inicializando notificações...");
 
-    const existingScript = document.getElementById("onesignal-sdk");
-    if (existingScript) {
-      setStatusMessage("Finalizando carregamento do serviço de notificações...");
-      return;
-    }
-
-    setStatusMessage("Carregando serviço de notificações...");
-
-    const timeout = window.setTimeout(() => {
-      setLoading(false);
-      setStatusMessage("O carregamento das notificações expirou. Tente novamente.");
-    }, 12000);
-
-    const script = document.createElement("script");
-    script.id = "onesignal-sdk";
-    script.src = "https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js";
-    script.defer = true;
-
-    script.onerror = () => {
-      window.clearTimeout(timeout);
-      setLoading(false);
-      setSupport("unsupported");
-      setStatusMessage("Não foi possível carregar o serviço de notificações.");
-      console.error("Failed to load OneSignal SDK");
-    };
-
-    script.onload = () => {
-      window.OneSignalDeferred = window.OneSignalDeferred || [];
-      window.OneSignalDeferred.push(async (OneSignal: any) => {
-        try {
-          await OneSignal.init({
-            appId: ONESIGNAL_APP_ID,
-            notifyButton: { enable: false },
-            allowLocalhostAsSecureOrigin: false,
-          });
-          window.clearTimeout(timeout);
-          setInitialized(true);
-          setStatusMessage("");
-          const perm = OneSignal.Notifications?.permission;
-          if (perm !== undefined) {
-            setPermission(perm ? "granted" : Notification.permission === "denied" ? "denied" : "default");
-          }
-        } catch (err: any) {
-          console.error("OneSignal init error:", err);
-          // If init fails, retry once without SW params
-          try {
-            await OneSignal.init({
-              appId: ONESIGNAL_APP_ID,
-              notifyButton: { enable: false },
-            });
-            window.clearTimeout(timeout);
-            setInitialized(true);
-            setStatusMessage("");
-          } catch (retryErr) {
-            window.clearTimeout(timeout);
-            setLoading(false);
-            setStatusMessage("Falha ao inicializar notificações. Recarregue a página e tente novamente.");
-            console.error("OneSignal retry error:", retryErr);
-          }
+    const w = window as any;
+    w.OneSignalDeferred = w.OneSignalDeferred || [];
+    w.OneSignalDeferred.push(async (OneSignal: any) => {
+      try {
+        await OneSignal.init({ appId: ONESIGNAL_APP_ID });
+        setInitialized(true);
+        setStatusMessage("");
+        const perm = OneSignal.Notifications?.permission;
+        if (perm !== undefined) {
+          setPermission(perm ? "granted" : Notification.permission === "denied" ? "denied" : "default");
         }
-      });
-    };
-
-    document.head.appendChild(script);
-
-    return () => window.clearTimeout(timeout);
+      } catch (err) {
+        console.error("OneSignal init error:", err);
+        setStatusMessage("Falha ao inicializar notificações. Recarregue a página.");
+      }
+    });
   }, []);
 
   const syncSubscription = useCallback(async () => {
@@ -223,5 +152,6 @@ export function useOneSignal() {
     }
   }, [initialized, permission, syncSubscription]);
 
-  return { permission, loading, ativarNotificacoes, initialized, support, statusMessage, isStandalonePwa: isStandalonePwa() };
+  const isStandalone = typeof window !== "undefined" && (window.matchMedia("(display-mode: standalone)").matches || (window.navigator as any).standalone === true);
+  return { permission, loading, ativarNotificacoes, initialized, support, statusMessage, isStandalonePwa: isStandalone };
 }
