@@ -447,6 +447,11 @@ const AdminLeads = () => {
                           <Badge variant="outline" className={`text-[10px] mt-0.5 ${statusClass(lead.status)}`}>
                             {statusLabel(lead.status)}
                           </Badge>
+                          {lead.status === "accepted" && lead.accepted_by_profile?.full_name && (
+                            <p className="text-[10px] text-muted-foreground mt-0.5">
+                              por {lead.accepted_by_profile.full_name}
+                            </p>
+                          )}
                         </div>
                       </div>
 
