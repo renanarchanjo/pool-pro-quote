@@ -43,6 +43,7 @@ const AdminDashboard = () => {
   const [teamMembers, setTeamMembers] = useState<{ id: string; full_name: string | null }[]>([]);
   const [filterMember, setFilterMember] = useState<string>("all");
   const [leadDistributions, setLeadDistributions] = useState<{ proposal_id: string; accepted_by: string | null; status: string }[]>([]);
+  const [commissionPercent, setCommissionPercent] = useState(0);
   const isOwner = role === "owner";
   const [pdfDatePreset, setPdfDatePreset] = useState("month");
   const [pdfDateRange, setPdfDateRange] = useState<DateRange | undefined>(() => {
