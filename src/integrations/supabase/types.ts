@@ -133,6 +133,13 @@ export type Database = {
         }
         Relationships: [
           {
+            foreignKeyName: "lead_distributions_accepted_by_fkey"
+            columns: ["accepted_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "lead_distributions_proposal_id_fkey"
             columns: ["proposal_id"]
             isOneToOne: false
