@@ -92,7 +92,7 @@ const Parceiros = () => {
       {/* ── HERO ── */}
       <section className="relative overflow-hidden pt-24 pb-20 md:pt-32 md:pb-28">
         {/* Background decoration */}
-        <div className="absolute inset-0 bg-gradient-to-br from-hsl(var(--pool-light)) via-background to-hsl(var(--pool-light)/0.3) pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-br from-sky-50 via-background to-cyan-50/30 pointer-events-none" />
         <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-primary/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/4 pointer-events-none" />
         <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-accent/5 rounded-full blur-3xl translate-y-1/2 -translate-x-1/4 pointer-events-none" />
 
