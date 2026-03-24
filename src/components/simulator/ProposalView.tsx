@@ -74,62 +74,72 @@ const ProposalView = ({
     const element = document.getElementById("proposal-content");
     if (!element) return;
 
+    const pageElements = Array.from(element.querySelectorAll<HTMLElement>("[data-pdf-page]"));
+    if (pageElements.length === 0) return;
+
     const nameSlug = customerData.name.trim().replace(/\s+/g, "-");
     const filename = `Proposta-${nameSlug}-${today.replace(/\//g, "-")}.pdf`;
     const width = 800;
 
+    const interactiveEls = element.querySelectorAll<HTMLElement>("button, [data-no-pdf], select");
+    const hiddenOriginals: { el: HTMLElement; display: string }[] = [];
+    const origWidth = element.style.width;
+    const origMaxWidth = element.style.maxWidth;
+    const origPadding = element.style.padding;
+
     try {
       toast.info("Gerando PDF...", { duration: 3000 });
 
-      // Hide interactive elements for capture
-      const interactiveEls = element.querySelectorAll<HTMLElement>("button, [data-no-pdf], select");
-      const hiddenOriginals: { el: HTMLElement; display: string }[] = [];
       interactiveEls.forEach((el) => {
         hiddenOriginals.push({ el, display: el.style.display });
         el.style.display = "none";
       });
 
-      // Save original styles
-      const origWidth = element.style.width;
-      const origMaxWidth = element.style.maxWidth;
-      const origPadding = element.style.padding;
-
       element.style.width = `${width}px`;
       element.style.maxWidth = `${width}px`;
       element.style.padding = "32px";
 
-      const { default: html2pdf } = await import("html2pdf.js");
-      await (html2pdf() as any)
-        .set({
-          margin: [10, 10, 10, 10],
-          filename,
-          image: { type: "jpeg", quality: 0.98 },
-          html2canvas: {
-            scale: 2,
-            useCORS: true,
-            width,
-            windowWidth: width,
-            backgroundColor: "#ffffff",
-            logging: false,
-          },
-          jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
-          pagebreak: { mode: ["avoid-all", "css", "legacy"] },
-        })
-        .from(element)
-        .save();
+      const [{ default: html2canvas }, { jsPDF }] = await Promise.all([
+        import("html2canvas"),
+        import("jspdf"),
+      ]);
 
-      // Restore styles
+      const pdf = new jsPDF({ unit: "mm", format: "a4", orientation: "portrait" });
+      const margin = 10;
+      const pageWidth = 210;
+      const contentWidth = pageWidth - margin * 2;
+
+      for (const [index, pageEl] of pageElements.entries()) {
+        const canvas = await html2canvas(pageEl, {
+          scale: 2,
+          useCORS: true,
+          width,
+          windowWidth: width,
+          backgroundColor: "#ffffff",
+          logging: false,
+        });
+
+        const imgHeight = (canvas.height * contentWidth) / canvas.width;
+
+        if (index > 0) {
+          pdf.addPage("a4", "portrait");
+        }
+
+        pdf.addImage(canvas.toDataURL("image/png"), "PNG", margin, margin, contentWidth, imgHeight);
+      }
+
+      pdf.save(filename);
+      toast.success("PDF exportado com sucesso!");
+    } catch (error) {
+      console.error("Erro ao gerar PDF:", error);
+      toast.error("Erro ao gerar PDF. Tente novamente.");
+    } finally {
       element.style.width = origWidth;
       element.style.maxWidth = origMaxWidth;
       element.style.padding = origPadding;
       hiddenOriginals.forEach(({ el, display }) => {
         el.style.display = display;
       });
-
-      toast.success("PDF exportado com sucesso!");
-    } catch (error) {
-      console.error("Erro ao gerar PDF:", error);
-      toast.error("Erro ao gerar PDF. Tente novamente.");
     }
   };
 
@@ -194,202 +204,197 @@ const ProposalView = ({
             boxSizing: "border-box",
           }}
         >
-          {/* ===== HEADER ===== */}
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "28px", borderBottom: "2px solid #e5e7eb", paddingBottom: "20px" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
-              {storeSettings?.logo_url ? (
-                <img
-                  src={storeSettings.logo_url}
-                  alt="Logo"
-                  style={{ maxHeight: "72px", maxWidth: "200px", width: "auto", height: "auto", objectFit: "contain" }}
-                  crossOrigin="anonymous"
-                />
-              ) : null}
-              <div>
-                <div style={{ fontSize: "18px", fontWeight: 800, color: "#111827" }}>
-                  {storeName || "SIMULAPOOL"}
-                </div>
-                {storeLocation && (
-                  <div style={{ fontSize: "12px", color: "#6b7280", marginTop: "2px" }}>
-                    {storeLocation}
+          <div data-pdf-page>
+            {/* ===== HEADER ===== */}
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "28px", borderBottom: "2px solid #e5e7eb", paddingBottom: "20px" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
+                {storeSettings?.logo_url ? (
+                  <img
+                    src={storeSettings.logo_url}
+                    alt="Logo"
+                    style={{ maxHeight: "72px", maxWidth: "200px", width: "auto", height: "auto", objectFit: "contain" }}
+                    crossOrigin="anonymous"
+                  />
+                ) : null}
+                <div>
+                  <div style={{ fontSize: "18px", fontWeight: 800, color: "#111827" }}>
+                    {storeName || "SIMULAPOOL"}
                   </div>
-                )}
-              </div>
-            </div>
-            <div style={{ textAlign: "right" }}>
-              <h1 style={{ fontSize: "24px", fontWeight: 800, color: "#111827", margin: 0 }}>Proposta Comercial</h1>
-              <p style={{ fontSize: "12px", color: "#6b7280", margin: "4px 0 0" }}>Emitida em {today}</p>
-              <p style={{ fontSize: "12px", color: "#6b7280", margin: "2px 0 0" }}>Validade: {validUntil}</p>
-            </div>
-          </div>
-
-          {/* ===== CLIENTE ===== */}
-          <div style={sectionStyle}>
-            <div style={sectionHeaderStyle}>Cliente</div>
-            <div style={sectionBodyStyle}>
-              <table style={{ width: "100%", fontSize: "13px", borderCollapse: "collapse" }}>
-                <tbody>
-                  {[
-                    ["Nome", customerData.name],
-                    ["WhatsApp", customerData.whatsapp],
-                    ["Cidade / UF", customerData.city],
-                  ].map(([label, value], i) => (
-                    <tr key={i} style={{ borderBottom: i < 2 ? "1px solid #f3f4f6" : "none" }}>
-                      <td style={{ fontWeight: 700, color: "#374151", padding: "8px 16px 8px 0", width: "140px" }}>{label}</td>
-                      <td style={{ padding: "8px 0", color: "#111827" }}>{value}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-
-          {/* ===== PISCINA ===== */}
-          <div style={sectionStyle}>
-            <div style={sectionHeaderStyle}>Piscina</div>
-            <div style={{ ...sectionBodyStyle, display: "flex", alignItems: "flex-start", gap: "16px" }}>
-              <div style={{ flex: 1 }}>
-                <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "8px" }}>
-                  <span style={{ fontSize: "20px", fontWeight: 800, color: "#111827" }}>{model.name}</span>
-                  <span style={{
-                    display: "inline-block",
-                    background: `${primaryColor}18`,
-                    color: primaryColor,
-                    fontSize: "11px",
-                    fontWeight: 700,
-                    padding: "3px 10px",
-                    borderRadius: "12px",
-                    textTransform: "uppercase",
-                    letterSpacing: "0.5px",
-                  }}>
-                    {category}
-                  </span>
-                </div>
-                {(model.length || model.width) && (
-                  <p style={{ fontSize: "13px", color: "#374151", margin: "0 0 4px" }}>
-                    <strong>Dimensões:</strong> COMP: {model.length}M LARG: {model.width}M{model.depth ? ` PROF: ${model.depth}M` : ""}
-                  </p>
-                )}
-                <p style={{ fontSize: "13px", color: "#374151", margin: 0 }}>
-                  <strong>Valor base:</strong> {fmt(model.base_price)}
-                </p>
-              </div>
-            </div>
-          </div>
-
-          {/* ===== ITENS INCLUSOS + OPCIONAIS ===== */}
-          <div style={{ display: "flex", flexDirection: "row", gap: "16px", marginBottom: "16px" }}>
-            {/* Itens Inclusos */}
-            <div style={{ ...sectionStyle, flex: 1, marginBottom: 0 }}>
-              <div style={sectionHeaderStyle}>Itens Inclusos</div>
-              <div style={sectionBodyStyle}>
-                <ul style={{ margin: 0, paddingLeft: "18px", fontSize: "12px", lineHeight: "1.8" }}>
-                  {model.included_items.map((item, i) => (
-                    <li key={i} style={{ color: "#374151" }}>{item}</li>
-                  ))}
-                </ul>
-              </div>
-            </div>
-
-            {/* Opcionais */}
-            <div style={{ ...sectionStyle, flex: 1, marginBottom: 0 }}>
-              <div style={sectionHeaderStyle}>Opcionais</div>
-              <div style={sectionBodyStyle}>
-                {selectedOptionals.length === 0 ? (
-                  <p style={{ fontSize: "12px", color: "#9ca3af", margin: 0 }}>Nenhum opcional selecionado</p>
-                ) : (
-                  <table style={{ width: "100%", fontSize: "12px", borderCollapse: "collapse" }}>
-                    <tbody>
-                      {selectedOptionals.map((opt, i) => (
-                        <tr key={i} style={{ borderBottom: "1px solid #f3f4f6" }}>
-                          <td style={{ padding: "6px 8px 6px 0", color: "#374151" }}>{opt.name}</td>
-                          <td style={{ padding: "6px 0", textAlign: "right", fontWeight: 600, color: "#111827", whiteSpace: "nowrap" }}>{fmt(opt.price)}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                )}
-              </div>
-            </div>
-          </div>
-
-          {/* ===== RESUMO FINANCEIRO ===== */}
-          <div
-            style={{
-              ...sectionStyle,
-              pageBreakBefore: "always",
-              breakBefore: "page",
-              pageBreakInside: "avoid",
-            }}
-          >
-            <div style={sectionHeaderStyle}>Resumo Financeiro</div>
-            <div style={sectionBodyStyle}>
-              <table style={{ width: "100%", fontSize: "13px", borderCollapse: "collapse" }}>
-                <tbody>
-                  <tr style={{ borderBottom: "1px solid #f3f4f6" }}>
-                    <td style={{ padding: "8px 0", color: "#6b7280" }}>Valor base</td>
-                    <td style={{ padding: "8px 0", textAlign: "right", color: "#111827" }}>{fmt(model.base_price)}</td>
-                  </tr>
-                  {optionalsTotal > 0 && (
-                    <tr style={{ borderBottom: "1px solid #f3f4f6" }}>
-                      <td style={{ padding: "8px 0", color: "#6b7280" }}>Opcionais</td>
-                      <td style={{ padding: "8px 0", textAlign: "right", color: "#111827" }}>{fmt(optionalsTotal)}</td>
-                    </tr>
+                  {storeLocation && (
+                    <div style={{ fontSize: "12px", color: "#6b7280", marginTop: "2px" }}>
+                      {storeLocation}
+                    </div>
                   )}
-                  <tr>
-                    <td style={{ padding: "12px 0 8px", fontWeight: 800, fontSize: "16px", color: primaryColor }}>Total</td>
-                    <td style={{ padding: "12px 0 8px", textAlign: "right", fontWeight: 800, fontSize: "16px", color: primaryColor }}>{fmt(totalPrice)}</td>
-                  </tr>
-                </tbody>
-              </table>
+                </div>
+              </div>
+              <div style={{ textAlign: "right" }}>
+                <h1 style={{ fontSize: "24px", fontWeight: 800, color: "#111827", margin: 0 }}>Proposta Comercial</h1>
+                <p style={{ fontSize: "12px", color: "#6b7280", margin: "4px 0 0" }}>Emitida em {today}</p>
+                <p style={{ fontSize: "12px", color: "#6b7280", margin: "2px 0 0" }}>Validade: {validUntil}</p>
+              </div>
+            </div>
+
+            {/* ===== CLIENTE ===== */}
+            <div style={sectionStyle}>
+              <div style={sectionHeaderStyle}>Cliente</div>
+              <div style={sectionBodyStyle}>
+                <table style={{ width: "100%", fontSize: "13px", borderCollapse: "collapse" }}>
+                  <tbody>
+                    {[
+                      ["Nome", customerData.name],
+                      ["WhatsApp", customerData.whatsapp],
+                      ["Cidade / UF", customerData.city],
+                    ].map(([label, value], i) => (
+                      <tr key={i} style={{ borderBottom: i < 2 ? "1px solid #f3f4f6" : "none" }}>
+                        <td style={{ fontWeight: 700, color: "#374151", padding: "8px 16px 8px 0", width: "140px" }}>{label}</td>
+                        <td style={{ padding: "8px 0", color: "#111827" }}>{value}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            {/* ===== PISCINA ===== */}
+            <div style={sectionStyle}>
+              <div style={sectionHeaderStyle}>Piscina</div>
+              <div style={{ ...sectionBodyStyle, display: "flex", alignItems: "flex-start", gap: "16px" }}>
+                <div style={{ flex: 1 }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "8px" }}>
+                    <span style={{ fontSize: "20px", fontWeight: 800, color: "#111827" }}>{model.name}</span>
+                    <span style={{
+                      display: "inline-block",
+                      background: `${primaryColor}18`,
+                      color: primaryColor,
+                      fontSize: "11px",
+                      fontWeight: 700,
+                      padding: "3px 10px",
+                      borderRadius: "12px",
+                      textTransform: "uppercase",
+                      letterSpacing: "0.5px",
+                    }}>
+                      {category}
+                    </span>
+                  </div>
+                  {(model.length || model.width) && (
+                    <p style={{ fontSize: "13px", color: "#374151", margin: "0 0 4px" }}>
+                      <strong>Dimensões:</strong> COMP: {model.length}M LARG: {model.width}M{model.depth ? ` PROF: ${model.depth}M` : ""}
+                    </p>
+                  )}
+                  <p style={{ fontSize: "13px", color: "#374151", margin: 0 }}>
+                    <strong>Valor base:</strong> {fmt(model.base_price)}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* ===== ITENS INCLUSOS + OPCIONAIS ===== */}
+            <div style={{ display: "flex", flexDirection: "row", gap: "16px", marginBottom: "16px" }}>
+              <div style={{ ...sectionStyle, flex: 1, marginBottom: 0 }}>
+                <div style={sectionHeaderStyle}>Itens Inclusos</div>
+                <div style={sectionBodyStyle}>
+                  <ul style={{ margin: 0, paddingLeft: "18px", fontSize: "12px", lineHeight: "1.8" }}>
+                    {model.included_items.map((item, i) => (
+                      <li key={i} style={{ color: "#374151" }}>{item}</li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+
+              <div style={{ ...sectionStyle, flex: 1, marginBottom: 0 }}>
+                <div style={sectionHeaderStyle}>Opcionais</div>
+                <div style={sectionBodyStyle}>
+                  {selectedOptionals.length === 0 ? (
+                    <p style={{ fontSize: "12px", color: "#9ca3af", margin: 0 }}>Nenhum opcional selecionado</p>
+                  ) : (
+                    <table style={{ width: "100%", fontSize: "12px", borderCollapse: "collapse" }}>
+                      <tbody>
+                        {selectedOptionals.map((opt, i) => (
+                          <tr key={i} style={{ borderBottom: "1px solid #f3f4f6" }}>
+                            <td style={{ padding: "6px 8px 6px 0", color: "#374151" }}>{opt.name}</td>
+                            <td style={{ padding: "6px 0", textAlign: "right", fontWeight: 600, color: "#111827", whiteSpace: "nowrap" }}>{fmt(opt.price)}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  )}
+                </div>
+              </div>
             </div>
           </div>
 
-          {/* ===== CONDIÇÕES ===== */}
-          <div style={sectionStyle}>
-            <div style={sectionHeaderStyle}>Condições</div>
-            <div style={sectionBodyStyle}>
-              <table style={{ width: "100%", fontSize: "13px", borderCollapse: "collapse" }}>
-                <tbody>
-                  {[
-                    ["Pagamento", model.payment_terms || "À vista"],
-                    ["Entrega", `${model.delivery_days} dias`],
-                    ["Instalação", `${model.installation_days} dias`],
-                    ["Validade", `${validUntil} (3 dias)`],
-                  ].map(([label, value], i) => (
-                    <tr key={i} style={{ borderBottom: i < 3 ? "1px solid #f3f4f6" : "none" }}>
-                      <td style={{ fontWeight: 700, color: "#374151", padding: "8px 16px 8px 0", width: "140px" }}>{label}</td>
-                      <td style={{ padding: "8px 0", color: "#111827" }}>{value}</td>
+          <div data-pdf-page>
+            {/* ===== RESUMO FINANCEIRO ===== */}
+            <div style={sectionStyle}>
+              <div style={sectionHeaderStyle}>Resumo Financeiro</div>
+              <div style={sectionBodyStyle}>
+                <table style={{ width: "100%", fontSize: "13px", borderCollapse: "collapse" }}>
+                  <tbody>
+                    <tr style={{ borderBottom: "1px solid #f3f4f6" }}>
+                      <td style={{ padding: "8px 0", color: "#6b7280" }}>Valor base</td>
+                      <td style={{ padding: "8px 0", textAlign: "right", color: "#111827" }}>{fmt(model.base_price)}</td>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-
-          {/* ===== DADOS DO LOJISTA ===== */}
-          <div style={sectionStyle}>
-            <div style={sectionHeaderStyle}>Dados do Lojista</div>
-            <div style={sectionBodyStyle}>
-              <table style={{ width: "100%", fontSize: "13px", borderCollapse: "collapse" }}>
-                <tbody>
-                  {[
-                    ["Empresa", storeName || "-"],
-                    ["Cidade", storeLocation || "-"],
-                  ].map(([label, value], i) => (
-                    <tr key={i} style={{ borderBottom: i < 1 ? "1px solid #f3f4f6" : "none" }}>
-                      <td style={{ fontWeight: 700, color: "#374151", padding: "8px 16px 8px 0", width: "140px" }}>{label}</td>
-                      <td style={{ padding: "8px 0", color: "#111827" }}>{value}</td>
+                    {optionalsTotal > 0 && (
+                      <tr style={{ borderBottom: "1px solid #f3f4f6" }}>
+                        <td style={{ padding: "8px 0", color: "#6b7280" }}>Opcionais</td>
+                        <td style={{ padding: "8px 0", textAlign: "right", color: "#111827" }}>{fmt(optionalsTotal)}</td>
+                      </tr>
+                    )}
+                    <tr>
+                      <td style={{ padding: "12px 0 8px", fontWeight: 800, fontSize: "16px", color: primaryColor }}>Total</td>
+                      <td style={{ padding: "12px 0 8px", textAlign: "right", fontWeight: 800, fontSize: "16px", color: primaryColor }}>{fmt(totalPrice)}</td>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </tbody>
+                </table>
+              </div>
             </div>
-          </div>
 
-          {/* ===== FOOTER ===== */}
-          <div style={{ textAlign: "center", fontSize: "11px", color: "#9ca3af", marginTop: "24px", paddingTop: "16px", borderTop: "1px solid #e5e7eb" }}>
-            Documento gerado por SimulaPool
+            {/* ===== CONDIÇÕES ===== */}
+            <div style={sectionStyle}>
+              <div style={sectionHeaderStyle}>Condições</div>
+              <div style={sectionBodyStyle}>
+                <table style={{ width: "100%", fontSize: "13px", borderCollapse: "collapse" }}>
+                  <tbody>
+                    {[
+                      ["Pagamento", model.payment_terms || "À vista"],
+                      ["Entrega", `${model.delivery_days} dias`],
+                      ["Instalação", `${model.installation_days} dias`],
+                      ["Validade", `${validUntil} (3 dias)`],
+                    ].map(([label, value], i) => (
+                      <tr key={i} style={{ borderBottom: i < 3 ? "1px solid #f3f4f6" : "none" }}>
+                        <td style={{ fontWeight: 700, color: "#374151", padding: "8px 16px 8px 0", width: "140px" }}>{label}</td>
+                        <td style={{ padding: "8px 0", color: "#111827" }}>{value}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            {/* ===== DADOS DO LOJISTA ===== */}
+            <div style={sectionStyle}>
+              <div style={sectionHeaderStyle}>Dados do Lojista</div>
+              <div style={sectionBodyStyle}>
+                <table style={{ width: "100%", fontSize: "13px", borderCollapse: "collapse" }}>
+                  <tbody>
+                    {[
+                      ["Empresa", storeName || "-"],
+                      ["Cidade", storeLocation || "-"],
+                    ].map(([label, value], i) => (
+                      <tr key={i} style={{ borderBottom: i < 1 ? "1px solid #f3f4f6" : "none" }}>
+                        <td style={{ fontWeight: 700, color: "#374151", padding: "8px 16px 8px 0", width: "140px" }}>{label}</td>
+                        <td style={{ padding: "8px 0", color: "#111827" }}>{value}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            {/* ===== FOOTER ===== */}
+            <div style={{ textAlign: "center", fontSize: "11px", color: "#9ca3af", marginTop: "24px", paddingTop: "16px", borderTop: "1px solid #e5e7eb" }}>
+              Documento gerado por SimulaPool
+            </div>
           </div>
         </div>
       </main>
