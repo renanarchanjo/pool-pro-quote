@@ -408,12 +408,27 @@ const MatrizLeads = () => {
               <TableBody>
                 {tabFiltered.map(lead => {
                   const dist = distributionMap.get(lead.id);
+                  const expired = expiredDistributions.get(lead.id);
                   return (
                     <TableRow key={lead.id} className={selectedLeads.has(lead.id) ? "bg-primary/5" : ""}>
                       {activeTab === "pendentes" && (
                         <TableCell><Checkbox checked={selectedLeads.has(lead.id)} onCheckedChange={() => toggleSelect(lead.id)} /></TableCell>
                       )}
-                      <TableCell className="font-medium">{lead.customer_name}</TableCell>
+                      <TableCell>
+                        <div>
+                          <span className="font-medium">{lead.customer_name}</span>
+                          {expired && expired.length > 0 && (
+                            <div className="flex items-center gap-1 mt-1">
+                              <Badge variant="outline" className="bg-orange-500/10 text-orange-600 border-orange-500/20 text-[10px] px-1.5 py-0">
+                                ↩ Retornou {expired.length}x
+                              </Badge>
+                              <span className="text-[10px] text-muted-foreground">
+                                últ: {expired[expired.length - 1].stores?.name}
+                              </span>
+                            </div>
+                          )}
+                        </div>
+                      </TableCell>
                       <TableCell className="text-sm text-muted-foreground">{lead.customer_city}</TableCell>
                       <TableCell className="text-sm">{lead.pool_models?.name || "-"}</TableCell>
                       <TableCell className="text-sm font-medium">{formatCurrency(lead.total_price)}</TableCell>
@@ -426,6 +441,11 @@ const MatrizLeads = () => {
                               <Badge variant="outline" className={dist.status === "accepted" ? "bg-emerald-500/10 text-emerald-600 border-emerald-500/20" : "bg-amber-500/10 text-amber-600 border-amber-500/20"}>
                                 {dist.status === "accepted" ? "Aceito" : "Aguardando"}
                               </Badge>
+                              {expired && expired.length > 0 && (
+                                <p className="text-[10px] text-muted-foreground mt-1">
+                                  Histórico: {expired.map(e => e.stores?.name).join(" → ")} → {dist.stores?.name}
+                                </p>
+                              )}
                             </div>
                           ) : <span className="text-xs text-muted-foreground">—</span>}
                         </TableCell>
