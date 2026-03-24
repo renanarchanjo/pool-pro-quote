@@ -59,7 +59,7 @@ const Parceiros = () => {
         <div className="text-center mt-16">
           <p className="text-muted-foreground">
             Quer ser um parceiro SIMULAPOOL?{" "}
-            <a href="mailto:contato@simulapool.com.br" className="text-primary hover:underline font-semibold">
+            <a href="mailto:simulapool@gmail.com" className="text-primary hover:underline font-semibold">
               Entre em contato
             </a>
           </p>
