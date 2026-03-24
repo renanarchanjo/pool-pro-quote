@@ -21,7 +21,7 @@ import {
 import { format, startOfDay, endOfDay, subDays, startOfWeek, startOfMonth, endOfMonth, subMonths, subWeeks } from "date-fns";
 import { ptBR } from "date-fns/locale";
 
-type SortMode = "valor" | "probabilidade" | "tempo";
+type SortMode = "recente" | "valor" | "probabilidade" | "tempo";
 
 interface Props {
   proposals: Proposal[];
@@ -45,7 +45,7 @@ const DATE_PRESETS = [
 const DashboardPipeline = ({ proposals, onUpdateStatus, onViewProposal, onExportPDF }: Props) => {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
-  const [sortMode, setSortMode] = useState<SortMode>("valor");
+  const [sortMode, setSortMode] = useState<SortMode>("recente");
   const [datePreset, setDatePreset] = useState<string>("all");
   const [dateFrom, setDateFrom] = useState<Date | undefined>();
   const [dateTo, setDateTo] = useState<Date | undefined>();
@@ -83,6 +83,7 @@ const DashboardPipeline = ({ proposals, onUpdateStatus, onViewProposal, onExport
 
   // Sort
   filtered = [...filtered].sort((a, b) => {
+    if (sortMode === "recente") return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
     if (sortMode === "valor") return b.total_price - a.total_price;
     if (sortMode === "probabilidade") return (b.total_price * STATUS_PROBABILITY[b.status]) - (a.total_price * STATUS_PROBABILITY[a.status]);
     return daysSince(b.created_at) - daysSince(a.created_at);
@@ -124,6 +125,7 @@ const DashboardPipeline = ({ proposals, onUpdateStatus, onViewProposal, onExport
             </div>
           </SelectTrigger>
           <SelectContent>
+            <SelectItem value="recente">Mais Recente</SelectItem>
             <SelectItem value="valor">Maior Valor</SelectItem>
             <SelectItem value="probabilidade">Maior Probabilidade</SelectItem>
             <SelectItem value="tempo">Mais Antigo</SelectItem>
