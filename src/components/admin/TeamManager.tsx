@@ -126,7 +126,7 @@ const TeamManager = () => {
       toast.error("A senha deve ter pelo menos 6 caracteres");
       return;
     }
-    if (members.length >= maxMembers) {
+    if (!isUnlimited && members.length >= maxMembers) {
       toast.error(`Limite de ${maxMembers} usuários no plano atual atingido. Faça upgrade para adicionar mais membros.`);
       return;
     }
