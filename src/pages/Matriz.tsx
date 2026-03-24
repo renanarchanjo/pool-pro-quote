@@ -62,7 +62,7 @@ const Matriz = () => {
             <SidebarTrigger className="min-w-[56px] min-h-[56px] flex items-center justify-center [&>svg]:!w-8 [&>svg]:!h-8" />
             <span className="ml-3 text-sm font-medium text-muted-foreground">SIMULAPOOL Matriz</span>
           </header>
-          <main className="flex-1 p-6 overflow-auto">
+          <main className="flex-1 p-3 md:p-6 overflow-auto safe-area-bottom">
             <Routes>
               <Route index element={<MatrizDashboard />} />
               <Route path="lojas" element={<MatrizStores />} />

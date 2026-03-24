@@ -71,9 +71,9 @@ const AdminSidebar = () => {
                 <SidebarMenuButton
                   onClick={() => navigate(item.url)}
                   isActive={isActive(item.url)}
-                  className="cursor-pointer"
+                  className="cursor-pointer min-h-[48px] md:min-h-0 text-base md:text-sm"
                 >
-                  <item.icon className="w-4 h-4" />
+                  <item.icon className="w-5 h-5 md:w-4 md:h-4" />
                   <span>{item.title}</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
@@ -86,9 +86,10 @@ const AdminSidebar = () => {
 
   return (
     <Sidebar collapsible="offcanvas">
-      <SidebarHeader className="p-4 border-b border-border/50">
-        <div className="flex justify-center">
-          <img src={logoHorizontal} alt="SIMULAPOOL" className="h-10 object-contain" />
+      <SidebarHeader className="border-b border-border/50">
+        <div className="h-3 bg-primary md:hidden" />
+        <div className="flex justify-center p-4">
+          <img src={logoHorizontal} alt="SIMULAPOOL" className="h-14 md:h-10 object-contain" />
         </div>
       </SidebarHeader>
 
@@ -96,16 +97,15 @@ const AdminSidebar = () => {
         {renderGroup("PAINEL DO LOJISTA", mainItems)}
         {renderGroup("CADASTROS", catalogItems)}
         {renderGroup("CONTA", accountItems)}
-        
       </SidebarContent>
 
-      <SidebarFooter className="p-4">
+      <SidebarFooter className="p-4 safe-area-bottom">
         <Button
           variant="outline"
           onClick={handleLogout}
-          className="w-full text-destructive border-destructive/30 hover:bg-destructive/10"
+          className="w-full min-h-[48px] text-destructive border-destructive/30 hover:bg-destructive/10 text-base md:text-sm md:min-h-0"
         >
-          <LogOut className="w-4 h-4 mr-2" />
+          <LogOut className="w-5 h-5 md:w-4 md:h-4 mr-2" />
           Sair
         </Button>
       </SidebarFooter>

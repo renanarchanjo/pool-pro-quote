@@ -99,28 +99,27 @@ const DashboardKPIs = ({ proposals }: Props) => {
   ];
 
   return (
-    <div className="space-y-4">
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+    <div className="space-y-3 md:space-y-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 md:gap-3">
         {kpis.map((kpi) => {
           const Icon = kpi.icon;
           return (
             <Card key={kpi.label} className="border-border/50">
-              <CardContent className="p-4">
+              <CardContent className="p-3 md:p-4">
                 <div className="flex items-start justify-between gap-2">
                   <div className="min-w-0 flex-1">
                     <p className="text-[10px] sm:text-[11px] font-medium text-muted-foreground uppercase tracking-wider leading-tight">
                       {kpi.label}
                     </p>
-                    <p className="text-lg sm:text-2xl font-bold mt-1 truncate">{kpi.value}</p>
+                    <p className="text-base sm:text-2xl font-bold mt-0.5 md:mt-1 truncate">{kpi.value}</p>
                     {kpi.change !== undefined && (
-                      <div className={`flex items-center gap-1 mt-1 text-[10px] sm:text-xs font-medium ${kpi.change >= 0 ? "text-emerald-600" : "text-red-500"}`}>
+                      <div className={`flex items-center gap-1 mt-0.5 md:mt-1 text-[10px] sm:text-xs font-medium ${kpi.change >= 0 ? "text-emerald-600" : "text-red-500"}`}>
                         {kpi.change >= 0 ? <TrendingUp className="w-3 h-3 shrink-0" /> : <TrendingDown className="w-3 h-3 shrink-0" />}
-                        <span className="hidden sm:inline">{kpi.change >= 0 ? "+" : ""}{kpi.change.toFixed(1)}% vs mês anterior</span>
-                        <span className="sm:hidden">{kpi.change >= 0 ? "+" : ""}{kpi.change.toFixed(1)}%</span>
+                        <span>{kpi.change >= 0 ? "+" : ""}{kpi.change.toFixed(1)}%</span>
                       </div>
                     )}
                     {kpi.subtitle && (
-                      <p className="text-[11px] text-muted-foreground mt-1">{kpi.subtitle}</p>
+                      <p className="text-[10px] md:text-[11px] text-muted-foreground mt-0.5">{kpi.subtitle}</p>
                     )}
                   </div>
                   <div className={`hidden sm:flex h-9 w-9 rounded-lg ${kpi.iconBg} items-center justify-center shrink-0`}>
@@ -134,23 +133,23 @@ const DashboardKPIs = ({ proposals }: Props) => {
       </div>
 
       {/* Secondary metrics */}
-      <div className="grid grid-cols-3 gap-3">
+      <div className="grid grid-cols-3 gap-2 md:gap-3">
         <Card className="border-border/50">
-          <CardContent className="p-3 text-center">
-            <p className="text-[11px] text-muted-foreground uppercase tracking-wider">Propostas do Mês</p>
-            <p className="text-xl font-bold mt-0.5">{thisMonth.length}</p>
+          <CardContent className="p-2 md:p-3 text-center">
+            <p className="text-[10px] md:text-[11px] text-muted-foreground uppercase tracking-wider">Propostas/Mês</p>
+            <p className="text-lg md:text-xl font-bold mt-0.5">{thisMonth.length}</p>
           </CardContent>
         </Card>
         <Card className="border-border/50">
-          <CardContent className="p-3 text-center">
-            <p className="text-[11px] text-muted-foreground uppercase tracking-wider">Tempo Médio (dias)</p>
-            <p className="text-xl font-bold mt-0.5">{avgClosingDays.toFixed(0)}</p>
+          <CardContent className="p-2 md:p-3 text-center">
+            <p className="text-[10px] md:text-[11px] text-muted-foreground uppercase tracking-wider">Tempo Médio</p>
+            <p className="text-lg md:text-xl font-bold mt-0.5">{avgClosingDays.toFixed(0)}d</p>
           </CardContent>
         </Card>
         <Card className="border-border/50">
-          <CardContent className="p-3 text-center">
-            <p className="text-[11px] text-muted-foreground uppercase tracking-wider">Taxa de Perda</p>
-            <p className="text-xl font-bold mt-0.5 text-red-500">{lossRate.toFixed(1)}%</p>
+          <CardContent className="p-2 md:p-3 text-center">
+            <p className="text-[10px] md:text-[11px] text-muted-foreground uppercase tracking-wider">Taxa Perda</p>
+            <p className="text-lg md:text-xl font-bold mt-0.5 text-red-500">{lossRate.toFixed(1)}%</p>
           </CardContent>
         </Card>
       </div>
