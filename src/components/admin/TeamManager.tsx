@@ -12,6 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import TeamPerformance from "./TeamPerformance";
+import TeamCommissions from "./TeamCommissions";
 import {
   Dialog, DialogContent, DialogDescription, DialogFooter,
   DialogHeader, DialogTitle,
@@ -265,6 +266,7 @@ const TeamManager = () => {
         <TabsList>
           <TabsTrigger value="membros">Membros</TabsTrigger>
           <TabsTrigger value="performance">Performance</TabsTrigger>
+          <TabsTrigger value="comissao">Comissão</TabsTrigger>
         </TabsList>
 
         <TabsContent value="membros" className="space-y-6 mt-4">
@@ -572,6 +574,10 @@ const TeamManager = () => {
 
         <TabsContent value="performance" className="mt-4">
           <TeamPerformance />
+        </TabsContent>
+
+        <TabsContent value="comissao" className="mt-4">
+          <TeamCommissions />
         </TabsContent>
       </Tabs>
     </div>
