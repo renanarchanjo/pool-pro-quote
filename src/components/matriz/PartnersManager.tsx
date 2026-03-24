@@ -343,8 +343,10 @@ const PartnersManager = () => {
                             onBlur={async (e) => {
                               const val = e.target.value.trim() || null;
                               if (val !== partner.banner_2_url) {
-                                await supabase.from("partners").update({ banner_2_url: val }).eq("id", partner.id);
+                                const { error } = await supabase.from("partners").update({ banner_2_url: val }).eq("id", partner.id);
+                                if (error) { toast.error("Erro ao salvar banner 2"); return; }
                                 setPartners(prev => prev.map(p => p.id === partner.id ? { ...p, banner_2_url: val } : p));
+                                toast.success("Banner 2 salvo!");
                               }
                             }}
                           />
