@@ -1,6 +1,7 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { AlertTriangle, Clock, DollarSign, Flame, MessageCircle, Phone } from "lucide-react";
+import { AlertTriangle, Clock, Copy, Flame, Phone } from "lucide-react";
+import { toast } from "sonner";
 import { Proposal, daysSince, formatCurrency, STATUS_PROBABILITY, STATUS_CONFIG, getPriority, PRIORITY_CONFIG } from "./types";
 
 interface Props {
@@ -25,13 +26,11 @@ const DashboardAlerts = ({ proposals, onSelectProposal }: Props) => {
     .sort((a, b) => daysSince(b.created_at) - daysSince(a.created_at))
     .slice(0, 5);
 
-  const handleWhatsApp = (e: React.MouseEvent, p: Proposal) => {
+  const handleCopyPhone = (e: React.MouseEvent, p: Proposal) => {
     e.stopPropagation();
     const phone = p.customer_whatsapp.replace(/\D/g, "");
-    const msg = encodeURIComponent(
-      `Olá ${p.customer_name.split(" ")[0]}! Tudo bem? Vi que você demonstrou interesse em uma piscina. Gostaria de tirar alguma dúvida?`
-    );
-    window.open(`https://wa.me/55${phone}?text=${msg}`, "_blank");
+    navigator.clipboard.writeText(phone);
+    toast.success("Número copiado!");
   };
 
   const handleCall = (e: React.MouseEvent, p: Proposal) => {
@@ -76,11 +75,11 @@ const DashboardAlerts = ({ proposals, onSelectProposal }: Props) => {
           <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
             <span
               role="button"
-              onClick={(e) => handleWhatsApp(e, p)}
-              className="p-1 rounded-md hover:bg-emerald-100 text-emerald-600 transition-colors cursor-pointer"
-              title="WhatsApp"
+              onClick={(e) => handleCopyPhone(e, p)}
+              className="p-1 rounded-md hover:bg-muted text-muted-foreground transition-colors cursor-pointer"
+              title="Copiar número"
             >
-              <MessageCircle className="w-3.5 h-3.5" />
+              <Copy className="w-3.5 h-3.5" />
             </span>
             <span
               role="button"
