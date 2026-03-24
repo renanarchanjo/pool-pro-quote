@@ -122,6 +122,7 @@ const PoolSimulator = ({ onBack }: PoolSimulatorProps) => {
       setOptionals(optionalsRes.data || []);
       setModelOptionals(modelOptsRes.data || []);
       setStoreSettings(settingsRes.data || null);
+      setPartners(partnersRes.data || []);
       if (storeRes.data) {
         setSelectedStoreName(storeRes.data.name);
         setStoreCity(storeRes.data.city);
