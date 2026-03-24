@@ -88,8 +88,7 @@ const Auth = () => {
     }
   }, [pendingEmail, resendCooldown, resendLoading]);
 
-
-    const redirectByRole = async (userId: string) => {
+  const redirectByRole = async (userId: string) => {
       const { data: roleData } = await supabase
         .from("user_roles")
         .select("role")
