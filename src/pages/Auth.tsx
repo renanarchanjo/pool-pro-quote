@@ -35,6 +35,10 @@ const Auth = () => {
   const [cnpjLoading, setCnpjLoading] = useState(false);
   const [cnpjFound, setCnpjFound] = useState(false);
   const [cities, setCities] = useState<string[]>([]);
+  const [pendingConfirmation, setPendingConfirmation] = useState(false);
+  const [pendingEmail, setPendingEmail] = useState("");
+  const [resendLoading, setResendLoading] = useState(false);
+  const [resendCooldown, setResendCooldown] = useState(0);
   const navigate = useNavigate();
 
   const brazilStates = [
