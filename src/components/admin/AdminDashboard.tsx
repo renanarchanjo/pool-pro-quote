@@ -163,13 +163,9 @@ const AdminDashboard = () => {
       </div>
 
       {/* (B) Funnel + (D) Alerts */}
-      <div className="grid grid-cols-1 lg:grid-cols-5 gap-3 md:gap-4" style={{ pageBreakInside: "avoid" }}>
-        <div className="lg:col-span-2">
-          <DashboardFunnel proposals={proposals} />
-        </div>
-        <div className="lg:col-span-3">
-          <DashboardAlerts proposals={proposals} onSelectProposal={setViewingProposal} />
-        </div>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 md:gap-4" style={{ pageBreakInside: "avoid" }}>
+        <DashboardFunnel proposals={proposals} />
+        <DashboardAlerts proposals={proposals} onSelectProposal={setViewingProposal} />
       </div>
 
       {/* (C) Pipeline */}
