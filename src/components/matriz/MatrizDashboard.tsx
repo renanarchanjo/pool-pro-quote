@@ -100,6 +100,10 @@ const MatrizDashboard = () => {
   const LIM_PISCINAS_ID = "5e8165c0-64b6-4d06-b274-8eeb261a79c4";
   const stores = data.stores.filter((s) => s.id !== LIM_PISCINAS_ID);
   const payments = data.payments.filter((p) => p.store_id !== LIM_PISCINAS_ID);
+  const closedProposals = data.closedProposals.filter((p) => p.store_id !== LIM_PISCINAS_ID);
+
+  // Faturamento Bruto dos Lojistas (todas as propostas fechadas)
+  const faturamentoBrutoLojistas = closedProposals.reduce((sum, p) => sum + p.total_price, 0);
 
   /* ───────── Computed metrics ───────── */
   const activeStores = stores.filter((s) => s.plan_status === "active");
