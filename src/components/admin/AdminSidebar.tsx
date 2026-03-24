@@ -14,6 +14,7 @@ import {
   SidebarMenuButton,
   SidebarFooter,
   SidebarHeader,
+  useSidebar,
 } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
@@ -25,12 +26,19 @@ const AdminSidebar = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { role } = useStoreData();
+  const { setOpenMobile, isMobile, state } = useSidebar();
+  const collapsed = state === "collapsed";
 
   const isOwner = role === "owner";
 
   const isActive = (url: string) => {
     if (url === "/admin") return location.pathname === "/admin";
     return location.pathname.startsWith(url);
+  };
+
+  const handleNav = (url: string) => {
+    navigate(url);
+    if (isMobile) setOpenMobile(false);
   };
 
   const handleLogout = async () => {
@@ -59,23 +67,23 @@ const AdminSidebar = () => {
     ] : []),
   ];
 
-
   const renderGroup = (label: string, items: typeof mainItems) => {
     if (items.length === 0) return null;
     return (
       <SidebarGroup>
-        <SidebarGroupLabel>{label}</SidebarGroupLabel>
+        {!collapsed && <SidebarGroupLabel>{label}</SidebarGroupLabel>}
         <SidebarGroupContent>
           <SidebarMenu>
             {items.map((item) => (
               <SidebarMenuItem key={item.title}>
                 <SidebarMenuButton
-                  onClick={() => navigate(item.url)}
+                  onClick={() => handleNav(item.url)}
                   isActive={isActive(item.url)}
-                  className="cursor-pointer min-h-[48px] md:min-h-0 text-base md:text-sm"
+                  tooltip={item.title}
+                  className="cursor-pointer h-11 md:h-9 text-base md:text-sm"
                 >
-                  <item.icon className="w-5 h-5 md:w-4 md:h-4" />
-                  <span>{item.title}</span>
+                  <item.icon className="h-5 w-5 md:h-4 md:w-4 shrink-0" />
+                  {!collapsed && <span>{item.title}</span>}
                 </SidebarMenuButton>
               </SidebarMenuItem>
             ))}
@@ -86,16 +94,16 @@ const AdminSidebar = () => {
   };
 
   return (
-    <Sidebar collapsible="offcanvas">
-      {/* Safe area spacer for mobile notch */}
-      <div className="md:hidden bg-sidebar" style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }} />
-      <SidebarHeader className="border-b border-border/50 h-[72px] flex items-center">
-        <div className="flex items-center gap-3 px-5 w-full">
-          <img src={simulapoolIcon} alt="SimulaPool" className="h-11 w-11 object-contain rounded-xl" />
-          <div className="flex flex-col">
-            <span className="text-base font-bold text-primary leading-tight">Simula Pool</span>
-            <span className="text-[10px] text-muted-foreground font-medium tracking-wide">Painel do Lojista</span>
-          </div>
+    <Sidebar collapsible="icon">
+      <SidebarHeader className="border-b border-border/50 pt-12 md:pt-4 pb-3 flex items-center">
+        <div className="flex items-center gap-3 px-3 w-full">
+          <img src={simulapoolIcon} alt="SimulaPool" className="h-10 w-10 md:h-8 md:w-8 object-contain rounded-xl shrink-0" />
+          {!collapsed && (
+            <div className="flex flex-col">
+              <span className="text-base font-bold text-primary leading-tight">Simula Pool</span>
+              <span className="text-[10px] text-muted-foreground font-medium tracking-wide">Painel do Lojista</span>
+            </div>
+          )}
         </div>
       </SidebarHeader>
 
@@ -105,18 +113,18 @@ const AdminSidebar = () => {
         {renderGroup("CONTA", accountItems)}
       </SidebarContent>
 
-      <SidebarFooter className="p-4 safe-area-bottom space-y-3">
+      <SidebarFooter className="p-3 safe-area-bottom space-y-2">
         <div className="flex items-center justify-between">
-          <span className="text-xs text-muted-foreground">Tema</span>
+          {!collapsed && <span className="text-xs text-muted-foreground">Tema</span>}
           <ThemeToggle />
         </div>
         <Button
           variant="outline"
           onClick={handleLogout}
-          className="w-full h-12 text-destructive border-destructive/30 hover:bg-destructive/10 text-base md:text-sm md:h-9"
+          className="w-full h-11 md:h-9 text-destructive border-destructive/30 hover:bg-destructive/10 text-base md:text-sm"
         >
-          <LogOut className="w-5 h-5 md:w-4 md:h-4 mr-2" />
-          Sair
+          <LogOut className="h-5 w-5 md:h-4 md:w-4 shrink-0" />
+          {!collapsed && <span className="ml-2">Sair</span>}
         </Button>
       </SidebarFooter>
     </Sidebar>
