@@ -320,12 +320,17 @@ async function enviarPush(payload: NotificationPayload, supabase: any): Promise<
     url: "/admin",
   };
 
+  // Detect v2 key format (os_v2_app_...) vs legacy key
+  const isV2Key = ONESIGNAL_REST_API_KEY.startsWith("os_v2_");
+  const authHeader = isV2Key ? `Basic ${ONESIGNAL_REST_API_KEY}` : `Key ${ONESIGNAL_REST_API_KEY}`;
+  console.log(`[push] Using ${isV2Key ? "v2 Basic" : "legacy Key"} auth for OneSignal`);
+
   try {
     const res = await fetch("https://api.onesignal.com/notifications", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": `Key ${ONESIGNAL_REST_API_KEY}`,
+        "Authorization": authHeader,
       },
       body: JSON.stringify(body),
     });
