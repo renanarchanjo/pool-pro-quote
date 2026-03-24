@@ -1,6 +1,7 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { AlertTriangle, Clock, DollarSign, Flame, MessageCircle, Phone } from "lucide-react";
+import { AlertTriangle, Clock, Copy, Flame, Phone } from "lucide-react";
+import { toast } from "sonner";
 import { Proposal, daysSince, formatCurrency, STATUS_PROBABILITY, STATUS_CONFIG, getPriority, PRIORITY_CONFIG } from "./types";
 
 interface Props {
