@@ -11,6 +11,11 @@ const PendingLeadsAlert = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
+    const STORAGE_KEY = "pendingLeadsAlertShown";
+
+    // Only show once per browser session
+    if (sessionStorage.getItem(STORAGE_KEY)) return;
+
     const checkPendingLeads = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) return;
@@ -32,10 +37,10 @@ const PendingLeadsAlert = () => {
       if (count && count > 0) {
         setPendingCount(count);
         setOpen(true);
+        sessionStorage.setItem(STORAGE_KEY, "1");
       }
     };
 
-    // Small delay to let the page render first
     const timer = setTimeout(checkPendingLeads, 800);
     return () => clearTimeout(timer);
   }, []);
