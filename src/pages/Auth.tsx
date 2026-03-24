@@ -12,8 +12,6 @@ import logoDark from "@/assets/simulapool-icon.png";
 import { useForceLightTheme } from "@/hooks/useForceLightTheme";
 
 const formatCNPJ = (value: string) => {
-const AuthPage = () => {
-  useForceLightTheme();
   const digits = value.replace(/\D/g, "").slice(0, 14);
   return digits
     .replace(/^(\d{2})(\d)/, "$1.$2")
@@ -23,6 +21,7 @@ const AuthPage = () => {
 };
 
 const Auth = () => {
+  useForceLightTheme();
   const [loading, setLoading] = useState(false);
   const [isLogin, setIsLogin] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
