@@ -74,7 +74,6 @@ const MatrizLeads = () => {
   const [showDistributeDialog, setShowDistributeDialog] = useState(false);
   const [targetStoreId, setTargetStoreId] = useState("");
   const [distributing, setDistributing] = useState(false);
-  const [updatingStatus, setUpdatingStatus] = useState<string | null>(null);
   const [showSuccessDialog, setShowSuccessDialog] = useState(false);
   const [successInfo, setSuccessInfo] = useState<{ count: number; storeName: string } | null>(null);
 
@@ -183,18 +182,7 @@ const MatrizLeads = () => {
     setDistributing(false);
   };
 
-  const handleUpdateStatus = async (id: string, newStatus: ProposalStatus) => {
-    setUpdatingStatus(id);
-    const { error } = await supabase.from("proposals").update({ status: newStatus }).eq("id", id);
-    if (error) {
-      toast.error("Erro ao atualizar status");
-    } else {
-      setLeads(prev => prev.map(l => l.id === id ? { ...l, status: newStatus } : l));
-      toast.success("Status atualizado");
-      if (viewingLead?.id === id) setViewingLead(prev => prev ? { ...prev, status: newStatus } : null);
-    }
-    setUpdatingStatus(null);
-  };
+  // Status is read-only for Matriz — controlled by the store owner
 
   const handleDelete = async () => {
     if (!deletingLead) return;
@@ -550,14 +538,11 @@ const MatrizLeads = () => {
               )}
 
               <div>
-                <p className="text-xs text-muted-foreground mb-2">Alterar Status</p>
-                <div className="flex flex-wrap gap-1.5">
-                  {Object.entries(statusConfig).map(([key, cfg]) => (
-                    <Button key={key} size="sm" variant={viewingLead.status === key ? "default" : "outline"} className="text-xs h-7" disabled={updatingStatus === viewingLead.id} onClick={() => handleUpdateStatus(viewingLead.id, key as ProposalStatus)}>
-                      {cfg.label}
-                    </Button>
-                  ))}
-                </div>
+                <p className="text-xs text-muted-foreground mb-2">Status Atual</p>
+                <Badge variant="outline" className={statusConfig[viewingLead.status]?.color || ""}>
+                  {statusConfig[viewingLead.status]?.label || viewingLead.status}
+                </Badge>
+                <p className="text-[11px] text-muted-foreground mt-1.5">O status é controlado pelo lojista</p>
               </div>
 
               <DialogFooter>
