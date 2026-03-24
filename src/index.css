@@ -355,9 +355,16 @@
     padding-top: var(--safe-area-top);
   }
 
-  /* Smoother scrolling on iOS */
+  /* Smoother scrolling on iOS + GPU-accelerated */
   .overflow-auto, .overflow-y-auto {
     -webkit-overflow-scrolling: touch;
+    will-change: scroll-position;
+  }
+
+  /* GPU layer for sidebar transitions */
+  [data-sidebar] {
+    will-change: transform;
+    transform: translateZ(0);
   }
 
   /* Disable text selection on interactive elements */
