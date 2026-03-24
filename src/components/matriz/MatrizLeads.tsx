@@ -532,6 +532,36 @@ const MatrizLeads = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Success Dialog */}
+      <Dialog open={showSuccessDialog} onOpenChange={setShowSuccessDialog}>
+        <DialogContent className="max-w-sm text-center">
+          <div className="flex flex-col items-center gap-4 py-4">
+            <div className="w-16 h-16 rounded-full bg-emerald-100 flex items-center justify-center">
+              <CheckCircle2 className="w-10 h-10 text-emerald-600" />
+            </div>
+            <DialogHeader className="text-center">
+              <DialogTitle className="text-xl">Leads Distribuídos!</DialogTitle>
+              <DialogDescription className="text-base mt-2">
+                {successInfo && (
+                  <>
+                    <span className="font-semibold text-foreground">{successInfo.count} lead{successInfo.count > 1 ? "s" : ""}</span>
+                    {" "}enviado{successInfo.count > 1 ? "s" : ""} para{" "}
+                    <span className="font-semibold text-foreground">{successInfo.storeName}</span>
+                  </>
+                )}
+              </DialogDescription>
+            </DialogHeader>
+            <div className="flex items-center gap-2 text-sm text-muted-foreground bg-muted/50 rounded-lg px-4 py-2">
+              <Bell className="w-4 h-4 text-primary" />
+              <span>Notificação push enviada ao lojista</span>
+            </div>
+            <Button onClick={() => setShowSuccessDialog(false)} className="w-full mt-2">
+              Fechar
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
