@@ -50,7 +50,7 @@ const Parceiros = () => {
             Em breve nossos parceiros estarão aqui.
           </p>
         ) : (
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-4xl mx-auto">
+          <div className="flex flex-wrap justify-center gap-8 max-w-4xl mx-auto">
             {partners.map((partner) => (
               <div
                 key={partner.id}
