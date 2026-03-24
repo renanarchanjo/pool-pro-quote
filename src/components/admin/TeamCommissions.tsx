@@ -211,6 +211,9 @@ const TeamCommissions = () => {
                             </Badge>
                           </>
                         )}
+                        <Badge variant="outline" className="text-[10px] bg-primary/10 text-primary border-primary/20">
+                          {m.commissionPercent}% comissão
+                        </Badge>
                       </div>
                     </div>
                   </div>
