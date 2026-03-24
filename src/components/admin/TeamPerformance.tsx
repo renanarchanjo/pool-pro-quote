@@ -11,6 +11,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Calendar } from "@/components/ui/calendar";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Progress } from "@/components/ui/progress";
+import TeamPerformancePdfReport from "./TeamPerformancePdfReport";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
 import { format, startOfMonth, endOfMonth, subDays, subMonths, startOfDay, endOfDay } from "date-fns";
@@ -222,6 +223,7 @@ const TeamPerformance = () => {
       element: reportRef.current,
       filename: `Performance-Equipe-${dateText}.pdf`,
       orientation: "landscape",
+      captureWidth: 1100,
     });
   };
 
@@ -282,51 +284,32 @@ const TeamPerformance = () => {
         </div>
       </div>
 
-      {/* Printable content */}
-      <div ref={reportRef} className="space-y-4">
-        {/* PDF-only header */}
-        <div className="hidden" data-pdf-header>
-          <h3 className="text-xl font-bold">Performance da Equipe</h3>
-          <p className="text-sm text-muted-foreground">
-            Período: {dateLabel} · Gerado em {new Date().toLocaleDateString("pt-BR")}
-          </p>
-        </div>
-
-      {/* Team KPIs */}
-      <div className="grid grid-cols-2 lg:grid-cols-5 gap-2">
-        <Card className="border-border/50">
-          <CardContent className="p-3 text-center">
-            <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Leads Aceitos</p>
-            <p className="text-xl font-bold mt-0.5">{totals.leads}</p>
-          </CardContent>
-        </Card>
-        <Card className="border-border/50">
-          <CardContent className="p-3 text-center">
-            <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Fechamentos</p>
-            <p className="text-xl font-bold mt-0.5 text-emerald-600">{totals.closed}</p>
-          </CardContent>
-        </Card>
-        <Card className="border-border/50">
-          <CardContent className="p-3 text-center">
-            <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Conversão</p>
-            <p className="text-xl font-bold mt-0.5">{teamConversion.toFixed(1)}%</p>
-          </CardContent>
-        </Card>
-        <Card className="border-border/50">
-          <CardContent className="p-3 text-center">
-            <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Receita Fechada</p>
-            <p className="text-lg font-bold mt-0.5 text-emerald-600 truncate">{formatCurrency(totals.revenue)}</p>
-          </CardContent>
-        </Card>
-        <Card className="border-border/50 col-span-2 lg:col-span-1">
-          <CardContent className="p-3 text-center">
-            <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Receita Prevista</p>
-            <p className="text-lg font-bold mt-0.5 text-blue-600 truncate">{formatCurrency(totals.predicted)}</p>
-          </CardContent>
-        </Card>
+      <div ref={reportRef} className="hidden">
+        <TeamPerformancePdfReport
+          dateLabel={dateLabel}
+          totals={{
+            leads: totals.leads,
+            closed: totals.closed,
+            revenue: totals.revenue,
+            predicted: totals.predicted,
+            conversionRate: teamConversion,
+          }}
+          metrics={metrics.map((m) => ({
+            memberId: m.memberId,
+            name: m.name,
+            leadsAccepted: m.leadsAccepted,
+            inNegotiation: m.inNegotiation,
+            closed: m.closed,
+            lost: m.lost,
+            revenueClosed: m.revenueClosed,
+            revenuePredicted: m.revenuePredicted,
+            ticketMedio: m.ticketMedio,
+            conversionRate: m.conversionRate,
+            avgResponseTimeHours: m.avgResponseTimeHours,
+          }))}
+        />
       </div>
 
-      {/* Ranking / Performance per seller */}
       {metrics.length === 0 ? (
         <Card className="border-border/50">
           <CardContent className="p-8 text-center">
@@ -367,12 +350,10 @@ const TeamPerformance = () => {
                     </div>
                   </div>
 
-                  {/* Revenue bar */}
                   <div className="mb-3">
                     <Progress value={revenuePercent} className="h-2" />
                   </div>
 
-                  {/* Metrics grid */}
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                     <div className="flex items-center gap-1.5">
                       <Target className="w-3.5 h-3.5 text-primary shrink-0" />
@@ -408,7 +389,6 @@ const TeamPerformance = () => {
                     </div>
                   </div>
 
-                  {/* Mini funnel */}
                   <div className="mt-3 pt-3 border-t border-border/50 flex items-center gap-2 text-[10px] flex-wrap">
                     <Badge variant="outline" className="text-[10px] bg-blue-50 text-blue-700 border-blue-200">
                       {m.leadsAccepted} aceitos
@@ -431,7 +411,6 @@ const TeamPerformance = () => {
           })}
         </div>
       )}
-      </div>
     </div>
   );
 };
