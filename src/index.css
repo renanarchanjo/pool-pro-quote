@@ -60,42 +60,42 @@
   }
 
   .dark {
-    /* SIMULAPOOL Dark Mode - Navy Deep */
-    --background: 222 47% 11%;
-    --foreground: 210 40% 98%;
+    /* SIMULAPOOL Dark Mode - Branco Escuro (Slate, não preto) */
+    --background: 220 14% 18%;
+    --foreground: 210 20% 92%;
     
-    --card: 217 33% 17%;
-    --card-foreground: 210 40% 98%;
+    --card: 220 13% 22%;
+    --card-foreground: 210 20% 92%;
     
-    --popover: 217 33% 17%;
-    --popover-foreground: 210 40% 98%;
+    --popover: 220 13% 22%;
+    --popover-foreground: 210 20% 92%;
     
     --primary: 199 89% 48%;
     --primary-foreground: 0 0% 100%;
     
-    --secondary: 222 47% 25%;
-    --secondary-foreground: 0 0% 100%;
+    --secondary: 220 13% 28%;
+    --secondary-foreground: 210 20% 92%;
     
     --accent: 188 85% 60%;
     --accent-foreground: 0 0% 100%;
     
-    --muted: 217 33% 20%;
-    --muted-foreground: 215 20% 65%;
+    --muted: 220 12% 26%;
+    --muted-foreground: 215 15% 60%;
     
-    --destructive: 0 63% 31%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 210 20% 92%;
     
-    --border: 217 33% 23%;
-    --input: 217 33% 23%;
+    --border: 220 12% 28%;
+    --input: 220 12% 28%;
     --ring: 199 89% 48%;
     
-    --sidebar-background: 217 33% 14%;
-    --sidebar-foreground: 210 40% 98%;
+    --sidebar-background: 220 14% 20%;
+    --sidebar-foreground: 210 20% 92%;
     --sidebar-primary: 199 89% 48%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 217 33% 20%;
-    --sidebar-accent-foreground: 210 40% 98%;
-    --sidebar-border: 217 33% 23%;
+    --sidebar-accent: 220 13% 26%;
+    --sidebar-accent-foreground: 210 20% 92%;
+    --sidebar-border: 220 12% 28%;
     --sidebar-ring: 199 89% 48%;
   }
 }
