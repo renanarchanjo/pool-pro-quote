@@ -32,8 +32,8 @@ const PLANS = [
     slug: "premium",
     name: "Premium",
     price: "R$ 99,90",
-    priceId: "price_1TEH4XD4inSHTJNLF37wMK1P",
-    productId: "prod_UCgRljPq5bvjS4",
+    priceId: "price_1TEdIiDLDBZHKYif22uYH0ns",
+    productId: "prod_UD3PEYnNACZIPf",
     proposals: 100,
     features: [
       { text: "Até 100 orçamentos/mês", included: true },
@@ -47,8 +47,8 @@ const PLANS = [
     slug: "avancado",
     name: "Avançado",
     price: "R$ 199,90",
-    priceId: "price_1TEH59D4inSHTJNL3Pv8cwj5",
-    productId: "prod_UCgScAiO19M68R",
+    priceId: "price_1TEdJ4DLDBZHKYif5sFUfHLO",
+    productId: "prod_UD3PdH9NRCfw5t",
     proposals: 500,
     popular: true,
     features: [
@@ -63,8 +63,8 @@ const PLANS = [
     slug: "escala",
     name: "Escala",
     price: "R$ 299,90",
-    priceId: "price_1TEH5QD4inSHTJNL4PEeei2a",
-    productId: "prod_UCgSX4JTil25jU",
+    priceId: "price_1TEdJRDLDBZHKYifIP8NhqDm",
+    productId: "prod_UD3QKozvTgVova",
     proposals: 1000,
     features: [
       { text: "Até 1.000 orçamentos/mês", included: true },
@@ -77,8 +77,8 @@ const PLANS = [
 ];
 
 const LEAD_PLAN = {
-  priceId: "price_1TELsVD4inSHTJNLmue5gkTP",
-  productId: "prod_UClPPxnoSh7tlx",
+  priceId: "price_1TEdKrDLDBZHKYifUm8XPOut",
+  productId: "prod_UD3Rpug8ULJMaT",
   price: "R$ 997,00",
 };
 
