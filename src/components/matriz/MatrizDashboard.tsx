@@ -28,10 +28,19 @@ interface PaymentRow {
   subscription_plans: { name: string; price_monthly: number } | null;
 }
 
+interface ProposalRow {
+  id: string;
+  total_price: number;
+  status: string;
+  store_id: string | null;
+  created_at: string | null;
+}
+
 interface DashboardData {
   stores: StoreRow[];
   payments: PaymentRow[];
   profileCount: number;
+  closedProposals: ProposalRow[];
 }
 
 /* ─── Helpers ─── */
@@ -49,19 +58,26 @@ const MatrizDashboard = () => {
 
   useEffect(() => {
     loadAll();
+    const channel = supabase
+      .channel("matriz-dashboard-proposals")
+      .on("postgres_changes", { event: "UPDATE", schema: "public", table: "proposals" }, () => loadAll())
+      .subscribe();
+    return () => { supabase.removeChannel(channel); };
   }, []);
 
   const loadAll = async () => {
     try {
-      const [storesRes, paymentsRes, profilesRes] = await Promise.all([
+      const [storesRes, paymentsRes, profilesRes, proposalsRes] = await Promise.all([
         supabase.from("stores").select("*, subscription_plans(name, price_monthly, slug)"),
         supabase.from("payment_history").select("*, subscription_plans(name, price_monthly)").order("payment_date", { ascending: false }),
         supabase.from("profiles").select("id"),
+        supabase.from("proposals").select("id, total_price, status, store_id, created_at").eq("status", "fechada"),
       ]);
       setData({
         stores: (storesRes.data as any) || [],
         payments: (paymentsRes.data as any) || [],
         profileCount: profilesRes.data?.length || 0,
+        closedProposals: (proposalsRes.data as any) || [],
       });
     } catch (e) {
       console.error("Error loading dashboard:", e);
@@ -84,6 +100,10 @@ const MatrizDashboard = () => {
   const LIM_PISCINAS_ID = "5e8165c0-64b6-4d06-b274-8eeb261a79c4";
   const stores = data.stores.filter((s) => s.id !== LIM_PISCINAS_ID);
   const payments = data.payments.filter((p) => p.store_id !== LIM_PISCINAS_ID);
+  const closedProposals = data.closedProposals.filter((p) => p.store_id !== LIM_PISCINAS_ID);
+
+  // Faturamento Bruto dos Lojistas (todas as propostas fechadas)
+  const faturamentoBrutoLojistas = closedProposals.reduce((sum, p) => sum + p.total_price, 0);
 
   /* ───────── Computed metrics ───────── */
   const activeStores = stores.filter((s) => s.plan_status === "active");
@@ -215,7 +235,7 @@ const MatrizDashboard = () => {
       </div>
 
       {/* ── 1. KPIs ── */}
-      <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">
+      <div className="grid grid-cols-2 lg:grid-cols-6 gap-3">
         <KPICard icon={DollarSign} label="MRR" value={fmt(mrr)} iconBg="bg-emerald-500/10" iconColor="text-emerald-600" />
         <KPICard
           icon={mrrGrowth >= 0 ? TrendingUp : TrendingDown}
@@ -242,6 +262,14 @@ const MatrizDashboard = () => {
           valueColor={revenueLost > 0 ? "text-red-500" : undefined}
         />
         <KPICard icon={Target} label="ARPU" value={fmt(arpu)} iconBg="bg-blue-500/10" iconColor="text-blue-600" />
+        <KPICard
+          icon={BarChart3}
+          label="Fat. Bruto Lojistas"
+          value={fmt(faturamentoBrutoLojistas)}
+          iconBg="bg-violet-500/10"
+          iconColor="text-violet-600"
+          subtitle={`${closedProposals.length} vendas fechadas`}
+        />
       </div>
 
       {/* ── 2. Revenue Breakdown + Plan Pie ── */}
@@ -458,8 +486,8 @@ const MatrizDashboard = () => {
 
 /* ─── Sub-components ─── */
 
-function KPICard({ icon: Icon, label, value, iconBg, iconColor, valueColor }: {
-  icon: any; label: string; value: string; iconBg: string; iconColor: string; valueColor?: string;
+function KPICard({ icon: Icon, label, value, iconBg, iconColor, valueColor, subtitle }: {
+  icon: any; label: string; value: string; iconBg: string; iconColor: string; valueColor?: string; subtitle?: string;
 }) {
   return (
     <Card className="border-border/50">
@@ -468,6 +496,7 @@ function KPICard({ icon: Icon, label, value, iconBg, iconColor, valueColor }: {
           <div className="min-w-0 flex-1">
             <p className="text-[10px] sm:text-[11px] font-medium text-muted-foreground uppercase tracking-wider leading-tight">{label}</p>
             <p className={`text-lg sm:text-2xl font-bold mt-1 truncate ${valueColor || ""}`}>{value}</p>
+            {subtitle && <p className="text-[10px] text-muted-foreground mt-0.5">{subtitle}</p>}
           </div>
           <div className={`hidden sm:flex h-9 w-9 rounded-lg ${iconBg} items-center justify-center shrink-0`}>
             <Icon className={`h-4 w-4 ${iconColor}`} />
