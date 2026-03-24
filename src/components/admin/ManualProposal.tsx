@@ -228,17 +228,25 @@ const ManualProposal = () => {
         <Button variant="ghost" onClick={handleReset} className="mb-4">
           <ArrowLeft className="w-4 h-4 mr-2" /> Nova Proposta
         </Button>
-        <ProposalView
-          model={selectedModel}
-          selectedOptionals={[...selectedOptionalsList, ...selectedModelOptsList.map((o: any) => ({ name: o.name, price: o.price }))]}
-          customerData={{ name: customerName, city: `${customerCity} / ${customerUf}`, whatsapp: customerWhatsapp }}
-          category={categories.find((c) => c.id === selectedModel.category_id)?.name || "Piscina"}
-          onBack={handleReset}
-          storeSettings={storeSettings}
-          storeName={store?.name}
-          storeCity={store?.city}
-          storeState={store?.state}
-        />
+        {(() => {
+          const cat = categories.find(c => c.id === selectedModel.category_id);
+          const brand = cat?.brand_id ? brands.find(b => b.id === cat.brand_id) : null;
+          return (
+            <ProposalView
+              model={selectedModel}
+              selectedOptionals={[...selectedOptionalsList, ...selectedModelOptsList.map((o: any) => ({ name: o.name, price: o.price }))]}
+              customerData={{ name: customerName, city: `${customerCity} / ${customerUf}`, whatsapp: customerWhatsapp }}
+              category={cat?.name || "Piscina"}
+              onBack={handleReset}
+              storeSettings={storeSettings}
+              storeName={store?.name}
+              storeCity={store?.city}
+              storeState={store?.state}
+              brandLogoUrl={brand?.logo_url}
+              partners={partners}
+            />
+          );
+        })()}
       </div>
     );
   }
