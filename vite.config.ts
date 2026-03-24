@@ -83,7 +83,7 @@ export default defineConfig(({ mode }) => ({
     }),
   ].filter(Boolean),
   build: {
-    target: "esnext",
+    target: "es2020",
     rollupOptions: {
       output: {
         manualChunks: {
