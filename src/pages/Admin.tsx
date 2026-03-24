@@ -71,9 +71,9 @@ const Admin = () => {
       <div className="min-h-screen flex w-full bg-muted/30 overflow-x-hidden">
         <AdminSidebar />
         <div className="flex-1 flex flex-col min-w-0">
-          <header className="h-[72px] flex items-center border-b border-border/50 bg-background px-2 md:px-4">
-            <SidebarTrigger className="h-14 w-14 md:h-10 md:w-10 [&>svg]:!w-7 [&>svg]:!h-7 md:[&>svg]:!w-5 md:[&>svg]:!h-5 text-primary" />
-            <span className="ml-2 text-sm font-medium text-primary md:hidden">{store?.name || "Painel"}</span>
+          <header className="flex items-center border-b border-border/50 bg-background px-2 md:px-4 h-[72px] pt-[env(safe-area-inset-top,0px)]">
+            <SidebarTrigger className="h-14 w-14 md:h-10 md:w-10 [&>svg]:!w-7 [&>svg]:!h-7 md:[&>svg]:!w-5 md:[&>svg]:!h-5 text-primary shrink-0" />
+            <span className="ml-2 text-sm font-medium text-primary md:hidden truncate">{store?.name || "Painel"}</span>
           </header>
           <main className="flex-1 p-3 md:p-6 overflow-x-hidden overflow-y-auto safe-area-bottom">
             <PendingLeadsAlert />
