@@ -566,6 +566,11 @@ const AdminLeads = () => {
                             <Badge variant="outline" className={statusClass(lead.status)}>
                               {statusLabel(lead.status)}
                             </Badge>
+                            {lead.status === "accepted" && lead.accepted_by_profile?.full_name && (
+                              <p className="text-[10px] text-muted-foreground mt-1">
+                                por {lead.accepted_by_profile.full_name}
+                              </p>
+                            )}
                           </TableCell>
                           <TableCell className="text-right">
                             {isPending ? (
