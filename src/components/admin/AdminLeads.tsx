@@ -24,7 +24,9 @@ interface ReceivedLead {
   proposal_id: string;
   status: string;
   accepted_at: string | null;
+  accepted_by: string | null;
   created_at: string;
+  accepted_by_profile?: { full_name: string | null } | null;
   proposals: {
     customer_name: string;
     customer_city: string;
