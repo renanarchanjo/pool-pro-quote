@@ -66,6 +66,7 @@ const MatrizLeads = () => {
   const [filterStatus, setFilterStatus] = useState("all");
   const [filterPeriod, setFilterPeriod] = useState("all");
   const [filterCity, setFilterCity] = useState("all");
+  const [filterStore, setFilterStore] = useState("all");
   const [activeTab, setActiveTab] = useState("pendentes");
   const [selectedLeads, setSelectedLeads] = useState<Set<string>>(new Set());
   const [viewingLead, setViewingLead] = useState<Lead | null>(null);
@@ -226,6 +227,10 @@ const MatrizLeads = () => {
     }
     if (filterStatus !== "all" && l.status !== filterStatus) return false;
     if (filterCity !== "all" && l.customer_city !== filterCity) return false;
+    if (filterStore !== "all") {
+      const dist = distributionMap.get(l.id);
+      if (!dist || dist.stores?.name !== filterStore) return false;
+    }
     if (filterPeriod !== "all") {
       const diffDays = (now.getTime() - new Date(l.created_at).getTime()) / 86400000;
       if (filterPeriod === "7d" && diffDays > 7) return false;
@@ -334,6 +339,13 @@ const MatrizLeads = () => {
               <SelectContent>
                 <SelectItem value="all">Todas cidades</SelectItem>
                 {uniqueCities.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}
+              </SelectContent>
+            </Select>
+            <Select value={filterStore} onValueChange={setFilterStore}>
+              <SelectTrigger className="w-[180px] h-9"><SelectValue placeholder="Loja" /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todas lojas</SelectItem>
+                {stores.map(s => <SelectItem key={s.id} value={s.name}>{s.name}</SelectItem>)}
               </SelectContent>
             </Select>
             <Select value={filterStatus} onValueChange={setFilterStatus}>
