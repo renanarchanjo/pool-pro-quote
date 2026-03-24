@@ -82,6 +82,13 @@ const ProposalView = ({
 
   const fmt = (v: number) => `R$ ${v.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`;
 
+  // Banner logic: if brand matches a partner name, show only that partner's banners; else show all
+  const matchedPartner = brandName
+    ? partners.find(p => p.name.toLowerCase().trim() === brandName.toLowerCase().trim())
+    : null;
+  const bannersToShow = matchedPartner ? [matchedPartner] : partners;
+  const banner1Urls = bannersToShow.filter(p => p.banner_1_url).map(p => ({ url: p.banner_1_url!, name: p.name }));
+  const banner2Urls = bannersToShow.filter(p => p.banner_2_url).map(p => ({ url: p.banner_2_url!, name: p.name }));
   // Removed WhatsApp and email send functions - lead only gets PDF download and view
 
   const handleDownloadPDF = async () => {
