@@ -4,22 +4,32 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { Loader2, Upload, Building2, User, Image as ImageIcon } from "lucide-react";
+import { Loader2, Upload, Building2, User, Image as ImageIcon, Mail, Lock, Eye, EyeOff } from "lucide-react";
 import { toast } from "sonner";
 import { useStoreData } from "@/hooks/useStoreData";
 
 const AdminProfile = () => {
-  const { profile, store, storeSettings, refetch } = useStoreData();
+  const { profile, store, storeSettings, role, refetch } = useStoreData();
   const [fullName, setFullName] = useState("");
   const [logoUrl, setLogoUrl] = useState("");
   const [uploading, setUploading] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [userEmail, setUserEmail] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [changingPassword, setChangingPassword] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const isOwner = role === "owner";
 
   useEffect(() => {
     if (profile) setFullName(profile.full_name || "");
     if (storeSettings) setLogoUrl(storeSettings.logo_url || "");
+    supabase.auth.getUser().then(({ data }) => {
+      if (data.user) setUserEmail(data.user.email || "");
+    });
   }, [profile, storeSettings]);
 
   const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -80,7 +90,33 @@ const AdminProfile = () => {
     }
   };
 
-  const initials = (store?.name || "L").substring(0, 2).toUpperCase();
+  const handleChangePassword = async () => {
+    if (!newPassword || !confirmPassword) {
+      toast.error("Preencha os dois campos de senha");
+      return;
+    }
+    if (newPassword.length < 6) {
+      toast.error("A senha deve ter pelo menos 6 caracteres");
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      toast.error("As senhas não coincidem");
+      return;
+    }
+
+    setChangingPassword(true);
+    try {
+      const { error } = await supabase.auth.updateUser({ password: newPassword });
+      if (error) throw error;
+      toast.success("Senha alterada com sucesso!");
+      setNewPassword("");
+      setConfirmPassword("");
+    } catch (error: any) {
+      toast.error(error.message || "Erro ao alterar senha");
+    } finally {
+      setChangingPassword(false);
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -177,6 +213,83 @@ const AdminProfile = () => {
           </Button>
         </div>
       </Card>
+
+      {/* Credenciais de Acesso - visível para owner */}
+      {isOwner && (
+        <Card className="p-6 max-w-2xl">
+          <h2 className="text-xl font-semibold mb-6">Credenciais de Acesso</h2>
+          <div className="space-y-5">
+            <div className="space-y-2">
+              <Label className="flex items-center gap-2">
+                <Mail className="w-4 h-4 text-muted-foreground" />
+                E-mail de Login
+              </Label>
+              <Input value={userEmail} disabled />
+              <p className="text-xs text-muted-foreground">
+                O e-mail de acesso não pode ser alterado.
+              </p>
+            </div>
+
+            <div className="border-t border-border pt-5">
+              <h3 className="text-sm font-medium mb-4 flex items-center gap-2">
+                <Lock className="w-4 h-4 text-muted-foreground" />
+                Alterar Senha
+              </h3>
+              <div className="grid gap-4">
+                <div className="space-y-2">
+                  <Label>Nova Senha</Label>
+                  <div className="relative">
+                    <Input
+                      type={showNewPassword ? "text" : "password"}
+                      value={newPassword}
+                      onChange={(e) => setNewPassword(e.target.value)}
+                      placeholder="Mínimo 6 caracteres"
+                      className="pr-10"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowNewPassword(!showNewPassword)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                      tabIndex={-1}
+                    >
+                      {showNewPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    </button>
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label>Confirmar Nova Senha</Label>
+                  <div className="relative">
+                    <Input
+                      type={showConfirmPassword ? "text" : "password"}
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      placeholder="Repita a nova senha"
+                      className="pr-10"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                      tabIndex={-1}
+                    >
+                      {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    </button>
+                  </div>
+                </div>
+                <Button
+                  onClick={handleChangePassword}
+                  disabled={changingPassword || !newPassword || !confirmPassword}
+                  variant="outline"
+                  className="w-full"
+                >
+                  {changingPassword ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
+                  Alterar Senha
+                </Button>
+              </div>
+            </div>
+          </div>
+        </Card>
+      )}
     </div>
   );
 };
