@@ -183,18 +183,7 @@ const MatrizLeads = () => {
     setDistributing(false);
   };
 
-  const handleUpdateStatus = async (id: string, newStatus: ProposalStatus) => {
-    setUpdatingStatus(id);
-    const { error } = await supabase.from("proposals").update({ status: newStatus }).eq("id", id);
-    if (error) {
-      toast.error("Erro ao atualizar status");
-    } else {
-      setLeads(prev => prev.map(l => l.id === id ? { ...l, status: newStatus } : l));
-      toast.success("Status atualizado");
-      if (viewingLead?.id === id) setViewingLead(prev => prev ? { ...prev, status: newStatus } : null);
-    }
-    setUpdatingStatus(null);
-  };
+  // Status is read-only for Matriz — controlled by the store owner
 
   const handleDelete = async () => {
     if (!deletingLead) return;
