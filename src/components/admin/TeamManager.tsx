@@ -234,11 +234,15 @@ const TeamManager = () => {
     try {
       setCheckoutLoading(true);
       const { data, error } = await supabase.functions.invoke("create-member-checkout", {
-        body: { quantity: 1 },
+        body: { quantity: extraQuantity },
       });
       if (error) throw error;
       if (data?.error) throw new Error(data.error);
-      if (data?.url) window.open(data.url, "_blank");
+      if (data?.url) {
+        window.open(data.url, "_blank");
+        setShowExtraDialog(false);
+        setExtraQuantity(1);
+      }
     } catch (err: any) {
       toast.error(err.message || "Erro ao iniciar checkout");
     } finally {
