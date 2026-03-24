@@ -14,6 +14,7 @@ import DashboardKPIs from "./dashboard/DashboardKPIs";
 import DashboardFunnel from "./dashboard/DashboardFunnel";
 import DashboardAlerts from "./dashboard/DashboardAlerts";
 import DashboardPipeline from "./dashboard/DashboardPipeline";
+import PushNotificationButton from "./PushNotificationButton";
 
 const AdminDashboard = () => {
   const { profile, store, storeSettings } = useStoreData();
