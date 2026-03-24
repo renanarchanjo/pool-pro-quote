@@ -75,7 +75,11 @@ export const exportPDF = async ({
     console.error("Erro ao gerar PDF:", error);
     toast.error("Erro ao gerar PDF. Tente novamente.");
   } finally {
-    // Always restore original styles
+    // Restore original styles
     element.style.cssText = originalStyle;
+    // Restore hidden/shown elements
+    hiddenOriginals.forEach(({ el, display }) => {
+      el.style.display = display;
+    });
   }
 };
