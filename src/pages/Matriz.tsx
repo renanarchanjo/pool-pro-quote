@@ -66,6 +66,7 @@ const Matriz = () => {
               <Route path="lojas" element={<MatrizStores />} />
               <Route path="pagamentos" element={<MatrizPayments />} />
               <Route path="parceiros" element={<PartnersManager />} />
+              <Route path="leads" element={<MatrizLeads />} />
             </Routes>
           </main>
         </div>
