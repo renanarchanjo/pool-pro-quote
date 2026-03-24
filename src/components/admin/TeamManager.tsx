@@ -253,7 +253,7 @@ const TeamManager = () => {
     }
   };
 
-  const isAtLimit = members.length >= maxMembers;
+  const isAtLimit = !isUnlimited && members.length >= maxMembers;
 
   return (
     <div className="space-y-6 max-w-3xl">
