@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useStoreData } from "@/hooks/useStoreData";
 import { toast } from "sonner";
-import { Loader2, Plus, Trash2, UserPlus, Shield, Eye, EyeOff, Pencil, AlertTriangle, Users } from "lucide-react";
+import { Loader2, Plus, Trash2, UserPlus, Shield, Eye, EyeOff, Pencil, AlertTriangle, Users, CreditCard, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
