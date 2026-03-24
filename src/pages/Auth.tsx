@@ -165,55 +165,29 @@ const Auth = () => {
         if (signUpError) throw signUpError;
         if (!authData.user) throw new Error("Erro ao criar usuário");
 
-        const { data: storeData, error: storeError } = await supabase
-          .from("stores")
-          .insert({ 
-            name: nomeFantasia || razaoSocial, 
-            slug, 
-            city, 
+        // Use edge function to create store (bypasses RLS when email not confirmed)
+        const { data: storeResult, error: storeError } = await supabase.functions.invoke("setup-store", {
+          body: {
+            userId: authData.user.id,
+            storeName: nomeFantasia || razaoSocial,
+            slug,
+            city,
             state,
             cnpj: cnpjDigits,
-            razao_social: razaoSocial,
-            nome_fantasia: nomeFantasia,
-            plan_id: "08976d95-652c-4f59-926f-0080c335ea71",
-            plan_status: "active",
-          })
-          .select()
-          .single();
+            razaoSocial,
+            nomeFantasia,
+            fullName: nomeFantasia || razaoSocial,
+          },
+        });
 
         if (storeError) throw storeError;
-
-        const { error: profileError } = await supabase
-          .from("profiles")
-          .insert({
-            id: authData.user.id,
-            store_id: storeData.id,
-            full_name: nomeFantasia || razaoSocial,
-          });
-
-        if (profileError) throw profileError;
-
-        const { error: roleError } = await supabase
-          .from("user_roles")
-          .insert({
-            user_id: authData.user.id,
-            role: "owner",
-          });
-
-        if (roleError) throw roleError;
-
-        const { error: settingsError } = await supabase
-          .from("store_settings")
-          .insert({
-            store_id: storeData.id,
-          });
-
-        if (settingsError) throw settingsError;
-
-        toast.success("Loja criada com sucesso!");
+        if (storeResult?.error) throw new Error(storeResult.error);
 
         if (authData.session) {
+          toast.success("Loja criada com sucesso!");
           navigate("/admin", { replace: true });
+        } else {
+          toast.success("Loja criada! Verifique seu e-mail para confirmar o cadastro.");
         }
       }
     } catch (error: any) {
