@@ -2,7 +2,7 @@
 <html lang="pt-BR">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="SIMULAPOOL" />
@@ -15,6 +15,7 @@
     <link rel="preconnect" href="https://szaepmecxdhxduqbikqm.supabase.co" crossorigin>
     <link rel="dns-prefetch" href="https://cdn.onesignal.com">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="manifest" href="https://www.simulapool.com/manifest.json" />
     <title>SIMULAPOOL - O jeito moderno de orçar piscinas</title>
     <meta name="description" content="Sistema profissional de orçamentos automatizados para piscinas de fibra. Simule, orce e feche negócios mais rápido." />
     <meta name="author" content="SIMULAPOOL" />
@@ -39,5 +40,16 @@
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
-  </body>
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', function() {
+          navigator.serviceWorker.register('https://www.simulapool.com/service-worker.js', { scope: '/' })
+            .then(function(registration) {
+              console.log('ServiceWorker registration successful with scope: ', registration.scope);
+            }, function(err) {
+              console.log('ServiceWorker registration failed: ', err);
+            });
+        });
+      }
+    </script>
 </html>
