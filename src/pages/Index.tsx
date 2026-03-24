@@ -15,14 +15,14 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-gradient-hero relative overflow-hidden flex flex-col">
-      <div 
+      <div
         className="absolute inset-0 opacity-15"
         style={{
           backgroundImage: `url(${heroPattern})`,
           backgroundSize: 'cover',
-          backgroundPosition: 'center',
-        }}
-      />
+          backgroundPosition: 'center'
+        }} />
+      
       
       <div className="relative z-10 flex flex-col flex-1">
         <SiteHeader />
@@ -37,18 +37,18 @@ const Index = () => {
             <h1 className="text-3xl md:text-5xl lg:text-7xl font-display font-extrabold mb-4 md:mb-6 leading-tight">
               <span className="text-gradient">Sua piscina dos sonhos</span>
               <br />
-              <span className="text-secondary">começa aqui.</span>
+              <span className="text-blue-950">começa aqui.</span>
             </h1>
             
             <p className="text-base md:text-xl lg:text-2xl text-muted-foreground mb-6 md:mb-10 font-light max-w-2xl mx-auto px-2">
               Escolha o modelo, personalize com opcionais e receba seu orçamento completo na hora — pronto para fechar negócio.
             </p>
             
-            <Button 
-              size="lg" 
+            <Button
+              size="lg"
               className="gradient-primary text-white shadow-pool hover:shadow-glow transition-all text-base md:text-lg px-8 py-6 md:px-10 md:py-7 font-display font-semibold w-full sm:w-auto touch-manipulation"
-              onClick={() => setShowSimulator(true)}
-            >
+              onClick={() => setShowSimulator(true)}>
+              
               Simular Minha Piscina
               <ChevronRight className="ml-2 w-5 h-5" />
             </Button>
@@ -61,8 +61,8 @@ const Index = () => {
 
         <SiteFooter />
       </div>
-    </div>
-  );
+    </div>);
+
 };
 
 export default Index;
