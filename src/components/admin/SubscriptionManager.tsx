@@ -3,7 +3,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, Check, X, Crown, CreditCard, ExternalLink } from "lucide-react";
+import { Separator } from "@/components/ui/separator";
+import { Loader2, Check, X, Crown, CreditCard, ExternalLink, Users, FileText, TrendingUp } from "lucide-react";
 import { toast } from "sonner";
 
 const PLANS = [
@@ -242,6 +243,55 @@ const SubscriptionManager = () => {
             </Card>
           );
         })}
+      </div>
+
+      <Separator />
+
+      {/* Custos Adicionais */}
+      <div>
+        <h2 className="text-lg font-semibold flex items-center gap-2 mb-4">
+          <TrendingUp className="w-5 h-5 text-primary" />
+          Custos Adicionais (Cobranças Extras)
+        </h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <Card className="p-5 border-amber-500/30 bg-amber-500/5">
+            <div className="flex items-start gap-3">
+              <div className="p-2 rounded-lg bg-amber-500/10">
+                <Users className="w-5 h-5 text-amber-600" />
+              </div>
+              <div>
+                <h3 className="font-bold text-sm">Usuário Adicional</h3>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  Cobrado quando a loja ultrapassa o limite de usuários do plano
+                </p>
+                <div className="mt-2">
+                  <span className="text-2xl font-bold">R$ 14,90</span>
+                  <span className="text-sm text-muted-foreground"> /usuário/mês</span>
+                </div>
+                <Badge variant="outline" className="mt-2 text-xs">Recorrente</Badge>
+              </div>
+            </div>
+          </Card>
+
+          <Card className="p-5 border-blue-500/30 bg-blue-500/5">
+            <div className="flex items-start gap-3">
+              <div className="p-2 rounded-lg bg-blue-500/10">
+                <FileText className="w-5 h-5 text-blue-600" />
+              </div>
+              <div>
+                <h3 className="font-bold text-sm">Orçamento Adicional</h3>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  Cobrado por orçamento gerado além do limite mensal do plano
+                </p>
+                <div className="mt-2">
+                  <span className="text-2xl font-bold">R$ 0,50</span>
+                  <span className="text-sm text-muted-foreground"> /orçamento</span>
+                </div>
+                <Badge variant="outline" className="mt-2 text-xs">Conforme uso</Badge>
+              </div>
+            </div>
+          </Card>
+        </div>
       </div>
     </div>
   );
