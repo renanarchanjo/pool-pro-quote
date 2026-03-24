@@ -409,8 +409,8 @@ async function executarRotina(supabase: any, periodo: string) {
     const payload: NotificationPayload = { userId, titulo, mensagem, prioridade, alertType };
     const ok = await enviarPush(payload, supabase);
 
-    // Salvar log sempre
-    await salvarLog(supabase, payload, hash);
+    // Salvar log apenas quando enviou com sucesso
+    if (ok) await salvarLog(supabase, payload, hash);
 
     if (ok) sent++;
     else skipped++;
