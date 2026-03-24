@@ -12,9 +12,12 @@ const PendingLeadsAlert = () => {
 
   useEffect(() => {
     const STORAGE_KEY = "pendingLeadsAlertShown";
+    const STORAGE_DATE_KEY = "pendingLeadsAlertDate";
 
-    // Only show once per browser session
-    if (sessionStorage.getItem(STORAGE_KEY)) return;
+    // Only show once per day
+    const lastShown = localStorage.getItem(STORAGE_DATE_KEY);
+    const today = new Date().toDateString();
+    if (lastShown === today) return;
 
     const checkPendingLeads = async () => {
       const { data: { session } } = await supabase.auth.getSession();
