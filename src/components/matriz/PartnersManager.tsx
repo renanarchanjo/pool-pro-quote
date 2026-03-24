@@ -309,7 +309,7 @@ const PartnersManager = () => {
                     {partner.active ? "Visível na página" : "Oculto"}
                   </p>
                   <div className="mt-3 space-y-2 border-t border-border/50 pt-3">
-                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Banners da Proposta</p>
+                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Banner da Proposta</p>
                     <div className="space-y-1.5">
                       <div className="flex items-start gap-2">
                         <Label className="text-xs w-20 shrink-0 pt-1.5">Banner 1:</Label>
@@ -330,28 +330,6 @@ const PartnersManager = () => {
                           />
                           <p className="text-[10px] text-muted-foreground mt-0.5">
                             📐 Proporção <strong>2:3 vertical</strong> — Tamanho ideal: <strong>400×600px</strong> (aparece ao lado do cliente)
-                          </p>
-                        </div>
-                      </div>
-                      <div className="flex items-start gap-2">
-                        <Label className="text-xs w-20 shrink-0 pt-1.5">Banner 2:</Label>
-                        <div className="flex-1">
-                          <Input
-                            className="h-7 text-xs"
-                            placeholder="URL do banner rodapé (postimages, etc)"
-                            defaultValue={partner.banner_2_url || ""}
-                            onBlur={async (e) => {
-                              const val = e.target.value.trim() || null;
-                              if (val !== partner.banner_2_url) {
-                                const { error } = await supabase.from("partners").update({ banner_2_url: val }).eq("id", partner.id);
-                                if (error) { toast.error("Erro ao salvar banner 2"); return; }
-                                setPartners(prev => prev.map(p => p.id === partner.id ? { ...p, banner_2_url: val } : p));
-                                toast.success("Banner 2 salvo!");
-                              }
-                            }}
-                          />
-                          <p className="text-[10px] text-muted-foreground mt-0.5">
-                            📐 Proporção <strong>16:3 horizontal</strong> — Tamanho ideal: <strong>1600×300px</strong> (aparece no rodapé da proposta)
                           </p>
                         </div>
                       </div>
