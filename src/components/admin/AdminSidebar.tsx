@@ -59,18 +59,16 @@ const AdminSidebar = () => {
     { title: "Opcionais", url: "/admin/opcionais", icon: Package },
   ] : [];
 
-  const sellerItems = !isOwner ? [
-    { title: "Performance", url: "/admin/performance", icon: TrendingUp },
-    { title: "Comissão", url: "/admin/comissao", icon: DollarSign },
-  ] : [];
-
   const accountItems = [
     { title: "Minha Conta", url: "/admin/perfil", icon: User },
-    ...(isOwner ? [
+    ...(!isOwner ? [
+      { title: "Performance", url: "/admin/performance", icon: TrendingUp },
+      { title: "Comissão", url: "/admin/comissao", icon: DollarSign },
+    ] : [
       { title: "Minha Equipe", url: "/admin/equipe", icon: UsersRound },
       { title: "Faturas", url: "/admin/faturas", icon: Receipt },
       { title: "Assinatura", url: "/admin/assinatura", icon: CreditCard },
-    ] : []),
+    ]),
   ];
 
   const renderGroup = (label: string, items: typeof mainItems) => {
