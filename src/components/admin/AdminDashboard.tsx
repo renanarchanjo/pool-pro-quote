@@ -62,7 +62,7 @@ const AdminDashboard = () => {
       : format(pdfDateRange.from, "dd/MM/yyyy", { locale: ptBR })
     : "Período";
 
-  const filteredForPdf = proposals.filter(p => {
+  const filteredProposals = proposals.filter(p => {
     if (!pdfDateRange?.from) return true;
     const d = new Date(p.created_at);
     if (d < pdfDateRange.from) return false;
@@ -217,7 +217,7 @@ const AdminDashboard = () => {
       {/* Printable content */}
       <div ref={reportRef} className="hidden">
         <DashboardPdfReport
-          proposals={filteredForPdf}
+          proposals={filteredProposals}
           profileName={profile?.full_name}
           storeName={store?.name}
           dateLabel={pdfDateLabel}
@@ -228,18 +228,18 @@ const AdminDashboard = () => {
       <div className="space-y-4 md:space-y-6">
         {/* (A) KPIs */}
         <div style={{ pageBreakInside: "avoid" }}>
-          <DashboardKPIs proposals={proposals} />
+          <DashboardKPIs proposals={filteredProposals} />
         </div>
 
         {/* (B) Funnel + (D) Alerts */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 md:gap-4" style={{ pageBreakInside: "avoid" }}>
-          <DashboardFunnel proposals={proposals} />
-          <DashboardAlerts proposals={proposals} onSelectProposal={setViewingProposal} />
+          <DashboardFunnel proposals={filteredProposals} />
+          <DashboardAlerts proposals={filteredProposals} onSelectProposal={setViewingProposal} />
         </div>
 
         {/* (C) Pipeline */}
         <DashboardPipeline
-          proposals={proposals}
+          proposals={filteredProposals}
           onUpdateStatus={updateStatus}
           onViewProposal={setViewingProposal}
           onExportPDF={setViewingProposal}
