@@ -24,7 +24,9 @@ interface ReceivedLead {
   proposal_id: string;
   status: string;
   accepted_at: string | null;
+  accepted_by: string | null;
   created_at: string;
+  accepted_by_profile?: { full_name: string | null } | null;
   proposals: {
     customer_name: string;
     customer_city: string;
@@ -94,7 +96,7 @@ const AdminLeads = () => {
     const [leadsRes, storeRes] = await Promise.all([
       (supabase as any)
         .from("lead_distributions")
-        .select("*, proposals(customer_name, customer_city, customer_whatsapp, total_price, created_at, pool_models(name))")
+        .select("*, proposals(customer_name, customer_city, customer_whatsapp, total_price, created_at, pool_models(name)), accepted_by_profile:profiles!accepted_by(full_name)")
         .eq("store_id", store.id)
         .order("created_at", { ascending: false }),
       (supabase as any)
@@ -445,6 +447,11 @@ const AdminLeads = () => {
                           <Badge variant="outline" className={`text-[10px] mt-0.5 ${statusClass(lead.status)}`}>
                             {statusLabel(lead.status)}
                           </Badge>
+                          {lead.status === "accepted" && lead.accepted_by_profile?.full_name && (
+                            <p className="text-[10px] text-muted-foreground mt-0.5">
+                              por {lead.accepted_by_profile.full_name}
+                            </p>
+                          )}
                         </div>
                       </div>
 
@@ -559,6 +566,11 @@ const AdminLeads = () => {
                             <Badge variant="outline" className={statusClass(lead.status)}>
                               {statusLabel(lead.status)}
                             </Badge>
+                            {lead.status === "accepted" && lead.accepted_by_profile?.full_name && (
+                              <p className="text-[10px] text-muted-foreground mt-1">
+                                por {lead.accepted_by_profile.full_name}
+                              </p>
+                            )}
                           </TableCell>
                           <TableCell className="text-right">
                             {isPending ? (

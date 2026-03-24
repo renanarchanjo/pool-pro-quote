@@ -1,0 +1,1 @@
+ALTER TABLE public.lead_distributions ADD CONSTRAINT lead_distributions_accepted_by_fkey FOREIGN KEY (accepted_by) REFERENCES public.profiles(id) ON DELETE SET NULL;

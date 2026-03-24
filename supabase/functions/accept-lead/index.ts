@@ -75,7 +75,7 @@ serve(async (req) => {
     // Accept the lead
     const { error: updateError } = await supabaseAdmin
       .from("lead_distributions")
-      .update({ status: "accepted", accepted_at: new Date().toISOString() })
+      .update({ status: "accepted", accepted_at: new Date().toISOString(), accepted_by: user.id })
       .eq("id", distribution_id);
 
     if (updateError) throw new Error("Erro ao aceitar lead");
