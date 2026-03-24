@@ -56,6 +56,8 @@ interface Partner {
   id: string;
   name: string;
   logo_url: string | null;
+  banner_1_url: string | null;
+  banner_2_url: string | null;
 }
 
 interface Category {
