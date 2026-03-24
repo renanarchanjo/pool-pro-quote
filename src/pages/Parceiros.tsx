@@ -3,6 +3,7 @@ import { Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import SiteHeader from "@/components/landing/SiteHeader";
 import SiteFooter from "@/components/landing/SiteFooter";
+import { useForceLightTheme } from "@/hooks/useForceLightTheme";
 
 interface Partner {
   id: string;
@@ -11,6 +12,7 @@ interface Partner {
 }
 
 const Parceiros = () => {
+  useForceLightTheme();
   const [partners, setPartners] = useState<Partner[]>([]);
   const [loading, setLoading] = useState(true);
 

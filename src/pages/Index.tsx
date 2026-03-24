@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import SiteHeader from "@/components/landing/SiteHeader";
 import SiteFooter from "@/components/landing/SiteFooter";
 import heroPattern from "@/assets/hero-pattern.png";
+import { useForceLightTheme } from "@/hooks/useForceLightTheme";
 
 const PoolSimulator = lazy(() => import("@/components/simulator/PoolSimulator"));
 
@@ -14,6 +15,7 @@ const SimulatorLoader = () => (
 );
 
 const Index = () => {
+  useForceLightTheme();
   const [showSimulator, setShowSimulator] = useState(false);
 
   if (showSimulator) {

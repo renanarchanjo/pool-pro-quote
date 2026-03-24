@@ -9,8 +9,11 @@ import { Card } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
 import logoDark from "@/assets/simulapool-icon.png";
+import { useForceLightTheme } from "@/hooks/useForceLightTheme";
 
 const formatCNPJ = (value: string) => {
+const AuthPage = () => {
+  useForceLightTheme();
   const digits = value.replace(/\D/g, "").slice(0, 14);
   return digits
     .replace(/^(\d{2})(\d)/, "$1.$2")
