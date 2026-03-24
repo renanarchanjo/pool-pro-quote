@@ -1,5 +1,5 @@
 import { useNavigate, useLocation } from "react-router-dom";
-import { LayoutDashboard, Store, CreditCard, LogOut, Handshake, Users } from "lucide-react";
+import { LayoutDashboard, Store, CreditCard, LogOut, Handshake, Users, Settings } from "lucide-react";
 import {
   Sidebar, SidebarContent, SidebarGroup, SidebarGroupLabel,
   SidebarGroupContent, SidebarMenu, SidebarMenuItem,
@@ -31,6 +31,7 @@ const MatrizSidebar = () => {
     { title: "Pagamentos", url: "/matriz/pagamentos", icon: CreditCard },
     { title: "Parceiros", url: "/matriz/parceiros", icon: Handshake },
     { title: "Leads", url: "/matriz/leads", icon: Users },
+    { title: "Planos e Preços", url: "/matriz/planos", icon: Settings },
   ];
 
   return (

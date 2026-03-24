@@ -441,6 +441,30 @@ export type Database = {
           },
         ]
       }
+      platform_settings: {
+        Row: {
+          id: string
+          key: string
+          label: string | null
+          updated_at: string | null
+          value: string
+        }
+        Insert: {
+          id?: string
+          key: string
+          label?: string | null
+          updated_at?: string | null
+          value: string
+        }
+        Update: {
+          id?: string
+          key?: string
+          label?: string | null
+          updated_at?: string | null
+          value?: string
+        }
+        Relationships: []
+      }
       pool_models: {
         Row: {
           active: boolean | null
@@ -736,6 +760,7 @@ export type Database = {
           display_order: number | null
           id: string
           max_proposals_per_month: number
+          max_users: number | null
           name: string
           price_monthly: number
           slug: string
@@ -746,6 +771,7 @@ export type Database = {
           display_order?: number | null
           id?: string
           max_proposals_per_month?: number
+          max_users?: number | null
           name: string
           price_monthly?: number
           slug: string
@@ -756,6 +782,7 @@ export type Database = {
           display_order?: number | null
           id?: string
           max_proposals_per_month?: number
+          max_users?: number | null
           name?: string
           price_monthly?: number
           slug?: string
