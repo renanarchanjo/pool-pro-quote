@@ -32,8 +32,8 @@ const PLANS = [
     slug: "premium",
     name: "Premium",
     price: "R$ 99,90",
-    priceId: "price_1TEH4XD4inSHTJNLF37wMK1P",
-    productId: "prod_UCgRljPq5bvjS4",
+    priceId: "price_1TEdIiDLDBZHKYif22uYH0ns",
+    productId: "prod_UD3PEYnNACZIPf",
     proposals: 100,
     features: [
       { text: "Até 100 orçamentos/mês", included: true },
