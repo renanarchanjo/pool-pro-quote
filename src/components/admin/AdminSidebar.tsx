@@ -19,14 +19,10 @@ import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useStoreData } from "@/hooks/useStoreData";
-import logoHorizontal from "@/assets/simulapool-horizontal.png";
-import logoDark from "@/assets/simulapool-dark.png";
-import { useTheme } from "next-themes";
+import simulapoolIcon from "@/assets/simulapool-icon.png";
 
 const AdminSidebar = () => {
   const navigate = useNavigate();
-  const { resolvedTheme } = useTheme();
-  const currentLogo = resolvedTheme === "dark" ? logoDark : logoHorizontal;
   const location = useLocation();
   const { role } = useStoreData();
 
@@ -93,6 +89,10 @@ const AdminSidebar = () => {
     <Sidebar collapsible="offcanvas">
       <SidebarHeader className="border-b border-border/50">
         <div className="h-3 bg-white md:hidden" />
+        <div className="flex flex-col items-center gap-2 p-4">
+          <img src={simulapoolIcon} alt="SIMULAPOOL" className="h-14 w-14 object-contain" />
+          <span className="text-xs font-bold text-primary tracking-wider">SIMULAPOOL APP</span>
+        </div>
       </SidebarHeader>
 
       <SidebarContent>
