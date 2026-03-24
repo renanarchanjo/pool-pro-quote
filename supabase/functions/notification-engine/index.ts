@@ -434,14 +434,17 @@ serve(async (req) => {
       { auth: { persistSession: false } }
     );
 
-    const { periodo = "manual", tipo, userId } = await req.json().catch(() => ({}));
+    const { periodo = "manual", tipo, userId, leadCount } = await req.json().catch(() => ({}));
 
     // Modo manual: enviar notificação avulsa (ex: novo lead em tempo real)
     if (tipo === "lead_recebido" && userId) {
+      const count = leadCount || 1;
       const payload: NotificationPayload = {
         userId,
-        titulo: "📩 Novo lead recebido!",
-        mensagem: "Você recebeu um novo lead. Acesse o painel para visualizar.",
+        titulo: count > 1 ? `📩 ${count} novos leads recebidos!` : "📩 Novo lead recebido!",
+        mensagem: count > 1
+          ? `Você recebeu ${count} novos leads. Acesse o painel para visualizar e aceitar.`
+          : "Você recebeu um novo lead. Acesse o painel para visualizar e aceitar.",
         prioridade: "URGENTE",
         alertType: "lead_recebido",
       };
