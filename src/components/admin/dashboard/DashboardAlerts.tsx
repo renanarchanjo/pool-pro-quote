@@ -153,7 +153,7 @@ const DashboardAlerts = ({ proposals, onSelectProposal }: Props) => {
                   </div>
                 ) : (
                   <div className="space-y-1 mt-3">
-                    {section.items.map((p) => renderItem(p as any, section))}
+                    {section.items.map((p) => renderItem(p, section.renderValue))}
                   </div>
                 )}
               </CardContent>
