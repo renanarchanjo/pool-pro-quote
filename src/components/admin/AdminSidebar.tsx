@@ -1,7 +1,7 @@
 import { useNavigate, useLocation } from "react-router-dom";
 import ThemeToggle from "@/components/ThemeToggle";
 import { 
-  LayoutDashboard, FilePlus, Tag, Box, Package, User, Users, LogOut, UsersRound, CreditCard
+  LayoutDashboard, FilePlus, Tag, Box, Package, User, Users, LogOut, UsersRound, CreditCard, Receipt
 } from "lucide-react";
 import {
   Sidebar,
@@ -61,6 +61,7 @@ const AdminSidebar = () => {
 
   const accountItems = [
     { title: "Meu Perfil", url: "/admin/perfil", icon: User },
+    { title: "Faturas", url: "/admin/faturas", icon: Receipt },
     ...(isOwner ? [
       { title: "Equipe", url: "/admin/equipe", icon: UsersRound },
       { title: "Assinatura", url: "/admin/assinatura", icon: CreditCard },

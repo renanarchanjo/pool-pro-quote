@@ -15,6 +15,7 @@ import StoresManager from "@/components/admin/StoresManager";
 import TeamManager from "@/components/admin/TeamManager";
 import SubscriptionManager from "@/components/admin/SubscriptionManager";
 import AdminLeads from "@/components/admin/AdminLeads";
+import InvoiceHistory from "@/components/admin/InvoiceHistory";
 import { useStoreData } from "@/hooks/useStoreData";
 import PendingLeadsAlert from "@/components/admin/PendingLeadsAlert";
 
@@ -81,6 +82,7 @@ const Admin = () => {
               <Route index element={<AdminDashboard />} />
               <Route path="gerar-proposta" element={<ManualProposal />} />
               <Route path="leads" element={<AdminLeads />} />
+              <Route path="faturas" element={<InvoiceHistory />} />
               <Route path="perfil" element={<AdminProfile />} />
               {/* Owner-only routes */}
               {isOwner && (
