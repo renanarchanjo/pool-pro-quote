@@ -21,7 +21,7 @@ import {
 import { format, startOfDay, endOfDay, subDays, startOfWeek, startOfMonth, endOfMonth, subMonths, subWeeks } from "date-fns";
 import { ptBR } from "date-fns/locale";
 
-type SortMode = "valor" | "probabilidade" | "tempo";
+type SortMode = "recente" | "valor" | "probabilidade" | "tempo";
 
 interface Props {
   proposals: Proposal[];
