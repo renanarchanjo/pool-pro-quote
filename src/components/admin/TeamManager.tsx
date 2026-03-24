@@ -457,6 +457,61 @@ const TeamManager = () => {
           );
         })}
       </div>
+
+      {/* Dialog para escolher quantidade de colaboradores extras */}
+      <Dialog open={showExtraDialog} onOpenChange={(open) => { setShowExtraDialog(open); if (!open) setExtraQuantity(1); }}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Contratar Colaboradores Extras</DialogTitle>
+            <DialogDescription>
+              Escolha quantos colaboradores extras deseja adicionar à sua equipe. Cada colaborador custa <strong>R$ 14,90/mês</strong>.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="flex flex-col items-center gap-4 py-4">
+            <div className="flex items-center gap-4">
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={() => setExtraQuantity(Math.max(1, extraQuantity - 1))}
+                disabled={extraQuantity <= 1}
+              >
+                <Minus className="w-4 h-4" />
+              </Button>
+              <span className="text-4xl font-bold w-16 text-center">{extraQuantity}</span>
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={() => setExtraQuantity(Math.min(20, extraQuantity + 1))}
+                disabled={extraQuantity >= 20}
+              >
+                <Plus className="w-4 h-4" />
+              </Button>
+            </div>
+            <p className="text-sm text-muted-foreground">
+              {extraQuantity} colaborador{extraQuantity > 1 ? "es" : ""} × R$ 14,90 = <strong>R$ {(extraQuantity * 14.9).toFixed(2).replace(".", ",")}/mês</strong>
+            </p>
+          </div>
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowExtraDialog(false)}>
+              Cancelar
+            </Button>
+            <Button
+              onClick={handleExtraMemberCheckout}
+              disabled={checkoutLoading}
+              className="gradient-primary text-white"
+            >
+              {checkoutLoading ? (
+                <Loader2 className="w-4 h-4 animate-spin mr-2" />
+              ) : (
+                <ExternalLink className="w-4 h-4 mr-2" />
+              )}
+              Ir para Pagamento
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
