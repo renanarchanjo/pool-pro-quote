@@ -22,6 +22,7 @@ interface PoolModel {
   id: string;
   name: string;
   category_id: string;
+  store_id: string | null;
   length: number | null;
   width: number | null;
   depth: number | null;
@@ -158,6 +159,11 @@ const PoolSimulator = ({ onBack }: PoolSimulatorProps) => {
   };
 
   const handleModelSelect = (model: PoolModel) => {
+    if (!storeId && model.store_id) {
+      setStoreId(model.store_id);
+      loadStoreData(model.store_id);
+    }
+
     setSelectedModel(model);
     setStep(2);
   };
@@ -169,6 +175,13 @@ const PoolSimulator = ({ onBack }: PoolSimulatorProps) => {
 
   const handleCustomerSubmit = async (data: CustomerData) => {
     if (!selectedModel) return;
+
+    const targetStoreId = storeId ?? selectedModel.store_id;
+
+    if (!targetStoreId) {
+      toast.error("Não foi possível identificar a loja da proposta");
+      return;
+    }
 
     try {
       const optionalsPrice = optionals
@@ -190,7 +203,7 @@ const PoolSimulator = ({ onBack }: PoolSimulatorProps) => {
           model_id: selectedModel.id,
           selected_optionals: selectedOptionals,
           total_price: totalPrice,
-          store_id: storeId,
+          store_id: targetStoreId,
         })
         .select()
         .single();
