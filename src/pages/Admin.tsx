@@ -68,15 +68,15 @@ const Admin = () => {
 
   return (
     <SidebarProvider>
-      <div className="min-h-screen flex w-full bg-muted/30">
+      <div className="min-h-screen flex w-full bg-muted/30 overflow-x-hidden">
         <AdminSidebar />
-        <div className="flex-1 flex flex-col">
+        <div className="flex-1 flex flex-col min-w-0">
           <div className="h-3 bg-background md:hidden" />
           <header className="h-14 md:h-14 min-h-[3.5rem] flex items-center border-b border-border/50 bg-background px-4 mobile-matriz-header">
             <SidebarTrigger className="min-w-[56px] min-h-[56px] flex items-center justify-center [&>svg]:!w-8 [&>svg]:!h-8 md:min-w-0 md:min-h-0 md:[&>svg]:!w-5 md:[&>svg]:!h-5 text-primary" />
             <span className="ml-3 text-sm font-medium text-primary md:hidden">{store?.name || "Painel"}</span>
           </header>
-          <main className="flex-1 p-3 md:p-6 overflow-auto safe-area-bottom">
+          <main className="flex-1 p-3 md:p-6 overflow-x-hidden overflow-y-auto safe-area-bottom">
             <PendingLeadsAlert />
             <Routes>
               <Route index element={<AdminDashboard />} />

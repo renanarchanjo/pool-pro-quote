@@ -105,6 +105,11 @@
     @apply border-border;
   }
 
+  html, body, #root {
+    max-width: 100vw;
+    overflow-x: hidden;
+  }
+
   body {
     @apply bg-background text-foreground;
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
@@ -301,6 +306,17 @@
     height: 4.5rem;
     min-height: 4.5rem;
     padding-top: var(--safe-area-top);
+  }
+
+  /* Prevent horizontal overflow globally */
+  * {
+    max-width: 100%;
+  }
+
+  table {
+    max-width: 100%;
+    display: block;
+    overflow-x: auto;
   }
 
   /* Global mobile typography scaling */
