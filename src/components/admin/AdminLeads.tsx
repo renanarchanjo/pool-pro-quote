@@ -7,7 +7,8 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Loader2, Lock, CheckCircle, AlertTriangle, Copy, Package, XCircle, CheckCheck, Eye, FileDown, ExternalLink, Check, Radio, CreditCard } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Loader2, Lock, CheckCircle, AlertTriangle, Copy, Package, XCircle, CheckCheck, Eye, FileDown, ExternalLink, Check, Radio, CreditCard, Users } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -49,6 +50,8 @@ const AdminLeads = () => {
   const [loadingProposal, setLoadingProposal] = useState(false);
   const [leadSubActive, setLeadSubActive] = useState<boolean | null>(null);
   const [checkoutLoading, setCheckoutLoading] = useState(false);
+  const [filterUser, setFilterUser] = useState<string>("all");
+  const [teamMembers, setTeamMembers] = useState<{ id: string; full_name: string | null }[]>([]);
 
   // Check if lead plan subscription is paid (or manually activated)
   useEffect(() => {
@@ -93,7 +96,7 @@ const AdminLeads = () => {
   const loadData = async () => {
     if (!store) return;
     setLoading(true);
-    const [leadsRes, storeRes] = await Promise.all([
+    const [leadsRes, storeRes, teamRes] = await Promise.all([
       (supabase as any)
         .from("lead_distributions")
         .select("*, proposals(customer_name, customer_city, customer_whatsapp, total_price, created_at, pool_models(name)), accepted_by_profile:profiles!accepted_by(full_name)")
@@ -104,9 +107,14 @@ const AdminLeads = () => {
         .select("lead_limit_monthly, lead_price_excess, lead_plan_active")
         .eq("id", store.id)
         .single(),
+      supabase
+        .from("profiles")
+        .select("id, full_name")
+        .eq("store_id", store.id),
     ]);
     if (leadsRes.data) setLeads(leadsRes.data);
     if (storeRes.data) setStoreInfo(storeRes.data);
+    if (teamRes.data) setTeamMembers(teamRes.data);
     setLoading(false);
   };
 
@@ -211,7 +219,11 @@ const AdminLeads = () => {
   };
 
   const pendingLeads = leads.filter(l => l.status === "pending" && l.proposals != null);
-  const validLeads = leads.filter(l => l.proposals != null);
+  const validLeads = leads.filter(l => {
+    if (!l.proposals) return false;
+    if (filterUser !== "all" && l.accepted_by !== filterUser) return false;
+    return true;
+  });
 
   const toggleSelect = (id: string) => {
     setSelectedIds(prev => {
@@ -407,7 +419,25 @@ const AdminLeads = () => {
 
       {/* Table */}
       <Card>
-        <CardHeader className="pb-2 px-3 md:px-6"><CardTitle className="text-sm md:text-base">Leads Recebidos ({validLeads.length})</CardTitle></CardHeader>
+        <CardHeader className="pb-2 px-3 md:px-6 flex flex-row items-center justify-between gap-2">
+          <CardTitle className="text-sm md:text-base">Leads Recebidos ({validLeads.length})</CardTitle>
+          {teamMembers.length > 1 && (
+            <Select value={filterUser} onValueChange={setFilterUser}>
+              <SelectTrigger className="w-[180px] h-8 text-xs">
+                <Users className="w-3.5 h-3.5 mr-1.5 text-muted-foreground" />
+                <SelectValue placeholder="Filtrar por usuário" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todos da equipe</SelectItem>
+                {teamMembers.map(m => (
+                  <SelectItem key={m.id} value={m.id}>
+                    {m.full_name || "Sem nome"}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
+        </CardHeader>
         <CardContent className="p-0">
           {validLeads.length === 0 ? (
             <div className="text-center py-12 text-muted-foreground">
