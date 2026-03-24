@@ -20,6 +20,7 @@ export interface Proposal {
     included_items: string[];
     not_included_items: string[];
     base_price: number;
+    cost: number | null;
     delivery_days: number;
     installation_days: number;
     payment_terms: string | null;
