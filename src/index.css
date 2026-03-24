@@ -308,6 +308,17 @@
     padding-top: var(--safe-area-top);
   }
 
+  /* Prevent horizontal overflow globally */
+  * {
+    max-width: 100%;
+  }
+
+  table {
+    max-width: 100%;
+    display: block;
+    overflow-x: auto;
+  }
+
   /* Global mobile typography scaling */
   html {
     -webkit-text-size-adjust: 100%;
