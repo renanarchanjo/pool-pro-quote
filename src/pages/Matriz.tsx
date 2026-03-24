@@ -7,6 +7,7 @@ import MatrizSidebar from "@/components/matriz/MatrizSidebar";
 import MatrizDashboard from "@/components/matriz/MatrizDashboard";
 import MatrizStores from "@/components/matriz/MatrizStores";
 import MatrizPayments from "@/components/matriz/MatrizPayments";
+import PartnersManager from "@/components/matriz/PartnersManager";
 
 const Matriz = () => {
   const [loading, setLoading] = useState(true);
