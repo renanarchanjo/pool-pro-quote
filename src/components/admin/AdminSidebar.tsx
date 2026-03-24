@@ -19,14 +19,10 @@ import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useStoreData } from "@/hooks/useStoreData";
-import logoHorizontal from "@/assets/simulapool-horizontal.png";
-import logoDark from "@/assets/simulapool-dark.png";
-import { useTheme } from "next-themes";
+import simulapoolIcon from "@/assets/simulapool-icon.png";
 
 const AdminSidebar = () => {
   const navigate = useNavigate();
-  const { resolvedTheme } = useTheme();
-  const currentLogo = resolvedTheme === "dark" ? logoDark : logoHorizontal;
   const location = useLocation();
   const { role } = useStoreData();
 
