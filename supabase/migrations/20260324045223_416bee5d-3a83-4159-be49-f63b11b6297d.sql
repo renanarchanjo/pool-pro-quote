@@ -1,0 +1,1 @@
+DELETE FROM notification_logs WHERE id = 'a26b4331-f4b7-429b-9ba9-0b68c13a89e9';
