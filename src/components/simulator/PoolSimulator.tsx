@@ -96,6 +96,7 @@ const PoolSimulator = ({ onBack }: PoolSimulatorProps) => {
   const [storeSettings, setStoreSettings] = useState<any>(null);
   const [storeCity, setStoreCity] = useState<string | null>(null);
   const [storeState, setStoreState] = useState<string | null>(null);
+  const [partners, setPartners] = useState<Partner[]>([]);
 
   const loadStoreData = async (sid: string) => {
     try {
