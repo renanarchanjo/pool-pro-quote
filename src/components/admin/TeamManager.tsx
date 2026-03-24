@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useStoreData } from "@/hooks/useStoreData";
 import { toast } from "sonner";
-import { Loader2, Plus, Trash2, UserPlus, Shield, Eye, EyeOff, Pencil, AlertTriangle, Users } from "lucide-react";
+import { Loader2, Plus, Trash2, UserPlus, Shield, Eye, EyeOff, Pencil, AlertTriangle, Users, CreditCard, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -35,6 +35,7 @@ const TeamManager = () => {
   const [members, setMembers] = useState<TeamMember[]>([]);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+  const [checkoutLoading, setCheckoutLoading] = useState(false);
   const [showForm, setShowForm] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [editingRole, setEditingRole] = useState<string | null>(null);
@@ -223,6 +224,22 @@ const TeamManager = () => {
     );
   }
 
+  const handleExtraMemberCheckout = async () => {
+    try {
+      setCheckoutLoading(true);
+      const { data, error } = await supabase.functions.invoke("create-member-checkout", {
+        body: { quantity: 1 },
+      });
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+      if (data?.url) window.open(data.url, "_blank");
+    } catch (err: any) {
+      toast.error(err.message || "Erro ao iniciar checkout");
+    } finally {
+      setCheckoutLoading(false);
+    }
+  };
+
   const isAtLimit = members.length >= maxMembers;
 
   return (
@@ -232,29 +249,53 @@ const TeamManager = () => {
           <h2 className="text-2xl font-bold">Equipe</h2>
           <p className="text-muted-foreground text-sm">Gerencie os membros da sua loja</p>
         </div>
-        <Button
-          onClick={() => setShowForm(!showForm)}
-          className="gradient-primary text-white"
-          disabled={isAtLimit}
-        >
-          <UserPlus className="w-4 h-4 mr-2" />
-          Novo Membro
-        </Button>
+        {!isAtLimit ? (
+          <Button
+            onClick={() => setShowForm(!showForm)}
+            className="gradient-primary text-white"
+          >
+            <UserPlus className="w-4 h-4 mr-2" />
+            Novo Membro
+          </Button>
+        ) : (
+          <Button
+            onClick={handleExtraMemberCheckout}
+            disabled={checkoutLoading}
+            className="bg-amber-600 hover:bg-amber-700 text-white"
+          >
+            {checkoutLoading ? (
+              <Loader2 className="w-4 h-4 animate-spin mr-2" />
+            ) : (
+              <CreditCard className="w-4 h-4 mr-2" />
+            )}
+            Contratar Colaborador Extra
+          </Button>
+        )}
       </div>
 
       {/* Limit warning */}
-      <Alert className="border-amber-500/50 bg-amber-500/5">
-        <AlertTriangle className="h-4 w-4 text-amber-500" />
-        <AlertDescription className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-          <span className="font-medium text-amber-700 text-sm">
-            LIMITE DO PLANO: {maxMembers} USUÁRIO{maxMembers > 1 ? "S" : ""}
-          </span>
-          <span className="text-sm">
-            <Users className="w-4 h-4 inline mr-1" />
-            {members.length}/{maxMembers} utilizados
-          </span>
-        </AlertDescription>
-      </Alert>
+      {isAtLimit ? (
+        <Alert className="border-amber-500/50 bg-amber-500/5">
+          <AlertTriangle className="h-4 w-4 text-amber-500" />
+          <AlertDescription className="flex flex-col gap-2">
+            <span className="font-medium text-amber-700 text-sm">
+              LIMITE ATINGIDO: {maxMembers} COLABORADOR{maxMembers > 1 ? "ES" : ""}
+            </span>
+            <span className="text-sm text-muted-foreground">
+              Para adicionar mais membros, contrate colaboradores extras por <strong>R$ 14,90/mês</strong> cada.
+            </span>
+          </AlertDescription>
+        </Alert>
+      ) : (
+        <Alert className="border-muted bg-muted/30">
+          <Users className="h-4 w-4 text-muted-foreground" />
+          <AlertDescription className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <span className="text-sm text-muted-foreground">
+              {members.length}/{maxMembers} colaboradores utilizados
+            </span>
+          </AlertDescription>
+        </Alert>
+      )}
 
       {showForm && (
         <Card>
