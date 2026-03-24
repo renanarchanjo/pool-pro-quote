@@ -47,7 +47,7 @@ const BENEFITS = [
   },
 ];
 
-const WHATSAPP_NUMBER = "5511999999999";
+const WHATSAPP_NUMBER = "5543999913065";
 const WHATSAPP_MESSAGE = encodeURIComponent(
   "Olá! Tenho interesse em ser parceiro SIMULAPOOL. Gostaria de saber mais sobre os planos de parceria."
 );
