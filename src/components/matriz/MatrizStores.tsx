@@ -151,6 +151,20 @@ const MatrizStores = () => {
     }
   };
 
+  const handleToggleLeadPlan = async (storeId: string, active: boolean) => {
+    try {
+      const { error } = await supabase
+        .from("stores")
+        .update({ lead_plan_active: active })
+        .eq("id", storeId);
+      if (error) throw error;
+      toast.success(active ? "Distribuição de leads habilitada!" : "Distribuição de leads desabilitada");
+      loadStores();
+    } catch (err: any) {
+      toast.error("Erro ao alterar: " + (err.message || "Tente novamente"));
+    }
+  };
+
   const filtered = stores.filter((s) => {
     const matchSearch = s.name.toLowerCase().includes(search.toLowerCase()) ||
       (s.city || "").toLowerCase().includes(search.toLowerCase()) ||
