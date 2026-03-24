@@ -94,8 +94,6 @@ export function useOneSignal() {
         try {
           await OneSignal.init({
             appId: ONESIGNAL_APP_ID,
-            serviceWorkerParam: { scope: "/" },
-            serviceWorkerPath: "/OneSignalSDKWorker.js",
             notifyButton: { enable: false },
             allowLocalhostAsSecureOrigin: false,
           });
@@ -106,11 +104,23 @@ export function useOneSignal() {
           if (perm !== undefined) {
             setPermission(perm ? "granted" : Notification.permission === "denied" ? "denied" : "default");
           }
-        } catch (err) {
-          window.clearTimeout(timeout);
-          setLoading(false);
-          setStatusMessage("Falha ao inicializar notificações neste dispositivo.");
+        } catch (err: any) {
           console.error("OneSignal init error:", err);
+          // If init fails, retry once without SW params
+          try {
+            await OneSignal.init({
+              appId: ONESIGNAL_APP_ID,
+              notifyButton: { enable: false },
+            });
+            window.clearTimeout(timeout);
+            setInitialized(true);
+            setStatusMessage("");
+          } catch (retryErr) {
+            window.clearTimeout(timeout);
+            setLoading(false);
+            setStatusMessage("Falha ao inicializar notificações. Recarregue a página e tente novamente.");
+            console.error("OneSignal retry error:", retryErr);
+          }
         }
       });
     };
