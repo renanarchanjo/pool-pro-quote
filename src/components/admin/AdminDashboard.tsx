@@ -23,10 +23,11 @@ const AdminDashboard = () => {
   const reportRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    loadData();
-  }, []);
+    if (store) loadData();
+  }, [store]);
 
   const loadData = async () => {
+    if (!store) return;
     try {
       const { data, error } = await supabase
         .from("proposals")
@@ -36,6 +37,7 @@ const AdminDashboard = () => {
           pool_models (name, length, width, depth, photo_url, differentials, included_items, not_included_items, base_price, delivery_days, installation_days, payment_terms, notes, category_id),
           stores (name)
         `)
+        .eq("store_id", store.id)
         .order("created_at", { ascending: false });
 
       if (error) throw error;
