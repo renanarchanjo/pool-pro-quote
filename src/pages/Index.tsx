@@ -67,7 +67,7 @@ const Index = () => {
             </Button>
 
             <p className="mt-4 md:mt-6 text-xs md:text-sm text-muted-foreground">
-              • ✓ 100% gratuito • ✓ Orçamento pronto em segundos
+               • ✓ 100% gratuito • ✓ Orçamento pronto em segundos
             </p>
           </div>
 
