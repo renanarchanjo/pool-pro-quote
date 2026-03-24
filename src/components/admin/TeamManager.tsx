@@ -575,6 +575,10 @@ const TeamManager = () => {
         <TabsContent value="performance" className="mt-4">
           <TeamPerformance />
         </TabsContent>
+
+        <TabsContent value="comissao" className="mt-4">
+          <TeamCommissions />
+        </TabsContent>
       </Tabs>
     </div>
   );
