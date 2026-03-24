@@ -130,13 +130,16 @@ const MatrizLeads = () => {
     if (error) {
       toast.error("Erro ao distribuir leads");
     } else {
+      const storeName = stores.find(s => s.id === targetStoreId)?.name || "Lojista";
+      const count = selectedLeads.size;
+
       // Insert logs
       const logs = Array.from(selectedLeads).map(proposalId => ({
         proposal_id: proposalId,
         store_id: targetStoreId,
         action: "distributed",
         performed_by: user.id,
-        details: { count: selectedLeads.size },
+        details: { count },
       }));
       await (supabase as any).from("lead_logs").insert(logs);
 
@@ -147,24 +150,24 @@ const MatrizLeads = () => {
         .eq("store_id", targetStoreId);
 
       if (storeOwners?.length) {
-        const leadCount = selectedLeads.size;
         await Promise.all(
           storeOwners.map((owner) =>
             supabase.functions.invoke("notification-engine", {
               body: {
                 tipo: "lead_recebido",
                 userId: owner.id,
-                leadCount,
+                leadCount: count,
               },
             }).catch((err: any) => console.error("Push notification error:", err))
           )
         );
       }
 
-      toast.success(`${selectedLeads.size} lead(s) distribuído(s) com sucesso!`);
       setSelectedLeads(new Set());
       setShowDistributeDialog(false);
       setTargetStoreId("");
+      setSuccessInfo({ count, storeName });
+      setShowSuccessDialog(true);
       loadData();
     }
     setDistributing(false);
