@@ -234,8 +234,8 @@ const TeamPerformance = () => {
   }
 
   return (
-    <div ref={reportRef} className="space-y-4">
-      {/* Header with date filter */}
+    <div className="space-y-4">
+      {/* Header with controls - excluded from PDF */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
           <h3 className="text-lg font-bold">Performance da Equipe</h3>
@@ -281,6 +281,9 @@ const TeamPerformance = () => {
           </Popover>
         </div>
       </div>
+
+      {/* Printable content */}
+      <div ref={reportRef} className="space-y-4">
 
       {/* Team KPIs */}
       <div className="grid grid-cols-2 lg:grid-cols-5 gap-2">
