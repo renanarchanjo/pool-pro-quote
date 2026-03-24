@@ -116,8 +116,8 @@ const AdminDashboard = () => {
   }
 
   return (
-    <div className="space-y-4 md:space-y-6" ref={reportRef}>
-      {/* Header */}
+    <div className="space-y-4 md:space-y-6">
+      {/* Header - excluded from PDF */}
       <div className="flex items-center justify-between gap-3">
         <div className="min-w-0 flex-1">
           <p className="text-muted-foreground text-xs sm:text-sm truncate">
@@ -125,7 +125,7 @@ const AdminDashboard = () => {
           </p>
           <h1 className="text-lg sm:text-xl md:text-3xl font-bold truncate">Painel Comercial</h1>
         </div>
-        <div className="flex gap-2 shrink-0 print:hidden">
+        <div className="flex gap-2 shrink-0">
           <PushNotificationButton />
           <Button onClick={handleExportPDF} variant="outline" size="sm" className="shrink-0 min-h-[44px] md:min-h-0">
             <Download className="w-4 h-4 mr-1 sm:mr-2" />
@@ -135,24 +135,38 @@ const AdminDashboard = () => {
         </div>
       </div>
 
-      {/* (A) KPIs */}
-      <div style={{ pageBreakInside: "avoid" }}>
-        <DashboardKPIs proposals={proposals} />
-      </div>
+      {/* Printable content */}
+      <div ref={reportRef} className="space-y-4 md:space-y-6">
+        {/* PDF header - only visible during export */}
+        <div className="hidden" data-pdf-header>
+          <p className="text-muted-foreground text-sm">
+            Olá, <span className="font-bold text-foreground">{profile?.full_name || "Lojista"}</span>
+          </p>
+          <h1 className="text-2xl font-bold">Painel Comercial</h1>
+          <p className="text-xs text-muted-foreground mt-1">
+            Gerado em {new Date().toLocaleDateString("pt-BR")} às {new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}
+          </p>
+        </div>
 
-      {/* (B) Funnel + (D) Alerts */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 md:gap-4" style={{ pageBreakInside: "avoid" }}>
-        <DashboardFunnel proposals={proposals} />
-        <DashboardAlerts proposals={proposals} onSelectProposal={setViewingProposal} />
-      </div>
+        {/* (A) KPIs */}
+        <div style={{ pageBreakInside: "avoid" }}>
+          <DashboardKPIs proposals={proposals} />
+        </div>
 
-      {/* (C) Pipeline */}
-      <DashboardPipeline
-        proposals={proposals}
-        onUpdateStatus={updateStatus}
-        onViewProposal={setViewingProposal}
-        onExportPDF={setViewingProposal}
-      />
+        {/* (B) Funnel + (D) Alerts */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 md:gap-4" style={{ pageBreakInside: "avoid" }}>
+          <DashboardFunnel proposals={proposals} />
+          <DashboardAlerts proposals={proposals} onSelectProposal={setViewingProposal} />
+        </div>
+
+        {/* (C) Pipeline */}
+        <DashboardPipeline
+          proposals={proposals}
+          onUpdateStatus={updateStatus}
+          onViewProposal={setViewingProposal}
+          onExportPDF={setViewingProposal}
+        />
+      </div>
 
       {/* Proposal Detail Dialog */}
       <Dialog open={!!viewingProposal} onOpenChange={(open) => !open && setViewingProposal(null)}>

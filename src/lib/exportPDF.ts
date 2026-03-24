@@ -24,8 +24,25 @@ export const exportPDF = async ({
   // Save original styles
   const originalStyle = element.style.cssText;
 
+  // Show hidden PDF headers, hide interactive elements
+  const pdfHeaders = element.querySelectorAll<HTMLElement>("[data-pdf-header]");
+  const interactiveEls = element.querySelectorAll<HTMLElement>("button, [data-no-pdf], select");
+  const hiddenOriginals: { el: HTMLElement; display: string }[] = [];
+
   try {
     toast.info("Gerando PDF...", { duration: 3000 });
+
+    // Show PDF-only headers
+    pdfHeaders.forEach((el) => {
+      hiddenOriginals.push({ el, display: el.style.display });
+      el.style.display = "block";
+    });
+
+    // Hide interactive elements
+    interactiveEls.forEach((el) => {
+      hiddenOriginals.push({ el, display: el.style.display });
+      el.style.display = "none";
+    });
 
     // Force print-friendly styles
     element.style.width = `${width}px`;
@@ -58,7 +75,11 @@ export const exportPDF = async ({
     console.error("Erro ao gerar PDF:", error);
     toast.error("Erro ao gerar PDF. Tente novamente.");
   } finally {
-    // Always restore original styles
+    // Restore original styles
     element.style.cssText = originalStyle;
+    // Restore hidden/shown elements
+    hiddenOriginals.forEach(({ el, display }) => {
+      el.style.display = display;
+    });
   }
 };
