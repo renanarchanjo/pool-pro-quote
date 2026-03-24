@@ -36,7 +36,7 @@ interface ReceivedLead {
 }
 
 const AdminLeads = () => {
-  const { store } = useStoreData();
+  const { store, storeSettings } = useStoreData();
   const [leads, setLeads] = useState<ReceivedLead[]>([]);
   const [loading, setLoading] = useState(true);
   const [accepting, setAccepting] = useState<string | null>(null);
