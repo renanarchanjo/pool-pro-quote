@@ -1,0 +1,16 @@
+{
+  "theme_color": "#0EA5E9",
+  "background_color": "#0EA5E9",
+  "description": "SIMULAPOOL - O jeito moderno de orçar piscinas",
+  "display": "standalone",
+  "icons": [
+    {
+      "src": "/favicon.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ],
+  "name": "SIMULAPOOL",
+  "short_name": "SIMULAPOOL",
+  "start_url": "/"
+}
