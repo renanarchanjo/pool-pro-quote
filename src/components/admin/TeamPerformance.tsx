@@ -223,7 +223,7 @@ const TeamPerformance = () => {
     el.style.width = "1100px";
 
     const dateText = dateLabel.replace(/\//g, "-");
-    await html2pdf().set({
+    await (html2pdf() as any).set({
       margin: [10, 10, 10, 10],
       filename: `Performance-Equipe-${dateText}.pdf`,
       image: { type: "jpeg", quality: 0.98 },
