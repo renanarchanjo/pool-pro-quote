@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useStoreData } from "@/hooks/useStoreData";
 import { toast } from "sonner";
-import html2pdf from "html2pdf.js";
+import { exportPDF } from "@/lib/exportPDF";
 import { Loader2, CalendarIcon, TrendingUp, TrendingDown, Trophy, Clock, Target, DollarSign, BarChart3, FileDown } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -217,23 +217,12 @@ const TeamPerformance = () => {
 
   const handleExportPDF = async () => {
     if (!reportRef.current) return;
-    toast.info("Gerando PDF...");
-    const el = reportRef.current;
-    const prevWidth = el.style.width;
-    el.style.width = "1100px";
-
     const dateText = dateLabel.replace(/\//g, "-");
-    await (html2pdf() as any).set({
-      margin: [10, 10, 10, 10],
+    await exportPDF({
+      element: reportRef.current,
       filename: `Performance-Equipe-${dateText}.pdf`,
-      image: { type: "jpeg", quality: 0.98 },
-      html2canvas: { scale: 2, useCORS: true, backgroundColor: "#ffffff" },
-      jsPDF: { unit: "mm", format: "a4", orientation: "landscape" },
-      pagebreak: { mode: ["avoid-all", "css", "legacy"] },
-    }).from(el).save();
-
-    el.style.width = prevWidth;
-    toast.success("PDF exportado!");
+      orientation: "landscape",
+    });
   };
 
   if (loading) {

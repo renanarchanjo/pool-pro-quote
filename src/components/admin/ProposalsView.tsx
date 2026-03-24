@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Loader2, Download, Search, FileText, Phone, MapPin, Calendar } from "lucide-react";
 import { toast } from "sonner";
-import html2pdf from "html2pdf.js";
+import { exportPDF } from "@/lib/exportPDF";
 
 interface Proposal {
   id: string;
@@ -96,21 +96,12 @@ const ProposalsView = () => {
 
   const handleExportPDF = async () => {
     if (!reportRef.current) return;
-    toast.info("Gerando PDF...");
-    try {
-      await html2pdf()
-        .set({
-          margin: 10,
-          filename: `relatorio-propostas-${new Date().toISOString().split("T")[0]}.pdf`,
-          html2canvas: { scale: 2 },
-          jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
-        })
-        .from(reportRef.current)
-        .save();
-      toast.success("PDF exportado com sucesso!");
-    } catch {
-      toast.error("Erro ao gerar PDF");
-    }
+    await exportPDF({
+      element: reportRef.current,
+      filename: `relatorio-propostas-${new Date().toISOString().split("T")[0]}.pdf`,
+      orientation: "portrait",
+      captureWidth: 800,
+    });
   };
 
   const handleWhatsApp = (p: Proposal) => {

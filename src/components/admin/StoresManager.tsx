@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Loader2, Download, Search, Store, MapPin, Calendar, Filter, X } from "lucide-react";
 import { toast } from "sonner";
-import html2pdf from "html2pdf.js";
+import { exportPDF } from "@/lib/exportPDF";
 
 interface StoreRow {
   id: string;
@@ -107,21 +107,12 @@ const StoresManager = () => {
 
   const handleExportPDF = async () => {
     if (!reportRef.current) return;
-    toast.info("Gerando relatório...");
-    try {
-      await html2pdf()
-        .set({
-          margin: 10,
-          filename: `relatorio-lojas-${new Date().toISOString().split("T")[0]}.pdf`,
-          html2canvas: { scale: 2 },
-          jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
-        })
-        .from(reportRef.current)
-        .save();
-      toast.success("Relatório exportado!");
-    } catch {
-      toast.error("Erro ao gerar PDF");
-    }
+    await exportPDF({
+      element: reportRef.current,
+      filename: `relatorio-lojas-${new Date().toISOString().split("T")[0]}.pdf`,
+      orientation: "portrait",
+      captureWidth: 800,
+    });
   };
 
   if (loading) {

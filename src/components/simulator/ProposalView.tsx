@@ -2,7 +2,7 @@ import { useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { FileDown, ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
-import html2pdf from "html2pdf.js";
+import { exportPDF } from "@/lib/exportPDF";
 
 interface PoolModel {
   name: string;
@@ -71,37 +71,16 @@ const ProposalView = ({
   // Removed WhatsApp and email send functions - lead only gets PDF download and view
 
   const handleDownloadPDF = async () => {
-    try {
-      toast.info("Gerando PDF...", { duration: 2000 });
-      const element = document.getElementById("proposal-content");
-      if (!element) return;
+    const element = document.getElementById("proposal-content");
+    if (!element) return;
 
-      // Temporarily force a fixed width for consistent PDF rendering
-      const originalStyle = element.style.cssText;
-      element.style.width = "800px";
-      element.style.maxWidth = "800px";
-      element.style.padding = "32px";
-      element.style.margin = "0";
-
-      await html2pdf()
-        .set({
-          margin: [8, 8, 8, 8],
-          filename: `Proposta-${customerData.name.trim().replace(/\s+/g, "-")}-${today.replace(/\//g, "-")}.pdf`,
-          image: { type: "jpeg", quality: 0.98 },
-          html2canvas: { scale: 2, useCORS: true, width: 800, windowWidth: 800 },
-          jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
-        } as any)
-        .from(element)
-        .save();
-
-      // Restore original style
-      element.style.cssText = originalStyle;
-
-      toast.success("PDF baixado com sucesso!");
-    } catch (error) {
-      console.error("Erro ao gerar PDF:", error);
-      toast.error("Erro ao gerar PDF");
-    }
+    const nameSlug = customerData.name.trim().replace(/\s+/g, "-");
+    await exportPDF({
+      element,
+      filename: `Proposta-${nameSlug}-${today.replace(/\//g, "-")}.pdf`,
+      orientation: "portrait",
+      captureWidth: 800,
+    });
   };
 
   const storeLocation = [storeCity, storeState].filter(Boolean).join(" / ");
