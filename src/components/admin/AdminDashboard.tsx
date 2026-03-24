@@ -102,15 +102,27 @@ const AdminDashboard = () => {
     if (!reportRef.current) return;
     toast.info("Gerando PDF...");
     try {
+      // Temporarily set print-friendly styles
+      const el = reportRef.current;
+      const originalStyle = el.style.cssText;
+      el.style.width = "1100px";
+      el.style.maxWidth = "1100px";
+      el.style.padding = "24px";
+      el.style.background = "white";
+
       await html2pdf()
         .set({
-          margin: 10,
+          margin: [10, 10, 10, 10],
           filename: `relatorio-propostas-${new Date().toISOString().split("T")[0]}.pdf`,
-          html2canvas: { scale: 2 },
+          image: { type: "jpeg", quality: 0.95 },
+          html2canvas: { scale: 2, useCORS: true, width: 1100, windowWidth: 1100, backgroundColor: "#ffffff" },
           jsPDF: { unit: "mm", format: "a4", orientation: "landscape" },
-        })
-        .from(reportRef.current)
+          pagebreak: { mode: ["avoid-all", "css", "legacy"] },
+        } as any)
+        .from(el)
         .save();
+
+      el.style.cssText = originalStyle;
       toast.success("PDF exportado com sucesso!");
     } catch {
       toast.error("Erro ao gerar PDF");
