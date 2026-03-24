@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
-import { Loader2, Save, Settings, CreditCard, Users, FileText, Pencil } from "lucide-react";
+import { Loader2, Save, Settings, CreditCard, Users, FileText, Pencil, MapPin } from "lucide-react";
 import { toast } from "sonner";
 
 interface Plan {
