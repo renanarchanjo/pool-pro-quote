@@ -178,6 +178,7 @@ const ManualProposal = () => {
         selected_optionals: selectedOptionalIds,
         total_price: totalPrice,
         store_id: profile!.store_id!,
+        created_by: profile!.id,
       });
       if (error) throw error;
       toast.success("Proposta gerada com sucesso!");
