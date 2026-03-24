@@ -136,6 +136,48 @@
       hsl(199 80% 92%) 40%,
       hsl(199 70% 88%) 100%
     );
+    position: relative;
+  }
+
+  .bg-gradient-hero::before,
+  .bg-gradient-hero::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.35;
+  }
+
+  .bg-gradient-hero::before {
+    background:
+      radial-gradient(ellipse 120% 40% at 20% 60%, hsl(199 80% 85% / 0.6) 0%, transparent 70%),
+      radial-gradient(ellipse 100% 50% at 80% 40%, hsl(199 90% 88% / 0.5) 0%, transparent 60%);
+    animation: wave-drift 12s ease-in-out infinite alternate;
+  }
+
+  .bg-gradient-hero::after {
+    background:
+      radial-gradient(ellipse 140% 35% at 60% 70%, hsl(199 70% 82% / 0.4) 0%, transparent 65%),
+      radial-gradient(ellipse 80% 45% at 30% 30%, hsl(199 85% 90% / 0.5) 0%, transparent 60%);
+    animation: wave-drift-alt 15s ease-in-out infinite alternate;
+  }
+
+  @keyframes wave-drift {
+    0% {
+      transform: translateX(-3%) translateY(0%) scale(1);
+    }
+    100% {
+      transform: translateX(3%) translateY(-2%) scale(1.03);
+    }
+  }
+
+  @keyframes wave-drift-alt {
+    0% {
+      transform: translateX(2%) translateY(1%) scale(1.02);
+    }
+    100% {
+      transform: translateX(-2%) translateY(-1%) scale(1);
+    }
   }
 
   .gradient-pool {
