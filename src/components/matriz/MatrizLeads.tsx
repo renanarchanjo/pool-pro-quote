@@ -336,8 +336,8 @@ const MatrizLeads = () => {
                         <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setViewingLead(lead)}>
                           <Eye className="w-4 h-4" />
                         </Button>
-                        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleWhatsApp(lead)}>
-                          <Phone className="w-4 h-4 text-emerald-600" />
+                        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleCopyPhone(lead)}>
+                          <Copy className="w-4 h-4 text-muted-foreground" />
                         </Button>
                         <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => setDeletingLead(lead)}>
                           <Trash2 className="w-4 h-4" />
