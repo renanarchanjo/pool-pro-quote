@@ -75,6 +75,22 @@ const AdminDashboard = () => {
     try {
       const { error } = await supabase.from("proposals").update({ status: newStatus }).eq("id", id);
       if (error) throw error;
+
+      // Log status change as a note
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user && store) {
+        const oldProposal = proposals.find(p => p.id === id);
+        const oldLabel = oldProposal ? (STATUS_CONFIG[oldProposal.status]?.label || oldProposal.status) : "?";
+        const newLabel = STATUS_CONFIG[newStatus]?.label || newStatus;
+        await supabase.from("proposal_notes" as any).insert({
+          proposal_id: id,
+          store_id: store.id,
+          author_id: user.id,
+          content: `Status alterado: ${oldLabel} → ${newLabel}`,
+          note_type: "status_change",
+        } as any);
+      }
+
       setProposals((prev) => prev.map((p) => (p.id === id ? { ...p, status: newStatus } : p)));
       toast.success("Status atualizado");
     } catch {
