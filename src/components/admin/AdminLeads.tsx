@@ -4,8 +4,9 @@ import { useStoreData } from "@/hooks/useStoreData";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Loader2, Users, Lock, Unlock, CheckCircle, AlertTriangle, Copy, Package } from "lucide-react";
+import { Loader2, Lock, CheckCircle, AlertTriangle, Copy, Package, XCircle, CheckCheck } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -31,6 +32,8 @@ const AdminLeads = () => {
   const [leads, setLeads] = useState<ReceivedLead[]>([]);
   const [loading, setLoading] = useState(true);
   const [accepting, setAccepting] = useState<string | null>(null);
+  const [bulkProcessing, setBulkProcessing] = useState(false);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [storeInfo, setStoreInfo] = useState<{ lead_limit_monthly: number; lead_price_excess: number; lead_plan_active: boolean } | null>(null);
 
   const loadData = async () => {
@@ -83,6 +86,78 @@ const AdminLeads = () => {
     setAccepting(null);
   };
 
+  const handleReject = async (distId: string) => {
+    try {
+      const { error } = await supabase
+        .from("lead_distributions")
+        .update({ status: "rejected" })
+        .eq("id", distId);
+      if (error) throw error;
+      toast.success("Lead recusado");
+      loadData();
+    } catch (err: any) {
+      toast.error(err.message || "Erro ao recusar lead");
+    }
+  };
+
+  const handleBulkAccept = async () => {
+    if (selectedIds.size === 0) return;
+    setBulkProcessing(true);
+    let success = 0;
+    let failed = 0;
+    for (const id of selectedIds) {
+      try {
+        const { data, error } = await supabase.functions.invoke("accept-lead", {
+          body: { distribution_id: id },
+        });
+        if (error || data?.error) { failed++; continue; }
+        success++;
+      } catch { failed++; }
+    }
+    toast.success(`${success} lead(s) aceito(s)${failed > 0 ? `, ${failed} com erro` : ""}`);
+    setSelectedIds(new Set());
+    setBulkProcessing(false);
+    loadData();
+  };
+
+  const handleBulkReject = async () => {
+    if (selectedIds.size === 0) return;
+    setBulkProcessing(true);
+    try {
+      const ids = Array.from(selectedIds);
+      const { error } = await supabase
+        .from("lead_distributions")
+        .update({ status: "rejected" })
+        .in("id", ids);
+      if (error) throw error;
+      toast.success(`${ids.length} lead(s) recusado(s)`);
+    } catch (err: any) {
+      toast.error(err.message || "Erro ao recusar leads");
+    }
+    setSelectedIds(new Set());
+    setBulkProcessing(false);
+    loadData();
+  };
+
+  const pendingLeads = leads.filter(l => l.status === "pending" && l.proposals != null);
+  const validLeads = leads.filter(l => l.proposals != null);
+
+  const toggleSelect = (id: string) => {
+    setSelectedIds(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id); else next.add(id);
+      return next;
+    });
+  };
+
+  const toggleSelectAll = () => {
+    if (selectedIds.size === pendingLeads.length) {
+      setSelectedIds(new Set());
+    } else {
+      setSelectedIds(new Set(pendingLeads.map(l => l.id)));
+    }
+  };
+
   // Monthly stats
   const now = new Date();
   const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
@@ -94,6 +169,20 @@ const AdminLeads = () => {
   const maskName = (name: string) => name.length > 3 ? name.slice(0, 3) + "•••" : "•••";
   const maskPhone = () => "(••) •••••-••••";
   const formatCurrency = (v: number) => v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+
+  const statusLabel = (s: string) => {
+    if (s === "pending") return "Pendente";
+    if (s === "accepted") return "Aceito";
+    if (s === "rejected") return "Recusado";
+    return s;
+  };
+
+  const statusClass = (s: string) => {
+    if (s === "pending") return "bg-amber-500/10 text-amber-600 border-amber-500/20";
+    if (s === "accepted") return "bg-emerald-500/10 text-emerald-600 border-emerald-500/20";
+    if (s === "rejected") return "bg-red-500/10 text-red-600 border-red-500/20";
+    return "";
+  };
 
   if (loading) return <div className="flex items-center justify-center py-20"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
 
@@ -117,7 +206,7 @@ const AdminLeads = () => {
           <CardContent className="pt-4 pb-3">
             <p className="text-xs text-muted-foreground mb-1">Leads Recebidos</p>
             <p className="text-2xl font-bold">{leads.length}</p>
-            <p className="text-xs text-muted-foreground">{leads.filter(l => l.status === "pending").length} pendentes</p>
+            <p className="text-xs text-muted-foreground">{pendingLeads.length} pendentes</p>
           </CardContent>
         </Card>
         <Card>
@@ -147,11 +236,39 @@ const AdminLeads = () => {
         </div>
       )}
 
+      {/* Bulk Actions Bar */}
+      {selectedIds.size > 0 && (
+        <div className="flex items-center gap-3 bg-primary/5 border border-primary/20 rounded-lg p-3 animate-fade-in">
+          <span className="text-sm font-medium">{selectedIds.size} lead(s) selecionado(s)</span>
+          <div className="flex gap-2 ml-auto">
+            <Button
+              size="sm"
+              className="h-8 text-xs bg-emerald-600 hover:bg-emerald-700 text-white"
+              onClick={handleBulkAccept}
+              disabled={bulkProcessing}
+            >
+              {bulkProcessing ? <Loader2 className="w-3 h-3 animate-spin mr-1" /> : <CheckCheck className="w-3.5 h-3.5 mr-1" />}
+              Aceitar Selecionados
+            </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              className="h-8 text-xs border-red-500/30 text-red-600 hover:bg-red-50"
+              onClick={handleBulkReject}
+              disabled={bulkProcessing}
+            >
+              <XCircle className="w-3.5 h-3.5 mr-1" />
+              Recusar Selecionados
+            </Button>
+          </div>
+        </div>
+      )}
+
       {/* Table */}
       <Card>
-        <CardHeader className="pb-2"><CardTitle className="text-base">Leads Recebidos ({leads.length})</CardTitle></CardHeader>
+        <CardHeader className="pb-2"><CardTitle className="text-base">Leads Recebidos ({validLeads.length})</CardTitle></CardHeader>
         <CardContent className="p-0">
-          {leads.length === 0 ? (
+          {validLeads.length === 0 ? (
             <div className="text-center py-12 text-muted-foreground">
               <Package className="w-10 h-10 mx-auto mb-2 opacity-40" />
               <p>Nenhum lead recebido ainda</p>
@@ -161,6 +278,14 @@ const AdminLeads = () => {
             <Table>
               <TableHeader>
                 <TableRow>
+                  {pendingLeads.length > 0 && (
+                    <TableHead className="w-10">
+                      <Checkbox
+                        checked={selectedIds.size === pendingLeads.length && pendingLeads.length > 0}
+                        onCheckedChange={toggleSelectAll}
+                      />
+                    </TableHead>
+                  )}
                   <TableHead>Cliente</TableHead>
                   <TableHead>Cidade</TableHead>
                   <TableHead>Piscina</TableHead>
@@ -172,11 +297,21 @@ const AdminLeads = () => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {leads.filter(lead => lead.proposals != null).map(lead => {
+                {validLeads.map(lead => {
                   const p = lead.proposals;
                   const isPending = lead.status === "pending";
                   return (
-                    <TableRow key={lead.id}>
+                    <TableRow key={lead.id} className={selectedIds.has(lead.id) ? "bg-primary/5" : ""}>
+                      {pendingLeads.length > 0 && (
+                        <TableCell>
+                          {isPending ? (
+                            <Checkbox
+                              checked={selectedIds.has(lead.id)}
+                              onCheckedChange={() => toggleSelect(lead.id)}
+                            />
+                          ) : <span className="w-4" />}
+                        </TableCell>
+                      )}
                       <TableCell className="font-medium">{isPending ? maskName(p.customer_name) : p.customer_name}</TableCell>
                       <TableCell className="text-sm text-muted-foreground">{p.customer_city}</TableCell>
                       <TableCell className="text-sm">{p.pool_models?.name || "-"}</TableCell>
@@ -184,6 +319,8 @@ const AdminLeads = () => {
                       <TableCell className="text-sm">
                         {isPending ? (
                           <span className="flex items-center gap-1 text-muted-foreground"><Lock className="w-3 h-3" />{maskPhone()}</span>
+                        ) : lead.status === "rejected" ? (
+                          <span className="text-muted-foreground text-xs">—</span>
                         ) : (
                           <Button variant="ghost" size="sm" className="h-7 text-xs" onClick={() => { navigator.clipboard.writeText(p.customer_whatsapp); toast.success("Número copiado!"); }}>
                             <Copy className="w-3 h-3 mr-1" />{p.customer_whatsapp}
@@ -192,15 +329,20 @@ const AdminLeads = () => {
                       </TableCell>
                       <TableCell className="text-sm text-muted-foreground">{format(new Date(lead.created_at), "dd/MM/yy HH:mm", { locale: ptBR })}</TableCell>
                       <TableCell>
-                        <Badge variant="outline" className={isPending ? "bg-amber-500/10 text-amber-600 border-amber-500/20" : "bg-emerald-500/10 text-emerald-600 border-emerald-500/20"}>
-                          {isPending ? "Pendente" : "Aceito"}
+                        <Badge variant="outline" className={statusClass(lead.status)}>
+                          {statusLabel(lead.status)}
                         </Badge>
                       </TableCell>
                       <TableCell className="text-right">
                         {isPending ? (
-                          <Button size="sm" className="h-7 text-xs bg-emerald-600 hover:bg-emerald-700 text-white" onClick={() => handleAccept(lead.id)} disabled={accepting === lead.id}>
-                            {accepting === lead.id ? <Loader2 className="w-3 h-3 animate-spin" /> : <><CheckCircle className="w-3 h-3 mr-1" /> Aceitar</>}
-                          </Button>
+                          <div className="flex items-center justify-end gap-1">
+                            <Button size="sm" className="h-7 text-xs bg-emerald-600 hover:bg-emerald-700 text-white" onClick={() => handleAccept(lead.id)} disabled={accepting === lead.id || bulkProcessing}>
+                              {accepting === lead.id ? <Loader2 className="w-3 h-3 animate-spin" /> : <><CheckCircle className="w-3 h-3 mr-1" /> Aceitar</>}
+                            </Button>
+                            <Button size="sm" variant="ghost" className="h-7 text-xs text-red-500 hover:text-red-700 hover:bg-red-50" onClick={() => handleReject(lead.id)} disabled={bulkProcessing}>
+                              <XCircle className="w-3 h-3" />
+                            </Button>
+                          </div>
                         ) : (
                           <span className="text-xs text-muted-foreground">{lead.accepted_at ? format(new Date(lead.accepted_at), "dd/MM HH:mm") : ""}</span>
                         )}
