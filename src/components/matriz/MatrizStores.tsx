@@ -64,9 +64,9 @@ const MatrizStores = () => {
   }, []);
 
   const loadStores = async () => {
-    const { data } = await supabase
+    const { data } = await (supabase
       .from("stores")
-      .select("*, subscription_plans(name, price_monthly, slug)") as any
+      .select("*, subscription_plans(name, price_monthly, slug)") as any)
       .order("created_at", { ascending: false });
 
     setStores((data as any) || []);
