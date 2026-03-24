@@ -1,0 +1,1 @@
+ALTER TABLE public.lead_distributions ADD COLUMN accepted_by uuid DEFAULT NULL;

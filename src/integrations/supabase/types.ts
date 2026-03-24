@@ -103,6 +103,7 @@ export type Database = {
       lead_distributions: {
         Row: {
           accepted_at: string | null
+          accepted_by: string | null
           created_at: string | null
           distributed_by: string
           id: string
@@ -112,6 +113,7 @@ export type Database = {
         }
         Insert: {
           accepted_at?: string | null
+          accepted_by?: string | null
           created_at?: string | null
           distributed_by: string
           id?: string
@@ -121,6 +123,7 @@ export type Database = {
         }
         Update: {
           accepted_at?: string | null
+          accepted_by?: string | null
           created_at?: string | null
           distributed_by?: string
           id?: string
