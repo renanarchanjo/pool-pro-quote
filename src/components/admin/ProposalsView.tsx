@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { useStoreData } from "@/hooks/useStoreData";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -22,6 +23,7 @@ interface Proposal {
 }
 
 const ProposalsView = () => {
+  const { store } = useStoreData();
   const [proposals, setProposals] = useState<Proposal[]>([]);
   const [filtered, setFiltered] = useState<Proposal[]>([]);
   const [loading, setLoading] = useState(true);
@@ -29,8 +31,8 @@ const ProposalsView = () => {
   const reportRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    loadProposals();
-  }, []);
+    if (store) loadProposals();
+  }, [store]);
 
   useEffect(() => {
     if (!search.trim()) {
@@ -50,6 +52,7 @@ const ProposalsView = () => {
   }, [search, proposals]);
 
   const loadProposals = async () => {
+    if (!store) return;
     try {
       const { data, error } = await supabase
         .from("proposals")
@@ -59,6 +62,7 @@ const ProposalsView = () => {
           pool_models (name),
           stores (name)
         `)
+        .eq("store_id", store.id)
         .order("created_at", { ascending: false });
 
       if (error) throw error;
