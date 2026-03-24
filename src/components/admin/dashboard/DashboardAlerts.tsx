@@ -1,6 +1,7 @@
 import { Card, CardContent } from "@/components/ui/card";
-import { AlertTriangle, Clock, DollarSign, Flame } from "lucide-react";
-import { Proposal, daysSince, formatCurrency, STATUS_PROBABILITY } from "./types";
+import { Badge } from "@/components/ui/badge";
+import { AlertTriangle, Clock, DollarSign, Flame, MessageCircle, Phone } from "lucide-react";
+import { Proposal, daysSince, formatCurrency, STATUS_PROBABILITY, STATUS_CONFIG, getPriority, PRIORITY_CONFIG } from "./types";
 
 interface Props {
   proposals: Proposal[];
@@ -12,16 +13,19 @@ const DashboardAlerts = ({ proposals, onSelectProposal }: Props) => {
     (p) => p.status !== "fechada" && p.status !== "perdida"
   );
 
-  // Stale proposals (>7 days without change)
+  // Stale proposals (>5 days without change) - lowered threshold for earlier action
   const stale = activeProposals
-    .filter((p) => daysSince(p.created_at) > 7)
+    .filter((p) => daysSince(p.created_at) > 5)
     .sort((a, b) => daysSince(b.created_at) - daysSince(a.created_at))
     .slice(0, 5);
 
-  // High-value open proposals
-  const highValue = activeProposals
-    .filter((p) => p.total_price > 30000)
-    .sort((a, b) => b.total_price - a.total_price)
+  // High-value open proposals (dynamic threshold: top 20% or > 30k)
+  const sortedByValue = [...activeProposals].sort((a, b) => b.total_price - a.total_price);
+  const dynamicThreshold = sortedByValue.length >= 5
+    ? sortedByValue[Math.floor(sortedByValue.length * 0.2)]?.total_price || 30000
+    : 30000;
+  const highValue = sortedByValue
+    .filter((p) => p.total_price >= dynamicThreshold)
     .slice(0, 5);
 
   // Best closing opportunities (highest expected value)
@@ -33,30 +37,108 @@ const DashboardAlerts = ({ proposals, onSelectProposal }: Props) => {
     .sort((a, b) => b.expectedValue - a.expectedValue)
     .slice(0, 5);
 
+  const handleWhatsApp = (e: React.MouseEvent, p: Proposal) => {
+    e.stopPropagation();
+    const phone = p.customer_whatsapp.replace(/\D/g, "");
+    const msg = encodeURIComponent(
+      `Olá ${p.customer_name.split(" ")[0]}! Tudo bem? Vi que você demonstrou interesse em uma piscina. Gostaria de tirar alguma dúvida?`
+    );
+    window.open(`https://wa.me/55${phone}?text=${msg}`, "_blank");
+  };
+
+  const handleCall = (e: React.MouseEvent, p: Proposal) => {
+    e.stopPropagation();
+    const phone = p.customer_whatsapp.replace(/\D/g, "");
+    window.open(`tel:+55${phone}`, "_self");
+  };
+
+  const renderItem = (p: Proposal & { expectedValue?: number }, section: typeof sections[0]) => {
+    const days = daysSince(p.created_at);
+    const priority = getPriority(p);
+    const priorityConf = PRIORITY_CONFIG[priority];
+    const statusConf = STATUS_CONFIG[p.status];
+
+    return (
+      <button
+        key={p.id}
+        onClick={() => onSelectProposal(p)}
+        className="w-full text-left p-2.5 rounded-lg hover:bg-muted/60 transition-colors border border-transparent hover:border-border/50 group"
+      >
+        <div className="flex items-start justify-between gap-2">
+          <div className="min-w-0 flex-1">
+            <div className="flex items-center gap-1.5 mb-0.5">
+              <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${priorityConf.dot}`} />
+              <span className="text-sm font-semibold truncate max-w-[140px]">{p.customer_name}</span>
+            </div>
+            <p className="text-[11px] text-muted-foreground">
+              {p.pool_models?.name || "Sem modelo"} · {p.customer_city}
+            </p>
+          </div>
+          <div className="text-right shrink-0">
+            <p className="text-xs font-semibold">{section.renderValue(p)}</p>
+            <Badge variant="outline" className={`text-[9px] px-1.5 py-0 mt-0.5 ${statusConf.className}`}>
+              {statusConf.label}
+            </Badge>
+          </div>
+        </div>
+        <div className="flex items-center justify-between mt-1.5">
+          <span className="text-[10px] text-muted-foreground">
+            {days === 0 ? "Hoje" : days === 1 ? "Ontem" : `${days} dias atrás`}
+          </span>
+          <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+            <button
+              onClick={(e) => handleWhatsApp(e, p)}
+              className="p-1 rounded-md hover:bg-emerald-100 text-emerald-600 transition-colors"
+              title="WhatsApp"
+            >
+              <MessageCircle className="w-3.5 h-3.5" />
+            </button>
+            <button
+              onClick={(e) => handleCall(e, p)}
+              className="p-1 rounded-md hover:bg-primary/10 text-primary transition-colors"
+              title="Ligar"
+            >
+              <Phone className="w-3.5 h-3.5" />
+            </button>
+          </div>
+        </div>
+      </button>
+    );
+  };
+
   const sections = [
     {
-      title: "Propostas Paradas",
+      title: "Precisam de Ação",
+      subtitle: `${stale.length} sem contato há +5 dias`,
       icon: Clock,
       iconColor: "text-amber-500",
+      iconBg: "bg-amber-50",
       items: stale,
-      empty: "Nenhuma proposta parada",
-      renderDetail: (p: Proposal) => `${daysSince(p.created_at)} dias sem atividade`,
+      empty: "Nenhuma proposta parada 🎉",
+      emptyDesc: "Todas as propostas estão sendo acompanhadas.",
+      renderValue: (p: Proposal) => `${daysSince(p.created_at)}d parada`,
     },
     {
-      title: "Alto Valor em Aberto",
+      title: "Maior Valor",
+      subtitle: `${formatCurrency(highValue.reduce((s, p) => s + p.total_price, 0))} em aberto`,
       icon: DollarSign,
       iconColor: "text-emerald-500",
+      iconBg: "bg-emerald-50",
       items: highValue,
-      empty: "Nenhuma proposta de alto valor",
-      renderDetail: (p: Proposal) => formatCurrency(p.total_price),
+      empty: "Sem propostas de alto valor",
+      emptyDesc: "Propostas acima do topo 20% aparecerão aqui.",
+      renderValue: (p: Proposal) => formatCurrency(p.total_price),
     },
     {
-      title: "Maior Chance de Fechar",
+      title: "Prioridade de Fecho",
+      subtitle: `${formatCurrency(bestOpportunities.reduce((s, p: any) => s + (p.expectedValue || 0), 0))} receita prevista`,
       icon: Flame,
       iconColor: "text-red-500",
+      iconBg: "bg-red-50",
       items: bestOpportunities,
-      empty: "Nenhuma oportunidade identificada",
-      renderDetail: (p: any) => `${formatCurrency(p.expectedValue)} previsto`,
+      empty: "Nenhuma oportunidade",
+      emptyDesc: "Propostas com maior probabilidade de fechamento aparecerão aqui.",
+      renderValue: (p: any) => `${formatCurrency(p.expectedValue)} prev.`,
     },
   ];
 
@@ -76,31 +158,23 @@ const DashboardAlerts = ({ proposals, onSelectProposal }: Props) => {
           return (
             <Card key={section.title} className="border-border/50">
               <CardContent className="p-4">
-                <div className="flex items-center gap-2 mb-3">
-                  <Icon className={`w-4 h-4 ${section.iconColor}`} />
-                  <h4 className="text-xs font-semibold uppercase tracking-wider">{section.title}</h4>
+                <div className="flex items-center gap-2.5 mb-1">
+                  <div className={`p-1.5 rounded-lg ${section.iconBg}`}>
+                    <Icon className={`w-4 h-4 ${section.iconColor}`} />
+                  </div>
+                  <div>
+                    <h4 className="text-xs font-bold uppercase tracking-wider">{section.title}</h4>
+                    <p className="text-[10px] text-muted-foreground">{section.subtitle}</p>
+                  </div>
                 </div>
                 {section.items.length === 0 ? (
-                  <p className="text-xs text-muted-foreground">{section.empty}</p>
+                  <div className="py-4 text-center">
+                    <p className="text-sm">{section.empty}</p>
+                    <p className="text-[11px] text-muted-foreground mt-1">{section.emptyDesc}</p>
+                  </div>
                 ) : (
-                  <div className="space-y-2">
-                    {section.items.map((p) => (
-                      <button
-                        key={p.id}
-                        onClick={() => onSelectProposal(p)}
-                        className="w-full text-left p-2 rounded-md hover:bg-muted/50 transition-colors"
-                      >
-                        <div className="flex items-center justify-between gap-2">
-                          <span className="text-sm font-medium truncate">{p.customer_name}</span>
-                          <span className="text-[11px] text-muted-foreground whitespace-nowrap">
-                            {section.renderDetail(p)}
-                          </span>
-                        </div>
-                        <p className="text-[11px] text-muted-foreground truncate">
-                          {p.pool_models?.name || "N/A"} · {p.customer_city}
-                        </p>
-                      </button>
-                    ))}
+                  <div className="space-y-1 mt-3">
+                    {section.items.map((p) => renderItem(p as any, section))}
                   </div>
                 )}
               </CardContent>
