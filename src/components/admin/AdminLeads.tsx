@@ -45,8 +45,24 @@ const AdminLeads = () => {
   const [storeInfo, setStoreInfo] = useState<{ lead_limit_monthly: number; lead_price_excess: number; lead_plan_active: boolean } | null>(null);
   const [viewingProposal, setViewingProposal] = useState<any>(null);
   const [loadingProposal, setLoadingProposal] = useState(false);
+  const [leadSubActive, setLeadSubActive] = useState<boolean | null>(null);
+  const [checkoutLoading, setCheckoutLoading] = useState(false);
 
-  const loadData = async () => {
+  // Check if lead plan subscription is paid
+  useEffect(() => {
+    const checkLeadSubscription = async () => {
+      try {
+        const { data, error } = await supabase.functions.invoke("check-subscription");
+        if (error) throw error;
+        const activeProducts: { product_id: string }[] = data?.active_products || [];
+        const hasLeadPlan = activeProducts.some(p => p.product_id === LEAD_PLAN.productId);
+        setLeadSubActive(hasLeadPlan);
+      } catch {
+        setLeadSubActive(false);
+      }
+    };
+    checkLeadSubscription();
+  }, []);
     if (!store) return;
     setLoading(true);
     const [leadsRes, storeRes] = await Promise.all([
