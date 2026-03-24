@@ -83,6 +83,7 @@ const DashboardPipeline = ({ proposals, onUpdateStatus, onViewProposal, onExport
 
   // Sort
   filtered = [...filtered].sort((a, b) => {
+    if (sortMode === "recente") return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
     if (sortMode === "valor") return b.total_price - a.total_price;
     if (sortMode === "probabilidade") return (b.total_price * STATUS_PROBABILITY[b.status]) - (a.total_price * STATUS_PROBABILITY[a.status]);
     return daysSince(b.created_at) - daysSince(a.created_at);
