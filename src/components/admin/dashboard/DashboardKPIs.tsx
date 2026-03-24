@@ -1,43 +1,56 @@
 import { Card, CardContent } from "@/components/ui/card";
-import { DollarSign, TrendingUp, BarChart3, Receipt } from "lucide-react";
+import { DollarSign, TrendingUp, BarChart3, Receipt, Percent } from "lucide-react";
 import { Proposal, formatCurrency } from "./types";
 
 interface Props {
   proposals: Proposal[];
+  role?: string;
+  commissionPercent?: number;
 }
 
-const DashboardKPIs = ({ proposals }: Props) => {
+const DashboardKPIs = ({ proposals, role, commissionPercent = 0 }: Props) => {
   const all = proposals;
   const closed = all.filter((p) => p.status === "fechada");
+  const isOwner = role === "owner";
 
-  // 1. Faturamento Bruto = soma total_price das fechadas
+  // Faturamento Bruto = soma total_price das fechadas
   const faturamentoBruto = closed.reduce((s, p) => s + p.total_price, 0);
 
-  // 2. Faturamento Líquido = bruto - custos dos modelos
+  // Owner: Faturamento Líquido | Seller: Comissão
   const faturamentoLiquido = closed.reduce((s, p) => {
     const cost = p.pool_models?.cost || 0;
     return s + (p.total_price - cost);
   }, 0);
+  const comissaoTotal = faturamentoBruto * (commissionPercent / 100);
 
-  // 3. Taxa de Conversão FV = fechadas / (total - novas)
+  // Taxa de Conversão FV = fechadas / (total - novas)
   const totalWorked = all.filter((p) => p.status !== "nova").length;
   const conversionRate = totalWorked > 0 ? (closed.length / totalWorked) * 100 : 0;
 
-  // 4. Ticket Médio = bruto / qtd fechadas
+  // Ticket Médio = bruto / qtd fechadas
   const ticketMedio = closed.length > 0 ? faturamentoBruto / closed.length : 0;
 
-  // Secondary metrics
-  const avgClosingDays = closed.length > 0
-    ? closed.reduce((s, p) => {
-        const days = Math.floor((Date.now() - new Date(p.created_at).getTime()) / (1000 * 60 * 60 * 24));
-        return s + days;
-      }, 0) / closed.length
-    : 0;
-
-  const lostCount = all.filter((p) => p.status === "perdida").length;
-  const lossRate = all.length > 0 ? (lostCount / all.length) * 100 : 0;
-
+  // Secondary
   const marginPct = faturamentoBruto > 0 ? (faturamentoLiquido / faturamentoBruto) * 100 : 0;
+
+  // Second KPI changes based on role
+  const secondKpi = isOwner
+    ? {
+        label: "Faturamento Líquido",
+        value: formatCurrency(faturamentoLiquido),
+        subtitle: faturamentoBruto > 0 ? `margem ${marginPct.toFixed(1)}%` : undefined,
+        icon: TrendingUp,
+        iconBg: "bg-blue-500/10",
+        iconColor: "text-blue-600",
+      }
+    : {
+        label: "Comissão",
+        value: formatCurrency(comissaoTotal),
+        subtitle: `${commissionPercent}% sobre vendas`,
+        icon: Percent,
+        iconBg: "bg-amber-500/10",
+        iconColor: "text-amber-600",
+      };
 
   const kpis = [
     {
@@ -48,14 +61,7 @@ const DashboardKPIs = ({ proposals }: Props) => {
       iconBg: "bg-emerald-500/10",
       iconColor: "text-emerald-600",
     },
-    {
-      label: "Faturamento Líquido",
-      value: formatCurrency(faturamentoLiquido),
-      subtitle: faturamentoBruto > 0 ? `margem ${marginPct.toFixed(1)}%` : undefined,
-      icon: TrendingUp,
-      iconBg: "bg-blue-500/10",
-      iconColor: "text-blue-600",
-    },
+    secondKpi,
     {
       label: "Taxa de Conversão FV",
       value: `${conversionRate.toFixed(1)}%`,
