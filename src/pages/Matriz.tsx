@@ -57,10 +57,9 @@ const Matriz = () => {
       <div className="min-h-screen flex w-full bg-muted/30 overflow-x-hidden">
         <MatrizSidebar />
         <div className="flex-1 flex flex-col min-w-0">
-          <div className="h-3 bg-background md:hidden" />
-          <header className="h-[72px] md:h-[72px] flex items-center border-b border-border/50 bg-background px-4 mobile-matriz-header">
-            <SidebarTrigger className="min-w-[56px] min-h-[56px] flex items-center justify-center [&>svg]:!w-8 [&>svg]:!h-8 md:min-w-[48px] md:min-h-[48px] md:[&>svg]:!w-7 md:[&>svg]:!h-7 text-primary" />
-            <span className="ml-3 text-sm font-medium text-primary">SIMULAPOOL Matriz</span>
+          <header className="h-[72px] flex items-center border-b border-border/50 bg-background px-2 md:px-4">
+            <SidebarTrigger className="h-14 w-14 md:h-10 md:w-10 [&>svg]:!w-7 [&>svg]:!h-7 md:[&>svg]:!w-5 md:[&>svg]:!h-5 text-primary" />
+            <span className="ml-2 text-sm font-medium text-primary">SIMULAPOOL Matriz</span>
           </header>
           <main className="flex-1 p-3 md:p-6 overflow-x-hidden overflow-y-auto safe-area-bottom">
             <Routes>
