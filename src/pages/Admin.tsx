@@ -86,6 +86,12 @@ const Admin = () => {
               <Route path="leads" element={<AdminLeads />} />
               <Route path="faturas" element={<InvoiceHistory />} />
               <Route path="perfil" element={<AdminProfile />} />
+              {!isOwner && (
+                <>
+                  <Route path="performance" element={<TeamPerformance />} />
+                  <Route path="comissao" element={<TeamCommissions />} />
+                </>
+              )}
               {/* Owner-only routes */}
               {isOwner && (
                 <>
