@@ -237,6 +237,10 @@ const MatrizLeads = () => {
 
   const pendentesCount = filtered.filter(l => !distributionMap.has(l.id)).length;
   const distribuidosCount = filtered.filter(l => distributionMap.has(l.id)).length;
+  const aceitosCount = filtered.filter(l => {
+    const dist = distributionMap.get(l.id);
+    return dist && dist.status === 'accepted';
+  }).length;
 
   const tabFiltered = filtered.filter(l => {
     if (activeTab === "pendentes") return !distributionMap.has(l.id);
