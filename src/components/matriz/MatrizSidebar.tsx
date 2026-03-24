@@ -10,10 +10,14 @@ import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import logoHorizontal from "@/assets/simulapool-horizontal.png";
+import logoHorizontalDark from "@/assets/simulapool-horizontal-dark.png";
+import { useTheme } from "next-themes";
 
 const MatrizSidebar = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { theme } = useTheme();
+  const logo = theme === "dark" ? logoHorizontalDark : logoHorizontal;
 
   const isActive = (url: string) => {
     if (url === "/matriz") return location.pathname === "/matriz";
@@ -40,7 +44,7 @@ const MatrizSidebar = () => {
       <SidebarHeader className="border-b border-border/50">
         <div className="h-3 bg-white md:hidden" />
         <div className="flex flex-col items-center gap-1 p-4">
-          <img src={logoHorizontal} alt="SIMULAPOOL" className="h-16 object-contain" />
+          <img src={logo} alt="SIMULAPOOL" className="h-16 object-contain" />
           <span className="text-[10px] font-bold text-primary tracking-widest uppercase">MATRIZ</span>
         </div>
       </SidebarHeader>
