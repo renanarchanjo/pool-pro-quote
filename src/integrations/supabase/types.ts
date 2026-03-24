@@ -733,6 +733,7 @@ export type Database = {
       proposals: {
         Row: {
           created_at: string | null
+          created_by: string | null
           customer_city: string
           customer_name: string
           customer_whatsapp: string
@@ -745,6 +746,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string | null
+          created_by?: string | null
           customer_city: string
           customer_name: string
           customer_whatsapp: string
@@ -757,6 +759,7 @@ export type Database = {
         }
         Update: {
           created_at?: string | null
+          created_by?: string | null
           customer_city?: string
           customer_name?: string
           customer_whatsapp?: string
