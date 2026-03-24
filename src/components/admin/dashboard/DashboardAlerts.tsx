@@ -143,7 +143,7 @@ const DashboardAlerts = ({ proposals, onSelectProposal }: Props) => {
         <AlertTriangle className="w-4 h-4" />
         Alertas e Oportunidades
       </h3>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
         {sections.map((section) => {
           const Icon = section.icon;
           return (
