@@ -255,6 +255,48 @@ export type Database = {
           },
         ]
       }
+      lead_plans: {
+        Row: {
+          active: boolean | null
+          created_at: string | null
+          display_order: number | null
+          excess_price: number
+          id: string
+          lead_limit: number
+          name: string
+          price_monthly: number
+          stripe_price_id: string | null
+          stripe_product_id: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          active?: boolean | null
+          created_at?: string | null
+          display_order?: number | null
+          excess_price?: number
+          id?: string
+          lead_limit?: number
+          name: string
+          price_monthly?: number
+          stripe_price_id?: string | null
+          stripe_product_id?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          active?: boolean | null
+          created_at?: string | null
+          display_order?: number | null
+          excess_price?: number
+          id?: string
+          lead_limit?: number
+          name?: string
+          price_monthly?: number
+          stripe_price_id?: string | null
+          stripe_product_id?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       model_optionals: {
         Row: {
           active: boolean | null

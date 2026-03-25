@@ -23,6 +23,16 @@ interface Plan {
   stripe_product_id: string | null;
 }
 
+interface LeadPlan {
+  id: string;
+  name: string;
+  price_monthly: number;
+  lead_limit: number;
+  excess_price: number;
+  active: boolean;
+  display_order: number;
+}
+
 interface PlatformSetting {
   id: string;
   key: string;
@@ -38,12 +48,14 @@ const MatrizPlans = () => {
   const [editingPlan, setEditingPlan] = useState<Plan | null>(null);
   const [editForm, setEditForm] = useState({ name: "", price_monthly: "", max_proposals_per_month: "", max_users: "", active: true });
   const [settingsForm, setSettingsForm] = useState<Record<string, string>>({});
+  const [leadPlans, setLeadPlans] = useState<LeadPlan[]>([]);
 
   const loadData = async () => {
     setLoading(true);
-    const [plansRes, settingsRes] = await Promise.all([
+    const [plansRes, settingsRes, leadPlansRes] = await Promise.all([
       (supabase as any).from("subscription_plans").select("*").order("display_order"),
       (supabase as any).from("platform_settings").select("*"),
+      (supabase as any).from("lead_plans").select("*").order("display_order"),
     ]);
     if (plansRes.data) setPlans(plansRes.data);
     if (settingsRes.data) {
@@ -52,6 +64,7 @@ const MatrizPlans = () => {
       settingsRes.data.forEach((s: PlatformSetting) => { form[s.key] = s.value; });
       setSettingsForm(form);
     }
+    if (leadPlansRes.data) setLeadPlans(leadPlansRes.data);
     setLoading(false);
   };
 
@@ -149,6 +162,15 @@ const MatrizPlans = () => {
     setSaving(false);
   };
 
+  const handleToggleLeadPlan = async (plan: LeadPlan) => {
+    const { error } = await (supabase as any)
+      .from("lead_plans")
+      .update({ active: !plan.active, updated_at: new Date().toISOString() })
+      .eq("id", plan.id);
+    if (error) toast.error("Erro ao alterar status");
+    else { toast.success(`${plan.name} ${!plan.active ? "ativado" : "desativado"}`); loadData(); }
+  };
+
   const formatCurrency = (v: number) => v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 
   if (loading) return <div className="flex items-center justify-center py-20"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
@@ -212,31 +234,36 @@ const MatrizPlans = () => {
         </CardContent>
       </Card>
 
-      {/* Lead Distribution Plan */}
+      {/* Lead Distribution Plans */}
       <Card>
         <CardHeader className="pb-3">
-          <CardTitle className="text-base flex items-center gap-2"><MapPin className="w-4 h-4" /> Plano de Distribuição de Leads</CardTitle>
+          <CardTitle className="text-base flex items-center gap-2"><MapPin className="w-4 h-4" /> Planos de Distribuição de Leads</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="p-4 rounded-lg border border-primary/30 bg-primary/5">
-              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Valor Mensal</p>
-              <p className="text-2xl font-bold mt-1">R$ 997,00</p>
-              <p className="text-xs text-muted-foreground mt-1">Cobrado via Stripe</p>
-            </div>
-            <div className="p-4 rounded-lg border border-border/50 bg-muted/30">
-              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Limite Padrão</p>
-              <p className="text-2xl font-bold mt-1">100 leads/mês</p>
-              <p className="text-xs text-muted-foreground mt-1">Configurável por loja</p>
-            </div>
-            <div className="p-4 rounded-lg border border-orange-500/30 bg-orange-500/5">
-              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Custo Excedente</p>
-              <p className="text-2xl font-bold mt-1">R$ 25,00</p>
-              <p className="text-xs text-muted-foreground mt-1">Por lead além do limite</p>
-            </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            {leadPlans.map(lp => (
+              <div key={lp.id} className={`p-4 rounded-lg border transition-all ${lp.active ? "border-primary/30 bg-primary/5" : "border-border/50 bg-muted/30 opacity-60"}`}>
+                <div className="flex items-center justify-between mb-3">
+                  <span className="text-sm font-semibold">{lp.name}</span>
+                  <Switch checked={lp.active} onCheckedChange={() => handleToggleLeadPlan(lp)} />
+                </div>
+                <p className="text-2xl font-bold">{formatCurrency(lp.price_monthly)}</p>
+                <p className="text-xs text-muted-foreground mt-0.5">por mês</p>
+                <div className="mt-3 space-y-1.5">
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">Limite</span>
+                    <span className="font-medium">{lp.lead_limit} leads/mês</span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">Excedente</span>
+                    <span className="font-medium">{formatCurrency(lp.excess_price)}/lead</span>
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
           <p className="text-xs text-muted-foreground mt-3">
-            💡 O plano de leads é ativado manualmente pela Matriz em cada loja. Os limites e valores de excedente podem ser ajustados individualmente na gestão de lojas.
+            💡 Ative ou desative os planos conforme necessidade. Apenas planos ativos ficam disponíveis para contratação pelos lojistas.
           </p>
         </CardContent>
       </Card>
