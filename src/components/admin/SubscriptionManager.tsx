@@ -12,75 +12,68 @@ import {
 import { Loader2, Check, X, Crown, CreditCard, ExternalLink, Users, FileText, TrendingUp, Radio, XCircle, Settings, AlertTriangle } from "lucide-react";
 import { toast } from "sonner";
 
-const PLANS = [
-  {
-    slug: "gratuito",
-    name: "Gratuito",
-    price: "R$ 0",
-    priceId: null,
-    productId: null,
-    proposals: 10,
-    features: [
-      { text: "Até 10 orçamentos/mês", included: true },
-      { text: "1 modelo de piscina", included: true },
-      { text: "Marca d'água SIMULAPOOL", included: true },
-      { text: "Personalização da marca", included: false },
-      { text: "Equipe de colaboradores", included: false },
-    ],
-  },
-  {
-    slug: "premium",
-    name: "Premium",
-    price: "R$ 99,90",
-    priceId: "price_1TEdIiDLDBZHKYif22uYH0ns",
-    productId: "prod_UD3PEYnNACZIPf",
-    proposals: 100,
-    features: [
-      { text: "Até 100 orçamentos/mês", included: true },
-      { text: "Modelos ilimitados", included: true },
-      { text: "Sem marca d'água", included: true },
-      { text: "Personalização da marca", included: true },
-      { text: "Até 3 colaboradores", included: true },
-    ],
-  },
-  {
-    slug: "avancado",
-    name: "Avançado",
-    price: "R$ 199,90",
-    priceId: "price_1TEdJ4DLDBZHKYif5sFUfHLO",
-    productId: "prod_UD3PdH9NRCfw5t",
-    proposals: 500,
-    popular: true,
-    features: [
-      { text: "Até 500 orçamentos/mês", included: true },
-      { text: "Modelos ilimitados", included: true },
-      { text: "Sem marca d'água", included: true },
-      { text: "Personalização da marca", included: true },
-      { text: "Até 7 colaboradores", included: true },
-    ],
-  },
-  {
-    slug: "escala",
-    name: "Escala",
-    price: "R$ 299,90",
-    priceId: "price_1TEdJRDLDBZHKYifIP8NhqDm",
-    productId: "prod_UD3QKozvTgVova",
-    proposals: 1000,
-    features: [
-      { text: "Até 1.000 orçamentos/mês", included: true },
-      { text: "Modelos ilimitados", included: true },
-      { text: "Sem marca d'água", included: true },
-      { text: "Personalização da marca", included: true },
-      { text: "Até 10 colaboradores", included: true },
-    ],
-  },
-];
+// Feature lists per plan slug (static, UI-only)
+const PLAN_FEATURES: Record<string, { text: string; included: boolean }[]> = {
+  gratuito: [
+    { text: "Até 10 orçamentos/mês", included: true },
+    { text: "1 modelo de piscina", included: true },
+    { text: "Marca d'água SIMULAPOOL", included: true },
+    { text: "Personalização da marca", included: false },
+    { text: "Equipe de colaboradores", included: false },
+  ],
+  premium: [
+    { text: "Até 100 orçamentos/mês", included: true },
+    { text: "Modelos ilimitados", included: true },
+    { text: "Sem marca d'água", included: true },
+    { text: "Personalização da marca", included: true },
+    { text: "Até 3 colaboradores", included: true },
+  ],
+  avancado: [
+    { text: "Até 500 orçamentos/mês", included: true },
+    { text: "Modelos ilimitados", included: true },
+    { text: "Sem marca d'água", included: true },
+    { text: "Personalização da marca", included: true },
+    { text: "Até 7 colaboradores", included: true },
+  ],
+  escala: [
+    { text: "Até 1.000 orçamentos/mês", included: true },
+    { text: "Modelos ilimitados", included: true },
+    { text: "Sem marca d'água", included: true },
+    { text: "Personalização da marca", included: true },
+    { text: "Até 10 colaboradores", included: true },
+  ],
+};
 
-const LEAD_PLAN = {
+// Fallback lead plan IDs (used if not yet in DB)
+const LEAD_PLAN_FALLBACK = {
   priceId: "price_1TEdKrDLDBZHKYifUm8XPOut",
   productId: "prod_UD3Rpug8ULJMaT",
   price: "R$ 997,00",
 };
+
+interface DBPlan {
+  id: string;
+  slug: string;
+  name: string;
+  price_monthly: number;
+  max_proposals_per_month: number;
+  max_users: number | null;
+  active: boolean;
+  display_order: number | null;
+  stripe_price_id: string | null;
+  stripe_product_id: string | null;
+}
+
+interface PlanDisplay {
+  slug: string;
+  name: string;
+  price: string;
+  priceId: string | null;
+  productId: string | null;
+  proposals: number;
+  popular?: boolean;
+  features: { text: string; included: boolean }[];
+}
 
 interface ActiveProduct {
   product_id: string;
@@ -96,6 +89,7 @@ const SubscriptionManager = () => {
   const [cancelLoading, setCancelLoading] = useState<string | null>(null);
   const [leadPlanActive, setLeadPlanActive] = useState(false);
   const [activeProducts, setActiveProducts] = useState<ActiveProduct[]>([]);
+  const [dbPlans, setDbPlans] = useState<DBPlan[]>([]);
   const [subscription, setSubscription] = useState<{
     subscribed: boolean;
     product_id: string | null;
@@ -103,9 +97,39 @@ const SubscriptionManager = () => {
     subscription_end: string | null;
   } | null>(null);
 
+  // Load plans from DB
   useEffect(() => {
+    const loadPlans = async () => {
+      const { data } = await (supabase as any)
+        .from("subscription_plans")
+        .select("*")
+        .eq("active", true)
+        .order("display_order");
+      if (data) setDbPlans(data);
+    };
+    loadPlans();
     checkSubscription();
   }, []);
+
+  // Build PLANS array from DB data
+  const PLANS: PlanDisplay[] = dbPlans.map((p) => ({
+    slug: p.slug,
+    name: p.name,
+    price: p.price_monthly > 0
+      ? p.price_monthly.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })
+      : "R$ 0",
+    priceId: p.stripe_price_id,
+    productId: p.stripe_product_id,
+    proposals: p.max_proposals_per_month,
+    popular: p.slug === "avancado",
+    features: PLAN_FEATURES[p.slug] || [
+      { text: `Até ${p.max_proposals_per_month} orçamentos/mês`, included: true },
+      { text: `Até ${p.max_users || 1} colaborador(es)`, included: true },
+    ],
+  }));
+
+  // Lead plan uses fallback IDs
+  const LEAD_PLAN = LEAD_PLAN_FALLBACK;
 
   useEffect(() => {
     if (store) {
