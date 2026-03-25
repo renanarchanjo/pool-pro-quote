@@ -32,6 +32,7 @@ const Auth = () => {
   const [nomeFantasia, setNomeFantasia] = useState("");
   const [city, setCity] = useState("");
   const [state, setState] = useState("");
+  const [phone, setPhone] = useState("");
   const [cnpjLoading, setCnpjLoading] = useState(false);
   const [cnpjFound, setCnpjFound] = useState(false);
   const [cities, setCities] = useState<string[]>([]);
@@ -169,6 +170,11 @@ const Auth = () => {
         toast.error("Preencha a cidade e o estado");
         return;
       }
+      const phoneDigits = phone.replace(/\D/g, "");
+      if (phoneDigits.length < 10) {
+        toast.error("Informe um telefone válido com DDD");
+        return;
+      }
     }
 
     if (password.length < 6) {
@@ -227,6 +233,7 @@ const Auth = () => {
             cnpj: cnpjDigits,
             razaoSocial,
             nomeFantasia,
+            phone: phone.replace(/\D/g, ""),
             fullName: nomeFantasia || razaoSocial,
           },
         });
@@ -434,6 +441,26 @@ const Auth = () => {
                     </SelectContent>
                   </Select>
                 </div>
+              </div>
+
+
+              {/* WhatsApp */}
+              <div>
+                <Label htmlFor="phone">Telefone (WhatsApp)</Label>
+                <Input
+                  id="phone"
+                  type="tel"
+                  value={phone}
+                  onChange={(e) => {
+                    const digits = e.target.value.replace(/\D/g, "").slice(0, 11);
+                    const formatted = digits
+                      .replace(/^(\d{2})(\d)/, "($1) $2")
+                      .replace(/(\d{5})(\d)/, "$1-$2");
+                    setPhone(formatted);
+                  }}
+                  placeholder="(00) 00000-0000"
+                  disabled={loading}
+                />
               </div>
             </>
           )}
