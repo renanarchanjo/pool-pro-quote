@@ -235,7 +235,6 @@ const Auth = () => {
             nomeFantasia,
             phone: phone.replace(/\D/g, ""),
             fullName: nomeFantasia || razaoSocial,
-            fullName: nomeFantasia || razaoSocial,
           },
         });
 
