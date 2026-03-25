@@ -48,6 +48,7 @@ const MatrizPlans = () => {
   const [editingPlan, setEditingPlan] = useState<Plan | null>(null);
   const [editForm, setEditForm] = useState({ name: "", price_monthly: "", max_proposals_per_month: "", max_users: "", active: true });
   const [settingsForm, setSettingsForm] = useState<Record<string, string>>({});
+  const [leadPlans, setLeadPlans] = useState<LeadPlan[]>([]);
 
   const loadData = async () => {
     setLoading(true);
