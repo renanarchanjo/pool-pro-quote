@@ -262,11 +262,23 @@ const TeamPerformance = () => {
       {/* Header with controls - excluded from PDF */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <h3 className="text-lg font-bold">Minha Performance</h3>
-          
+          <h3 className="text-lg font-bold">{isOwner ? "Performance da Equipe" : "Minha Performance"}</h3>
         </div>
-        <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" className="h-8 text-xs gap-1" onClick={handleExportPDF} disabled={metrics.length === 0}>
+        <div className="flex items-center gap-2 flex-wrap">
+          {isOwner && (
+            <Select value={selectedMember} onValueChange={setSelectedMember}>
+              <SelectTrigger className="h-8 w-[160px] text-xs">
+                <SelectValue placeholder="Todos" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todos</SelectItem>
+                {members.map(m => (
+                  <SelectItem key={m.id} value={m.id}>{m.full_name || "Sem nome"}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
+          <Button variant="outline" size="sm" className="h-8 text-xs gap-1" onClick={handleExportPDF} disabled={filteredMetrics.length === 0}>
             <FileDown className="w-3 h-3" />
             PDF
           </Button>
