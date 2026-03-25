@@ -162,6 +162,15 @@ const MatrizPlans = () => {
     setSaving(false);
   };
 
+  const handleToggleLeadPlan = async (plan: LeadPlan) => {
+    const { error } = await (supabase as any)
+      .from("lead_plans")
+      .update({ active: !plan.active, updated_at: new Date().toISOString() })
+      .eq("id", plan.id);
+    if (error) toast.error("Erro ao alterar status");
+    else { toast.success(`${plan.name} ${!plan.active ? "ativado" : "desativado"}`); loadData(); }
+  };
+
   const formatCurrency = (v: number) => v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 
   if (loading) return <div className="flex items-center justify-center py-20"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
