@@ -218,14 +218,14 @@ const TeamPerformance = () => {
 
   // Team totals
   const totals = useMemo(() => {
-    return metrics.reduce((acc, m) => ({
+    return filteredMetrics.reduce((acc, m) => ({
       leads: acc.leads + m.leadsAccepted,
       closed: acc.closed + m.closed,
       lost: acc.lost + m.lost,
       revenue: acc.revenue + m.revenueClosed,
       predicted: acc.predicted + m.revenuePredicted,
     }), { leads: 0, closed: 0, lost: 0, revenue: 0, predicted: 0 });
-  }, [metrics]);
+  }, [filteredMetrics]);
 
   const teamConversion = (totals.closed + totals.lost) > 0
     ? (totals.closed / (totals.closed + totals.lost)) * 100
