@@ -344,7 +344,7 @@ const TeamPerformance = () => {
         />
       </div>
 
-      {metrics.length === 0 ? (
+      {filteredMetrics.length === 0 ? (
         <Card className="border-border/50">
           <CardContent className="p-8 text-center">
             <BarChart3 className="w-10 h-10 text-muted-foreground mx-auto mb-2" />
