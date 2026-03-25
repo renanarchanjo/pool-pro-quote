@@ -234,31 +234,36 @@ const MatrizPlans = () => {
         </CardContent>
       </Card>
 
-      {/* Lead Distribution Plan */}
+      {/* Lead Distribution Plans */}
       <Card>
         <CardHeader className="pb-3">
-          <CardTitle className="text-base flex items-center gap-2"><MapPin className="w-4 h-4" /> Plano de Distribuição de Leads</CardTitle>
+          <CardTitle className="text-base flex items-center gap-2"><MapPin className="w-4 h-4" /> Planos de Distribuição de Leads</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="p-4 rounded-lg border border-primary/30 bg-primary/5">
-              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Valor Mensal</p>
-              <p className="text-2xl font-bold mt-1">R$ 997,00</p>
-              <p className="text-xs text-muted-foreground mt-1">Cobrado via Stripe</p>
-            </div>
-            <div className="p-4 rounded-lg border border-border/50 bg-muted/30">
-              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Limite Padrão</p>
-              <p className="text-2xl font-bold mt-1">100 leads/mês</p>
-              <p className="text-xs text-muted-foreground mt-1">Configurável por loja</p>
-            </div>
-            <div className="p-4 rounded-lg border border-orange-500/30 bg-orange-500/5">
-              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Custo Excedente</p>
-              <p className="text-2xl font-bold mt-1">R$ 25,00</p>
-              <p className="text-xs text-muted-foreground mt-1">Por lead além do limite</p>
-            </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            {leadPlans.map(lp => (
+              <div key={lp.id} className={`p-4 rounded-lg border transition-all ${lp.active ? "border-primary/30 bg-primary/5" : "border-border/50 bg-muted/30 opacity-60"}`}>
+                <div className="flex items-center justify-between mb-3">
+                  <span className="text-sm font-semibold">{lp.name}</span>
+                  <Switch checked={lp.active} onCheckedChange={() => handleToggleLeadPlan(lp)} />
+                </div>
+                <p className="text-2xl font-bold">{formatCurrency(lp.price_monthly)}</p>
+                <p className="text-xs text-muted-foreground mt-0.5">por mês</p>
+                <div className="mt-3 space-y-1.5">
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">Limite</span>
+                    <span className="font-medium">{lp.lead_limit} leads/mês</span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">Excedente</span>
+                    <span className="font-medium">{formatCurrency(lp.excess_price)}/lead</span>
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
           <p className="text-xs text-muted-foreground mt-3">
-            💡 O plano de leads é ativado manualmente pela Matriz em cada loja. Os limites e valores de excedente podem ser ajustados individualmente na gestão de lojas.
+            💡 Ative ou desative os planos conforme necessidade. Apenas planos ativos ficam disponíveis para contratação pelos lojistas.
           </p>
         </CardContent>
       </Card>
