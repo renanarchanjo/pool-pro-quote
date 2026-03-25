@@ -73,7 +73,7 @@ const formatCurrency = (v: number) =>
   `R$ ${v.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`;
 
 const TeamPerformance = () => {
-  const { store } = useStoreData();
+  const { store, role, profile } = useStoreData();
   const [loading, setLoading] = useState(true);
   const [members, setMembers] = useState<MemberProfile[]>([]);
   const [distributions, setDistributions] = useState<LeadDist[]>([]);
