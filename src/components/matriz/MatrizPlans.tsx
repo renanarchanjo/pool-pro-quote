@@ -52,9 +52,10 @@ const MatrizPlans = () => {
 
   const loadData = async () => {
     setLoading(true);
-    const [plansRes, settingsRes] = await Promise.all([
+    const [plansRes, settingsRes, leadPlansRes] = await Promise.all([
       (supabase as any).from("subscription_plans").select("*").order("display_order"),
       (supabase as any).from("platform_settings").select("*"),
+      (supabase as any).from("lead_plans").select("*").order("display_order"),
     ]);
     if (plansRes.data) setPlans(plansRes.data);
     if (settingsRes.data) {
@@ -63,6 +64,7 @@ const MatrizPlans = () => {
       settingsRes.data.forEach((s: PlatformSetting) => { form[s.key] = s.value; });
       setSettingsForm(form);
     }
+    if (leadPlansRes.data) setLeadPlans(leadPlansRes.data);
     setLoading(false);
   };
 
