@@ -353,8 +353,8 @@ const TeamPerformance = () => {
         </Card>
       ) : (
         <div className="space-y-3">
-          {metrics.map((m, idx) => {
-            const maxRevenue = metrics[0]?.revenueClosed || 1;
+          {filteredMetrics.map((m, idx) => {
+            const maxRevenue = filteredMetrics[0]?.revenueClosed || 1;
             const revenuePercent = (m.revenueClosed / maxRevenue) * 100;
 
             return (
