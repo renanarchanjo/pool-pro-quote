@@ -14,11 +14,15 @@ import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import ProposalView from "@/components/simulator/ProposalView";
 
-const LEAD_PLAN = {
-  priceId: "price_1TELsVD4inSHTJNLmue5gkTP",
-  productId: "prod_UClPPxnoSh7tlx",
-  price: "R$ 997,00",
-};
+interface LeadPlanOption {
+  id: string;
+  name: string;
+  price_monthly: number;
+  lead_limit: number;
+  excess_price: number;
+  stripe_price_id: string | null;
+  stripe_product_id: string | null;
+}
 
 interface ReceivedLead {
   id: string;
@@ -54,12 +58,23 @@ const AdminLeads = () => {
   const [checkoutLoading, setCheckoutLoading] = useState(false);
   const [filterUser, setFilterUser] = useState<string>("all");
   const [teamMembers, setTeamMembers] = useState<{ id: string; full_name: string | null }[]>([]);
+  const [leadPlans, setLeadPlans] = useState<LeadPlanOption[]>([]);
+  const [selectedLeadPlan, setSelectedLeadPlan] = useState<LeadPlanOption | null>(null);
   // Assignment dialog
   const [assignDialogOpen, setAssignDialogOpen] = useState(false);
   const [assigningLeadId, setAssigningLeadId] = useState<string | null>(null);
   const [assignTargetUser, setAssignTargetUser] = useState<string>("");
 
   const isOwner = role === "owner";
+
+  // Load available lead plans
+  useEffect(() => {
+    const loadLeadPlans = async () => {
+      const { data } = await (supabase as any).from("lead_plans").select("*").eq("active", true).order("display_order");
+      if (data) setLeadPlans(data);
+    };
+    loadLeadPlans();
+  }, []);
 
   // Check if lead plan subscription is paid (or manually activated)
   useEffect(() => {
@@ -73,20 +88,25 @@ const AdminLeads = () => {
         const { data, error } = await supabase.functions.invoke("check-subscription");
         if (error) throw error;
         const activeProducts: { product_id: string }[] = data?.active_products || [];
-        const hasLeadPlan = activeProducts.some(p => p.product_id === LEAD_PLAN.productId);
+        const productIds = leadPlans.map(p => p.stripe_product_id).filter(Boolean);
+        const hasLeadPlan = activeProducts.some(p => productIds.includes(p.product_id));
         setLeadSubActive(hasLeadPlan);
       } catch {
         setLeadSubActive(false);
       }
     };
     checkLeadSubscription();
-  }, [storeInfo]);
+  }, [storeInfo, leadPlans]);
 
-  const handleLeadCheckout = async () => {
+  const handleLeadCheckout = async (plan: LeadPlanOption) => {
+    if (!plan.stripe_price_id) {
+      toast.error("Plano sem configuração de pagamento");
+      return;
+    }
     try {
       setCheckoutLoading(true);
       const { data, error } = await supabase.functions.invoke("create-checkout", {
-        body: { priceId: LEAD_PLAN.priceId },
+        body: { priceId: plan.stripe_price_id },
       });
       if (error) throw error;
       if (data?.url) {
@@ -323,56 +343,65 @@ const AdminLeads = () => {
   }
 
   if (!leadSubActive) {
+    const formatCurrency = (v: number) => v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+
     return (
-      <div className="space-y-6 max-w-lg mx-auto py-10">
+      <div className="space-y-6 max-w-4xl mx-auto py-10">
         <div className="text-center">
           <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-primary/10 flex items-center justify-center">
             <Radio className="w-8 h-8 text-primary" />
           </div>
           <h2 className="text-xl font-bold mb-2">Ative seu Plano de Leads</h2>
           <p className="text-muted-foreground text-sm">
-            Sua loja foi habilitada para receber leads qualificados! Para começar, finalize o pagamento do plano.
+            Sua loja foi habilitada para receber leads qualificados! Escolha o plano ideal para o seu negócio.
           </p>
         </div>
 
-        <Card className="p-6 border-primary/30 bg-primary/5">
-          <h3 className="font-bold text-lg mb-3">Plano de Captação de Leads</h3>
-          <ul className="space-y-2 text-sm mb-5">
-            <li className="flex items-center gap-2">
-              <Check className="w-4 h-4 text-emerald-500 shrink-0" />
-              <strong>100 leads por mês</strong>{" "}inclusos no plano
-            </li>
-            <li className="flex items-center gap-2">
-              <Check className="w-4 h-4 text-emerald-500 shrink-0" />
-              Você escolhe quais leads aceitar ou recusar
-            </li>
-            <li className="flex items-center gap-2">
-              <Check className="w-4 h-4 text-emerald-500 shrink-0" />
-              Dados completos do cliente (nome, cidade, WhatsApp)
-            </li>
-            <li className="flex items-center gap-2">
-              <Check className="w-4 h-4 text-emerald-500 shrink-0" />
-              Modelo e orçamento já configurados
-            </li>
-            <li className="flex items-center gap-2">
-              <Check className="w-4 h-4 text-emerald-500 shrink-0" />
-              Distribuição exclusiva por cidade
-            </li>
-            <li className="flex items-center gap-2 text-amber-600">
-              <AlertTriangle className="w-4 h-4 shrink-0" />
-              R$ 25,00 por LEAD extra aprovado!
-            </li>
-          </ul>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {leadPlans.map(plan => (
+            <Card
+              key={plan.id}
+              className={`relative cursor-pointer transition-all ${selectedLeadPlan?.id === plan.id ? "border-primary ring-2 ring-primary/20" : "border-border hover:border-primary/50"}`}
+              onClick={() => setSelectedLeadPlan(plan)}
+            >
+              {selectedLeadPlan?.id === plan.id && (
+                <div className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-primary flex items-center justify-center">
+                  <Check className="w-3.5 h-3.5 text-primary-foreground" />
+                </div>
+              )}
+              <CardContent className="p-5">
+                <h3 className="font-bold text-sm mb-3">{plan.name}</h3>
+                <p className="text-2xl font-bold">{formatCurrency(plan.price_monthly)}</p>
+                <p className="text-xs text-muted-foreground mb-4">/mês</p>
+                <ul className="space-y-2 text-xs">
+                  <li className="flex items-center gap-1.5">
+                    <Check className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
+                    <strong>{plan.lead_limit} leads</strong>/mês inclusos
+                  </li>
+                  <li className="flex items-center gap-1.5">
+                    <Check className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
+                    Escolha quais leads aceitar
+                  </li>
+                  <li className="flex items-center gap-1.5">
+                    <Check className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
+                    Dados completos do cliente
+                  </li>
+                  <li className="flex items-center gap-1.5 text-amber-600">
+                    <AlertTriangle className="w-3.5 h-3.5 shrink-0" />
+                    {formatCurrency(plan.excess_price)} por lead extra
+                  </li>
+                </ul>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
 
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-4 border-t border-border">
-            <div>
-              <span className="text-3xl font-bold">{LEAD_PLAN.price}</span>
-              <span className="text-sm text-muted-foreground">/mês</span>
-            </div>
+        {selectedLeadPlan && (
+          <div className="flex justify-center">
             <Button
-              onClick={handleLeadCheckout}
+              onClick={() => handleLeadCheckout(selectedLeadPlan)}
               disabled={checkoutLoading}
-              className="gradient-primary text-white w-full sm:w-auto"
+              className="gradient-primary text-white"
               size="lg"
             >
               {checkoutLoading ? (
@@ -380,10 +409,10 @@ const AdminLeads = () => {
               ) : (
                 <CreditCard className="w-4 h-4 mr-2" />
               )}
-              Assinar e Ativar Leads
+              Assinar {selectedLeadPlan.name} — {formatCurrency(selectedLeadPlan.price_monthly)}/mês
             </Button>
           </div>
-        </Card>
+        )}
 
         <p className="text-xs text-center text-muted-foreground">
           Após a confirmação do pagamento, seus leads serão liberados automaticamente.
