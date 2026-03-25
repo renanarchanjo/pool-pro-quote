@@ -23,6 +23,16 @@ interface Plan {
   stripe_product_id: string | null;
 }
 
+interface LeadPlan {
+  id: string;
+  name: string;
+  price_monthly: number;
+  lead_limit: number;
+  excess_price: number;
+  active: boolean;
+  display_order: number;
+}
+
 interface PlatformSetting {
   id: string;
   key: string;
