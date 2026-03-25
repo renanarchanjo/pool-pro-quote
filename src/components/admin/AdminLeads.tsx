@@ -58,6 +58,8 @@ const AdminLeads = () => {
   const [checkoutLoading, setCheckoutLoading] = useState(false);
   const [filterUser, setFilterUser] = useState<string>("all");
   const [teamMembers, setTeamMembers] = useState<{ id: string; full_name: string | null }[]>([]);
+  const [leadPlans, setLeadPlans] = useState<LeadPlanOption[]>([]);
+  const [selectedLeadPlan, setSelectedLeadPlan] = useState<LeadPlanOption | null>(null);
   // Assignment dialog
   const [assignDialogOpen, setAssignDialogOpen] = useState(false);
   const [assigningLeadId, setAssigningLeadId] = useState<string | null>(null);
