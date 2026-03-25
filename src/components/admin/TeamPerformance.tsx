@@ -328,7 +328,7 @@ const TeamPerformance = () => {
             predicted: totals.predicted,
             conversionRate: teamConversion,
           }}
-          metrics={metrics.map((m) => ({
+          metrics={filteredMetrics.map((m) => ({
             memberId: m.memberId,
             name: m.name,
             leadsAccepted: m.leadsAccepted,
