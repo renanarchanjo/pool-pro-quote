@@ -85,7 +85,9 @@ const TeamPerformance = () => {
     return { from: r.from, to: r.to };
   });
   const [calendarOpen, setCalendarOpen] = useState(false);
+  const [selectedMember, setSelectedMember] = useState("all");
   const reportRef = useRef<HTMLDivElement>(null);
+  const isOwner = role === "owner";
 
   useEffect(() => {
     if (store) loadData();
