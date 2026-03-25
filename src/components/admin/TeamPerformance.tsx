@@ -205,6 +205,17 @@ const TeamPerformance = () => {
       .sort((a, b) => b.revenueClosed - a.revenueClosed);
   }, [members, distributions, proposals, dateRange]);
 
+  // Filter metrics by role and selected member
+  const filteredMetrics = useMemo(() => {
+    if (!isOwner && profile?.id) {
+      return metrics.filter(m => m.memberId === profile.id);
+    }
+    if (isOwner && selectedMember !== "all") {
+      return metrics.filter(m => m.memberId === selectedMember);
+    }
+    return metrics;
+  }, [metrics, isOwner, profile, selectedMember]);
+
   // Team totals
   const totals = useMemo(() => {
     return metrics.reduce((acc, m) => ({
