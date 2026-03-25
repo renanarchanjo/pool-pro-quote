@@ -73,7 +73,7 @@ const formatCurrency = (v: number) =>
   `R$ ${v.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`;
 
 const TeamPerformance = () => {
-  const { store } = useStoreData();
+  const { store, role, profile } = useStoreData();
   const [loading, setLoading] = useState(true);
   const [members, setMembers] = useState<MemberProfile[]>([]);
   const [distributions, setDistributions] = useState<LeadDist[]>([]);
@@ -85,7 +85,9 @@ const TeamPerformance = () => {
     return { from: r.from, to: r.to };
   });
   const [calendarOpen, setCalendarOpen] = useState(false);
+  const [selectedMember, setSelectedMember] = useState("all");
   const reportRef = useRef<HTMLDivElement>(null);
+  const isOwner = role === "owner";
 
   useEffect(() => {
     if (store) loadData();
@@ -203,16 +205,27 @@ const TeamPerformance = () => {
       .sort((a, b) => b.revenueClosed - a.revenueClosed);
   }, [members, distributions, proposals, dateRange]);
 
+  // Filter metrics by role and selected member
+  const filteredMetrics = useMemo(() => {
+    if (!isOwner && profile?.id) {
+      return metrics.filter(m => m.memberId === profile.id);
+    }
+    if (isOwner && selectedMember !== "all") {
+      return metrics.filter(m => m.memberId === selectedMember);
+    }
+    return metrics;
+  }, [metrics, isOwner, profile, selectedMember]);
+
   // Team totals
   const totals = useMemo(() => {
-    return metrics.reduce((acc, m) => ({
+    return filteredMetrics.reduce((acc, m) => ({
       leads: acc.leads + m.leadsAccepted,
       closed: acc.closed + m.closed,
       lost: acc.lost + m.lost,
       revenue: acc.revenue + m.revenueClosed,
       predicted: acc.predicted + m.revenuePredicted,
     }), { leads: 0, closed: 0, lost: 0, revenue: 0, predicted: 0 });
-  }, [metrics]);
+  }, [filteredMetrics]);
 
   const teamConversion = (totals.closed + totals.lost) > 0
     ? (totals.closed / (totals.closed + totals.lost)) * 100
@@ -249,11 +262,23 @@ const TeamPerformance = () => {
       {/* Header with controls - excluded from PDF */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <h3 className="text-lg font-bold">Minha Performance</h3>
-          
+          <h3 className="text-lg font-bold">{isOwner ? "Performance da Equipe" : "Minha Performance"}</h3>
         </div>
-        <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" className="h-8 text-xs gap-1" onClick={handleExportPDF} disabled={metrics.length === 0}>
+        <div className="flex items-center gap-2 flex-wrap">
+          {isOwner && (
+            <Select value={selectedMember} onValueChange={setSelectedMember}>
+              <SelectTrigger className="h-8 w-[160px] text-xs">
+                <SelectValue placeholder="Todos" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todos</SelectItem>
+                {members.map(m => (
+                  <SelectItem key={m.id} value={m.id}>{m.full_name || "Sem nome"}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
+          <Button variant="outline" size="sm" className="h-8 text-xs gap-1" onClick={handleExportPDF} disabled={filteredMetrics.length === 0}>
             <FileDown className="w-3 h-3" />
             PDF
           </Button>
@@ -303,7 +328,7 @@ const TeamPerformance = () => {
             predicted: totals.predicted,
             conversionRate: teamConversion,
           }}
-          metrics={metrics.map((m) => ({
+          metrics={filteredMetrics.map((m) => ({
             memberId: m.memberId,
             name: m.name,
             leadsAccepted: m.leadsAccepted,
@@ -319,7 +344,7 @@ const TeamPerformance = () => {
         />
       </div>
 
-      {metrics.length === 0 ? (
+      {filteredMetrics.length === 0 ? (
         <Card className="border-border/50">
           <CardContent className="p-8 text-center">
             <BarChart3 className="w-10 h-10 text-muted-foreground mx-auto mb-2" />
@@ -328,8 +353,8 @@ const TeamPerformance = () => {
         </Card>
       ) : (
         <div className="space-y-3">
-          {metrics.map((m, idx) => {
-            const maxRevenue = metrics[0]?.revenueClosed || 1;
+          {filteredMetrics.map((m, idx) => {
+            const maxRevenue = filteredMetrics[0]?.revenueClosed || 1;
             const revenuePercent = (m.revenueClosed / maxRevenue) * 100;
 
             return (
