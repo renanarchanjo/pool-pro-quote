@@ -241,42 +241,27 @@ const MatrizPlans = () => {
         </CardContent>
       </Card>
 
-      {/* Extra Costs Settings */}
+      {/* Extra Costs - Fixed */}
       <Card>
         <CardHeader className="pb-3">
-          <CardTitle className="text-base flex items-center gap-2"><Settings className="w-4 h-4" /> Custos Adicionais</CardTitle>
+          <CardTitle className="text-base flex items-center gap-2"><Settings className="w-4 h-4" /> Custos Adicionais (Fixos)</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {settings.map(setting => (
-              <div key={setting.id} className="space-y-2">
-                <Label htmlFor={setting.key} className="text-sm font-medium">
-                  {setting.key === "extra_user_cost" && <Users className="w-3.5 h-3.5 inline mr-1.5" />}
-                  {setting.key === "extra_proposal_cost" && <FileText className="w-3.5 h-3.5 inline mr-1.5" />}
+              <div key={setting.id} className="p-4 rounded-lg border border-border/50 bg-muted/30">
+                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">
+                  {setting.key === "extra_user_cost" && <Users className="w-3.5 h-3.5" />}
+                  {setting.key === "extra_proposal_cost" && <FileText className="w-3.5 h-3.5" />}
                   {setting.label || setting.key}
-                </Label>
-                <div className="flex items-center gap-2">
-                  <Input
-                    id={setting.key}
-                    type="number"
-                    step="0.01"
-                    value={settingsForm[setting.key] || ""}
-                    onChange={e => setSettingsForm(prev => ({ ...prev, [setting.key]: e.target.value }))}
-                    className="max-w-[200px]"
-                  />
-                </div>
-                <p className="text-xs text-muted-foreground">
-                  {setting.key === "extra_user_cost" && "Cobrado por cada usuário além do limite do plano"}
-                  {setting.key === "extra_proposal_cost" && "Cobrado por cada orçamento além do limite do plano"}
+                </p>
+                <p className="text-2xl font-bold mt-1">{formatCurrency(parseFloat(setting.value) || 0)}</p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  {setting.key === "extra_user_cost" && "Por colaborador além do limite"}
+                  {setting.key === "extra_proposal_cost" && "Por proposta além do limite"}
                 </p>
               </div>
             ))}
-          </div>
-          <div className="mt-6">
-            <Button onClick={handleSaveSettings} disabled={saving}>
-              {saving ? <Loader2 className="w-4 h-4 animate-spin mr-1" /> : <Save className="w-4 h-4 mr-1" />}
-              Salvar Configurações
-            </Button>
           </div>
         </CardContent>
       </Card>
