@@ -32,6 +32,7 @@ const Auth = () => {
   const [nomeFantasia, setNomeFantasia] = useState("");
   const [city, setCity] = useState("");
   const [state, setState] = useState("");
+  const [phone, setPhone] = useState("");
   const [cnpjLoading, setCnpjLoading] = useState(false);
   const [cnpjFound, setCnpjFound] = useState(false);
   const [cities, setCities] = useState<string[]>([]);
