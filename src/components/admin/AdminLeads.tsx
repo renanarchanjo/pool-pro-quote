@@ -14,11 +14,15 @@ import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import ProposalView from "@/components/simulator/ProposalView";
 
-const LEAD_PLAN = {
-  priceId: "price_1TELsVD4inSHTJNLmue5gkTP",
-  productId: "prod_UClPPxnoSh7tlx",
-  price: "R$ 997,00",
-};
+interface LeadPlanOption {
+  id: string;
+  name: string;
+  price_monthly: number;
+  lead_limit: number;
+  excess_price: number;
+  stripe_price_id: string | null;
+  stripe_product_id: string | null;
+}
 
 interface ReceivedLead {
   id: string;
