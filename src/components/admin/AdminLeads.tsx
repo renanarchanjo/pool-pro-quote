@@ -67,6 +67,15 @@ const AdminLeads = () => {
 
   const isOwner = role === "owner";
 
+  // Load available lead plans
+  useEffect(() => {
+    const loadLeadPlans = async () => {
+      const { data } = await (supabase as any).from("lead_plans").select("*").eq("active", true).order("display_order");
+      if (data) setLeadPlans(data);
+    };
+    loadLeadPlans();
+  }, []);
+
   // Check if lead plan subscription is paid (or manually activated)
   useEffect(() => {
     if (storeInfo?.lead_plan_active) {
@@ -79,20 +88,25 @@ const AdminLeads = () => {
         const { data, error } = await supabase.functions.invoke("check-subscription");
         if (error) throw error;
         const activeProducts: { product_id: string }[] = data?.active_products || [];
-        const hasLeadPlan = activeProducts.some(p => p.product_id === LEAD_PLAN.productId);
+        const productIds = leadPlans.map(p => p.stripe_product_id).filter(Boolean);
+        const hasLeadPlan = activeProducts.some(p => productIds.includes(p.product_id));
         setLeadSubActive(hasLeadPlan);
       } catch {
         setLeadSubActive(false);
       }
     };
     checkLeadSubscription();
-  }, [storeInfo]);
+  }, [storeInfo, leadPlans]);
 
-  const handleLeadCheckout = async () => {
+  const handleLeadCheckout = async (plan: LeadPlanOption) => {
+    if (!plan.stripe_price_id) {
+      toast.error("Plano sem configuração de pagamento");
+      return;
+    }
     try {
       setCheckoutLoading(true);
       const { data, error } = await supabase.functions.invoke("create-checkout", {
-        body: { priceId: LEAD_PLAN.priceId },
+        body: { priceId: plan.stripe_price_id },
       });
       if (error) throw error;
       if (data?.url) {
