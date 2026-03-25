@@ -233,6 +233,8 @@ const Auth = () => {
             cnpj: cnpjDigits,
             razaoSocial,
             nomeFantasia,
+            phone: phone.replace(/\D/g, ""),
+            fullName: nomeFantasia || razaoSocial,
             fullName: nomeFantasia || razaoSocial,
           },
         });
