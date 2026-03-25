@@ -170,6 +170,11 @@ const Auth = () => {
         toast.error("Preencha a cidade e o estado");
         return;
       }
+      const phoneDigits = phone.replace(/\D/g, "");
+      if (phoneDigits.length < 10) {
+        toast.error("Informe um telefone válido com DDD");
+        return;
+      }
     }
 
     if (password.length < 6) {
