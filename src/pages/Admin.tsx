@@ -18,6 +18,7 @@ import TeamCommissions from "@/components/admin/TeamCommissions";
 import SubscriptionManager from "@/components/admin/SubscriptionManager";
 import AdminLeads from "@/components/admin/AdminLeads";
 import InvoiceHistory from "@/components/admin/InvoiceHistory";
+import StorePartnersManager from "@/components/admin/StorePartnersManager";
 import { useStoreData } from "@/hooks/useStoreData";
 import PendingLeadsAlert from "@/components/admin/PendingLeadsAlert";
 
@@ -122,6 +123,7 @@ const Admin = () => {
                   <Route path="equipe" element={<TeamManager />} />
                   <Route path="lojistas" element={<StoresManager />} />
                   <Route path="assinatura" element={<SubscriptionManager />} />
+                  <Route path="parceiros" element={<StorePartnersManager />} />
                 </>
               )}
             </Routes>
