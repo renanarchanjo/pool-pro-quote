@@ -183,7 +183,7 @@ const OptionalsSelection = ({ optionals, modelOptionals = [], selectedOptionals:
 
       <div className="space-y-6 mb-8">
         {groups.map((group) => {
-          const groupOptionals = optionals.filter((o) => o.group_id === group.id);
+          const groupOptionals = optionals.filter((o) => o.group_id === group.id).sort((a, b) => a.price - b.price);
           if (groupOptionals.length === 0) return null;
 
           return (
