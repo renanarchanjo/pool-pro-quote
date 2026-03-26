@@ -330,7 +330,7 @@ const Auth = () => {
               type="button"
               onClick={() => {
                 setPendingConfirmation(false);
-                setIsLogin(true);
+                navigate("/login");
               }}
               className="text-sm text-primary hover:underline font-medium"
             >
@@ -344,7 +344,6 @@ const Auth = () => {
               className="w-full"
               onClick={() => {
                 setPendingConfirmation(false);
-                setIsLogin(false);
               }}
             >
               Voltar ao cadastro
