@@ -469,10 +469,10 @@ const PoolModelManager = () => {
     if (!tmpl) return;
     try {
       // Delete existing items for this model
-      await supabase.from("model_included_items").delete().eq("model_id", editing).eq("store_id", store.id);
+      await supabase.from("model_included_items").delete().eq("model_id", modelId).eq("store_id", store.id);
       // Insert template items
       const items = tmpl.items.map((i, idx) => ({
-        model_id: editing, store_id: store.id, name: i.name,
+        model_id: modelId, store_id: store.id, name: i.name,
         quantity: i.quantity || 1,
         cost: i.cost, margin_percent: i.margin_percent,
         price: i.price, display_order: idx,
@@ -484,9 +484,9 @@ const PoolModelManager = () => {
       // Apply not_included_items to formData
       setFormData(prev => ({ ...prev, not_included_items: tmpl.not_included_items || [] }));
       // Also update the model in DB
-      await supabase.from("pool_models").update({ not_included_items: tmpl.not_included_items || [] }).eq("id", editing);
+      await supabase.from("pool_models").update({ not_included_items: tmpl.not_included_items || [] }).eq("id", modelId);
       toast.success(`Template "${tmpl.name}" aplicado com ${items.length} itens`);
-      await syncIncludedItemsToModel(editing);
+      await syncIncludedItemsToModel(modelId);
       loadData();
     } catch { toast.error("Erro ao aplicar template"); }
   };
