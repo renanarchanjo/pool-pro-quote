@@ -306,8 +306,32 @@ const PartnersManager = () => {
                     )}
                   </div>
                   <p className="text-xs text-muted-foreground">
-                    {RANKING_LABELS[partner.ranking] || `${partner.ranking}º Lugar`} · {partner.active ? "Ativo" : "Oculto"}
+                    {RANKING_LABELS[partner.ranking] || `${partner.ranking}º Lugar`} · {partner.active ? "Ativo" : "Oculto"} · {partner.display_percent}%
                   </p>
+
+                  {/* Display percent */}
+                  <div className="flex items-center gap-2 mt-2">
+                    <Label className="text-xs shrink-0">Frequência:</Label>
+                    <Input
+                      type="number"
+                      min={0}
+                      max={100}
+                      value={partner.display_percent}
+                      onChange={(e) => {
+                        const val = parseFloat(e.target.value);
+                        if (!isNaN(val)) setPartners(prev => prev.map(p => p.id === partner.id ? { ...p, display_percent: val } : p));
+                      }}
+                      onBlur={async (e) => {
+                        const val = parseFloat(e.target.value);
+                        if (isNaN(val) || val === partner.display_percent) return;
+                        const { error } = await supabase.from("partners").update({ display_percent: val }).eq("id", partner.id);
+                        if (error) { toast.error("Erro ao salvar frequência"); return; }
+                        toast.success("Frequência atualizada!");
+                      }}
+                      className="w-20 h-7 text-xs text-center"
+                    />
+                    <span className="text-xs text-muted-foreground">%</span>
+                  </div>
 
                   {/* Banner URL */}
                   <div className="mt-3 space-y-2 border-t border-border/50 pt-3">
