@@ -23,7 +23,7 @@ const formatCNPJ = (value: string) => {
 const Auth = () => {
   useForceLightTheme();
   const [loading, setLoading] = useState(false);
-  const [isLogin, setIsLogin] = useState(true);
+  const [isLogin] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -363,9 +363,7 @@ const Auth = () => {
             <img src={logoDark} alt="SIMULAPOOL" className="h-20 object-contain" />
           </div>
           <h1 className="text-3xl font-display font-bold mb-2">Área do Lojista</h1>
-          <p className="text-muted-foreground">
-            {isLogin ? "Entre com suas credenciais" : "Crie sua loja agora"}
-          </p>
+          <p className="text-muted-foreground">Crie sua loja agora</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -531,7 +529,7 @@ const Auth = () => {
                 Processando...
               </>
             ) : (
-              <>{isLogin ? "Entrar" : "Criar Loja"}</>
+              <>Criar Loja</>
             )}
           </Button>
         </form>
@@ -539,11 +537,10 @@ const Auth = () => {
         <div className="mt-6 text-center">
           <button
             type="button"
-            onClick={() => setIsLogin(!isLogin)}
+            onClick={() => navigate("/login")}
             className="text-sm text-primary hover:underline font-medium"
-            disabled={loading}
           >
-            {isLogin ? "Ainda não tem loja? Cadastre-se grátis" : "Já tem conta? Entre"}
+            Já tem conta? Entre
           </button>
         </div>
 
