@@ -885,6 +885,8 @@ const PoolModelManager = () => {
                         <Button variant="outline" onClick={() => { setShowSaveTemplate(false); setTemplateName(""); }}>Cancelar</Button>
                       </Card>
                     )}
+                  </>
+                )}
               </div>
             )}
           </TabsContent>
