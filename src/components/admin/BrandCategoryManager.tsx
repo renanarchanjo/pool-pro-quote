@@ -255,44 +255,45 @@ const BrandCategoryManager = ({ mode = "brands" }: { mode?: "brands" | "categori
 
   return (
     <div className="space-y-8">
-      {/* MARCA FORM */}
+      {/* MARCA FORM - only in brands mode */}
       {mode === "brands" && (
-      <Card className="p-6">
-        <h2 className="text-2xl font-bold mb-4">
-          {editingBrand ? "Editar Marca" : "Nova Marca"}
-        </h2>
-        <form onSubmit={handleBrandSubmit} className="space-y-4">
-          <div className="grid md:grid-cols-2 gap-4">
-            <div>
-              <Label htmlFor="brand-name">Nome da Marca *</Label>
-              <Input id="brand-name" value={brandForm.name}
-                onChange={(e) => setBrandForm({ ...brandForm, name: e.target.value })}
-                placeholder="Ex: iGUi, Splash, Rio Piscinas" />
+        <Card className="p-6">
+          <h2 className="text-2xl font-bold mb-4">
+            {editingBrand ? "Editar Marca" : "Nova Marca"}
+          </h2>
+          <form onSubmit={handleBrandSubmit} className="space-y-4">
+            <div className="grid md:grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="brand-name">Nome da Marca *</Label>
+                <Input id="brand-name" value={brandForm.name}
+                  onChange={(e) => setBrandForm({ ...brandForm, name: e.target.value })}
+                  placeholder="Ex: iGUi, Splash, Rio Piscinas" />
+              </div>
+              <div>
+                <Label htmlFor="brand-desc">Descrição</Label>
+                <Input id="brand-desc" value={brandForm.description}
+                  onChange={(e) => setBrandForm({ ...brandForm, description: e.target.value })}
+                  placeholder="Descrição da marca" />
+              </div>
             </div>
-            <div>
-              <Label htmlFor="brand-desc">Descrição</Label>
-              <Input id="brand-desc" value={brandForm.description}
-                onChange={(e) => setBrandForm({ ...brandForm, description: e.target.value })}
-                placeholder="Descrição da marca" />
+            <div className="flex gap-2">
+              <Button type="submit" className="gradient-primary text-white">
+                <Plus className="w-4 h-4 mr-2" />
+                {editingBrand ? "Atualizar Marca" : "Criar Marca"}
+              </Button>
+              {editingBrand && (
+                <Button type="button" variant="outline" onClick={() => {
+                  setEditingBrand(null);
+                  setBrandForm({ name: "", description: "" });
+                }}>Cancelar</Button>
+              )}
             </div>
-          </div>
-          <div className="flex gap-2">
-            <Button type="submit" className="gradient-primary text-white">
-              <Plus className="w-4 h-4 mr-2" />
-              {editingBrand ? "Atualizar Marca" : "Criar Marca"}
-            </Button>
-            {editingBrand && (
-              <Button type="button" variant="outline" onClick={() => {
-                setEditingBrand(null);
-                setBrandForm({ name: "", description: "" });
-              }}>Cancelar</Button>
-            )}
-          </div>
-        </form>
-      </Card>
+          </form>
+        </Card>
+      )}
 
-      {/* CATEGORIA FORM */}
-      {brands.length > 0 && (
+      {/* CATEGORIA FORM - only in categories mode */}
+      {mode === "categories" && brands.length > 0 && (
         <Card className="p-6">
           <h2 className="text-2xl font-bold mb-4">
             {editingCategory ? "Editar Categoria" : "Nova Categoria"}
@@ -342,8 +343,10 @@ const BrandCategoryManager = ({ mode = "brands" }: { mode?: "brands" | "categori
       {/* LISTAGEM */}
       <div className="space-y-4">
         <div className="flex items-center justify-between flex-wrap gap-3">
-          <h2 className="text-xl font-bold">Marcas e Categorias Cadastradas</h2>
-          {brands.length > 0 && (
+          <h2 className="text-xl font-bold">
+            {mode === "brands" ? "Marcas Cadastradas" : "Categorias por Marca"}
+          </h2>
+          {mode === "brands" && brands.length > 0 && (
             <div className="flex items-center gap-2">
               <Button variant="outline" size="sm" onClick={selectAllBrands}>
                 {selectedBrands.length === brands.length ? <CheckSquare className="w-4 h-4 mr-1" /> : <Square className="w-4 h-4 mr-1" />}
@@ -354,7 +357,7 @@ const BrandCategoryManager = ({ mode = "brands" }: { mode?: "brands" | "categori
         </div>
 
         {/* Bulk brand actions bar */}
-        {selectedBrands.length > 0 && (
+        {mode === "brands" && selectedBrands.length > 0 && (
           <Card className="p-3 bg-primary/5 border-primary/20">
             <div className="flex items-center justify-between flex-wrap gap-2">
               <p className="text-sm font-medium">{selectedBrands.length} marca(s) selecionada(s)</p>
@@ -393,7 +396,7 @@ const BrandCategoryManager = ({ mode = "brands" }: { mode?: "brands" | "categori
         )}
 
         {/* Bulk category actions bar */}
-        {selectedCategories.length > 0 && (
+        {mode === "categories" && selectedCategories.length > 0 && (
           <Card className="p-3 bg-accent/5 border-accent/20">
             <div className="flex items-center justify-between flex-wrap gap-2">
               <p className="text-sm font-medium">{selectedCategories.length} categoria(s) selecionada(s)</p>
@@ -432,7 +435,9 @@ const BrandCategoryManager = ({ mode = "brands" }: { mode?: "brands" | "categori
         {brands.length === 0 ? (
           <Card className="p-8 text-center">
             <Tag className="w-12 h-12 text-muted-foreground mx-auto mb-3" />
-            <p className="text-muted-foreground">Nenhuma marca cadastrada ainda.</p>
+            <p className="text-muted-foreground">
+              {mode === "brands" ? "Nenhuma marca cadastrada ainda." : "Cadastre marcas primeiro para criar categorias."}
+            </p>
           </Card>
         ) : (
           brands.map((brand) => {
@@ -440,9 +445,9 @@ const BrandCategoryManager = ({ mode = "brands" }: { mode?: "brands" | "categori
             const isExpanded = expandedBrands.includes(brand.id);
             const isSelected = selectedBrands.includes(brand.id);
 
-            return (
-              <Collapsible key={brand.id} open={isExpanded} onOpenChange={() => toggleExpanded(brand.id)}>
-                <Card className={`overflow-hidden transition-all ${isSelected ? "ring-2 ring-primary/30 border-primary bg-primary/5" : "border-border"}`}>
+            if (mode === "brands") {
+              return (
+                <Card key={brand.id} className={`overflow-hidden transition-all ${isSelected ? "ring-2 ring-primary/30 border-primary bg-primary/5" : "border-border"}`}>
                   <div
                     className="p-4 flex items-center gap-3 cursor-pointer"
                     onClick={() => toggleSelectBrand(brand.id)}
@@ -451,21 +456,17 @@ const BrandCategoryManager = ({ mode = "brands" }: { mode?: "brands" | "categori
                       checked={isSelected}
                       className="shrink-0 pointer-events-none"
                     />
-                    <CollapsibleTrigger className="flex items-center gap-3 flex-1 text-left hover:opacity-80 transition-opacity" onClick={(e) => e.stopPropagation()}>
-                      {isExpanded ? <ChevronDown className="w-5 h-5 text-primary" /> : <ChevronRight className="w-5 h-5" />}
-                      <div>
-                        <h3 className="text-lg font-bold">
-                          {brand.name}
-                          {brand.partner_id && <span className="text-primary ml-1 text-sm font-normal">®</span>}
-                        </h3>
-                        {brand.description && <p className="text-sm text-muted-foreground">{brand.description}</p>}
-                      </div>
-                      <Badge variant="secondary" className="ml-2">
-                        {brandCategories.length} categoria{brandCategories.length !== 1 ? "s" : ""}
-                      </Badge>
-                    </CollapsibleTrigger>
-
-                    <div className="flex items-center gap-3 ml-auto shrink-0" onClick={(e) => e.stopPropagation()}>
+                    <div className="flex-1">
+                      <h3 className="text-lg font-bold">
+                        {brand.name}
+                        {brand.partner_id && <span className="text-primary ml-1 text-sm font-normal">®</span>}
+                      </h3>
+                      {brand.description && <p className="text-sm text-muted-foreground">{brand.description}</p>}
+                    </div>
+                    <Badge variant="secondary">
+                      {brandCategories.length} categoria{brandCategories.length !== 1 ? "s" : ""}
+                    </Badge>
+                    <div className="flex items-center gap-3 shrink-0" onClick={(e) => e.stopPropagation()}>
                       <div className="flex items-center gap-2">
                         <Switch checked={brand.active} onCheckedChange={() => toggleBrandActive(brand.id, brand.active)} />
                         <span className="text-sm hidden sm:inline">{brand.active ? "Ativo" : "Inativo"}</span>
@@ -500,6 +501,24 @@ const BrandCategoryManager = ({ mode = "brands" }: { mode?: "brands" | "categori
                       </AlertDialog>
                     </div>
                   </div>
+                </Card>
+              );
+            }
+
+            // Categories mode - collapsible by brand
+            return (
+              <Collapsible key={brand.id} open={isExpanded} onOpenChange={() => toggleExpanded(brand.id)}>
+                <Card className="overflow-hidden">
+                  <CollapsibleTrigger className="w-full p-4 flex items-center gap-3 text-left hover:bg-muted/50 transition-colors">
+                    {isExpanded ? <ChevronDown className="w-5 h-5 text-primary" /> : <ChevronRight className="w-5 h-5" />}
+                    <h3 className="text-lg font-bold">
+                      {brand.name}
+                      {brand.partner_id && <span className="text-primary ml-1 text-sm font-normal">®</span>}
+                    </h3>
+                    <Badge variant="secondary" className="ml-2">
+                      {brandCategories.length} categoria{brandCategories.length !== 1 ? "s" : ""}
+                    </Badge>
+                  </CollapsibleTrigger>
 
                   <CollapsibleContent>
                     <div className="border-t border-border/50 p-4 bg-muted/20 space-y-2">
