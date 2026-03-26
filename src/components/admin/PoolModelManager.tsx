@@ -375,6 +375,56 @@ const PoolModelManager = () => {
     } catch { toast.error("Erro ao sincronizar itens"); }
   };
 
+  // ---- Template CRUD ----
+  const handleSaveAsTemplate = async () => {
+    if (!store || !templateName.trim() || currentIncludedItems.length === 0) {
+      toast.error("Dê um nome ao template e tenha pelo menos 1 item"); return;
+    }
+    try {
+      const { data: tmpl, error: tmplErr } = await supabase.from("included_item_templates")
+        .insert({ store_id: store.id, name: templateName.trim() }).select("id").single();
+      if (tmplErr) throw tmplErr;
+      const items = currentIncludedItems.map((i, idx) => ({
+        template_id: tmpl.id, store_id: store.id, name: i.name,
+        cost: Number(i.cost), margin_percent: Number(i.margin_percent),
+        price: Number(i.price), display_order: idx,
+      }));
+      const { error: itemsErr } = await supabase.from("included_item_template_items").insert(items);
+      if (itemsErr) throw itemsErr;
+      toast.success(`Template "${templateName}" salvo com ${items.length} itens`);
+      setTemplateName(""); setShowSaveTemplate(false); loadData();
+    } catch { toast.error("Erro ao salvar template"); }
+  };
+
+  const handleApplyTemplate = async (templateId: string) => {
+    if (!editing || !store) return;
+    const tmpl = templates.find(t => t.id === templateId);
+    if (!tmpl) return;
+    try {
+      // Delete existing items for this model
+      await supabase.from("model_included_items").delete().eq("model_id", editing).eq("store_id", store.id);
+      // Insert template items
+      const items = tmpl.items.map((i, idx) => ({
+        model_id: editing, store_id: store.id, name: i.name,
+        cost: i.cost, margin_percent: i.margin_percent,
+        price: i.price, display_order: idx,
+      }));
+      if (items.length > 0) {
+        const { error } = await supabase.from("model_included_items").insert(items);
+        if (error) throw error;
+      }
+      toast.success(`Template "${tmpl.name}" aplicado com ${items.length} itens`);
+      loadData();
+    } catch { toast.error("Erro ao aplicar template"); }
+  };
+
+  const handleDeleteTemplate = async (templateId: string) => {
+    try {
+      await supabase.from("included_item_templates").delete().eq("id", templateId);
+      toast.success("Template excluído"); loadData();
+    } catch { toast.error("Erro ao excluir template"); }
+  };
+
   // ---- Bulk actions ----
   const toggleSelectModel = (id: string) => setSelectedModels((prev) => prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]);
   const selectAllModels = () => setSelectedModels(selectedModels.length === models.length ? [] : models.map((m) => m.id));
