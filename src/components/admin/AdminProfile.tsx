@@ -124,45 +124,6 @@ const AdminProfile = () => {
 
       <Card className="p-6 max-w-2xl">
         <div className="space-y-8">
-          {/* Logo Section */}
-          <div className="flex flex-col items-center gap-4 pb-6 border-b border-border">
-            <div className="w-full max-w-md rounded-lg border-2 border-dashed border-primary/20 bg-muted/50 overflow-hidden flex items-center justify-center min-h-[120px] p-4">
-              {logoUrl ? (
-                <img
-                  src={logoUrl}
-                  alt="Logo da loja"
-                  className="max-w-full max-h-[200px] object-contain"
-                />
-              ) : (
-                <div className="flex flex-col items-center justify-center text-muted-foreground py-8">
-                  <ImageIcon className="w-12 h-12 mb-2 opacity-40" />
-                  <span className="text-sm">Nenhuma logo enviada</span>
-                </div>
-              )}
-            </div>
-
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept="image/*"
-              className="hidden"
-              onChange={handleLogoUpload}
-            />
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => fileInputRef.current?.click()}
-              disabled={uploading}
-            >
-              {uploading ? (
-                <Loader2 className="w-4 h-4 animate-spin mr-2" />
-              ) : (
-                <Upload className="w-4 h-4 mr-2" />
-              )}
-              {logoUrl ? "Trocar Logo" : "Enviar Logo"}
-            </Button>
-            <p className="text-xs text-muted-foreground">Envie sua logo em qualquer formato (horizontal, vertical ou redonda). PNG, JPG ou SVG.</p>
-          </div>
 
           {/* Fields */}
           <div className="grid gap-5">
