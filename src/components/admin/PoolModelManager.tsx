@@ -557,37 +557,8 @@ const PoolModelManager = () => {
 
         <Tabs value={formTab} onValueChange={async (tab) => {
           if ((tab === "itens" || tab === "opcionais") && !editing) {
-            // Auto-save model before switching to items/optionals tabs
-            if (!formData.name.trim() || !formData.category_id) {
-              toast.error("Preencha o nome e selecione a categoria antes de continuar");
-              return;
-            }
-            if (!store) return;
-            try {
-              const data = {
-                category_id: formData.category_id, name: formData.name,
-                length: formData.length ? parseFloat(formData.length) : null,
-                width: formData.width ? parseFloat(formData.width) : null,
-                depth: formData.depth ? parseFloat(formData.depth) : null,
-                photo_url: formData.photo_url || null,
-                cost: formData.cost ? parseFloat(formData.cost) : 0,
-                margin_percent: formData.margin_percent ? parseFloat(formData.margin_percent) : 0,
-                base_price: parseFloat(formData.base_price) || 0,
-                delivery_days: parseInt(formData.delivery_days) || 30,
-                installation_days: parseInt(formData.installation_days) || 5,
-                payment_terms: formData.payment_terms,
-                notes: formData.notes || null,
-                differentials: formData.differentials,
-                included_items: [],
-                not_included_items: formData.not_included_items,
-                store_id: store.id,
-              };
-              const { data: newModel, error } = await supabase.from("pool_models").insert(data).select("id").single();
-              if (error) throw error;
-              setEditing(newModel.id);
-              toast.success("Modelo salvo automaticamente");
-              loadData();
-            } catch (e) { console.error(e); toast.error("Erro ao salvar modelo"); return; }
+            const modelId = await ensureModelSaved();
+            if (!modelId) return;
           }
           setFormTab(tab);
         }}>
