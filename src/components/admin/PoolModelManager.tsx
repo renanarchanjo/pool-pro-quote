@@ -361,7 +361,8 @@ const PoolModelManager = () => {
   };
 
   const handleInclSubmit = async () => {
-    if (!editing) { toast.error("Salve o modelo primeiro para adicionar itens inclusos"); return; }
+    const modelId = editing || await ensureModelSaved();
+    if (!modelId) { toast.error("Salve o modelo primeiro para adicionar itens inclusos"); return; }
     if (!inclForm.name.trim()) { toast.error("Preencha o nome do item"); return; }
     try {
       const qty = parseInt(inclForm.quantity) || 1;
