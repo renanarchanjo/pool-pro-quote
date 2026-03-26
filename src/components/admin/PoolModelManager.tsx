@@ -47,6 +47,7 @@ interface ItemTemplate {
   id: string;
   name: string;
   items: { name: string; quantity: number; cost: number; margin_percent: number; price: number; display_order: number }[];
+  not_included_items: string[];
 }
 interface PoolModel {
   id: string;
@@ -119,7 +120,7 @@ const PoolModelManager = () => {
         supabase.from("pool_models").select("*").eq("store_id", store.id).order("created_at", { ascending: false }),
         supabase.from("model_optionals").select("*").eq("store_id", store.id).order("display_order"),
         supabase.from("model_included_items").select("*").eq("store_id", store.id).order("display_order"),
-        supabase.from("included_item_templates").select("id, name").eq("store_id", store.id).order("name"),
+        supabase.from("included_item_templates").select("id, name, not_included_items").eq("store_id", store.id).order("name"),
       ]);
       if (brandsRes.error) throw brandsRes.error;
       if (categoriesRes.error) throw categoriesRes.error;
@@ -141,6 +142,7 @@ const PoolModelManager = () => {
         const loadedTemplates: ItemTemplate[] = tmplList.map((t: any) => ({
           id: t.id,
           name: t.name,
+          not_included_items: t.not_included_items || [],
           items: (tmplItems || []).filter((i: any) => i.template_id === t.id).map((i: any) => ({
             name: i.name, quantity: Number(i.quantity) || 1, cost: Number(i.cost), margin_percent: Number(i.margin_percent),
             price: Number(i.price), display_order: i.display_order,
@@ -409,7 +411,7 @@ const PoolModelManager = () => {
     }
     try {
       const { data: tmpl, error: tmplErr } = await supabase.from("included_item_templates")
-        .insert({ store_id: store.id, name: templateName.trim() }).select("id").single();
+        .insert({ store_id: store.id, name: templateName.trim(), not_included_items: formData.not_included_items || [] }).select("id").single();
       if (tmplErr) throw tmplErr;
       const items = currentIncludedItems.map((i, idx) => ({
         template_id: tmpl.id, store_id: store.id, name: i.name,
@@ -442,6 +444,10 @@ const PoolModelManager = () => {
         const { error } = await supabase.from("model_included_items").insert(items);
         if (error) throw error;
       }
+      // Apply not_included_items to formData
+      setFormData(prev => ({ ...prev, not_included_items: tmpl.not_included_items || [] }));
+      // Also update the model in DB
+      await supabase.from("pool_models").update({ not_included_items: tmpl.not_included_items || [] }).eq("id", editing);
       toast.success(`Template "${tmpl.name}" aplicado com ${items.length} itens`);
       await syncIncludedItemsToModel(editing);
       loadData();

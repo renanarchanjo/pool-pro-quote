@@ -214,6 +214,7 @@ export type Database = {
           created_at: string | null
           id: string
           name: string
+          not_included_items: string[] | null
           store_id: string
           updated_at: string | null
         }
@@ -221,6 +222,7 @@ export type Database = {
           created_at?: string | null
           id?: string
           name: string
+          not_included_items?: string[] | null
           store_id: string
           updated_at?: string | null
         }
@@ -228,6 +230,7 @@ export type Database = {
           created_at?: string | null
           id?: string
           name?: string
+          not_included_items?: string[] | null
           store_id?: string
           updated_at?: string | null
         }
