@@ -714,8 +714,10 @@ const PoolModelManager = () => {
                       <Table>
                         <TableHeader>
                           <TableRow>
+                            <TableHead className="w-[60px] text-center">Qtd</TableHead>
                             <TableHead>Item</TableHead>
-                            <TableHead className="text-right">Custo</TableHead>
+                            <TableHead className="text-right">Custo Unit.</TableHead>
+                            <TableHead className="text-right">Custo Total</TableHead>
                             <TableHead className="text-right">Margem</TableHead>
                             <TableHead className="text-right">Preço Venda</TableHead>
                             <TableHead className="text-right">Lucro</TableHead>
@@ -724,11 +726,16 @@ const PoolModelManager = () => {
                         </TableHeader>
                         <TableBody>
                           {currentIncludedItems.map((item) => {
-                            const lucro = Number(item.price) - Number(item.cost);
+                            const qty = Number(item.quantity) || 1;
+                            const unitCost = Number(item.cost);
+                            const totalCost = qty * unitCost;
+                            const lucro = Number(item.price) - totalCost;
                             return (
                               <TableRow key={item.id}>
+                                <TableCell className="text-center font-medium">{qty}</TableCell>
                                 <TableCell className="font-medium">{item.name}</TableCell>
-                                <TableCell className="text-right text-muted-foreground">R$ {fmt(Number(item.cost))}</TableCell>
+                                <TableCell className="text-right text-muted-foreground">R$ {fmt(unitCost)}</TableCell>
+                                <TableCell className="text-right text-muted-foreground">R$ {fmt(totalCost)}</TableCell>
                                 <TableCell className="text-right text-muted-foreground">{item.margin_percent}%</TableCell>
                                 <TableCell className="text-right font-medium">R$ {fmt(Number(item.price))}</TableCell>
                                 <TableCell className="text-right text-emerald-600">R$ {fmt(lucro)}</TableCell>
@@ -745,12 +752,14 @@ const PoolModelManager = () => {
                           })}
                           {/* Totals row */}
                           <TableRow className="bg-muted/50 font-bold">
+                            <TableCell></TableCell>
                             <TableCell>TOTAL ITENS INCLUSOS</TableCell>
-                            <TableCell className="text-right">R$ {fmt(currentIncludedItems.reduce((s, i) => s + Number(i.cost), 0))}</TableCell>
+                            <TableCell></TableCell>
+                            <TableCell className="text-right">R$ {fmt(currentIncludedItems.reduce((s, i) => s + (Number(i.quantity) || 1) * Number(i.cost), 0))}</TableCell>
                             <TableCell></TableCell>
                             <TableCell className="text-right text-primary">R$ {fmt(includedItemsTotal)}</TableCell>
                             <TableCell className="text-right text-emerald-600">
-                              R$ {fmt(currentIncludedItems.reduce((s, i) => s + (Number(i.price) - Number(i.cost)), 0))}
+                              R$ {fmt(currentIncludedItems.reduce((s, i) => s + (Number(i.price) - (Number(i.quantity) || 1) * Number(i.cost)), 0))}
                             </TableCell>
                             <TableCell></TableCell>
                           </TableRow>
