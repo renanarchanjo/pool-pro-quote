@@ -129,10 +129,10 @@ const PoolSimulator = ({ onBack }: PoolSimulatorProps) => {
       setModelOptionals(modelOptsRes.data || []);
       setStoreSettings(settingsRes.data || null);
       setPartners(partnersRes.data || []);
-      if (storeRes.data) {
-        setSelectedStoreName(storeRes.data.name);
-        setStoreCity(storeRes.data.city);
-        setStoreState(storeRes.data.state);
+      if (storeRes.data && storeRes.data.length > 0) {
+        setSelectedStoreName(storeRes.data[0].name);
+        setStoreCity(storeRes.data[0].city);
+        setStoreState(storeRes.data[0].state);
       }
       setStep(1);
     } catch (error) {
