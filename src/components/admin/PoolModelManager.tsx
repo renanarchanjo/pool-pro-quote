@@ -461,7 +461,10 @@ const PoolModelManager = () => {
   };
 
   const handleApplyTemplate = async (templateId: string) => {
-    if (!editing || !store) return;
+    if (!store) return;
+    // Auto-create model if not yet saved
+    const modelId = editing || await ensureModelSaved();
+    if (!modelId) return;
     const tmpl = templates.find(t => t.id === templateId);
     if (!tmpl) return;
     try {
