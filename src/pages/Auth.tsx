@@ -185,7 +185,6 @@ const Auth = () => {
     setLoading(true);
 
     try {
-      {
         const slug = email.split('@')[0].toLowerCase().replace(/[^a-z0-9]/g, '') + '-' + Date.now();
         const cnpjDigits = cnpj.replace(/\D/g, "");
         
@@ -200,12 +199,10 @@ const Auth = () => {
         if (signUpError) throw signUpError;
         if (!authData.user) throw new Error("Erro ao criar usuário");
 
-        // Detect repeated signup (user already exists but unconfirmed)
         if (authData.user.identities && authData.user.identities.length === 0) {
           throw new Error("Este e-mail já está cadastrado. Verifique sua caixa de entrada ou faça login.");
         }
 
-        // Use edge function to create store (bypasses RLS when email not confirmed)
         let storeSetupSuccess = false;
         let storeSetupAttempt = 0;
         const maxRetries = 2;
