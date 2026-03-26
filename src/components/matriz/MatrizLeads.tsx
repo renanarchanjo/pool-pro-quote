@@ -192,6 +192,28 @@ const MatrizLeads = () => {
     setDeletingLead(null);
   };
 
+  const handleViewLead = async (lead: Lead) => {
+    // Resolve optionals if stored as plain UUIDs
+    if (Array.isArray(lead.selected_optionals) && lead.selected_optionals.length > 0) {
+      const first = lead.selected_optionals[0];
+      if (typeof first === "string" && !first.includes("{")) {
+        const ids = lead.selected_optionals as string[];
+        const [{ data: generalOpts }, { data: modelOpts }] = await Promise.all([
+          supabase.from("optionals").select("id, name, price").in("id", ids),
+          supabase.from("model_optionals").select("id, name, price").in("id", ids),
+        ]);
+        const allOpts = [...(generalOpts || []), ...(modelOpts || [])];
+        const resolved = ids.map((id: string) => {
+          const found = allOpts.find((o: any) => o.id === id);
+          return found ? { id: found.id, name: found.name, price: found.price } : { id, name: id, price: 0 };
+        });
+        setViewingLead({ ...lead, selected_optionals: resolved });
+        return;
+      }
+    }
+    setViewingLead(lead);
+  };
+
   const handleCopyPhone = (lead: Lead) => {
     navigator.clipboard.writeText(lead.customer_whatsapp);
     toast.success("Número copiado!");
@@ -441,7 +463,7 @@ const MatrizLeads = () => {
                       <TableCell className="text-sm text-muted-foreground">{lead.created_at ? format(new Date(lead.created_at), "dd/MM/yy HH:mm", { locale: ptBR }) : "-"}</TableCell>
                       <TableCell className="text-right">
                         <div className="flex items-center justify-end gap-1">
-                          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setViewingLead(lead)}><Eye className="w-4 h-4" /></Button>
+                          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleViewLead(lead)}><Eye className="w-4 h-4" /></Button>
                           <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleCopyPhone(lead)}><Copy className="w-4 h-4 text-muted-foreground" /></Button>
                           <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => setDeletingLead(lead)}><Trash2 className="w-4 h-4" /></Button>
                         </div>

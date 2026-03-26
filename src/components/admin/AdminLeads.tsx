@@ -197,6 +197,26 @@ const AdminLeads = () => {
         .eq("id", proposalId)
         .single();
       if (error) throw error;
+
+      // Resolve optionals: if stored as plain UUIDs, fetch names/prices from DB
+      if (Array.isArray(proposal.selected_optionals) && proposal.selected_optionals.length > 0) {
+        const first = proposal.selected_optionals[0];
+        const isUuidArray = typeof first === "string" && !first.includes("{");
+        if (isUuidArray) {
+          const ids = proposal.selected_optionals as string[];
+          // Fetch from both optionals and model_optionals tables
+          const [{ data: generalOpts }, { data: modelOpts }] = await Promise.all([
+            supabase.from("optionals").select("id, name, price").in("id", ids),
+            supabase.from("model_optionals").select("id, name, price").in("id", ids),
+          ]);
+          const allOpts = [...(generalOpts || []), ...(modelOpts || [])];
+          proposal.selected_optionals = ids.map((id: string) => {
+            const found = allOpts.find((o: any) => o.id === id);
+            return found ? { id: found.id, name: found.name, price: found.price } : { id, name: id, price: 0 };
+          });
+        }
+      }
+
       setViewingProposal(proposal);
     } catch (err: any) {
       toast.error("Erro ao carregar proposta: " + (err.message || ""));
