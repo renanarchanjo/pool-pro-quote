@@ -115,6 +115,20 @@ const ManualProposal = () => {
     setEnabledOptionalIds(optionals.map((o) => o.id));
   }, [optionals]);
 
+  // Fetch included items total when model changes
+  useEffect(() => {
+    if (!selectedModel) { setIncludedItemsTotal(0); return; }
+    const fetchInclTotal = async () => {
+      const { data } = await supabase
+        .from("model_included_items")
+        .select("price")
+        .eq("model_id", selectedModel.id)
+        .eq("active", true);
+      setIncludedItemsTotal((data || []).reduce((sum, item) => sum + Number(item.price), 0));
+    };
+    fetchInclTotal();
+  }, [selectedModel?.id]);
+
   const loadData = async () => {
     try {
       const storeId = profile!.store_id!;
