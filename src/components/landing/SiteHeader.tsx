@@ -5,8 +5,10 @@ import { Button } from "@/components/ui/button";
 import logoHorizontal from "@/assets/simulapool-horizontal.png";
 
 const navLinks = [
-{ label: "Simular Agora!", to: "/" },
-{ label: "Parceiros", to: "/parceiros" }];
+  { label: "Simular Agora!", to: "/" },
+  { label: "Planos", to: "/precos" },
+  { label: "Parceiros", to: "/parceiros" },
+];
 
 
 const SiteHeader = () => {
