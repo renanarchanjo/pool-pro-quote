@@ -443,7 +443,7 @@ const OptionalManager = () => {
       {/* Optionals organized by group */}
       <div className="space-y-6">
         {groups.map((group) => {
-          const groupOpts = optionals.filter((o) => o.group_id === group.id);
+          const groupOpts = optionals.filter((o) => o.group_id === group.id).sort((a, b) => a.price - b.price);
           if (groupOpts.length === 0) return null;
           return (
             <div key={group.id}>
