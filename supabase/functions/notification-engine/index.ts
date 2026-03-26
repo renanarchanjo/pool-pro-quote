@@ -466,6 +466,27 @@ serve(async (req) => {
       { auth: { persistSession: false } }
     );
 
+    // === AUTHENTICATION CHECK ===
+    const authHeader = req.headers.get("Authorization");
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    const token = authHeader.replace("Bearer ", "");
+    // Validate: either a valid user JWT or the service role key (for cron/server calls)
+    const { data: userData, error: authError } = await supabaseAdmin.auth.getUser(token);
+    const isServiceRole = token === Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+
+    if (!isServiceRole && (authError || !userData?.user)) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
     const { periodo = "manual", tipo, userId, leadCount, bypassCooldown, bypassDailyLimit, bypassDeduplication } = await req.json().catch(() => ({}));
 
     // Modo manual: enviar notificação avulsa (ex: novo lead em tempo real)
