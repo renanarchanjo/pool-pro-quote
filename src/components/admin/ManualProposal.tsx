@@ -259,10 +259,6 @@ const ManualProposal = () => {
   return (
     <div className="max-w-4xl">
       <div className="mb-6">
-        <h1 className="text-3xl font-bold flex items-center gap-3">
-          <FileText className="w-8 h-8 text-primary" />
-          Gerar Proposta
-        </h1>
         <p className="text-muted-foreground mt-1">
           Crie uma proposta manual para clientes por indicação
         </p>
