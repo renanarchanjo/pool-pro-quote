@@ -122,7 +122,7 @@ const ManualProposal = () => {
         supabase.from("optionals").select("*").eq("store_id", storeId).eq("active", true).order("display_order"),
         supabase.from("model_optionals").select("*").eq("store_id", storeId).eq("active", true).order("display_order"),
         supabase.from("optional_groups").select("id, name, description, display_order").eq("store_id", storeId).eq("active", true).order("display_order"),
-        supabase.from("partners").select("id, name, logo_url, banner_1_url, banner_2_url").eq("active", true).order("display_order"),
+        supabase.from("partners").select("id, name, logo_url, banner_1_url, banner_2_url, display_percent").eq("active", true).order("display_order"),
       ]);
       setBrands(brandRes.data || []);
       setCategories(catRes.data || []);

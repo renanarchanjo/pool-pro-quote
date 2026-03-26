@@ -116,7 +116,7 @@ const PoolSimulator = ({ onBack }: PoolSimulatorProps) => {
         supabase.rpc("get_model_optionals_public", { _store_id: sid }),
         supabase.from("store_settings").select("*").eq("store_id", sid).maybeSingle(),
         supabase.rpc("get_store_public_by_id", { _id: sid }),
-        supabase.from("partners").select("id, name, logo_url, banner_1_url, banner_2_url").eq("active", true).order("display_order"),
+        supabase.from("partners").select("id, name, logo_url, banner_1_url, banner_2_url, display_percent").eq("active", true).order("display_order"),
       ]);
 
       if (modelsRes.error) throw modelsRes.error;
