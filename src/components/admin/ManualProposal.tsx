@@ -258,11 +258,6 @@ const ManualProposal = () => {
 
   return (
     <div className="max-w-4xl">
-      <div className="mb-6">
-        <p className="text-muted-foreground mt-1">
-          Crie uma proposta manual para clientes por indicação
-        </p>
-      </div>
 
       <div className="grid gap-6 md:grid-cols-2">
         {/* Cliente */}
