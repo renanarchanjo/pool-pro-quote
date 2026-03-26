@@ -489,6 +489,22 @@ serve(async (req) => {
 
     const { periodo = "manual", tipo, userId, leadCount, bypassCooldown, bypassDailyLimit, bypassDeduplication } = await req.json().catch(() => ({}));
 
+    // Validate: non-service-role users can only send to themselves
+    if (!isServiceRole && tipo === "lead_recebido" && userId && userId !== userData?.user?.id) {
+      return new Response(JSON.stringify({ error: "Cannot send notifications to other users" }), {
+        status: 403,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    // Only service role can run cron routines
+    if (!isServiceRole && !tipo) {
+      return new Response(JSON.stringify({ error: "Forbidden: cron mode requires service role" }), {
+        status: 403,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
     // Modo manual: enviar notificação avulsa (ex: novo lead em tempo real)
     if (tipo === "lead_recebido" && userId) {
       const count = leadCount || 1;
