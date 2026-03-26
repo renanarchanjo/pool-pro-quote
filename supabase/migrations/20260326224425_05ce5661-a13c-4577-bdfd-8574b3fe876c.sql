@@ -1,0 +1,1 @@
+ALTER TABLE public.included_item_templates ADD COLUMN not_included_items text[] DEFAULT '{}'::text[];
