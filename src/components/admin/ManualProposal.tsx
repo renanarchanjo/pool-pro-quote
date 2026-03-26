@@ -328,7 +328,7 @@ const ManualProposal = () => {
                 <SelectTrigger><SelectValue placeholder="Selecione uma marca" /></SelectTrigger>
                 <SelectContent>
                   {brands.map((b) => (
-                    <SelectItem key={b.id} value={b.id}>{b.name}</SelectItem>
+                    <SelectItem key={b.id} value={b.id}>{b.name}{b.partner_id ? " ®" : ""}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
