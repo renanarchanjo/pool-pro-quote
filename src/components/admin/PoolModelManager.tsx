@@ -371,22 +371,28 @@ const PoolModelManager = () => {
     });
   };
 
-  // Sync included_items text array when saving from Itens tab
+  // Auto-sync included_items text array on pool_models after any item change
+  const syncIncludedItemsToModel = async (modelId: string) => {
+    try {
+      const { data: items } = await supabase
+        .from("model_included_items")
+        .select("name, quantity")
+        .eq("model_id", modelId)
+        .order("display_order");
+      const inclNames = (items || []).map(i => {
+        const qty = Number(i.quantity) || 1;
+        return qty > 1 ? `${qty}x ${i.name}` : i.name;
+      });
+      await supabase.from("pool_models").update({ included_items: inclNames }).eq("id", modelId);
+    } catch (e) { console.error("Erro ao sincronizar itens inclusos:", e); }
+  };
+
+  // Legacy manual sync button handler
   const handleSaveIncludedToModel = async () => {
     if (!editing) return;
-    try {
-      const inclNames = currentIncludedItems.map(i => i.name);
-      const totalIncl = includedItemsTotal;
-      const modelCost = formData.cost ? parseFloat(formData.cost) : 0;
-      const totalPrice = modelCost + totalIncl;
-      // Update the base_price to include items total + model cost with margin
-      const { error } = await supabase.from("pool_models").update({
-        included_items: inclNames,
-      }).eq("id", editing);
-      if (error) throw error;
-      toast.success("Itens inclusos sincronizados com o modelo");
-      loadData();
-    } catch { toast.error("Erro ao sincronizar itens"); }
+    await syncIncludedItemsToModel(editing);
+    toast.success("Itens inclusos sincronizados com o modelo");
+    loadData();
   };
 
   // ---- Template CRUD ----
