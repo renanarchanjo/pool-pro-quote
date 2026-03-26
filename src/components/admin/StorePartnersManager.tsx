@@ -154,7 +154,6 @@ const StorePartnersManager = () => {
                     </div>
                     <p className="text-xs text-muted-foreground">#{partner.ranking} no ranking</p>
                   </div>
-                  </div>
                   {toggling === partner.id && <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />}
                 </label>
               );
