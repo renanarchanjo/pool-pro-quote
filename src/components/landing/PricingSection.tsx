@@ -257,7 +257,7 @@ const PricingSection = () => {
                 </div>
 
                 {/* CTA */}
-                <div className="px-6 pb-6 pt-2">
+                <div className="px-6 pb-6 pt-2 space-y-2">
                   <Link to="/auth">
                     <Button
                       className={`w-full font-display font-semibold text-base h-12 ${
@@ -270,6 +270,14 @@ const PricingSection = () => {
                     >
                       {plan.price_monthly === 0 ? "Começar grátis" : "Assinar agora"}
                       <ArrowRight className="w-4 h-4 ml-2" />
+                    </Button>
+                  </Link>
+                  <Link to="/login">
+                    <Button
+                      variant="ghost"
+                      className="w-full text-sm text-muted-foreground hover:text-primary font-medium"
+                    >
+                      Já tenho conta → Entrar
                     </Button>
                   </Link>
                 </div>
