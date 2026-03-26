@@ -9,7 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Plus, Pencil, Loader2, X, Trash2, CheckSquare, Square } from "lucide-react";
+import { Plus, Pencil, Loader2, X, Trash2, CheckSquare, Square, Copy, Save, FileDown } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
@@ -41,6 +41,11 @@ interface IncludedItem {
   price: number;
   display_order: number;
   active: boolean;
+}
+interface ItemTemplate {
+  id: string;
+  name: string;
+  items: { name: string; cost: number; margin_percent: number; price: number; display_order: number }[];
 }
 interface PoolModel {
   id: string;
@@ -97,17 +102,23 @@ const PoolModelManager = () => {
   const [inclForm, setInclForm] = useState({ name: "", cost: "", margin_percent: "", price: "" });
   const [editingIncl, setEditingIncl] = useState<string | null>(null);
 
+  // Templates
+  const [templates, setTemplates] = useState<ItemTemplate[]>([]);
+  const [templateName, setTemplateName] = useState("");
+  const [showSaveTemplate, setShowSaveTemplate] = useState(false);
+
   useEffect(() => { if (store) loadData(); }, [store]);
 
   const loadData = async () => {
     if (!store) return;
     try {
-      const [brandsRes, categoriesRes, modelsRes, optRes, inclRes] = await Promise.all([
+      const [brandsRes, categoriesRes, modelsRes, optRes, inclRes, tmplRes] = await Promise.all([
         supabase.from("brands").select("id, name, partner_id").eq("active", true).eq("store_id", store.id),
         supabase.from("categories").select("id, name, brand_id").eq("active", true).eq("store_id", store.id),
         supabase.from("pool_models").select("*").eq("store_id", store.id).order("created_at", { ascending: false }),
         supabase.from("model_optionals").select("*").eq("store_id", store.id).order("display_order"),
         supabase.from("model_included_items").select("*").eq("store_id", store.id).order("display_order"),
+        supabase.from("included_item_templates").select("id, name").eq("store_id", store.id).order("name"),
       ]);
       if (brandsRes.error) throw brandsRes.error;
       if (categoriesRes.error) throw categoriesRes.error;
@@ -117,6 +128,27 @@ const PoolModelManager = () => {
       setModels(modelsRes.data || []);
       setModelOptionals(optRes.data || []);
       setIncludedItems(inclRes.data || []);
+
+      // Load template items
+      const tmplList = tmplRes.data || [];
+      if (tmplList.length > 0) {
+        const { data: tmplItems } = await supabase
+          .from("included_item_template_items")
+          .select("*")
+          .eq("store_id", store.id)
+          .order("display_order");
+        const loadedTemplates: ItemTemplate[] = tmplList.map((t: any) => ({
+          id: t.id,
+          name: t.name,
+          items: (tmplItems || []).filter((i: any) => i.template_id === t.id).map((i: any) => ({
+            name: i.name, cost: Number(i.cost), margin_percent: Number(i.margin_percent),
+            price: Number(i.price), display_order: i.display_order,
+          })),
+        }));
+        setTemplates(loadedTemplates);
+      } else {
+        setTemplates([]);
+      }
     } catch (error) {
       console.error(error);
       toast.error("Erro ao carregar dados");
@@ -343,6 +375,56 @@ const PoolModelManager = () => {
     } catch { toast.error("Erro ao sincronizar itens"); }
   };
 
+  // ---- Template CRUD ----
+  const handleSaveAsTemplate = async () => {
+    if (!store || !templateName.trim() || currentIncludedItems.length === 0) {
+      toast.error("Dê um nome ao template e tenha pelo menos 1 item"); return;
+    }
+    try {
+      const { data: tmpl, error: tmplErr } = await supabase.from("included_item_templates")
+        .insert({ store_id: store.id, name: templateName.trim() }).select("id").single();
+      if (tmplErr) throw tmplErr;
+      const items = currentIncludedItems.map((i, idx) => ({
+        template_id: tmpl.id, store_id: store.id, name: i.name,
+        cost: Number(i.cost), margin_percent: Number(i.margin_percent),
+        price: Number(i.price), display_order: idx,
+      }));
+      const { error: itemsErr } = await supabase.from("included_item_template_items").insert(items);
+      if (itemsErr) throw itemsErr;
+      toast.success(`Template "${templateName}" salvo com ${items.length} itens`);
+      setTemplateName(""); setShowSaveTemplate(false); loadData();
+    } catch { toast.error("Erro ao salvar template"); }
+  };
+
+  const handleApplyTemplate = async (templateId: string) => {
+    if (!editing || !store) return;
+    const tmpl = templates.find(t => t.id === templateId);
+    if (!tmpl) return;
+    try {
+      // Delete existing items for this model
+      await supabase.from("model_included_items").delete().eq("model_id", editing).eq("store_id", store.id);
+      // Insert template items
+      const items = tmpl.items.map((i, idx) => ({
+        model_id: editing, store_id: store.id, name: i.name,
+        cost: i.cost, margin_percent: i.margin_percent,
+        price: i.price, display_order: idx,
+      }));
+      if (items.length > 0) {
+        const { error } = await supabase.from("model_included_items").insert(items);
+        if (error) throw error;
+      }
+      toast.success(`Template "${tmpl.name}" aplicado com ${items.length} itens`);
+      loadData();
+    } catch { toast.error("Erro ao aplicar template"); }
+  };
+
+  const handleDeleteTemplate = async (templateId: string) => {
+    try {
+      await supabase.from("included_item_templates").delete().eq("id", templateId);
+      toast.success("Template excluído"); loadData();
+    } catch { toast.error("Erro ao excluir template"); }
+  };
+
   // ---- Bulk actions ----
   const toggleSelectModel = (id: string) => setSelectedModels((prev) => prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]);
   const selectAllModels = () => setSelectedModels(selectedModels.length === models.length ? [] : models.map((m) => m.id));
@@ -532,9 +614,25 @@ const PoolModelManager = () => {
               <p className="text-muted-foreground text-center py-8">Salve o modelo primeiro para gerenciar itens inclusos.</p>
             ) : (
               <div className="space-y-4">
-                <p className="text-sm text-muted-foreground">
-                  Cadastre cada item incluso com custo, margem e preço de venda. Na proposta, apenas o nome do item será exibido ao cliente.
-                </p>
+                {/* Template actions */}
+                <div className="flex flex-wrap items-center gap-2">
+                  <p className="text-sm text-muted-foreground flex-1">
+                    Cadastre cada item incluso com custo, margem e preço. Na proposta, apenas o nome será exibido.
+                  </p>
+                  {templates.length > 0 && (
+                    <Select onValueChange={handleApplyTemplate}>
+                      <SelectTrigger className="w-[220px] h-9">
+                        <FileDown className="w-4 h-4 mr-1 shrink-0" />
+                        <SelectValue placeholder="Aplicar Template..." />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {templates.map((t) => (
+                          <SelectItem key={t.id} value={t.id}>{t.name} ({t.items.length} itens)</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  )}
+                </div>
 
                 {/* Add/edit form */}
                 <Card className="p-4 bg-muted/30">
@@ -652,11 +750,38 @@ const PoolModelManager = () => {
                       </div>
                     </Card>
 
-                    <div className="flex gap-2">
+                    <div className="flex flex-wrap gap-2">
                       <Button type="button" onClick={handleSaveIncludedToModel} className="gradient-primary text-white">
                         Sincronizar com Modelo
                       </Button>
+                      {currentIncludedItems.length > 0 && !showSaveTemplate && (
+                        <Button type="button" variant="outline" onClick={() => setShowSaveTemplate(true)}>
+                          <Save className="w-4 h-4 mr-1" /> Salvar como Template
+                        </Button>
+                      )}
                     </div>
+                    {showSaveTemplate && (
+                      <Card className="p-3 bg-muted/30 flex flex-wrap items-end gap-2">
+                        <div className="flex-1 min-w-[200px]">
+                          <Label>Nome do Template</Label>
+                          <Input value={templateName} onChange={(e) => setTemplateName(e.target.value)} placeholder="Ex: Kit Básico Fibra" />
+                        </div>
+                        <Button onClick={handleSaveAsTemplate} className="gradient-primary text-white">
+                          <Save className="w-4 h-4 mr-1" /> Salvar
+                        </Button>
+                        <Button variant="outline" onClick={() => { setShowSaveTemplate(false); setTemplateName(""); }}>Cancelar</Button>
+                      </Card>
+                    )}
+                    {templates.length > 0 && (
+                      <div className="flex flex-wrap gap-2 items-center">
+                        <span className="text-xs text-muted-foreground">Templates salvos:</span>
+                        {templates.map((t) => (
+                          <Badge key={t.id} variant="secondary" className="cursor-pointer gap-1" onClick={() => handleDeleteTemplate(t.id)}>
+                            {t.name} ({t.items.length}) <X className="w-3 h-3" />
+                          </Badge>
+                        ))}
+                      </div>
+                    )}
                   </>
                 )}
 
