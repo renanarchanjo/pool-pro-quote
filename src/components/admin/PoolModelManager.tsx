@@ -400,6 +400,7 @@ const PoolModelManager = () => {
       if (tmplErr) throw tmplErr;
       const items = currentIncludedItems.map((i, idx) => ({
         template_id: tmpl.id, store_id: store.id, name: i.name,
+        quantity: Number(i.quantity) || 1,
         cost: Number(i.cost), margin_percent: Number(i.margin_percent),
         price: Number(i.price), display_order: idx,
       }));
@@ -420,6 +421,7 @@ const PoolModelManager = () => {
       // Insert template items
       const items = tmpl.items.map((i, idx) => ({
         model_id: editing, store_id: store.id, name: i.name,
+        quantity: i.quantity || 1,
         cost: i.cost, margin_percent: i.margin_percent,
         price: i.price, display_order: idx,
       }));
