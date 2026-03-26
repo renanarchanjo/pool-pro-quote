@@ -55,6 +55,7 @@ interface ProposalViewProps {
   storeState?: string | null;
   brandLogoUrl?: string | null;
   brandName?: string | null;
+  brandPartnerId?: string | null;
   partners?: Partner[];
 }
 
