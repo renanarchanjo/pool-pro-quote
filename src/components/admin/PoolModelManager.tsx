@@ -361,7 +361,8 @@ const PoolModelManager = () => {
   };
 
   const handleInclSubmit = async () => {
-    if (!editing) { toast.error("Salve o modelo primeiro para adicionar itens inclusos"); return; }
+    const modelId = editing || await ensureModelSaved();
+    if (!modelId) { toast.error("Salve o modelo primeiro para adicionar itens inclusos"); return; }
     if (!inclForm.name.trim()) { toast.error("Preencha o nome do item"); return; }
     try {
       const qty = parseInt(inclForm.quantity) || 1;
@@ -369,7 +370,7 @@ const PoolModelManager = () => {
       const margin = inclForm.margin_percent ? parseFloat(inclForm.margin_percent) : 0;
       const totalPrice = inclForm.price ? parseFloat(inclForm.price) : 0;
       const data = {
-        model_id: editing,
+        model_id: modelId,
         store_id: store!.id,
         name: inclForm.name,
         quantity: qty,
@@ -389,7 +390,7 @@ const PoolModelManager = () => {
       }
       setInclForm({ name: "", quantity: "1", cost: "", margin_percent: "", price: "" });
       setEditingIncl(null);
-      await syncIncludedItemsToModel(editing!);
+      await syncIncludedItemsToModel(modelId);
       loadData();
     } catch { toast.error("Erro ao salvar item incluso"); }
   };
@@ -461,15 +462,18 @@ const PoolModelManager = () => {
   };
 
   const handleApplyTemplate = async (templateId: string) => {
-    if (!editing || !store) return;
+    if (!store) return;
+    // Auto-create model if not yet saved
+    const modelId = editing || await ensureModelSaved();
+    if (!modelId) return;
     const tmpl = templates.find(t => t.id === templateId);
     if (!tmpl) return;
     try {
       // Delete existing items for this model
-      await supabase.from("model_included_items").delete().eq("model_id", editing).eq("store_id", store.id);
+      await supabase.from("model_included_items").delete().eq("model_id", modelId).eq("store_id", store.id);
       // Insert template items
       const items = tmpl.items.map((i, idx) => ({
-        model_id: editing, store_id: store.id, name: i.name,
+        model_id: modelId, store_id: store.id, name: i.name,
         quantity: i.quantity || 1,
         cost: i.cost, margin_percent: i.margin_percent,
         price: i.price, display_order: idx,
@@ -481,9 +485,9 @@ const PoolModelManager = () => {
       // Apply not_included_items to formData
       setFormData(prev => ({ ...prev, not_included_items: tmpl.not_included_items || [] }));
       // Also update the model in DB
-      await supabase.from("pool_models").update({ not_included_items: tmpl.not_included_items || [] }).eq("id", editing);
+      await supabase.from("pool_models").update({ not_included_items: tmpl.not_included_items || [] }).eq("id", modelId);
       toast.success(`Template "${tmpl.name}" aplicado com ${items.length} itens`);
-      await syncIncludedItemsToModel(editing);
+      await syncIncludedItemsToModel(modelId);
       loadData();
     } catch { toast.error("Erro ao aplicar template"); }
   };
@@ -555,11 +559,7 @@ const PoolModelManager = () => {
       <Card className="p-3 sm:p-6">
         <h2 className="text-base sm:text-lg font-bold mb-2 sm:mb-3">{editing ? "Editar Modelo" : "Novo Modelo"}</h2>
 
-        <Tabs value={formTab} onValueChange={async (tab) => {
-          if ((tab === "itens" || tab === "opcionais") && !editing) {
-            const modelId = await ensureModelSaved();
-            if (!modelId) return;
-          }
+        <Tabs value={formTab} onValueChange={(tab) => {
           setFormTab(tab);
         }}>
           <TabsList className="mb-3">
