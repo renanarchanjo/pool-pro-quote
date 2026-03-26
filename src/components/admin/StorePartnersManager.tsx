@@ -78,50 +78,18 @@ const StorePartnersManager = () => {
         .eq("name", partner.name)
         .maybeSingle();
 
-      let brandId: string;
-
       if (existingBrand) {
-        brandId = existingBrand.id;
         // Re-activate if it was inactive
-        await supabase.from("brands").update({ active: true, logo_url: partner.logo_url }).eq("id", brandId);
+        await supabase.from("brands").update({ active: true, logo_url: partner.logo_url }).eq("id", existingBrand.id);
       } else {
-        const { data: newBrand, error: brandError } = await supabase
+        const { error: brandError } = await supabase
           .from("brands")
-          .insert({ name: partner.name, store_id: store.id, logo_url: partner.logo_url, active: true })
-          .select("id")
-          .single();
+          .insert({ name: partner.name, store_id: store.id, logo_url: partner.logo_url, active: true });
         if (brandError) { console.error("Erro ao criar marca:", brandError); }
-        brandId = newBrand?.id || "";
-      }
-
-      // 3. Create categories for this brand
-      if (brandId) {
-        const partnerCats = partnerCategories[partnerId] || [];
-        for (const cat of partnerCats) {
-          const { data: existingCat } = await supabase
-            .from("categories")
-            .select("id")
-            .eq("store_id", store.id)
-            .eq("brand_id", brandId)
-            .eq("name", cat.name)
-            .maybeSingle();
-
-          if (!existingCat) {
-            await supabase.from("categories").insert({
-              name: cat.name,
-              store_id: store.id,
-              brand_id: brandId,
-              active: true,
-            });
-          } else {
-            // Re-activate
-            await supabase.from("categories").update({ active: true }).eq("id", existingCat.id);
-          }
-        }
       }
 
       setLinkedIds(prev => new Set([...prev, partnerId]));
-      toast.success(`Parceiro "${partner.name}" vinculado! Marca e categorias criadas no catálogo.`);
+      toast.success(`Parceiro "${partner.name}" vinculado! Marca criada no catálogo.`);
     } else {
       // Unlink - just remove the store_partners link, keep catalog data
       const { error } = await supabase.from("store_partners").delete().eq("store_id", store.id).eq("partner_id", partnerId);
