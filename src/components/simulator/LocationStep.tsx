@@ -72,8 +72,8 @@ const LocationStep = ({ onSelectStore, onBack, onSkip }: LocationStepProps) => {
     setSearched(true);
     setRadiusSearch(false);
     try {
-      const { data, error } = await supabase
-        .from("stores")
+      const { data, error } = await (supabase as any)
+        .from("stores_public")
         .select("id, name, state, city, latitude, longitude")
         .eq("state", state)
         .ilike("city", city.trim());
@@ -102,8 +102,8 @@ const LocationStep = ({ onSelectStore, onBack, onSkip }: LocationStepProps) => {
     setSearched(true);
     setRadiusSearch(true);
     try {
-      const { data, error } = await supabase
-        .from("stores")
+      const { data, error } = await (supabase as any)
+        .from("stores_public")
         .select("id, name, state, city, latitude, longitude");
 
       if (error) throw error;
