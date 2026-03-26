@@ -256,6 +256,7 @@ const BrandCategoryManager = ({ mode = "brands" }: { mode?: "brands" | "categori
   return (
     <div className="space-y-8">
       {/* MARCA FORM */}
+      {mode === "brands" && (
       <Card className="p-6">
         <h2 className="text-2xl font-bold mb-4">
           {editingBrand ? "Editar Marca" : "Nova Marca"}
