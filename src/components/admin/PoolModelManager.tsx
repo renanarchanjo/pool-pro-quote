@@ -181,8 +181,8 @@ const PoolModelManager = () => {
   const includedItemsTotal = useMemo(() => currentIncludedItems.reduce((sum, i) => sum + Number(i.price), 0), [currentIncludedItems]);
 
   // ---- Model CRUD ----
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
     if (!formData.name.trim() || !formData.category_id || !formData.base_price) {
       toast.error("Preencha os campos obrigatórios"); return;
     }
@@ -212,16 +212,18 @@ const PoolModelManager = () => {
         ...(editing ? {} : { store_id: store.id }),
       };
       if (editing) {
+        // Save model + sync included items in one action
         const { error } = await supabase.from("pool_models").update(data).eq("id", editing);
         if (error) throw error;
-        toast.success("Modelo atualizado");
+        await syncIncludedItemsToModel(editing);
+        toast.success("Modelo e itens inclusos salvos");
       } else {
         const { data: newModel, error } = await supabase.from("pool_models").insert(data).select("id").single();
         if (error) throw error;
         setEditing(newModel.id);
         toast.success("Modelo criado");
       }
-      resetForm(); loadData();
+      loadData();
     } catch (error) { console.error(error); toast.error("Erro ao salvar modelo"); }
   };
 
@@ -670,10 +672,10 @@ const PoolModelManager = () => {
                 <Textarea value={formData.notes} onChange={(e) => setFormData({ ...formData, notes: e.target.value })} placeholder="Informações adicionais..." rows={3} />
               </div>
 
-              {renderArrayField("Diferenciais", "differentials", "newDifferential", "Ex: Acabamento premium")}
+              
 
               <div className="flex gap-2">
-                <Button type="submit" className="gradient-primary text-white">{editing ? "Salvar Alterações" : "Criar Modelo"}</Button>
+                <Button type="submit" className="gradient-primary text-white">Salvar Alterações</Button>
                 {editing && <Button type="button" variant="outline" onClick={resetForm}>Cancelar</Button>}
               </div>
             </form>
@@ -861,11 +863,8 @@ const PoolModelManager = () => {
 
                     {/* Action buttons */}
                     <div className="flex flex-wrap gap-2">
-                      <Button type="button" onClick={handleSubmit as any} className="gradient-primary text-white">
-                        Salvar
-                      </Button>
-                      <Button type="button" onClick={handleSaveIncludedToModel} variant="outline">
-                        Sincronizar com Modelo
+                      <Button type="button" onClick={() => handleSubmit()} className="gradient-primary text-white">
+                        Salvar Modelo e Itens
                       </Button>
                       {currentIncludedItems.length > 0 && !showSaveTemplate && (
                         <Button type="button" variant="outline" onClick={() => setShowSaveTemplate(true)}>
