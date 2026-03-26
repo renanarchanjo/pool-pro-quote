@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Loader2, Handshake, Image as ImageIcon, Tag, CheckCircle2 } from "lucide-react";
+import { Loader2, Handshake, Image as ImageIcon, CheckCircle2 } from "lucide-react";
 import { toast } from "sonner";
 import { useStoreData } from "@/hooks/useStoreData";
 
@@ -14,17 +14,9 @@ interface Partner {
   ranking: number;
 }
 
-interface PartnerCategory {
-  id: string;
-  partner_id: string;
-  name: string;
-  display_order: number;
-}
-
 const StorePartnersManager = () => {
   const { store } = useStoreData();
   const [partners, setPartners] = useState<Partner[]>([]);
-  const [partnerCategories, setPartnerCategories] = useState<Record<string, PartnerCategory[]>>({});
   const [linkedIds, setLinkedIds] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
   const [toggling, setToggling] = useState<string | null>(null);
@@ -34,10 +26,9 @@ const StorePartnersManager = () => {
   }, [store?.id]);
 
   const loadData = async () => {
-    const [partnersRes, linksRes, catsRes] = await Promise.all([
+    const [partnersRes, linksRes] = await Promise.all([
       supabase.from("partners").select("id, name, logo_url, active, ranking").eq("active", true).order("ranking", { ascending: true }),
       supabase.from("store_partners").select("partner_id").eq("store_id", store!.id),
-      supabase.from("partner_categories").select("*").order("display_order", { ascending: true }),
     ]);
 
     if (partnersRes.error) { toast.error("Erro ao carregar parceiros"); console.error(partnersRes.error); }
@@ -45,15 +36,6 @@ const StorePartnersManager = () => {
 
     if (linksRes.error) { console.error(linksRes.error); }
     else { setLinkedIds(new Set((linksRes.data || []).map((l: any) => l.partner_id))); }
-
-    if (!catsRes.error && catsRes.data) {
-      const grouped: Record<string, PartnerCategory[]> = {};
-      for (const cat of catsRes.data as PartnerCategory[]) {
-        if (!grouped[cat.partner_id]) grouped[cat.partner_id] = [];
-        grouped[cat.partner_id].push(cat);
-      }
-      setPartnerCategories(grouped);
-    }
 
     setLoading(false);
   };
@@ -78,50 +60,18 @@ const StorePartnersManager = () => {
         .eq("name", partner.name)
         .maybeSingle();
 
-      let brandId: string;
-
       if (existingBrand) {
-        brandId = existingBrand.id;
         // Re-activate if it was inactive
-        await supabase.from("brands").update({ active: true, logo_url: partner.logo_url }).eq("id", brandId);
+        await supabase.from("brands").update({ active: true, logo_url: partner.logo_url }).eq("id", existingBrand.id);
       } else {
-        const { data: newBrand, error: brandError } = await supabase
+        const { error: brandError } = await supabase
           .from("brands")
-          .insert({ name: partner.name, store_id: store.id, logo_url: partner.logo_url, active: true })
-          .select("id")
-          .single();
+          .insert({ name: partner.name, store_id: store.id, logo_url: partner.logo_url, active: true });
         if (brandError) { console.error("Erro ao criar marca:", brandError); }
-        brandId = newBrand?.id || "";
-      }
-
-      // 3. Create categories for this brand
-      if (brandId) {
-        const partnerCats = partnerCategories[partnerId] || [];
-        for (const cat of partnerCats) {
-          const { data: existingCat } = await supabase
-            .from("categories")
-            .select("id")
-            .eq("store_id", store.id)
-            .eq("brand_id", brandId)
-            .eq("name", cat.name)
-            .maybeSingle();
-
-          if (!existingCat) {
-            await supabase.from("categories").insert({
-              name: cat.name,
-              store_id: store.id,
-              brand_id: brandId,
-              active: true,
-            });
-          } else {
-            // Re-activate
-            await supabase.from("categories").update({ active: true }).eq("id", existingCat.id);
-          }
-        }
       }
 
       setLinkedIds(prev => new Set([...prev, partnerId]));
-      toast.success(`Parceiro "${partner.name}" vinculado! Marca e categorias criadas no catálogo.`);
+      toast.success(`Parceiro "${partner.name}" vinculado! Marca criada no catálogo.`);
     } else {
       // Unlink - just remove the store_partners link, keep catalog data
       const { error } = await supabase.from("store_partners").delete().eq("store_id", store.id).eq("partner_id", partnerId);
@@ -155,8 +105,8 @@ const StorePartnersManager = () => {
           <div className="text-sm">
             <p className="font-semibold text-foreground">Como funciona?</p>
             <p className="text-muted-foreground mt-1">
-              Ao marcar um parceiro, a <strong>Marca</strong> e suas <strong>Categorias</strong> são criadas automaticamente no seu catálogo.
-              Você fica livre para cadastrar <strong>modelos, opcionais e preços</strong> dentro dessas categorias.
+              Ao marcar um parceiro, a <strong>Marca</strong> é criada automaticamente no seu catálogo.
+              Você fica livre para criar <strong>categorias, modelos, opcionais e preços</strong> dentro dessa marca.
             </p>
             <p className="text-muted-foreground mt-1">
               Propostas geradas para marcas parceiras exibirão automaticamente o banner do parceiro.
@@ -178,7 +128,6 @@ const StorePartnersManager = () => {
           <div className="space-y-2">
             {partners.map((partner) => {
               const isLinked = linkedIds.has(partner.id);
-              const cats = partnerCategories[partner.id] || [];
               return (
                 <label
                   key={partner.id}
@@ -203,16 +152,7 @@ const StorePartnersManager = () => {
                       <p className="font-medium truncate">{partner.name}</p>
                       {isLinked && <CheckCircle2 className="w-4 h-4 text-primary shrink-0" />}
                     </div>
-                    {cats.length > 0 && (
-                      <div className="flex items-center gap-1 mt-1 flex-wrap">
-                        <Tag className="w-3 h-3 text-muted-foreground shrink-0" />
-                        {cats.map((cat, i) => (
-                          <span key={cat.id} className="text-xs text-muted-foreground">
-                            {cat.name}{i < cats.length - 1 ? "," : ""}
-                          </span>
-                        ))}
-                      </div>
-                    )}
+                    <p className="text-xs text-muted-foreground">#{partner.ranking} no ranking</p>
                   </div>
                   {toggling === partner.id && <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />}
                 </label>
