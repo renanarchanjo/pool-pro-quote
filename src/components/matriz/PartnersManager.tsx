@@ -1,11 +1,11 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { Loader2, Plus, Upload, Trash2, GripVertical, Image as ImageIcon, Trophy, Pencil, Check, X } from "lucide-react";
+import { Loader2, Plus, Upload, Trash2, Image as ImageIcon, Trophy, Pencil, Check, X, Save } from "lucide-react";
 import { toast } from "sonner";
 
 interface Partner {
@@ -28,6 +28,7 @@ const RANKING_LABELS: Record<number, string> = {
 
 const PartnersManager = () => {
   const [partners, setPartners] = useState<Partner[]>([]);
+  const [originalPartners, setOriginalPartners] = useState<Partner[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [newName, setNewName] = useState("");
@@ -36,6 +37,7 @@ const PartnersManager = () => {
   const [uploading, setUploading] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editName, setEditName] = useState("");
+  const [animating, setAnimating] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -52,10 +54,27 @@ const PartnersManager = () => {
       toast.error("Erro ao carregar parceiros");
       console.error(error);
     } else {
-      setPartners((data as Partner[]) || []);
+      const sorted = (data as Partner[]) || [];
+      setPartners(sorted);
+      setOriginalPartners(JSON.parse(JSON.stringify(sorted)));
     }
     setLoading(false);
   };
+
+  // Check if any partner has unsaved changes
+  const isDirty = useCallback(() => {
+    if (partners.length !== originalPartners.length) return true;
+    return partners.some((p) => {
+      const orig = originalPartners.find((o) => o.id === p.id);
+      if (!orig) return true;
+      return (
+        p.ranking !== orig.ranking ||
+        p.display_percent !== orig.display_percent ||
+        p.name !== orig.name ||
+        p.banner_1_url !== orig.banner_1_url
+      );
+    });
+  }, [partners, originalPartners]);
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -105,15 +124,22 @@ const PartnersManager = () => {
 
   const handleToggleActive = async (partner: Partner) => {
     const { error } = await supabase.from("partners").update({ active: !partner.active }).eq("id", partner.id);
-    if (error) { toast.error("Erro ao atualizar status"); } 
-    else { setPartners((prev) => prev.map((p) => (p.id === partner.id ? { ...p, active: !p.active } : p))); }
+    if (error) { toast.error("Erro ao atualizar status"); }
+    else {
+      setPartners((prev) => prev.map((p) => (p.id === partner.id ? { ...p, active: !p.active } : p)));
+      setOriginalPartners((prev) => prev.map((p) => (p.id === partner.id ? { ...p, active: !p.active } : p)));
+    }
   };
 
   const handleDelete = async (partner: Partner) => {
     if (!confirm(`Remover parceiro "${partner.name}"?`)) return;
     const { error } = await supabase.from("partners").delete().eq("id", partner.id);
-    if (error) { toast.error("Erro ao remover parceiro"); } 
-    else { toast.success("Parceiro removido"); setPartners((prev) => prev.filter((p) => p.id !== partner.id)); }
+    if (error) { toast.error("Erro ao remover parceiro"); }
+    else {
+      toast.success("Parceiro removido");
+      setPartners((prev) => prev.filter((p) => p.id !== partner.id));
+      setOriginalPartners((prev) => prev.filter((p) => p.id !== partner.id));
+    }
   };
 
   const handleReplaceLogo = async (partner: Partner, file: File) => {
@@ -131,21 +157,57 @@ const PartnersManager = () => {
     }
   };
 
-  const handleUpdateRanking = async (partner: Partner, newRanking: number) => {
-    if (newRanking < 1 || newRanking > 99) return;
-    const { error } = await supabase.from("partners").update({ ranking: newRanking }).eq("id", partner.id);
-    if (error) { toast.error("Erro ao atualizar ranking"); return; }
-    setPartners((prev) => prev.map((p) => (p.id === partner.id ? { ...p, ranking: newRanking } : p)).sort((a, b) => a.ranking - b.ranking));
-    toast.success("Ranking atualizado!");
+  const handleSaveAll = async () => {
+    setSaving(true);
+    try {
+      const updates = partners.filter((p) => {
+        const orig = originalPartners.find((o) => o.id === p.id);
+        if (!orig) return false;
+        return (
+          p.ranking !== orig.ranking ||
+          p.display_percent !== orig.display_percent ||
+          p.name !== orig.name ||
+          p.banner_1_url !== orig.banner_1_url
+        );
+      });
+
+      for (const p of updates) {
+        const { error } = await supabase.from("partners").update({
+          ranking: p.ranking,
+          display_percent: p.display_percent,
+          name: p.name,
+          banner_1_url: p.banner_1_url,
+        }).eq("id", p.id);
+        if (error) throw error;
+      }
+
+      // Animate reorder
+      setAnimating(true);
+      await new Promise((r) => setTimeout(r, 100));
+      
+      const sorted = [...partners].sort((a, b) => a.ranking - b.ranking);
+      setPartners(sorted);
+      setOriginalPartners(JSON.parse(JSON.stringify(sorted)));
+
+      await new Promise((r) => setTimeout(r, 500));
+      setAnimating(false);
+
+      toast.success(`${updates.length} parceiro(s) atualizado(s)!`);
+    } catch (error: any) {
+      toast.error("Erro ao salvar: " + error.message);
+    } finally {
+      setSaving(false);
+    }
   };
 
-  const handleSaveName = async (partner: Partner) => {
+  const handleSaveName = (partner: Partner) => {
     if (!editName.trim()) { toast.error("Nome não pode ser vazio"); return; }
-    const { error } = await supabase.from("partners").update({ name: editName.trim() }).eq("id", partner.id);
-    if (error) { toast.error("Erro ao atualizar nome"); return; }
     setPartners((prev) => prev.map((p) => (p.id === partner.id ? { ...p, name: editName.trim() } : p)));
     setEditingId(null);
-    toast.success("Nome atualizado!");
+  };
+
+  const updatePartnerField = (id: string, field: keyof Partner, value: any) => {
+    setPartners((prev) => prev.map((p) => (p.id === id ? { ...p, [field]: value } : p)));
   };
 
   if (loading) {
@@ -156,13 +218,28 @@ const PartnersManager = () => {
     );
   }
 
+  const hasDirtyChanges = isDirty();
+
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold">Parceiros</h1>
-        <p className="text-muted-foreground mt-1">
-          Gerencie os parceiros e seus rankings de exibição nas propostas
-        </p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold">Parceiros</h1>
+          <p className="text-muted-foreground mt-1">
+            Gerencie os parceiros e seus rankings de exibição nas propostas
+          </p>
+        </div>
+        {hasDirtyChanges && (
+          <Button
+            onClick={handleSaveAll}
+            disabled={saving}
+            className="gradient-primary text-white gap-2 animate-fade-in"
+            size="lg"
+          >
+            {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+            Salvar Alterações
+          </Button>
+        )}
       </div>
 
       {/* Add new partner */}
@@ -222,7 +299,7 @@ const PartnersManager = () => {
               const isValid = totalPercent === 100;
               return (
                 <div className={`mt-3 p-2 rounded-lg text-sm font-semibold ${isValid ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400" : "bg-destructive/10 text-destructive"}`}>
-                  Total de aparição (ativos): {totalPercent}% {isValid ? "✓" : `— deve somar 100%`}
+                  Total de aparição (ativos): {totalPercent}% {isValid ? "✓" : "— deve somar 100%"}
                 </div>
               );
             })()}
@@ -232,9 +309,16 @@ const PartnersManager = () => {
 
       {/* Partners list */}
       <Card className="p-6">
-        <h2 className="text-lg font-semibold mb-4">
-          Parceiros Cadastrados ({partners.length})
-        </h2>
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-lg font-semibold">
+            Parceiros Cadastrados ({partners.length})
+          </h2>
+          {hasDirtyChanges && (
+            <span className="text-xs text-amber-600 dark:text-amber-400 font-medium animate-fade-in">
+              ● Alterações não salvas
+            </span>
+          )}
+        </div>
 
         {partners.length === 0 ? (
           <p className="text-muted-foreground text-center py-8">Nenhum parceiro cadastrado ainda.</p>
@@ -243,9 +327,12 @@ const PartnersManager = () => {
             {partners.map((partner) => (
               <div
                 key={partner.id}
-                className={`flex items-start gap-4 p-4 rounded-xl border transition-all ${
+                className={`flex items-start gap-4 p-4 rounded-xl border ${
+                  animating ? "transition-all duration-500 ease-in-out" : "transition-colors duration-200"
+                } ${
                   partner.active ? "bg-background border-border/50" : "bg-muted/30 border-border/20 opacity-60"
                 }`}
+                style={animating ? { transform: "translateY(0)" } : undefined}
               >
                 {/* Ranking badge */}
                 <div className="shrink-0 flex flex-col items-center gap-1">
@@ -264,11 +351,7 @@ const PartnersManager = () => {
                     value={partner.ranking}
                     onChange={(e) => {
                       const val = parseInt(e.target.value);
-                      if (!isNaN(val)) setPartners(prev => prev.map(p => p.id === partner.id ? { ...p, ranking: val } : p));
-                    }}
-                    onBlur={(e) => {
-                      const val = parseInt(e.target.value);
-                      if (!isNaN(val) && val !== partner.ranking) handleUpdateRanking(partner, val);
+                      if (!isNaN(val)) updatePartnerField(partner.id, "ranking", val);
                     }}
                     className="w-14 h-7 text-xs text-center"
                   />
@@ -319,14 +402,7 @@ const PartnersManager = () => {
                       value={partner.display_percent}
                       onChange={(e) => {
                         const val = parseFloat(e.target.value);
-                        if (!isNaN(val)) setPartners(prev => prev.map(p => p.id === partner.id ? { ...p, display_percent: val } : p));
-                      }}
-                      onBlur={async (e) => {
-                        const val = parseFloat(e.target.value);
-                        if (isNaN(val) || val === partner.display_percent) return;
-                        const { error } = await supabase.from("partners").update({ display_percent: val }).eq("id", partner.id);
-                        if (error) { toast.error("Erro ao salvar frequência"); return; }
-                        toast.success("Frequência atualizada!");
+                        if (!isNaN(val)) updatePartnerField(partner.id, "display_percent", val);
                       }}
                       className="w-20 h-7 text-xs text-center"
                     />
@@ -342,16 +418,8 @@ const PartnersManager = () => {
                         <Input
                           className="h-7 text-xs"
                           placeholder="URL do banner lateral (postimages, etc)"
-                          defaultValue={partner.banner_1_url || ""}
-                          onBlur={async (e) => {
-                            const val = e.target.value.trim() || null;
-                            if (val !== partner.banner_1_url) {
-                              const { error } = await supabase.from("partners").update({ banner_1_url: val }).eq("id", partner.id);
-                              if (error) { toast.error("Erro ao salvar banner 1"); return; }
-                              setPartners(prev => prev.map(p => p.id === partner.id ? { ...p, banner_1_url: val } : p));
-                              toast.success("Banner 1 salvo!");
-                            }
-                          }}
+                          value={partner.banner_1_url || ""}
+                          onChange={(e) => updatePartnerField(partner.id, "banner_1_url", e.target.value.trim() || null)}
                         />
                         <p className="text-[10px] text-muted-foreground mt-0.5">
                           📐 Proporção <strong>2:3 vertical</strong> — Tamanho ideal: <strong>400×600px</strong>
@@ -377,6 +445,21 @@ const PartnersManager = () => {
                 </div>
               </div>
             ))}
+          </div>
+        )}
+
+        {/* Bottom save button */}
+        {hasDirtyChanges && partners.length > 0 && (
+          <div className="mt-6 flex justify-end animate-fade-in">
+            <Button
+              onClick={handleSaveAll}
+              disabled={saving}
+              className="gradient-primary text-white gap-2"
+              size="lg"
+            >
+              {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+              Salvar Alterações
+            </Button>
           </div>
         )}
       </Card>
