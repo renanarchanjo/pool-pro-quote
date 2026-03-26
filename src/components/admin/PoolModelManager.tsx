@@ -555,11 +555,7 @@ const PoolModelManager = () => {
       <Card className="p-3 sm:p-6">
         <h2 className="text-base sm:text-lg font-bold mb-2 sm:mb-3">{editing ? "Editar Modelo" : "Novo Modelo"}</h2>
 
-        <Tabs value={formTab} onValueChange={async (tab) => {
-          if ((tab === "itens" || tab === "opcionais") && !editing) {
-            const modelId = await ensureModelSaved();
-            if (!modelId) return;
-          }
+        <Tabs value={formTab} onValueChange={(tab) => {
           setFormTab(tab);
         }}>
           <TabsList className="mb-3">
