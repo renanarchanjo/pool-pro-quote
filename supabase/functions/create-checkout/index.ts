@@ -35,7 +35,8 @@ serve(async (req) => {
       customerId = customers.data[0].id;
     }
 
-    const origin = req.headers.get("origin") || "https://pool-pro-quote.lovable.app";
+    const origin = req.headers.get("origin") || req.headers.get("referer")?.replace(/\/[^/]*$/, "") || "https://www.simulapool.com";
+    console.log("[CREATE-CHECKOUT] Origin:", origin, "User:", user.email, "PriceId:", priceId);
 
     const session = await stripe.checkout.sessions.create({
       customer: customerId,
