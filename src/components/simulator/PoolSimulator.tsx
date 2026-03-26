@@ -266,6 +266,7 @@ const PoolSimulator = ({ onBack }: PoolSimulatorProps) => {
     setOptionals([]);
     setShowCongrats(false);
     setStoreSettings(null);
+    setIncludedItemsTotal(0);
   };
 
   if (loading) {
