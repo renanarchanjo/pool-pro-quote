@@ -205,7 +205,6 @@ const AdminDashboard = () => {
           Olá, <span className="font-bold text-foreground">{profile?.full_name || "Lojista"}</span>
         </p>
         <div className="flex items-center gap-1.5 flex-wrap">
-        <div className="flex items-center gap-1.5 flex-wrap">
           {isOwner && teamMembers.length > 1 && (
             <Select value={filterMember} onValueChange={setFilterMember}>
               <SelectTrigger className="h-8 w-[120px] sm:w-[150px] text-xs">
@@ -252,6 +251,10 @@ const AdminDashboard = () => {
               />
             </PopoverContent>
           </Popover>
+          <Button onClick={handleExportPDF} variant="outline" size="sm" className="h-8 shrink-0 text-xs">
+            <Download className="w-3.5 h-3.5 mr-1" />
+            PDF
+          </Button>
         </div>
       </div>
 
