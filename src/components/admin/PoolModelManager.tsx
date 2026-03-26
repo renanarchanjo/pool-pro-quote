@@ -471,15 +471,15 @@ const PoolModelManager = () => {
     return <div className="flex justify-center p-8"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
   }
 
-  const ArrayField = ({ label, field, inputField, placeholder }: { label: string; field: "differentials" | "not_included_items"; inputField: string; placeholder: string }) => (
+  const renderArrayField = (label: string, field: "differentials" | "not_included_items", inputField: string, placeholder: string) => (
     <div>
       <Label>{label}</Label>
       <div className="flex gap-2 mb-2">
         <Input
           value={formData[inputField as keyof typeof formData] as string}
-          onChange={(e) => setFormData({ ...formData, [inputField]: e.target.value })}
+          onChange={(e) => setFormData(prev => ({ ...prev, [inputField]: e.target.value }))}
           placeholder={placeholder}
-          onKeyPress={(e) => e.key === "Enter" && (e.preventDefault(), addToArray(field, inputField))}
+          onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addToArray(field, inputField); } }}
         />
         <Button type="button" onClick={() => addToArray(field, inputField)}><Plus className="w-4 h-4" /></Button>
       </div>
