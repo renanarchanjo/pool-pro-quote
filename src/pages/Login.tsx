@@ -97,6 +97,26 @@ const Login = () => {
             Entrar
           </Button>
         </form>
+
+        <div className="mt-6 text-center">
+          <button
+            type="button"
+            onClick={() => navigate("/auth")}
+            className="text-sm text-primary hover:underline font-medium"
+          >
+            Não tem cadastro? Cadastre-se grátis
+          </button>
+        </div>
+
+        <div className="mt-4 pt-4 border-t">
+          <Button
+            variant="outline"
+            className="w-full"
+            onClick={() => navigate("/")}
+          >
+            Voltar ao Início
+          </Button>
+        </div>
       </Card>
     </div>
   );
