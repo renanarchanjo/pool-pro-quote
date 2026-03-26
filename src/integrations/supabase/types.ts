@@ -155,6 +155,89 @@ export type Database = {
           },
         ]
       }
+      included_item_template_items: {
+        Row: {
+          cost: number
+          created_at: string | null
+          display_order: number | null
+          id: string
+          margin_percent: number
+          name: string
+          price: number
+          store_id: string
+          template_id: string
+        }
+        Insert: {
+          cost?: number
+          created_at?: string | null
+          display_order?: number | null
+          id?: string
+          margin_percent?: number
+          name: string
+          price?: number
+          store_id: string
+          template_id: string
+        }
+        Update: {
+          cost?: number
+          created_at?: string | null
+          display_order?: number | null
+          id?: string
+          margin_percent?: number
+          name?: string
+          price?: number
+          store_id?: string
+          template_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "included_item_template_items_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "included_item_template_items_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "included_item_templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      included_item_templates: {
+        Row: {
+          created_at: string | null
+          id: string
+          name: string
+          store_id: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          name: string
+          store_id: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          name?: string
+          store_id?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "included_item_templates_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       lead_distributions: {
         Row: {
           accepted_at: string | null
