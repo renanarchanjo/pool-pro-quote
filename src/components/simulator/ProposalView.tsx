@@ -35,6 +35,7 @@ interface Partner {
   logo_url: string | null;
   banner_1_url: string | null;
   banner_2_url: string | null;
+  display_percent?: number;
 }
 
 interface ProposalViewProps {
