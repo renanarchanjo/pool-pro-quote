@@ -301,13 +301,13 @@ const PoolModelManager = () => {
     <div className="space-y-6">
       {/* ===== FORM ===== */}
       <Card className="p-3 sm:p-6">
-        <h2 className="text-lg sm:text-2xl font-bold mb-3 sm:mb-4">{editing ? "Editar Modelo" : "Novo Modelo"}</h2>
+        <h2 className="text-base sm:text-lg font-bold mb-2 sm:mb-3">{editing ? "Editar Modelo" : "Novo Modelo"}</h2>
 
         <Tabs value={formTab} onValueChange={setFormTab}>
-          <TabsList className="mb-4">
-            <TabsTrigger value="dados">Dados</TabsTrigger>
-            <TabsTrigger value="opcionais" disabled={!editing}>Opcionais Exclusivos</TabsTrigger>
-            <TabsTrigger value="itens">Itens Inclusos</TabsTrigger>
+          <TabsList className="mb-3">
+            <TabsTrigger value="dados" className="text-xs sm:text-sm">Dados</TabsTrigger>
+            <TabsTrigger value="opcionais" disabled={!editing} className="text-xs sm:text-sm">Opcionais Exclusivos</TabsTrigger>
+            <TabsTrigger value="itens" className="text-xs sm:text-sm">Itens Inclusos</TabsTrigger>
           </TabsList>
 
           {/* TAB: Dados */}
