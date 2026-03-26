@@ -53,6 +53,13 @@ export type Database = {
             referencedRelation: "stores"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "brands_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores_public"
+            referencedColumns: ["id"]
+          },
         ]
       }
       categories: {
@@ -101,6 +108,13 @@ export type Database = {
             referencedRelation: "stores"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "categories_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores_public"
+            referencedColumns: ["id"]
+          },
         ]
       }
       commission_settings: {
@@ -141,6 +155,13 @@ export type Database = {
             columns: ["store_id"]
             isOneToOne: false
             referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "commission_settings_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores_public"
             referencedColumns: ["id"]
           },
         ]
@@ -208,6 +229,13 @@ export type Database = {
             referencedRelation: "stores"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "lead_distributions_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores_public"
+            referencedColumns: ["id"]
+          },
         ]
       }
       lead_logs: {
@@ -251,6 +279,13 @@ export type Database = {
             columns: ["store_id"]
             isOneToOne: false
             referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "lead_logs_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores_public"
             referencedColumns: ["id"]
           },
         ]
@@ -349,10 +384,24 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "model_optionals_model_id_fkey"
+            columns: ["model_id"]
+            isOneToOne: false
+            referencedRelation: "pool_models_public"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "model_optionals_store_id_fkey"
             columns: ["store_id"]
             isOneToOne: false
             referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "model_optionals_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores_public"
             referencedColumns: ["id"]
           },
         ]
@@ -432,6 +481,13 @@ export type Database = {
             referencedRelation: "stores"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "optional_groups_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores_public"
+            referencedColumns: ["id"]
+          },
         ]
       }
       optionals: {
@@ -493,6 +549,13 @@ export type Database = {
             columns: ["store_id"]
             isOneToOne: false
             referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "optionals_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores_public"
             referencedColumns: ["id"]
           },
         ]
@@ -583,6 +646,13 @@ export type Database = {
             columns: ["store_id"]
             isOneToOne: false
             referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payment_history_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores_public"
             referencedColumns: ["id"]
           },
         ]
@@ -699,6 +769,13 @@ export type Database = {
             referencedRelation: "stores"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "pool_models_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores_public"
+            referencedColumns: ["id"]
+          },
         ]
       }
       profiles: {
@@ -732,6 +809,13 @@ export type Database = {
             columns: ["store_id"]
             isOneToOne: false
             referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "profiles_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores_public"
             referencedColumns: ["id"]
           },
         ]
@@ -777,6 +861,13 @@ export type Database = {
             columns: ["store_id"]
             isOneToOne: false
             referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "proposal_notes_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores_public"
             referencedColumns: ["id"]
           },
         ]
@@ -830,10 +921,24 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "proposals_model_id_fkey"
+            columns: ["model_id"]
+            isOneToOne: false
+            referencedRelation: "pool_models_public"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "proposals_store_id_fkey"
             columns: ["store_id"]
             isOneToOne: false
             referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "proposals_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores_public"
             referencedColumns: ["id"]
           },
         ]
@@ -902,6 +1007,13 @@ export type Database = {
             columns: ["store_id"]
             isOneToOne: true
             referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "store_settings_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: true
+            referencedRelation: "stores_public"
             referencedColumns: ["id"]
           },
         ]
@@ -1048,7 +1160,259 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      model_optionals_public: {
+        Row: {
+          active: boolean | null
+          created_at: string | null
+          description: string | null
+          display_order: number | null
+          id: string | null
+          model_id: string | null
+          name: string | null
+          price: number | null
+          store_id: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          active?: boolean | null
+          created_at?: string | null
+          description?: string | null
+          display_order?: number | null
+          id?: string | null
+          model_id?: string | null
+          name?: string | null
+          price?: number | null
+          store_id?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          active?: boolean | null
+          created_at?: string | null
+          description?: string | null
+          display_order?: number | null
+          id?: string | null
+          model_id?: string | null
+          name?: string | null
+          price?: number | null
+          store_id?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "model_optionals_model_id_fkey"
+            columns: ["model_id"]
+            isOneToOne: false
+            referencedRelation: "pool_models"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "model_optionals_model_id_fkey"
+            columns: ["model_id"]
+            isOneToOne: false
+            referencedRelation: "pool_models_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "model_optionals_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "model_optionals_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores_public"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      optionals_public: {
+        Row: {
+          active: boolean | null
+          created_at: string | null
+          description: string | null
+          display_order: number | null
+          group_id: string | null
+          id: string | null
+          name: string | null
+          price: number | null
+          store_id: string | null
+          updated_at: string | null
+          warning_note: string | null
+        }
+        Insert: {
+          active?: boolean | null
+          created_at?: string | null
+          description?: string | null
+          display_order?: number | null
+          group_id?: string | null
+          id?: string | null
+          name?: string | null
+          price?: number | null
+          store_id?: string | null
+          updated_at?: string | null
+          warning_note?: string | null
+        }
+        Update: {
+          active?: boolean | null
+          created_at?: string | null
+          description?: string | null
+          display_order?: number | null
+          group_id?: string | null
+          id?: string | null
+          name?: string | null
+          price?: number | null
+          store_id?: string | null
+          updated_at?: string | null
+          warning_note?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "optionals_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "optional_groups"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "optionals_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "optionals_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores_public"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      pool_models_public: {
+        Row: {
+          active: boolean | null
+          base_price: number | null
+          category_id: string | null
+          created_at: string | null
+          delivery_days: number | null
+          depth: number | null
+          differentials: string[] | null
+          display_order: number | null
+          id: string | null
+          included_items: string[] | null
+          installation_days: number | null
+          length: number | null
+          name: string | null
+          not_included_items: string[] | null
+          notes: string | null
+          payment_terms: string | null
+          photo_url: string | null
+          store_id: string | null
+          updated_at: string | null
+          width: number | null
+        }
+        Insert: {
+          active?: boolean | null
+          base_price?: number | null
+          category_id?: string | null
+          created_at?: string | null
+          delivery_days?: number | null
+          depth?: number | null
+          differentials?: string[] | null
+          display_order?: number | null
+          id?: string | null
+          included_items?: string[] | null
+          installation_days?: number | null
+          length?: number | null
+          name?: string | null
+          not_included_items?: string[] | null
+          notes?: string | null
+          payment_terms?: string | null
+          photo_url?: string | null
+          store_id?: string | null
+          updated_at?: string | null
+          width?: number | null
+        }
+        Update: {
+          active?: boolean | null
+          base_price?: number | null
+          category_id?: string | null
+          created_at?: string | null
+          delivery_days?: number | null
+          depth?: number | null
+          differentials?: string[] | null
+          display_order?: number | null
+          id?: string | null
+          included_items?: string[] | null
+          installation_days?: number | null
+          length?: number | null
+          name?: string | null
+          not_included_items?: string[] | null
+          notes?: string | null
+          payment_terms?: string | null
+          photo_url?: string | null
+          store_id?: string | null
+          updated_at?: string | null
+          width?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pool_models_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pool_models_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pool_models_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores_public"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      stores_public: {
+        Row: {
+          city: string | null
+          id: string | null
+          latitude: number | null
+          longitude: number | null
+          name: string | null
+          slug: string | null
+          state: string | null
+        }
+        Insert: {
+          city?: string | null
+          id?: string | null
+          latitude?: number | null
+          longitude?: number | null
+          name?: string | null
+          slug?: string | null
+          state?: string | null
+        }
+        Update: {
+          city?: string | null
+          id?: string | null
+          latitude?: number | null
+          longitude?: number | null
+          name?: string | null
+          slug?: string | null
+          state?: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       get_user_store_id: { Args: { _user_id: string }; Returns: string }
