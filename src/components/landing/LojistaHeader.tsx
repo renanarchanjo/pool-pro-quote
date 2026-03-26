@@ -49,16 +49,18 @@ const LojistaHeader = () => {
                 {link.label}
               </Link>
             ))}
-            <Link to="/login">
-              <Button size="sm" variant="outline" className="font-display font-semibold border-primary/30 text-primary hover:bg-primary/5">
-                Entrar
-              </Button>
-            </Link>
-            <Link to="/auth">
-              <Button size="sm" className="gradient-primary text-white font-display font-semibold shadow-sm">
-                Começar Agora
-              </Button>
-            </Link>
+            <div className="flex items-center gap-2">
+              <Link to="/login">
+                <Button size="sm" variant="outline" className="font-display font-semibold border-primary text-primary hover:bg-primary hover:text-white transition-all px-5">
+                  Entrar
+                </Button>
+              </Link>
+              <Link to="/auth">
+                <Button size="sm" className="gradient-primary text-white font-display font-semibold shadow-sm px-5">
+                  Criar Loja Grátis
+                </Button>
+              </Link>
+            </div>
           </div>
 
           <button
@@ -85,13 +87,13 @@ const LojistaHeader = () => {
             ))}
             <div className="flex gap-3 pt-2">
               <Link to="/login" onClick={() => setMobileMenuOpen(false)} className="flex-1">
-                <Button size="lg" variant="outline" className="w-full font-display font-semibold text-base border-primary/30 text-primary">
+                <Button size="lg" variant="outline" className="w-full font-display font-semibold text-base border-primary text-primary">
                   Entrar
                 </Button>
               </Link>
               <Link to="/auth" onClick={() => setMobileMenuOpen(false)} className="flex-1">
                 <Button size="lg" className="w-full gradient-primary text-white font-display font-semibold text-base">
-                  Começar Agora
+                  Criar Loja Grátis
                 </Button>
               </Link>
             </div>
