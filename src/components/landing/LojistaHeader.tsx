@@ -49,9 +49,14 @@ const LojistaHeader = () => {
                 {link.label}
               </Link>
             ))}
+            <Link to="/login">
+              <Button size="sm" variant="outline" className="font-display font-semibold border-primary/30 text-primary hover:bg-primary/5">
+                Entrar
+              </Button>
+            </Link>
             <Link to="/auth">
               <Button size="sm" className="gradient-primary text-white font-display font-semibold shadow-sm">
-                Área do Lojista
+                Começar Agora
               </Button>
             </Link>
           </div>
@@ -78,11 +83,18 @@ const LojistaHeader = () => {
                 {link.label}
               </Link>
             ))}
-            <Link to="/auth" onClick={() => setMobileMenuOpen(false)} className="block pt-2">
-              <Button size="lg" className="w-full gradient-primary text-white font-display font-semibold text-base">
-                Área do Lojista
-              </Button>
-            </Link>
+            <div className="flex gap-3 pt-2">
+              <Link to="/login" onClick={() => setMobileMenuOpen(false)} className="flex-1">
+                <Button size="lg" variant="outline" className="w-full font-display font-semibold text-base border-primary/30 text-primary">
+                  Entrar
+                </Button>
+              </Link>
+              <Link to="/auth" onClick={() => setMobileMenuOpen(false)} className="flex-1">
+                <Button size="lg" className="w-full gradient-primary text-white font-display font-semibold text-base">
+                  Começar Agora
+                </Button>
+              </Link>
+            </div>
           </div>
         )}
       </nav>
