@@ -304,7 +304,7 @@ const BrandCategoryManager = () => {
                   <SelectTrigger><SelectValue placeholder="Selecione a marca" /></SelectTrigger>
                   <SelectContent>
                     {brands.filter((b) => b.active).map((b) => (
-                      <SelectItem key={b.id} value={b.id}>{b.name}</SelectItem>
+                      <SelectItem key={b.id} value={b.id}>{b.name}{b.partner_id ? " ®" : ""}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
