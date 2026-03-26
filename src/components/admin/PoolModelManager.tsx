@@ -182,14 +182,54 @@ const PoolModelManager = () => {
   const includedItemsTotal = useMemo(() => currentIncludedItems.reduce((sum, i) => sum + Number(i.price), 0), [currentIncludedItems]);
 
   // ---- Model CRUD ----
+  const ensureModelSaved = async (): Promise<string | null> => {
+    // If already editing an existing model, just return its id
+    if (editing) return editing;
+    if (saving) return null; // prevent double-creation
+    if (!formData.name.trim() || !formData.category_id) {
+      toast.error("Preencha o nome e selecione a categoria"); return null;
+    }
+    if (!store) { toast.error("Loja não encontrada"); return null; }
+    setSaving(true);
+    try {
+      const data = {
+        category_id: formData.category_id, name: formData.name,
+        length: formData.length ? parseFloat(formData.length) : null,
+        width: formData.width ? parseFloat(formData.width) : null,
+        depth: formData.depth ? parseFloat(formData.depth) : null,
+        photo_url: formData.photo_url || null,
+        cost: formData.cost ? parseFloat(formData.cost) : 0,
+        margin_percent: formData.margin_percent ? parseFloat(formData.margin_percent) : 0,
+        base_price: parseFloat(formData.base_price) || 0,
+        delivery_days: parseInt(formData.delivery_days) || 30,
+        installation_days: parseInt(formData.installation_days) || 5,
+        payment_terms: formData.payment_terms,
+        notes: formData.notes || null,
+        differentials: formData.differentials,
+        included_items: [],
+        not_included_items: formData.not_included_items,
+        store_id: store.id,
+      };
+      const { data: newModel, error } = await supabase.from("pool_models").insert(data).select("id").single();
+      if (error) throw error;
+      setEditing(newModel.id);
+      toast.success("Modelo salvo automaticamente");
+      loadData();
+      return newModel.id;
+    } catch (e) { console.error(e); toast.error("Erro ao salvar modelo"); return null; }
+    finally { setSaving(false); }
+  };
+
   const handleSubmit = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     if (!formData.name.trim() || !formData.category_id || !formData.base_price) {
       toast.error("Preencha os campos obrigatórios"); return;
     }
     if (!store) { toast.error("Loja não encontrada"); return; }
+    // Ensure model exists first (create if needed, reuse if already created)
+    const modelId = await ensureModelSaved();
+    if (!modelId) return;
     try {
-      // Build included_items text array from DB items for proposal display
       const inclNames = currentIncludedItems.map(i => {
         const qty = Number(i.quantity) || 1;
         return qty > 1 ? `${qty}x ${i.name}` : i.name;
@@ -210,20 +250,11 @@ const PoolModelManager = () => {
         differentials: formData.differentials,
         included_items: inclNames,
         not_included_items: formData.not_included_items,
-        ...(editing ? {} : { store_id: store.id }),
       };
-      if (editing) {
-        // Save model + sync included items in one action
-        const { error } = await supabase.from("pool_models").update(data).eq("id", editing);
-        if (error) throw error;
-        await syncIncludedItemsToModel(editing);
-        toast.success("Modelo e itens inclusos salvos");
-      } else {
-        const { data: newModel, error } = await supabase.from("pool_models").insert(data).select("id").single();
-        if (error) throw error;
-        setEditing(newModel.id);
-        toast.success("Modelo criado");
-      }
+      const { error } = await supabase.from("pool_models").update(data).eq("id", modelId);
+      if (error) throw error;
+      await syncIncludedItemsToModel(modelId);
+      toast.success("Modelo e itens inclusos salvos");
       loadData();
     } catch (error) { console.error(error); toast.error("Erro ao salvar modelo"); }
   };
