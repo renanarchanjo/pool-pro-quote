@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { useLocation } from "react-router-dom";
 
 interface PageTransitionProps {
@@ -8,36 +8,60 @@ interface PageTransitionProps {
 const PageTransition = ({ children }: PageTransitionProps) => {
   const location = useLocation();
   const [displayChildren, setDisplayChildren] = useState(children);
-  const [phase, setPhase] = useState<"enter" | "idle">("idle");
+  const [visible, setVisible] = useState(true);
   const prevPathRef = useRef(location.pathname);
+  const isFirstRender = useRef(true);
 
   useEffect(() => {
+    // Skip animation on first render
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      setDisplayChildren(children);
+      return;
+    }
+
+    if (prevPathRef.current === location.pathname) {
+      setDisplayChildren(children);
+      return;
+    }
+
     const prefersReducedMotion = window.matchMedia(
       "(prefers-reduced-motion: reduce)"
     ).matches;
 
-    if (prefersReducedMotion || prevPathRef.current === location.pathname) {
+    if (prefersReducedMotion) {
+      prevPathRef.current = location.pathname;
       setDisplayChildren(children);
       return;
     }
 
     prevPathRef.current = location.pathname;
-    
-    // Immediately swap content and animate in
-    setDisplayChildren(children);
-    setPhase("enter");
 
-    const timer = setTimeout(() => setPhase("idle"), 400);
-    return () => clearTimeout(timer);
+    // Phase 1: fade out current page quickly
+    setVisible(false);
+
+    // Phase 2: swap content and fade in
+    const swapTimer = setTimeout(() => {
+      setDisplayChildren(children);
+      // Force a reflow before animating in
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          setVisible(true);
+        });
+      });
+    }, 150); // Short exit duration
+
+    return () => clearTimeout(swapTimer);
   }, [location.pathname, children]);
 
   return (
     <div
       style={{
-        opacity: phase === "enter" ? 0 : 1,
-        transform: phase === "enter" ? "translateX(30px)" : "translateX(0)",
-        transition: "opacity 0.35s ease-out, transform 0.35s ease-out",
-        willChange: phase === "enter" ? "opacity, transform" : "auto",
+        opacity: visible ? 1 : 0,
+        transform: visible ? "translateX(0)" : "translateX(20px)",
+        transition: visible
+          ? "opacity 0.3s ease-out, transform 0.3s ease-out"
+          : "opacity 0.12s ease-in, transform 0.12s ease-in",
       }}
     >
       {displayChildren}
