@@ -296,26 +296,33 @@ const OptionalsSelection = ({ optionals, modelOptionals = [], selectedOptionals:
             <h3 className="text-xl font-display font-bold mb-2">Opcionais Exclusivos — {model.name}</h3>
             <p className="text-sm text-muted-foreground mb-4">Opcionais calculados especificamente para este modelo</p>
             <div className="space-y-3">
-              {modelOptionals.map((mOpt) => (
-                <div key={mOpt.id} className="flex items-start gap-3">
-                  <Checkbox
-                    id={`mopt-${mOpt.id}`}
-                    checked={selectedModelOpts.includes(mOpt.id)}
-                    onCheckedChange={() => toggleModelOpt(mOpt.id)}
-                  />
-                  <Label htmlFor={`mopt-${mOpt.id}`} className="flex-1 cursor-pointer">
-                    <div className="flex justify-between items-start">
-                      <div>
-                        <p className="font-semibold">{mOpt.name}</p>
-                        {mOpt.description && <p className="text-sm text-muted-foreground">{mOpt.description}</p>}
-                      </div>
-                      <p className="font-bold text-primary ml-4">
-                        + R$ {mOpt.price.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
-                      </p>
+              {modelOptionals.map((mOpt) => {
+                const isSelected = selectedModelOpts.includes(mOpt.id);
+                return (
+                  <div
+                    key={mOpt.id}
+                    onClick={() => toggleModelOpt(mOpt.id)}
+                    className={`flex items-center gap-3 p-4 rounded-xl border-2 cursor-pointer transition-all ${
+                      isSelected
+                        ? "border-primary bg-primary/5 shadow-sm"
+                        : "border-border hover:border-primary/40"
+                    }`}
+                  >
+                    <Checkbox
+                      id={`mopt-${mOpt.id}`}
+                      checked={isSelected}
+                      className="pointer-events-none"
+                    />
+                    <div className="flex-1">
+                      <p className="font-semibold">{mOpt.name}</p>
+                      {mOpt.description && <p className="text-sm text-muted-foreground">{mOpt.description}</p>}
                     </div>
-                  </Label>
-                </div>
-              ))}
+                    <p className="font-bold text-primary ml-4 whitespace-nowrap">
+                      + R$ {mOpt.price.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                    </p>
+                  </div>
+                );
+              })}
             </div>
           </Card>
         )}
