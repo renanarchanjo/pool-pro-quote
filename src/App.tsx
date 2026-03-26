@@ -12,6 +12,7 @@ import Index from "./pages/Index";
 
 // Lazy load all other pages
 const MobileApp = lazy(() => import("./pages/MobileApp"));
+const Login = lazy(() => import("./pages/Login"));
 const Auth = lazy(() => import("./pages/Auth"));
 const Admin = lazy(() => import("./pages/Admin"));
 const Matriz = lazy(() => import("./pages/Matriz"));
