@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import { Check, X, Zap, Users, BarChart3, Shield, Rocket, Crown, Star, ArrowRight, MessageSquare, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -81,6 +81,35 @@ const PricingSection = () => {
   const [extraProposalCost, setExtraProposalCost] = useState("0,50");
   const [extraUserCost, setExtraUserCost] = useState("14,90");
   const [loading, setLoading] = useState(true);
+  const plansGridRef = useRef<HTMLDivElement>(null);
+
+  // Stagger animation via IntersectionObserver
+  useEffect(() => {
+    if (loading) return;
+    const grid = plansGridRef.current;
+    if (!grid) return;
+
+    const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (prefersReducedMotion) {
+      grid.querySelectorAll(".stagger-card").forEach((el) => el.classList.add("stagger-visible"));
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          grid.querySelectorAll(".stagger-card").forEach((el, i) => {
+            (el as HTMLElement).style.transitionDelay = `${i * 100}ms`;
+            el.classList.add("stagger-visible");
+          });
+          observer.unobserve(grid);
+        }
+      },
+      { threshold: 0.15 }
+    );
+    observer.observe(grid);
+    return () => observer.disconnect();
+  }, [loading, plans]);
 
   useEffect(() => {
     const load = async () => {
@@ -130,7 +159,7 @@ const PricingSection = () => {
       </div>
 
       {/* Subscription Plans */}
-      <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-${Math.min(plans.length, 4)} gap-5 max-w-6xl mx-auto mb-8`}>
+      <div ref={plansGridRef} className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-${Math.min(plans.length, 4)} gap-5 max-w-6xl mx-auto mb-8`}>
         {plans.map((plan) => {
           const isHighlighted = plan.slug === highlightedSlug;
           const icon = planIcons[plan.slug] || <Star className="w-6 h-6" />;
@@ -142,7 +171,7 @@ const PricingSection = () => {
             : `${plan.max_proposals_per_month.toLocaleString("pt-BR")} orçamentos/mês`;
 
           return (
-            <div key={plan.id} className="relative flex flex-col group">
+            <div key={plan.id} className="relative flex flex-col group stagger-card">
               {isHighlighted && (
                 <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 z-10">
                   <span className="gradient-primary text-white text-xs font-bold px-5 py-1.5 rounded-full shadow-lg whitespace-nowrap">
@@ -302,7 +331,7 @@ const PricingSection = () => {
                     <span className="text-muted-foreground text-sm">/mês</span>
                   </div>
                   <div className="bg-orange-50 rounded-lg py-2 px-3 mb-3">
-                    <span className="text-orange-700 font-bold text-lg">{lp.lead_limit}</span>
+                    <span className="text-orange-700 font-bold text-lg lead-number-pulse inline-block">{lp.lead_limit}</span>
                     <span className="text-orange-600 text-sm ml-1">leads/mês</span>
                   </div>
                   <p className="text-xs text-muted-foreground">

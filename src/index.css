@@ -426,3 +426,61 @@
     margin: 1rem;
   }
 }
+
+/* ============================
+   LANDING PAGE ANIMATIONS
+   Performance: transform + opacity only
+   ============================ */
+
+/* Stagger entry for pricing cards */
+.stagger-card {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.5s ease-out, transform 0.5s ease-out;
+}
+
+.stagger-card.stagger-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Subtle pulse for lead numbers */
+@keyframes lead-pulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.05);
+    opacity: 0.85;
+  }
+}
+
+.lead-number-pulse {
+  animation: lead-pulse 2.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Hover lift for partner/benefit cards */
+.hover-lift {
+  transition: transform 0.25s ease-out, box-shadow 0.25s ease-out;
+}
+
+.hover-lift:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 12px 24px -8px hsl(var(--primary) / 0.15);
+}
+
+/* Respect reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .stagger-card {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+  .lead-number-pulse {
+    animation: none;
+  }
+  .hover-lift:hover {
+    transform: none;
+  }
+}
