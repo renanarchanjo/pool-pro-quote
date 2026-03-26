@@ -54,10 +54,10 @@ const AdminSidebar = () => {
   ];
 
   const catalogItems = isOwner ? [
-    { title: "Marcas e Categorias", url: "/admin/marcas", icon: Tag },
-    { title: "Modelos e Opcionais Exclusivos", url: "/admin/modelos", icon: Box },
-    { title: "Opcionais", url: "/admin/opcionais", icon: Package },
     { title: "Marcas Parceiras", url: "/admin/parceiros", icon: Handshake },
+    { title: "Marcas", url: "/admin/marcas", icon: Tag },
+    { title: "Modelos e Opcionais Dimensionados", url: "/admin/modelos", icon: Box },
+    { title: "Opcionais", url: "/admin/opcionais", icon: Package },
   ] : [];
 
   const accountItems = [
