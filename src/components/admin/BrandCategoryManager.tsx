@@ -62,7 +62,7 @@ const BrandCategoryManager = () => {
     if (!store) return;
     try {
       const [brandsRes, catsRes] = await Promise.all([
-        supabase.from("brands").select("*").eq("store_id", store.id).order("name"),
+        supabase.from("brands").select("id, name, description, active, partner_id").eq("store_id", store.id).order("name"),
         supabase.from("categories").select("*").eq("store_id", store.id).order("name"),
       ]);
       if (brandsRes.error) throw brandsRes.error;
