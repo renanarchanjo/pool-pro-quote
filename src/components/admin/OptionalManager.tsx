@@ -183,12 +183,15 @@ const OptionalManager = () => {
   };
 
   const renderOptionalCard = (optional: Optional) => (
-    <Card key={optional.id} className={`p-4 transition-colors ${selected.includes(optional.id) ? "ring-2 ring-primary/30" : ""}`}>
+    <Card
+      key={optional.id}
+      className={`p-4 transition-all cursor-pointer ${selected.includes(optional.id) ? "ring-2 ring-primary/30 border-primary bg-primary/5 shadow-sm" : "border-border hover:border-primary/40"}`}
+      onClick={() => toggleSelect(optional.id)}
+    >
       <div className="flex gap-3">
         <Checkbox
           checked={selected.includes(optional.id)}
-          onCheckedChange={() => toggleSelect(optional.id)}
-          className="mt-1 shrink-0"
+          className="mt-1 shrink-0 pointer-events-none"
         />
         <div className="flex-1 min-w-0">
           <div className="flex justify-between items-start">
@@ -210,7 +213,7 @@ const OptionalManager = () => {
                 <p className="text-sm text-muted-foreground">{optional.description}</p>
               )}
             </div>
-            <div className="flex flex-col items-end gap-2 shrink-0">
+            <div className="flex flex-col items-end gap-2 shrink-0" onClick={(e) => e.stopPropagation()}>
               <div className="flex items-center gap-2">
                 <Switch checked={optional.active}
                   onCheckedChange={() => toggleActive(optional.id, optional.active)} />

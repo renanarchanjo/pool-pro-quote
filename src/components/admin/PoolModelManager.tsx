@@ -601,10 +601,13 @@ const PoolModelManager = () => {
               const mOpts = modelOptionals.filter((o) => o.model_id === model.id);
 
               return (
-                <Card key={model.id} className={`transition-colors ${selectedModels.includes(model.id) ? "ring-2 ring-primary/30" : ""}`}>
-                  <div className="flex items-center gap-3 p-4 cursor-pointer" onClick={() => setExpandedModel(isExpanded ? null : model.id)}>
-                    <Checkbox checked={selectedModels.includes(model.id)} onCheckedChange={() => toggleSelectModel(model.id)} onClick={(e) => e.stopPropagation()} className="shrink-0" />
-                    <div className="flex-1 min-w-0 flex items-center gap-2 flex-wrap">
+                <Card key={model.id} className={`transition-all ${selectedModels.includes(model.id) ? "ring-2 ring-primary/30 border-primary bg-primary/5" : "border-border"}`}>
+                  <div
+                    className="flex items-center gap-3 p-4 cursor-pointer"
+                    onClick={() => toggleSelectModel(model.id)}
+                  >
+                    <Checkbox checked={selectedModels.includes(model.id)} className="shrink-0 pointer-events-none" />
+                    <div className="flex-1 min-w-0 flex items-center gap-2 flex-wrap" onClick={(e) => { e.stopPropagation(); setExpandedModel(isExpanded ? null : model.id); }}>
                       <h3 className="font-semibold">{model.name}</h3>
                       {brandName && <Badge variant="outline" className="text-xs">{brandName}</Badge>}
                       <Badge variant="secondary" className="text-xs">{catName}</Badge>
