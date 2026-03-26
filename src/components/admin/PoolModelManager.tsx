@@ -824,7 +824,7 @@ const PoolModelManager = () => {
 
                 {/* Not included items */}
                 <div className="pt-4 border-t">
-                  <ArrayField label="Itens Não Inclusos" field="not_included_items" inputField="newNotIncluded" placeholder="Ex: Aquecedor solar" />
+                  {renderArrayField("Itens Não Inclusos", "not_included_items", "newNotIncluded", "Ex: Aquecedor solar")}
                   <div className="flex gap-2 mt-3">
                     <Button type="button" onClick={handleSubmit as any} className="gradient-primary text-white">Salvar</Button>
                   </div>
