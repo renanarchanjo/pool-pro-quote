@@ -38,7 +38,7 @@ interface Category {
   brand_id: string | null;
 }
 
-const BrandCategoryManager = () => {
+const BrandCategoryManager = ({ mode = "brands" }: { mode?: "brands" | "categories" }) => {
   const { store } = useStoreData();
   const [brands, setBrands] = useState<Brand[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
