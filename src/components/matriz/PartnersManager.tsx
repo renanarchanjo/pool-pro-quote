@@ -324,12 +324,15 @@ const PartnersManager = () => {
           <p className="text-muted-foreground text-center py-8">Nenhum parceiro cadastrado ainda.</p>
         ) : (
           <div className="space-y-3">
-            {partners.map((partner) => (
+            {partners.map((partner) => {
+              const isEditing = editingId === partner.id;
+              return (
               <div
                 key={partner.id}
                 className={`flex items-start gap-4 p-4 rounded-xl border ${
                   animating ? "transition-all duration-500 ease-in-out" : "transition-colors duration-200"
                 } ${
+                  isEditing ? "bg-primary/5 border-primary/30 ring-1 ring-primary/20" :
                   partner.active ? "bg-background border-border/50" : "bg-muted/30 border-border/20 opacity-60"
                 }`}
                 style={animating ? { transform: "translateY(0)" } : undefined}
@@ -344,17 +347,19 @@ const PartnersManager = () => {
                   }`}>
                     #{partner.ranking}
                   </div>
-                  <Input
-                    type="number"
-                    min={1}
-                    max={99}
-                    value={partner.ranking}
-                    onChange={(e) => {
-                      const val = parseInt(e.target.value);
-                      if (!isNaN(val)) updatePartnerField(partner.id, "ranking", val);
-                    }}
-                    className="w-14 h-7 text-xs text-center"
-                  />
+                  {isEditing && (
+                    <Input
+                      type="number"
+                      min={1}
+                      max={99}
+                      value={partner.ranking}
+                      onChange={(e) => {
+                        const val = parseInt(e.target.value);
+                        if (!isNaN(val)) updatePartnerField(partner.id, "ranking", val);
+                      }}
+                      className="w-14 h-7 text-xs text-center"
+                    />
+                  )}
                 </div>
 
                 {/* Logo */}
@@ -368,55 +373,52 @@ const PartnersManager = () => {
 
                 {/* Info */}
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2">
-                    {editingId === partner.id ? (
-                      <div className="flex items-center gap-1.5">
-                        <Input value={editName} onChange={(e) => setEditName(e.target.value)} className="h-7 text-sm w-48" autoFocus />
-                        <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => handleSaveName(partner)}>
-                          <Check className="w-3.5 h-3.5 text-green-600" />
-                        </Button>
-                        <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => setEditingId(null)}>
-                          <X className="w-3.5 h-3.5 text-destructive" />
-                        </Button>
-                      </div>
-                    ) : (
-                      <>
-                        <p className="font-semibold truncate">{partner.name}</p>
-                        <Button size="icon" variant="ghost" className="h-6 w-6 shrink-0" onClick={() => { setEditingId(partner.id); setEditName(partner.name); }}>
-                          <Pencil className="w-3 h-3 text-muted-foreground" />
-                        </Button>
-                      </>
-                    )}
-                  </div>
-                  <p className="text-xs text-muted-foreground">
-                    {RANKING_LABELS[partner.ranking] || `${partner.ranking}º Lugar`} · {partner.active ? "Ativo" : "Oculto"} · {partner.display_percent}%
-                  </p>
-
-                  {/* Display percent */}
-                  <div className="flex items-center gap-2 mt-2">
-                    <Label className="text-xs shrink-0">Frequência:</Label>
-                    <Input
-                      type="number"
-                      min={0}
-                      max={100}
-                      value={partner.display_percent}
-                      onChange={(e) => {
-                        const val = parseFloat(e.target.value);
-                        if (!isNaN(val)) updatePartnerField(partner.id, "display_percent", val);
-                      }}
-                      className="w-20 h-7 text-xs text-center"
-                    />
-                    <span className="text-xs text-muted-foreground">%</span>
-                  </div>
-
-                  {/* Banner URL */}
-                  <div className="mt-3 space-y-2 border-t border-border/50 pt-3">
-                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Banner da Proposta</p>
-                    <div className="flex items-start gap-2">
-                      <Label className="text-xs w-20 shrink-0 pt-1.5">Banner 1:</Label>
-                      <div className="flex-1">
+                  {isEditing ? (
+                    <>
+                      <div className="mb-2">
+                        <Label className="text-xs">Nome</Label>
                         <Input
-                          className="h-7 text-xs"
+                          value={partner.name}
+                          onChange={(e) => updatePartnerField(partner.id, "name", e.target.value)}
+                          className="h-8 text-sm mt-0.5"
+                        />
+                      </div>
+
+                      <div className="flex items-center gap-2 mb-2">
+                        <div>
+                          <Label className="text-xs">Ranking</Label>
+                          <Input
+                            type="number"
+                            min={1}
+                            max={99}
+                            value={partner.ranking}
+                            onChange={(e) => {
+                              const val = parseInt(e.target.value);
+                              if (!isNaN(val)) updatePartnerField(partner.id, "ranking", val);
+                            }}
+                            className="w-20 h-8 text-xs text-center mt-0.5"
+                          />
+                        </div>
+                        <div>
+                          <Label className="text-xs">Frequência (%)</Label>
+                          <Input
+                            type="number"
+                            min={0}
+                            max={100}
+                            value={partner.display_percent}
+                            onChange={(e) => {
+                              const val = parseFloat(e.target.value);
+                              if (!isNaN(val)) updatePartnerField(partner.id, "display_percent", val);
+                            }}
+                            className="w-24 h-8 text-xs text-center mt-0.5"
+                          />
+                        </div>
+                      </div>
+
+                      <div>
+                        <Label className="text-xs">Banner da Proposta (URL)</Label>
+                        <Input
+                          className="h-8 text-xs mt-0.5"
                           placeholder="URL do banner lateral (postimages, etc)"
                           value={partner.banner_1_url || ""}
                           onChange={(e) => updatePartnerField(partner.id, "banner_1_url", e.target.value.trim() || null)}
@@ -425,12 +427,44 @@ const PartnersManager = () => {
                           📐 Proporção <strong>2:3 vertical</strong> — Tamanho ideal: <strong>400×600px</strong>
                         </p>
                       </div>
-                    </div>
-                  </div>
+                    </>
+                  ) : (
+                    <>
+                      <p className="font-semibold truncate">{partner.name}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {RANKING_LABELS[partner.ranking] || `${partner.ranking}º Lugar`} · {partner.active ? "Ativo" : "Oculto"} · {partner.display_percent}%
+                      </p>
+                      {partner.banner_1_url && (
+                        <p className="text-[10px] text-muted-foreground mt-1 truncate">
+                          🖼 Banner configurado
+                        </p>
+                      )}
+                    </>
+                  )}
                 </div>
 
                 {/* Actions */}
                 <div className="flex items-center gap-1 shrink-0">
+                  {isEditing ? (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setEditingId(null)}
+                      className="text-xs gap-1"
+                    >
+                      <Check className="w-3.5 h-3.5" />
+                      OK
+                    </Button>
+                  ) : (
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => setEditingId(partner.id)}
+                      className="h-8 w-8"
+                    >
+                      <Pencil className="w-4 h-4 text-muted-foreground" />
+                    </Button>
+                  )}
                   <div>
                     <input type="file" accept="image/*" className="hidden" id={`replace-logo-${partner.id}`}
                       onChange={(e) => { const file = e.target.files?.[0]; if (file) handleReplaceLogo(partner, file); }} />
@@ -444,7 +478,8 @@ const PartnersManager = () => {
                   </Button>
                 </div>
               </div>
-            ))}
+              );
+            })}
           </div>
         )}
 
