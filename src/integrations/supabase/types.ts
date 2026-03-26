@@ -22,6 +22,7 @@ export type Database = {
           id: string
           logo_url: string | null
           name: string
+          partner_id: string | null
           store_id: string | null
           updated_at: string | null
         }
@@ -32,6 +33,7 @@ export type Database = {
           id?: string
           logo_url?: string | null
           name: string
+          partner_id?: string | null
           store_id?: string | null
           updated_at?: string | null
         }
@@ -42,10 +44,18 @@ export type Database = {
           id?: string
           logo_url?: string | null
           name?: string
+          partner_id?: string | null
           store_id?: string | null
           updated_at?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "brands_partner_id_fkey"
+            columns: ["partner_id"]
+            isOneToOne: false
+            referencedRelation: "partners"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "brands_store_id_fkey"
             columns: ["store_id"]

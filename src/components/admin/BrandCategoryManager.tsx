@@ -27,6 +27,7 @@ interface Brand {
   name: string;
   description: string | null;
   active: boolean;
+  partner_id: string | null;
 }
 
 interface Category {
@@ -61,7 +62,7 @@ const BrandCategoryManager = () => {
     if (!store) return;
     try {
       const [brandsRes, catsRes] = await Promise.all([
-        supabase.from("brands").select("*").eq("store_id", store.id).order("name"),
+        supabase.from("brands").select("id, name, description, active, partner_id").eq("store_id", store.id).order("name"),
         supabase.from("categories").select("*").eq("store_id", store.id).order("name"),
       ]);
       if (brandsRes.error) throw brandsRes.error;
@@ -303,7 +304,7 @@ const BrandCategoryManager = () => {
                   <SelectTrigger><SelectValue placeholder="Selecione a marca" /></SelectTrigger>
                   <SelectContent>
                     {brands.filter((b) => b.active).map((b) => (
-                      <SelectItem key={b.id} value={b.id}>{b.name}</SelectItem>
+                      <SelectItem key={b.id} value={b.id}>{b.name}{b.partner_id ? " ®" : ""}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
@@ -452,7 +453,10 @@ const BrandCategoryManager = () => {
                     <CollapsibleTrigger className="flex items-center gap-3 flex-1 text-left hover:opacity-80 transition-opacity" onClick={(e) => e.stopPropagation()}>
                       {isExpanded ? <ChevronDown className="w-5 h-5 text-primary" /> : <ChevronRight className="w-5 h-5" />}
                       <div>
-                        <h3 className="text-lg font-bold">{brand.name}</h3>
+                        <h3 className="text-lg font-bold">
+                          {brand.name}
+                          {brand.partner_id && <span className="text-primary ml-1 text-sm font-normal">®</span>}
+                        </h3>
                         {brand.description && <p className="text-sm text-muted-foreground">{brand.description}</p>}
                       </div>
                       <Badge variant="secondary" className="ml-2">

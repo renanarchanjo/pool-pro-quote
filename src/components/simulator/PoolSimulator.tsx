@@ -50,6 +50,7 @@ interface Brand {
   id: string;
   name: string;
   logo_url?: string | null;
+  partner_id?: string | null;
 }
 
 interface Partner {
@@ -111,7 +112,7 @@ const PoolSimulator = ({ onBack }: PoolSimulatorProps) => {
 
       const [modelsRes, brandsRes, catsRes, optionalsRes, modelOptsRes, settingsRes, storeRes, partnersRes] = await Promise.all([
         supabase.rpc("get_pool_models_public", { _store_id: sid }),
-        supabase.from("brands").select("id, name, logo_url").eq("active", true).eq("store_id", sid).order("name"),
+        supabase.from("brands").select("id, name, logo_url, partner_id").eq("active", true).eq("store_id", sid).order("name"),
         supabase.from("categories").select("id, name, brand_id").eq("active", true).eq("store_id", sid).order("name"),
         supabase.rpc("get_optionals_public", { _store_id: sid }),
         supabase.rpc("get_model_optionals_public", { _store_id: sid }),
@@ -158,7 +159,7 @@ const PoolSimulator = ({ onBack }: PoolSimulatorProps) => {
 
       const [modelsRes, brandsRes, catsRes, optionalsRes, modelOptsRes] = await Promise.all([
         supabase.rpc("get_pool_models_public"),
-        supabase.from("brands").select("id, name").eq("active", true).order("name"),
+        supabase.from("brands").select("id, name, partner_id").eq("active", true).order("name"),
         supabase.from("categories").select("id, name, brand_id").eq("active", true).order("name"),
         supabase.rpc("get_optionals_public"),
         supabase.rpc("get_model_optionals_public"),
@@ -303,6 +304,7 @@ const PoolSimulator = ({ onBack }: PoolSimulatorProps) => {
               storeState={storeState}
               brandLogoUrl={brand?.logo_url}
               brandName={brand?.name}
+              brandPartnerId={brand?.partner_id}
               partners={partners}
             />
           );

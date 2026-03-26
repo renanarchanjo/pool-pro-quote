@@ -61,12 +61,12 @@ const StorePartnersManager = () => {
         .maybeSingle();
 
       if (existingBrand) {
-        // Re-activate if it was inactive
-        await supabase.from("brands").update({ active: true, logo_url: partner.logo_url }).eq("id", existingBrand.id);
+        // Re-activate if it was inactive, set partner_id
+        await supabase.from("brands").update({ active: true, logo_url: partner.logo_url, partner_id: partnerId } as any).eq("id", existingBrand.id);
       } else {
         const { error: brandError } = await supabase
           .from("brands")
-          .insert({ name: partner.name, store_id: store.id, logo_url: partner.logo_url, active: true });
+          .insert({ name: partner.name, store_id: store.id, logo_url: partner.logo_url, active: true, partner_id: partnerId } as any);
         if (brandError) { console.error("Erro ao criar marca:", brandError); }
       }
 

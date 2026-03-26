@@ -19,7 +19,7 @@ import {
   AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 
-interface Brand { id: string; name: string; }
+interface Brand { id: string; name: string; partner_id?: string | null; }
 interface Category { id: string; name: string; brand_id: string | null; }
 interface ModelOptional {
   id: string;
@@ -87,7 +87,7 @@ const PoolModelManager = () => {
     if (!store) return;
     try {
       const [brandsRes, categoriesRes, modelsRes, optRes] = await Promise.all([
-        supabase.from("brands").select("id, name").eq("active", true).eq("store_id", store.id),
+        supabase.from("brands").select("id, name, partner_id").eq("active", true).eq("store_id", store.id),
         supabase.from("categories").select("id, name, brand_id").eq("active", true).eq("store_id", store.id),
         supabase.from("pool_models").select("*").eq("store_id", store.id).order("created_at", { ascending: false }),
         supabase.from("model_optionals").select("*").eq("store_id", store.id).order("display_order"),
@@ -108,7 +108,9 @@ const PoolModelManager = () => {
   const getBrandName = (categoryId: string) => {
     const cat = categories.find((c) => c.id === categoryId);
     if (!cat?.brand_id) return "";
-    return brands.find((b) => b.id === cat.brand_id)?.name || "";
+    const brand = brands.find((b) => b.id === cat.brand_id);
+    if (!brand) return "";
+    return brand.name + (brand.partner_id ? " ®" : "");
   };
 
   // ---- Array helpers ----
@@ -527,7 +529,7 @@ const PoolModelManager = () => {
           <SelectTrigger className="w-[180px]"><SelectValue placeholder="Marca" /></SelectTrigger>
           <SelectContent>
             <SelectItem value="all">Todas as Marcas</SelectItem>
-            {brands.map((b) => <SelectItem key={b.id} value={b.id}>{b.name}</SelectItem>)}
+            {brands.map((b) => <SelectItem key={b.id} value={b.id}>{b.name}{b.partner_id ? " ®" : ""}</SelectItem>)}
           </SelectContent>
         </Select>
         <Select value={filterCategory} onValueChange={setFilterCategory}>
@@ -557,7 +559,32 @@ const PoolModelManager = () => {
         <Card className="p-3 bg-primary/5 border-primary/20">
           <div className="flex items-center justify-between flex-wrap gap-2">
             <p className="text-sm font-medium">{selectedModels.length} modelo(s) selecionado(s)</p>
-            <div className="flex gap-2">
+            <div className="flex gap-2 flex-wrap">
+              {/* Bulk change category (brand) */}
+              <Select onValueChange={async (catId) => {
+                if (selectedModels.length === 0) return;
+                try {
+                  for (const id of selectedModels) {
+                    await supabase.from("pool_models").update({ category_id: catId }).eq("id", id);
+                  }
+                  toast.success(`${selectedModels.length} modelo(s) movido(s) para a nova categoria`);
+                  setSelectedModels([]); loadData();
+                } catch { toast.error("Erro ao mover modelos"); }
+              }}>
+                <SelectTrigger className="w-[220px] h-8 text-xs">
+                  <SelectValue placeholder="Trocar Categoria / Marca" />
+                </SelectTrigger>
+                <SelectContent>
+                  {categories.map((cat) => {
+                    const brand = brands.find(b => b.id === cat.brand_id);
+                    return (
+                      <SelectItem key={cat.id} value={cat.id}>
+                        {cat.name}{brand ? ` — ${brand.name}${brand.partner_id ? " ®" : ""}` : ""}
+                      </SelectItem>
+                    );
+                  })}
+                </SelectContent>
+              </Select>
               <Button size="sm" variant="outline" onClick={() => bulkModelAction("activate")}>Ativar</Button>
               <Button size="sm" variant="outline" onClick={() => bulkModelAction("deactivate")}>Desativar</Button>
               <AlertDialog>

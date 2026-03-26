@@ -55,6 +55,7 @@ interface ProposalViewProps {
   storeState?: string | null;
   brandLogoUrl?: string | null;
   brandName?: string | null;
+  brandPartnerId?: string | null;
   partners?: Partner[];
 }
 
@@ -71,6 +72,7 @@ const ProposalView = ({
   storeState,
   brandLogoUrl,
   brandName,
+  brandPartnerId,
   partners = [],
 }: ProposalViewProps) => {
   const hasAutoDownloaded = useRef(false);
@@ -83,11 +85,13 @@ const ProposalView = ({
 
   const fmt = (v: number) => `R$ ${v.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`;
 
-  // Banner logic: if brand matches a partner name, show only that partner's banner
+  // Banner logic: if brand has a partner_id, match by ID; fallback to name matching
   // For non-partner brands, use weighted random selection based on display_percent
-  const matchedPartner = brandName
-    ? partners.find(p => p.name.toLowerCase().trim() === brandName.toLowerCase().trim())
-    : null;
+  const matchedPartner = brandPartnerId
+    ? partners.find(p => p.id === brandPartnerId)
+    : brandName
+      ? partners.find(p => p.name.toLowerCase().trim() === brandName.toLowerCase().trim())
+      : null;
 
   const selectWeightedPartner = (): Partner | null => {
     const eligible = partners.filter(p => p.banner_1_url && (p.display_percent || 0) > 0);

@@ -1,0 +1,1 @@
+ALTER TABLE public.brands ADD COLUMN partner_id uuid REFERENCES public.partners(id) ON DELETE SET NULL DEFAULT NULL;

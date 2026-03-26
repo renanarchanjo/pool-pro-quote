@@ -44,6 +44,7 @@ interface Brand {
   id: string;
   name: string;
   logo_url?: string | null;
+  partner_id?: string | null;
 }
 
 interface Partner {
@@ -117,7 +118,7 @@ const ManualProposal = () => {
     try {
       const storeId = profile!.store_id!;
       const [brandRes, catRes, modRes, optRes, modelOptRes, groupsRes, partnersRes] = await Promise.all([
-        supabase.from("brands").select("id, name, logo_url").eq("store_id", storeId).eq("active", true).order("name"),
+        supabase.from("brands").select("id, name, logo_url, partner_id").eq("store_id", storeId).eq("active", true).order("name"),
         supabase.from("categories").select("id, name, brand_id").eq("store_id", storeId).eq("active", true).order("name"),
         supabase.from("pool_models").select("*").eq("store_id", storeId).eq("active", true).order("display_order"),
         supabase.from("optionals").select("*").eq("store_id", storeId).eq("active", true).order("display_order"),
@@ -247,6 +248,7 @@ const ManualProposal = () => {
               storeState={store?.state}
               brandLogoUrl={brand?.logo_url}
               brandName={brand?.name}
+              brandPartnerId={brand?.partner_id}
               partners={partners}
             />
           );
@@ -326,7 +328,7 @@ const ManualProposal = () => {
                 <SelectTrigger><SelectValue placeholder="Selecione uma marca" /></SelectTrigger>
                 <SelectContent>
                   {brands.map((b) => (
-                    <SelectItem key={b.id} value={b.id}>{b.name}</SelectItem>
+                    <SelectItem key={b.id} value={b.id}>{b.name}{b.partner_id ? " ®" : ""}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
