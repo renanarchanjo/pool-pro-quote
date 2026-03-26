@@ -390,6 +390,20 @@ const ProposalView = ({
                 </div>
               </div>
             </div>
+
+            {/* ===== NÃO INCLUSOS ===== */}
+            {model.not_included_items && model.not_included_items.length > 0 && (
+              <div style={{ ...sectionStyle, marginBottom: "16px" }}>
+                <div style={{ ...sectionHeaderStyle, borderLeft: `4px solid #ef4444` }}>Não Inclusos</div>
+                <div style={sectionBodyStyle}>
+                  <ul style={{ margin: 0, paddingLeft: "18px", fontSize: "12px", lineHeight: "1.8" }}>
+                    {model.not_included_items.map((item, i) => (
+                      <li key={i} style={{ color: "#6b7280" }}>{item}</li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            )}
           </div>
 
           <div data-pdf-page>
