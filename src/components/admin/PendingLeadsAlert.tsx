@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
@@ -8,45 +8,70 @@ import { Users, ArrowRight, Bell } from "lucide-react";
 const PendingLeadsAlert = () => {
   const [open, setOpen] = useState(false);
   const [pendingCount, setPendingCount] = useState(0);
+  const [storeId, setStoreId] = useState<string | null>(null);
+  const [lastCheckedCount, setLastCheckedCount] = useState(0);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const STORAGE_KEY = "pendingLeadsAlertShown";
-    const STORAGE_DATE_KEY = "pendingLeadsAlertDate";
+  const checkPendingLeads = useCallback(async (showOnlyIfNew = false) => {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) return;
 
-    // Only show once per day
-    const lastShown = localStorage.getItem(STORAGE_DATE_KEY);
-    const today = new Date().toDateString();
-    if (lastShown === today) return;
-
-    const checkPendingLeads = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) return;
-
+    let currentStoreId = storeId;
+    if (!currentStoreId) {
       const { data: profile } = await supabase
         .from("profiles")
         .select("store_id")
         .eq("id", session.user.id)
         .single();
-
       if (!profile?.store_id) return;
+      currentStoreId = profile.store_id;
+      setStoreId(currentStoreId);
+    }
 
-      const { count } = await (supabase as any)
-        .from("lead_distributions")
-        .select("id", { count: "exact" })
-        .eq("store_id", profile.store_id)
-        .eq("status", "pending");
+    const { count } = await (supabase as any)
+      .from("lead_distributions")
+      .select("id", { count: "exact" })
+      .eq("store_id", currentStoreId)
+      .eq("status", "pending");
 
-      if (count && count > 0) {
-        setPendingCount(count);
+    const newCount = count || 0;
+    if (newCount > 0) {
+      if (!showOnlyIfNew || newCount > lastCheckedCount) {
+        setPendingCount(newCount);
         setOpen(true);
-        localStorage.setItem(STORAGE_DATE_KEY, today);
       }
-    };
+    }
+    setLastCheckedCount(newCount);
+  }, [storeId, lastCheckedCount]);
 
-    const timer = setTimeout(checkPendingLeads, 800);
+  // Initial check on mount
+  useEffect(() => {
+    const timer = setTimeout(() => checkPendingLeads(false), 800);
     return () => clearTimeout(timer);
   }, []);
+
+  // Realtime: listen for new distributions and re-check
+  useEffect(() => {
+    const channel = supabase
+      .channel("pending-leads-alert")
+      .on(
+        "postgres_changes",
+        {
+          event: "INSERT",
+          schema: "public",
+          table: "lead_distributions",
+        },
+        () => {
+          // Small delay to ensure DB is consistent
+          setTimeout(() => checkPendingLeads(true), 1000);
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [checkPendingLeads]);
 
   const handleGoToLeads = () => {
     setOpen(false);
