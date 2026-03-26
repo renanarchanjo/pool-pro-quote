@@ -42,6 +42,11 @@ interface IncludedItem {
   display_order: number;
   active: boolean;
 }
+interface ItemTemplate {
+  id: string;
+  name: string;
+  items: { name: string; cost: number; margin_percent: number; price: number; display_order: number }[];
+}
 interface PoolModel {
   id: string;
   category_id: string;
