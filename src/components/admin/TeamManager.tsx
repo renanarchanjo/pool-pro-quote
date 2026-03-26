@@ -290,12 +290,13 @@ const TeamManager = () => {
       if (error) throw error;
       if (data?.error) throw new Error(data.error);
       if (data?.url) {
+        toast.info("Redirecionando para o pagamento...");
         window.location.href = data.url;
         return;
       }
+      throw new Error("URL de checkout não recebida");
     } catch (err: any) {
       toast.error(err.message || "Erro ao iniciar checkout");
-    } finally {
       setCheckoutLoading(false);
     }
   };

@@ -110,11 +110,13 @@ const AdminLeads = () => {
       });
       if (error) throw error;
       if (data?.url) {
+        toast.info("Redirecionando para o pagamento...");
         window.location.href = data.url;
+        return;
       }
+      throw new Error("URL de checkout não recebida");
     } catch (err: any) {
       toast.error("Erro ao iniciar checkout: " + (err.message || "Tente novamente"));
-    } finally {
       setCheckoutLoading(false);
     }
   };
