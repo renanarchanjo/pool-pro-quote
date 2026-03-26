@@ -305,7 +305,15 @@ const AdminDashboard = () => {
               {viewingProposal?.pool_models && (
                 <ProposalView
                   model={viewingProposal.pool_models as any}
-                  selectedOptionals={[]}
+                  selectedOptionals={
+                    Array.isArray(viewingProposal.selected_optionals)
+                      ? viewingProposal.selected_optionals.map((o: any) =>
+                          typeof o === "object" && o !== null
+                            ? { name: o.name || "Item", price: o.price || 0 }
+                            : { name: String(o), price: 0 }
+                        )
+                      : []
+                  }
                   customerData={{
                     name: viewingProposal.customer_name,
                     city: viewingProposal.customer_city,
