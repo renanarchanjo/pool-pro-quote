@@ -440,14 +440,16 @@ const BrandCategoryManager = () => {
 
             return (
               <Collapsible key={brand.id} open={isExpanded} onOpenChange={() => toggleExpanded(brand.id)}>
-                <Card className={`overflow-hidden transition-colors ${isSelected ? "ring-2 ring-primary/30" : ""}`}>
-                  <div className="p-4 flex items-center gap-3">
+                <Card className={`overflow-hidden transition-all ${isSelected ? "ring-2 ring-primary/30 border-primary bg-primary/5" : "border-border"}`}>
+                  <div
+                    className="p-4 flex items-center gap-3 cursor-pointer"
+                    onClick={() => toggleSelectBrand(brand.id)}
+                  >
                     <Checkbox
                       checked={isSelected}
-                      onCheckedChange={() => toggleSelectBrand(brand.id)}
-                      className="shrink-0"
+                      className="shrink-0 pointer-events-none"
                     />
-                    <CollapsibleTrigger className="flex items-center gap-3 flex-1 text-left hover:opacity-80 transition-opacity">
+                    <CollapsibleTrigger className="flex items-center gap-3 flex-1 text-left hover:opacity-80 transition-opacity" onClick={(e) => e.stopPropagation()}>
                       {isExpanded ? <ChevronDown className="w-5 h-5 text-primary" /> : <ChevronRight className="w-5 h-5" />}
                       <div>
                         <h3 className="text-lg font-bold">{brand.name}</h3>
@@ -458,7 +460,7 @@ const BrandCategoryManager = () => {
                       </Badge>
                     </CollapsibleTrigger>
 
-                    <div className="flex items-center gap-3 ml-auto shrink-0">
+                    <div className="flex items-center gap-3 ml-auto shrink-0" onClick={(e) => e.stopPropagation()}
                       <div className="flex items-center gap-2">
                         <Switch checked={brand.active} onCheckedChange={() => toggleBrandActive(brand.id, brand.active)} />
                         <span className="text-sm hidden sm:inline">{brand.active ? "Ativo" : "Inativo"}</span>
@@ -502,16 +504,20 @@ const BrandCategoryManager = () => {
                         </p>
                       ) : (
                         brandCategories.map((cat) => (
-                          <div key={cat.id} className={`flex items-center gap-3 p-3 rounded-lg bg-background border transition-colors ${selectedCategories.includes(cat.id) ? "border-primary/40 ring-1 ring-primary/20" : "border-border/50"}`}>
+                          <div
+                            key={cat.id}
+                            className={`flex items-center gap-3 p-3 rounded-xl bg-background border-2 cursor-pointer transition-all ${selectedCategories.includes(cat.id) ? "border-primary bg-primary/5 shadow-sm" : "border-border/50 hover:border-primary/40"}`}
+                            onClick={() => toggleSelectCategory(cat.id)}
+                          >
                             <Checkbox
                               checked={selectedCategories.includes(cat.id)}
-                              onCheckedChange={() => toggleSelectCategory(cat.id)}
+                              className="pointer-events-none"
                             />
                             <div className="flex-1 min-w-0">
                               <p className="font-medium">{cat.name}</p>
                               {cat.description && <p className="text-sm text-muted-foreground">{cat.description}</p>}
                             </div>
-                            <div className="flex items-center gap-2 shrink-0">
+                            <div className="flex items-center gap-2 shrink-0" onClick={(e) => e.stopPropagation()}
                               <Switch checked={cat.active} onCheckedChange={() => toggleCategoryActive(cat.id, cat.active)} />
                               <span className="text-xs hidden sm:inline">{cat.active ? "Ativo" : "Inativo"}</span>
                               <Button variant="ghost" size="sm" onClick={() => {
