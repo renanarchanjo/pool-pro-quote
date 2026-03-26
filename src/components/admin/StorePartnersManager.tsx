@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Loader2, Handshake, Image as ImageIcon, Tag, CheckCircle2 } from "lucide-react";
+import { Loader2, Handshake, Image as ImageIcon, CheckCircle2 } from "lucide-react";
 import { toast } from "sonner";
 import { useStoreData } from "@/hooks/useStoreData";
 
@@ -14,17 +14,9 @@ interface Partner {
   ranking: number;
 }
 
-interface PartnerCategory {
-  id: string;
-  partner_id: string;
-  name: string;
-  display_order: number;
-}
-
 const StorePartnersManager = () => {
   const { store } = useStoreData();
   const [partners, setPartners] = useState<Partner[]>([]);
-  const [partnerCategories, setPartnerCategories] = useState<Record<string, PartnerCategory[]>>({});
   const [linkedIds, setLinkedIds] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
   const [toggling, setToggling] = useState<string | null>(null);
@@ -34,10 +26,9 @@ const StorePartnersManager = () => {
   }, [store?.id]);
 
   const loadData = async () => {
-    const [partnersRes, linksRes, catsRes] = await Promise.all([
+    const [partnersRes, linksRes] = await Promise.all([
       supabase.from("partners").select("id, name, logo_url, active, ranking").eq("active", true).order("ranking", { ascending: true }),
       supabase.from("store_partners").select("partner_id").eq("store_id", store!.id),
-      supabase.from("partner_categories").select("*").order("display_order", { ascending: true }),
     ]);
 
     if (partnersRes.error) { toast.error("Erro ao carregar parceiros"); console.error(partnersRes.error); }
@@ -45,15 +36,6 @@ const StorePartnersManager = () => {
 
     if (linksRes.error) { console.error(linksRes.error); }
     else { setLinkedIds(new Set((linksRes.data || []).map((l: any) => l.partner_id))); }
-
-    if (!catsRes.error && catsRes.data) {
-      const grouped: Record<string, PartnerCategory[]> = {};
-      for (const cat of catsRes.data as PartnerCategory[]) {
-        if (!grouped[cat.partner_id]) grouped[cat.partner_id] = [];
-        grouped[cat.partner_id].push(cat);
-      }
-      setPartnerCategories(grouped);
-    }
 
     setLoading(false);
   };
