@@ -290,9 +290,8 @@ const TeamManager = () => {
       if (error) throw error;
       if (data?.error) throw new Error(data.error);
       if (data?.url) {
-        window.open(data.url, "_blank");
-        setShowExtraDialog(false);
-        setExtraQuantity(1);
+        window.location.href = data.url;
+        return;
       }
     } catch (err: any) {
       toast.error(err.message || "Erro ao iniciar checkout");
