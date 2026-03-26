@@ -642,6 +642,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "payment_history_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "subscription_plans_public"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "payment_history_store_id_fkey"
             columns: ["store_id"]
             isOneToOne: false
@@ -1096,6 +1103,13 @@ export type Database = {
             referencedRelation: "subscription_plans"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "stores_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "subscription_plans_public"
+            referencedColumns: ["id"]
+          },
         ]
       }
       subscription_plans: {
@@ -1160,6 +1174,42 @@ export type Database = {
       }
     }
     Views: {
+      lead_plans_public: {
+        Row: {
+          active: boolean | null
+          created_at: string | null
+          display_order: number | null
+          excess_price: number | null
+          id: string | null
+          lead_limit: number | null
+          name: string | null
+          price_monthly: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          active?: boolean | null
+          created_at?: string | null
+          display_order?: number | null
+          excess_price?: number | null
+          id?: string | null
+          lead_limit?: number | null
+          name?: string | null
+          price_monthly?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          active?: boolean | null
+          created_at?: string | null
+          display_order?: number | null
+          excess_price?: number | null
+          id?: string | null
+          lead_limit?: number | null
+          name?: string | null
+          price_monthly?: number | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       model_optionals_public: {
         Row: {
           active: boolean | null
@@ -1410,6 +1460,42 @@ export type Database = {
           name?: string | null
           slug?: string | null
           state?: string | null
+        }
+        Relationships: []
+      }
+      subscription_plans_public: {
+        Row: {
+          active: boolean | null
+          created_at: string | null
+          display_order: number | null
+          id: string | null
+          max_proposals_per_month: number | null
+          max_users: number | null
+          name: string | null
+          price_monthly: number | null
+          slug: string | null
+        }
+        Insert: {
+          active?: boolean | null
+          created_at?: string | null
+          display_order?: number | null
+          id?: string | null
+          max_proposals_per_month?: number | null
+          max_users?: number | null
+          name?: string | null
+          price_monthly?: number | null
+          slug?: string | null
+        }
+        Update: {
+          active?: boolean | null
+          created_at?: string | null
+          display_order?: number | null
+          id?: string | null
+          max_proposals_per_month?: number | null
+          max_users?: number | null
+          name?: string | null
+          price_monthly?: number | null
+          slug?: string | null
         }
         Relationships: []
       }
