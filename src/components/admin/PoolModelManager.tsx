@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,6 +8,7 @@ import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Plus, Pencil, Loader2, X, Trash2, CheckSquare, Square } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
@@ -29,6 +30,16 @@ interface ModelOptional {
   price: number;
   cost: number;
   margin_percent: number;
+  active: boolean;
+}
+interface IncludedItem {
+  id: string;
+  model_id: string;
+  name: string;
+  cost: number;
+  margin_percent: number;
+  price: number;
+  display_order: number;
   active: boolean;
 }
 interface PoolModel {
@@ -58,6 +69,7 @@ const PoolModelManager = () => {
   const [categories, setCategories] = useState<Category[]>([]);
   const [models, setModels] = useState<PoolModel[]>([]);
   const [modelOptionals, setModelOptionals] = useState<ModelOptional[]>([]);
+  const [includedItems, setIncludedItems] = useState<IncludedItem[]>([]);
   const [selectedModels, setSelectedModels] = useState<string[]>([]);
   const [expandedModel, setExpandedModel] = useState<string | null>(null);
   const [filterBrand, setFilterBrand] = useState<string>("all");
@@ -73,24 +85,29 @@ const PoolModelManager = () => {
     photo_url: "", cost: "", margin_percent: "", base_price: "",
     delivery_days: "30", installation_days: "5", payment_terms: "À vista",
     notes: "",
-    differentials: [] as string[], included_items: [] as string[], not_included_items: [] as string[],
-    newDifferential: "", newIncluded: "", newNotIncluded: "",
+    differentials: [] as string[], not_included_items: [] as string[],
+    newDifferential: "", newNotIncluded: "",
   });
 
   // Model optional form
   const [optForm, setOptForm] = useState({ name: "", description: "", cost: "", margin_percent: "", price: "" });
   const [editingOpt, setEditingOpt] = useState<string | null>(null);
 
+  // Included item form
+  const [inclForm, setInclForm] = useState({ name: "", cost: "", margin_percent: "", price: "" });
+  const [editingIncl, setEditingIncl] = useState<string | null>(null);
+
   useEffect(() => { if (store) loadData(); }, [store]);
 
   const loadData = async () => {
     if (!store) return;
     try {
-      const [brandsRes, categoriesRes, modelsRes, optRes] = await Promise.all([
+      const [brandsRes, categoriesRes, modelsRes, optRes, inclRes] = await Promise.all([
         supabase.from("brands").select("id, name, partner_id").eq("active", true).eq("store_id", store.id),
         supabase.from("categories").select("id, name, brand_id").eq("active", true).eq("store_id", store.id),
         supabase.from("pool_models").select("*").eq("store_id", store.id).order("created_at", { ascending: false }),
         supabase.from("model_optionals").select("*").eq("store_id", store.id).order("display_order"),
+        supabase.from("model_included_items").select("*").eq("store_id", store.id).order("display_order"),
       ]);
       if (brandsRes.error) throw brandsRes.error;
       if (categoriesRes.error) throw categoriesRes.error;
@@ -99,6 +116,7 @@ const PoolModelManager = () => {
       setCategories(categoriesRes.data || []);
       setModels(modelsRes.data || []);
       setModelOptionals(optRes.data || []);
+      setIncludedItems(inclRes.data || []);
     } catch (error) {
       console.error(error);
       toast.error("Erro ao carregar dados");
@@ -114,14 +132,18 @@ const PoolModelManager = () => {
   };
 
   // ---- Array helpers ----
-  const addToArray = (field: "differentials" | "included_items" | "not_included_items", inputField: string) => {
+  const addToArray = (field: "differentials" | "not_included_items", inputField: string) => {
     const value = formData[inputField as keyof typeof formData] as string;
     if (!value.trim()) return;
     setFormData({ ...formData, [field]: [...formData[field], value.trim()], [inputField]: "" });
   };
-  const removeFromArray = (field: "differentials" | "included_items" | "not_included_items", index: number) => {
+  const removeFromArray = (field: "differentials" | "not_included_items", index: number) => {
     setFormData({ ...formData, [field]: formData[field].filter((_, i) => i !== index) });
   };
+
+  // ---- Included items total for current model ----
+  const currentIncludedItems = editing ? includedItems.filter((i) => i.model_id === editing) : [];
+  const includedItemsTotal = useMemo(() => currentIncludedItems.reduce((sum, i) => sum + Number(i.price), 0), [currentIncludedItems]);
 
   // ---- Model CRUD ----
   const handleSubmit = async (e: React.FormEvent) => {
@@ -131,6 +153,8 @@ const PoolModelManager = () => {
     }
     if (!store) { toast.error("Loja não encontrada"); return; }
     try {
+      // Build included_items text array from DB items for proposal display
+      const inclNames = currentIncludedItems.map(i => i.name);
       const data = {
         category_id: formData.category_id, name: formData.name,
         length: formData.length ? parseFloat(formData.length) : null,
@@ -145,7 +169,7 @@ const PoolModelManager = () => {
         payment_terms: formData.payment_terms,
         notes: formData.notes || null,
         differentials: formData.differentials,
-        included_items: formData.included_items,
+        included_items: inclNames,
         not_included_items: formData.not_included_items,
         ...(editing ? {} : { store_id: store.id }),
       };
@@ -167,11 +191,13 @@ const PoolModelManager = () => {
       category_id: "", name: "", length: "", width: "", depth: "",
       photo_url: "", cost: "", margin_percent: "", base_price: "",
       delivery_days: "30", installation_days: "5", payment_terms: "À vista", notes: "",
-      differentials: [], included_items: [], not_included_items: [],
-      newDifferential: "", newIncluded: "", newNotIncluded: "",
+      differentials: [], not_included_items: [],
+      newDifferential: "", newNotIncluded: "",
     });
     setEditing(null);
     setFormTab("dados");
+    setInclForm({ name: "", cost: "", margin_percent: "", price: "" });
+    setEditingIncl(null);
   };
 
   const handleEdit = (model: PoolModel) => {
@@ -184,9 +210,9 @@ const PoolModelManager = () => {
       base_price: model.base_price.toString(),
       delivery_days: model.delivery_days.toString(), installation_days: model.installation_days.toString(),
       payment_terms: model.payment_terms || "À vista", notes: model.notes || "",
-      differentials: model.differentials || [], included_items: model.included_items || [],
+      differentials: model.differentials || [],
       not_included_items: model.not_included_items || [],
-      newDifferential: "", newIncluded: "", newNotIncluded: "",
+      newDifferential: "", newNotIncluded: "",
     });
     setFormTab("dados");
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -253,6 +279,70 @@ const PoolModelManager = () => {
     });
   };
 
+  // ---- Included Items CRUD ----
+  const handleInclSubmit = async () => {
+    if (!editing) { toast.error("Salve o modelo primeiro para adicionar itens inclusos"); return; }
+    if (!inclForm.name.trim()) { toast.error("Preencha o nome do item"); return; }
+    try {
+      const data = {
+        model_id: editing,
+        store_id: store!.id,
+        name: inclForm.name,
+        cost: inclForm.cost ? parseFloat(inclForm.cost) : 0,
+        margin_percent: inclForm.margin_percent ? parseFloat(inclForm.margin_percent) : 0,
+        price: inclForm.price ? parseFloat(inclForm.price) : 0,
+        display_order: currentIncludedItems.length,
+      };
+      if (editingIncl) {
+        const { error } = await supabase.from("model_included_items").update(data).eq("id", editingIncl);
+        if (error) throw error;
+        toast.success("Item atualizado");
+      } else {
+        const { error } = await supabase.from("model_included_items").insert(data);
+        if (error) throw error;
+        toast.success("Item adicionado");
+      }
+      setInclForm({ name: "", cost: "", margin_percent: "", price: "" });
+      setEditingIncl(null);
+      loadData();
+    } catch { toast.error("Erro ao salvar item incluso"); }
+  };
+
+  const handleDeleteIncl = async (id: string) => {
+    try {
+      await supabase.from("model_included_items").delete().eq("id", id);
+      toast.success("Item excluído"); loadData();
+    } catch { toast.error("Erro ao excluir item"); }
+  };
+
+  const handleEditIncl = (item: IncludedItem) => {
+    setEditingIncl(item.id);
+    setInclForm({
+      name: item.name,
+      cost: item.cost?.toString() || "",
+      margin_percent: item.margin_percent?.toString() || "",
+      price: item.price?.toString() || "",
+    });
+  };
+
+  // Sync included_items text array when saving from Itens tab
+  const handleSaveIncludedToModel = async () => {
+    if (!editing) return;
+    try {
+      const inclNames = currentIncludedItems.map(i => i.name);
+      const totalIncl = includedItemsTotal;
+      const modelCost = formData.cost ? parseFloat(formData.cost) : 0;
+      const totalPrice = modelCost + totalIncl;
+      // Update the base_price to include items total + model cost with margin
+      const { error } = await supabase.from("pool_models").update({
+        included_items: inclNames,
+      }).eq("id", editing);
+      if (error) throw error;
+      toast.success("Itens inclusos sincronizados com o modelo");
+      loadData();
+    } catch { toast.error("Erro ao sincronizar itens"); }
+  };
+
   // ---- Bulk actions ----
   const toggleSelectModel = (id: string) => setSelectedModels((prev) => prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]);
   const selectAllModels = () => setSelectedModels(selectedModels.length === models.length ? [] : models.map((m) => m.id));
@@ -273,11 +363,17 @@ const PoolModelManager = () => {
 
   const currentModelOptionals = editing ? modelOptionals.filter((o) => o.model_id === editing) : [];
 
+  // Compute total price: model base_price + included items total
+  const computedTotalPrice = useMemo(() => {
+    const basePrice = formData.base_price ? parseFloat(formData.base_price) : 0;
+    return basePrice + includedItemsTotal;
+  }, [formData.base_price, includedItemsTotal]);
+
   if (loading) {
     return <div className="flex justify-center p-8"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
   }
 
-  const ArrayField = ({ label, field, inputField, placeholder }: { label: string; field: "differentials" | "included_items" | "not_included_items"; inputField: string; placeholder: string }) => (
+  const ArrayField = ({ label, field, inputField, placeholder }: { label: string; field: "differentials" | "not_included_items"; inputField: string; placeholder: string }) => (
     <div>
       <Label>{label}</Label>
       <div className="flex gap-2 mb-2">
@@ -299,6 +395,8 @@ const PoolModelManager = () => {
     </div>
   );
 
+  const fmt = (v: number) => v.toLocaleString("pt-BR", { minimumFractionDigits: 2 });
+
   return (
     <div className="space-y-6">
       {/* ===== FORM ===== */}
@@ -308,8 +406,8 @@ const PoolModelManager = () => {
         <Tabs value={formTab} onValueChange={setFormTab}>
           <TabsList className="mb-3">
             <TabsTrigger value="dados" className="text-xs sm:text-sm">Dados</TabsTrigger>
+            <TabsTrigger value="itens" disabled={!editing} className="text-xs sm:text-sm">Itens Inclusos</TabsTrigger>
             <TabsTrigger value="opcionais" disabled={!editing} className="text-xs sm:text-sm">Opcionais Dimensionados</TabsTrigger>
-            <TabsTrigger value="itens" className="text-xs sm:text-sm">Itens Inclusos</TabsTrigger>
           </TabsList>
 
           {/* TAB: Dados */}
@@ -356,7 +454,7 @@ const PoolModelManager = () => {
 
               <div className="grid md:grid-cols-3 gap-4">
                 <div>
-                  <Label>Custo (R$)</Label>
+                  <Label>Custo da Piscina (R$)</Label>
                   <Input type="number" step="0.01" value={formData.cost}
                     onChange={(e) => {
                       const cost = e.target.value;
@@ -376,17 +474,27 @@ const PoolModelManager = () => {
                     }} placeholder="Ex: 30" />
                 </div>
                 <div>
-                  <Label>Preço de Venda (R$) *</Label>
+                  <Label>Preço Piscina (R$) *</Label>
                   <Input type="number" step="0.01" value={formData.base_price}
                     onChange={(e) => setFormData({ ...formData, base_price: e.target.value })} placeholder="0.00" />
                   {formData.cost && parseFloat(formData.cost) > 0 && formData.base_price && parseFloat(formData.base_price) > 0 && (
                     <p className="text-xs text-muted-foreground mt-1">
-                      Lucro: R$ {(parseFloat(formData.base_price) - parseFloat(formData.cost)).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                      Lucro piscina: R$ {fmt(parseFloat(formData.base_price) - parseFloat(formData.cost))}
                       {" "}({(((parseFloat(formData.base_price) - parseFloat(formData.cost)) / parseFloat(formData.cost)) * 100).toFixed(1)}%)
                     </p>
                   )}
                 </div>
               </div>
+
+              {editing && includedItemsTotal > 0 && (
+                <Card className="p-3 bg-primary/5 border-primary/20">
+                  <div className="flex justify-between items-center text-sm">
+                    <span className="text-muted-foreground">Preço Piscina: R$ {fmt(formData.base_price ? parseFloat(formData.base_price) : 0)}</span>
+                    <span className="text-muted-foreground">+ Itens Inclusos: R$ {fmt(includedItemsTotal)}</span>
+                    <span className="font-bold text-primary text-base">= Total: R$ {fmt(computedTotalPrice)}</span>
+                  </div>
+                </Card>
+              )}
 
               <div className="grid md:grid-cols-2 gap-4">
                 <div>
@@ -416,6 +524,151 @@ const PoolModelManager = () => {
                 {editing && <Button type="button" variant="outline" onClick={resetForm}>Cancelar</Button>}
               </div>
             </form>
+          </TabsContent>
+
+          {/* TAB: Itens Inclusos (spreadsheet-like) */}
+          <TabsContent value="itens">
+            {!editing ? (
+              <p className="text-muted-foreground text-center py-8">Salve o modelo primeiro para gerenciar itens inclusos.</p>
+            ) : (
+              <div className="space-y-4">
+                <p className="text-sm text-muted-foreground">
+                  Cadastre cada item incluso com custo, margem e preço de venda. Na proposta, apenas o nome do item será exibido ao cliente.
+                </p>
+
+                {/* Add/edit form */}
+                <Card className="p-4 bg-muted/30">
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                    <div className="col-span-2 md:col-span-1">
+                      <Label>Nome do Item *</Label>
+                      <Input value={inclForm.name} onChange={(e) => setInclForm({ ...inclForm, name: e.target.value })} placeholder="Ex: Instalação" />
+                    </div>
+                    <div>
+                      <Label>Custo (R$)</Label>
+                      <Input type="number" step="0.01" value={inclForm.cost}
+                        onChange={(e) => {
+                          const cost = e.target.value;
+                          const margin = inclForm.margin_percent;
+                          const price = cost && margin ? (parseFloat(cost) * (1 + parseFloat(margin) / 100)).toFixed(2) : inclForm.price;
+                          setInclForm({ ...inclForm, cost, price });
+                        }} placeholder="0.00" />
+                    </div>
+                    <div>
+                      <Label>Margem (%)</Label>
+                      <Input type="number" step="0.1" value={inclForm.margin_percent}
+                        onChange={(e) => {
+                          const margin = e.target.value;
+                          const cost = inclForm.cost;
+                          const price = cost && margin ? (parseFloat(cost) * (1 + parseFloat(margin) / 100)).toFixed(2) : inclForm.price;
+                          setInclForm({ ...inclForm, margin_percent: margin, price });
+                        }} placeholder="Ex: 30" />
+                    </div>
+                    <div>
+                      <Label>Preço Venda (R$)</Label>
+                      <Input type="number" step="0.01" value={inclForm.price}
+                        onChange={(e) => setInclForm({ ...inclForm, price: e.target.value })} placeholder="0.00" />
+                    </div>
+                  </div>
+                  <div className="flex gap-2 mt-3">
+                    <Button type="button" onClick={handleInclSubmit} className="gradient-primary text-white">
+                      <Plus className="w-4 h-4 mr-1" /> {editingIncl ? "Atualizar" : "Adicionar"}
+                    </Button>
+                    {editingIncl && (
+                      <Button variant="outline" onClick={() => { setEditingIncl(null); setInclForm({ name: "", cost: "", margin_percent: "", price: "" }); }}>
+                        Cancelar
+                      </Button>
+                    )}
+                  </div>
+                </Card>
+
+                {/* Table */}
+                {currentIncludedItems.length === 0 ? (
+                  <p className="text-muted-foreground text-sm text-center py-4">Nenhum item incluso cadastrado para este modelo.</p>
+                ) : (
+                  <>
+                    <div className="rounded-md border">
+                      <Table>
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead>Item</TableHead>
+                            <TableHead className="text-right">Custo</TableHead>
+                            <TableHead className="text-right">Margem</TableHead>
+                            <TableHead className="text-right">Preço Venda</TableHead>
+                            <TableHead className="text-right">Lucro</TableHead>
+                            <TableHead className="w-[80px]"></TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {currentIncludedItems.map((item) => {
+                            const lucro = Number(item.price) - Number(item.cost);
+                            return (
+                              <TableRow key={item.id}>
+                                <TableCell className="font-medium">{item.name}</TableCell>
+                                <TableCell className="text-right text-muted-foreground">R$ {fmt(Number(item.cost))}</TableCell>
+                                <TableCell className="text-right text-muted-foreground">{item.margin_percent}%</TableCell>
+                                <TableCell className="text-right font-medium">R$ {fmt(Number(item.price))}</TableCell>
+                                <TableCell className="text-right text-emerald-600">R$ {fmt(lucro)}</TableCell>
+                                <TableCell className="text-right">
+                                  <div className="flex gap-1 justify-end">
+                                    <Button variant="ghost" size="sm" onClick={() => handleEditIncl(item)}><Pencil className="w-3.5 h-3.5" /></Button>
+                                    <Button variant="ghost" size="sm" className="text-destructive hover:text-destructive" onClick={() => handleDeleteIncl(item.id)}>
+                                      <Trash2 className="w-3.5 h-3.5" />
+                                    </Button>
+                                  </div>
+                                </TableCell>
+                              </TableRow>
+                            );
+                          })}
+                          {/* Totals row */}
+                          <TableRow className="bg-muted/50 font-bold">
+                            <TableCell>TOTAL ITENS INCLUSOS</TableCell>
+                            <TableCell className="text-right">R$ {fmt(currentIncludedItems.reduce((s, i) => s + Number(i.cost), 0))}</TableCell>
+                            <TableCell></TableCell>
+                            <TableCell className="text-right text-primary">R$ {fmt(includedItemsTotal)}</TableCell>
+                            <TableCell className="text-right text-emerald-600">
+                              R$ {fmt(currentIncludedItems.reduce((s, i) => s + (Number(i.price) - Number(i.cost)), 0))}
+                            </TableCell>
+                            <TableCell></TableCell>
+                          </TableRow>
+                        </TableBody>
+                      </Table>
+                    </div>
+
+                    {/* Grand total summary */}
+                    <Card className="p-4 bg-primary/5 border-primary/20">
+                      <div className="space-y-1 text-sm">
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">Preço Piscina</span>
+                          <span>R$ {fmt(formData.base_price ? parseFloat(formData.base_price) : 0)}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">Total Itens Inclusos</span>
+                          <span>R$ {fmt(includedItemsTotal)}</span>
+                        </div>
+                        <div className="flex justify-between border-t pt-1 mt-1 text-base font-bold">
+                          <span>Preço Total de Venda</span>
+                          <span className="text-primary">R$ {fmt(computedTotalPrice)}</span>
+                        </div>
+                      </div>
+                    </Card>
+
+                    <div className="flex gap-2">
+                      <Button type="button" onClick={handleSaveIncludedToModel} className="gradient-primary text-white">
+                        Sincronizar com Modelo
+                      </Button>
+                    </div>
+                  </>
+                )}
+
+                {/* Not included items */}
+                <div className="pt-4 border-t">
+                  <ArrayField label="Itens Não Inclusos" field="not_included_items" inputField="newNotIncluded" placeholder="Ex: Aquecedor solar" />
+                  <div className="flex gap-2 mt-3">
+                    <Button type="button" onClick={handleSubmit as any} className="gradient-primary text-white">Salvar</Button>
+                  </div>
+                </div>
+              </div>
+            )}
           </TabsContent>
 
           {/* TAB: Opcionais Dimensionados */}
@@ -481,7 +734,7 @@ const PoolModelManager = () => {
 
                 {/* List */}
                 {currentModelOptionals.length === 0 ? (
-                  <p className="text-muted-foreground text-sm text-center py-4">Nenhum opcional exclusivo cadastrado para este modelo.</p>
+                  <p className="text-muted-foreground text-sm text-center py-4">Nenhum opcional dimensionado cadastrado para este modelo.</p>
                 ) : (
                   <div className="space-y-2">
                     {currentModelOptionals.map((opt) => (
@@ -490,12 +743,12 @@ const PoolModelManager = () => {
                           <p className="font-medium">{opt.name}</p>
                           {opt.description && <p className="text-xs text-muted-foreground">{opt.description}</p>}
                           <div className="flex gap-3 text-xs text-muted-foreground mt-1">
-                            {opt.cost > 0 && <span>Custo: R$ {opt.cost.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</span>}
+                            {opt.cost > 0 && <span>Custo: R$ {fmt(opt.cost)}</span>}
                             {opt.margin_percent > 0 && <span>Margem: {opt.margin_percent}%</span>}
                           </div>
                         </div>
                         <div className="flex items-center gap-3 shrink-0">
-                          <span className="font-bold text-primary">R$ {opt.price.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</span>
+                          <span className="font-bold text-primary">R$ {fmt(opt.price)}</span>
                           <Button variant="outline" size="sm" onClick={() => handleEditOpt(opt)}><Pencil className="w-3.5 h-3.5" /></Button>
                           <Button variant="outline" size="sm" className="text-destructive hover:text-destructive" onClick={() => handleDeleteOpt(opt.id)}>
                             <Trash2 className="w-3.5 h-3.5" />
@@ -507,18 +760,6 @@ const PoolModelManager = () => {
                 )}
               </div>
             )}
-          </TabsContent>
-
-          {/* TAB: Itens Inclusos */}
-          <TabsContent value="itens">
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <ArrayField label="Itens Inclusos" field="included_items" inputField="newIncluded" placeholder="Ex: Filtro e bomba" />
-              <ArrayField label="Itens Não Inclusos" field="not_included_items" inputField="newNotIncluded" placeholder="Ex: Aquecedor solar" />
-              <div className="flex gap-2">
-                <Button type="submit" className="gradient-primary text-white">Salvar</Button>
-                {editing && <Button type="button" variant="outline" onClick={resetForm}>Cancelar</Button>}
-              </div>
-            </form>
           </TabsContent>
         </Tabs>
       </Card>
@@ -560,7 +801,6 @@ const PoolModelManager = () => {
           <div className="flex items-center justify-between flex-wrap gap-2">
             <p className="text-sm font-medium">{selectedModels.length} modelo(s) selecionado(s)</p>
             <div className="flex gap-2 flex-wrap">
-              {/* Bulk change category (brand) */}
               <Select onValueChange={async (catId) => {
                 if (selectedModels.length === 0) return;
                 try {
@@ -626,6 +866,9 @@ const PoolModelManager = () => {
               const brandName = getBrandName(model.category_id);
               const catName = categories.find((c) => c.id === model.category_id)?.name || "Sem categoria";
               const mOpts = modelOptionals.filter((o) => o.model_id === model.id);
+              const mIncl = includedItems.filter((i) => i.model_id === model.id);
+              const inclTotal = mIncl.reduce((s, i) => s + Number(i.price), 0);
+              const displayPrice = model.base_price + inclTotal;
 
               return (
                 <Card key={model.id} className={`transition-all ${selectedModels.includes(model.id) ? "ring-2 ring-primary/30 border-primary bg-primary/5" : "border-border"}`}>
@@ -638,10 +881,11 @@ const PoolModelManager = () => {
                       <h3 className="font-semibold">{model.name}</h3>
                       {brandName && <Badge variant="outline" className="text-xs">{brandName}</Badge>}
                       <Badge variant="secondary" className="text-xs">{catName}</Badge>
-                      {mOpts.length > 0 && <Badge className="text-xs bg-accent text-accent-foreground">{mOpts.length} exclusivo(s)</Badge>}
+                      {mIncl.length > 0 && <Badge className="text-xs bg-emerald-100 text-emerald-700 dark:bg-emerald-900 dark:text-emerald-300">{mIncl.length} incluso(s)</Badge>}
+                      {mOpts.length > 0 && <Badge className="text-xs bg-accent text-accent-foreground">{mOpts.length} dimensionado(s)</Badge>}
                       {!model.active && <Badge variant="destructive" className="text-xs">Inativo</Badge>}
                     </div>
-                    <span className="font-bold text-primary whitespace-nowrap">R$ {model.base_price.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</span>
+                    <span className="font-bold text-primary whitespace-nowrap">R$ {fmt(displayPrice)}</span>
                     <div className="flex items-center gap-2 shrink-0" onClick={(e) => e.stopPropagation()}>
                       <Switch checked={model.active} onCheckedChange={() => toggleActive(model.id, model.active)} />
                       <Button variant="outline" size="sm" onClick={() => handleEdit(model)}><Pencil className="w-4 h-4" /></Button>
@@ -666,9 +910,29 @@ const PoolModelManager = () => {
                     <div className="px-4 pb-4 pt-0 border-t border-border/50 space-y-3">
                       {model.cost > 0 && (
                         <div className="flex gap-4 text-sm text-muted-foreground flex-wrap pt-3">
-                          <span>Custo: R$ {model.cost.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</span>
+                          <span>Custo piscina: R$ {fmt(model.cost)}</span>
                           <span>Margem: {model.margin_percent}%</span>
-                          <span className="font-medium text-emerald-600">Lucro: R$ {(model.base_price - model.cost).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</span>
+                          <span className="font-medium text-emerald-600">Lucro piscina: R$ {fmt(model.base_price - model.cost)}</span>
+                        </div>
+                      )}
+                      {mIncl.length > 0 && (
+                        <div>
+                          <span className="font-semibold text-sm">Itens Inclusos ({mIncl.length}):</span>
+                          <div className="space-y-1 mt-1">
+                            {mIncl.map((item) => (
+                              <div key={item.id} className="flex justify-between text-sm px-2 py-1 bg-muted/50 rounded">
+                                <span>{item.name}</span>
+                                <div className="flex gap-3 text-muted-foreground">
+                                  <span>C: R$ {fmt(Number(item.cost))}</span>
+                                  <span className="font-medium text-foreground">V: R$ {fmt(Number(item.price))}</span>
+                                </div>
+                              </div>
+                            ))}
+                            <div className="flex justify-between text-sm px-2 py-1 bg-primary/10 rounded font-bold">
+                              <span>Total (Piscina + Itens)</span>
+                              <span className="text-primary">R$ {fmt(displayPrice)}</span>
+                            </div>
+                          </div>
                         </div>
                       )}
                       {(model.length || model.width || model.depth) && (
@@ -691,7 +955,7 @@ const PoolModelManager = () => {
                             {mOpts.map((o) => (
                               <div key={o.id} className="flex justify-between text-sm px-2 py-1 bg-muted/50 rounded">
                                 <span>{o.name}</span>
-                                <span className="font-medium text-primary">R$ {o.price.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</span>
+                                <span className="font-medium text-primary">R$ {fmt(o.price)}</span>
                               </div>
                             ))}
                           </div>
