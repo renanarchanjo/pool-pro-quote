@@ -1,7 +1,7 @@
 import { useNavigate, useLocation } from "react-router-dom";
 import ThemeToggle from "@/components/ThemeToggle";
 import { 
-  LayoutDashboard, FilePlus, Tag, Box, Package, User, Users, LogOut, UsersRound, CreditCard, Receipt, TrendingUp, DollarSign, Handshake
+  LayoutDashboard, FilePlus, Tag, Box, Package, User, Users, LogOut, UsersRound, CreditCard, Receipt, TrendingUp, DollarSign, Handshake, FolderTree
 } from "lucide-react";
 import {
   Sidebar,
@@ -54,10 +54,11 @@ const AdminSidebar = () => {
   ];
 
   const catalogItems = isOwner ? [
-    { title: "Marcas e Categorias", url: "/admin/marcas", icon: Tag },
-    { title: "Modelos e Opcionais Exclusivos", url: "/admin/modelos", icon: Box },
-    { title: "Opcionais", url: "/admin/opcionais", icon: Package },
     { title: "Marcas Parceiras", url: "/admin/parceiros", icon: Handshake },
+    { title: "Marcas", url: "/admin/marcas", icon: Tag },
+    { title: "Categorias de Marcas", url: "/admin/categorias", icon: FolderTree },
+    { title: "Modelos e Opcionais Dimensionados", url: "/admin/modelos", icon: Box },
+    { title: "Opcionais", url: "/admin/opcionais", icon: Package },
   ] : [];
 
   const accountItems = [
