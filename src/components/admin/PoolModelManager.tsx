@@ -615,7 +615,7 @@ const PoolModelManager = () => {
                 <Textarea value={formData.notes} onChange={(e) => setFormData({ ...formData, notes: e.target.value })} placeholder="Informações adicionais..." rows={3} />
               </div>
 
-              <ArrayField label="Diferenciais" field="differentials" inputField="newDifferential" placeholder="Ex: Acabamento premium" />
+              {renderArrayField("Diferenciais", "differentials", "newDifferential", "Ex: Acabamento premium")}
 
               <div className="flex gap-2">
                 <Button type="submit" className="gradient-primary text-white">{editing ? "Salvar Alterações" : "Criar Modelo"}</Button>
