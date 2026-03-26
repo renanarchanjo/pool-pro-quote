@@ -36,6 +36,7 @@ interface IncludedItem {
   id: string;
   model_id: string;
   name: string;
+  quantity: number;
   cost: number;
   margin_percent: number;
   price: number;
@@ -45,7 +46,7 @@ interface IncludedItem {
 interface ItemTemplate {
   id: string;
   name: string;
-  items: { name: string; cost: number; margin_percent: number; price: number; display_order: number }[];
+  items: { name: string; quantity: number; cost: number; margin_percent: number; price: number; display_order: number }[];
 }
 interface PoolModel {
   id: string;
@@ -99,7 +100,7 @@ const PoolModelManager = () => {
   const [editingOpt, setEditingOpt] = useState<string | null>(null);
 
   // Included item form
-  const [inclForm, setInclForm] = useState({ name: "", cost: "", margin_percent: "", price: "" });
+  const [inclForm, setInclForm] = useState({ name: "", quantity: "1", cost: "", margin_percent: "", price: "" });
   const [editingIncl, setEditingIncl] = useState<string | null>(null);
 
   // Templates
@@ -141,7 +142,7 @@ const PoolModelManager = () => {
           id: t.id,
           name: t.name,
           items: (tmplItems || []).filter((i: any) => i.template_id === t.id).map((i: any) => ({
-            name: i.name, cost: Number(i.cost), margin_percent: Number(i.margin_percent),
+            name: i.name, quantity: Number(i.quantity) || 1, cost: Number(i.cost), margin_percent: Number(i.margin_percent),
             price: Number(i.price), display_order: i.display_order,
           })),
         }));
@@ -228,7 +229,7 @@ const PoolModelManager = () => {
     });
     setEditing(null);
     setFormTab("dados");
-    setInclForm({ name: "", cost: "", margin_percent: "", price: "" });
+    setInclForm({ name: "", quantity: "1", cost: "", margin_percent: "", price: "" });
     setEditingIncl(null);
   };
 
@@ -312,17 +313,29 @@ const PoolModelManager = () => {
   };
 
   // ---- Included Items CRUD ----
+  const calcInclPrice = (qty: string, cost: string, margin: string) => {
+    const q = parseFloat(qty) || 1;
+    const c = parseFloat(cost) || 0;
+    const m = parseFloat(margin) || 0;
+    return (q * c * (1 + m / 100)).toFixed(2);
+  };
+
   const handleInclSubmit = async () => {
     if (!editing) { toast.error("Salve o modelo primeiro para adicionar itens inclusos"); return; }
     if (!inclForm.name.trim()) { toast.error("Preencha o nome do item"); return; }
     try {
+      const qty = parseInt(inclForm.quantity) || 1;
+      const unitCost = inclForm.cost ? parseFloat(inclForm.cost) : 0;
+      const margin = inclForm.margin_percent ? parseFloat(inclForm.margin_percent) : 0;
+      const totalPrice = inclForm.price ? parseFloat(inclForm.price) : 0;
       const data = {
         model_id: editing,
         store_id: store!.id,
         name: inclForm.name,
-        cost: inclForm.cost ? parseFloat(inclForm.cost) : 0,
-        margin_percent: inclForm.margin_percent ? parseFloat(inclForm.margin_percent) : 0,
-        price: inclForm.price ? parseFloat(inclForm.price) : 0,
+        quantity: qty,
+        cost: unitCost,
+        margin_percent: margin,
+        price: totalPrice,
         display_order: currentIncludedItems.length,
       };
       if (editingIncl) {
@@ -334,7 +347,7 @@ const PoolModelManager = () => {
         if (error) throw error;
         toast.success("Item adicionado");
       }
-      setInclForm({ name: "", cost: "", margin_percent: "", price: "" });
+      setInclForm({ name: "", quantity: "1", cost: "", margin_percent: "", price: "" });
       setEditingIncl(null);
       loadData();
     } catch { toast.error("Erro ao salvar item incluso"); }
@@ -351,6 +364,7 @@ const PoolModelManager = () => {
     setEditingIncl(item.id);
     setInclForm({
       name: item.name,
+      quantity: item.quantity?.toString() || "1",
       cost: item.cost?.toString() || "",
       margin_percent: item.margin_percent?.toString() || "",
       price: item.price?.toString() || "",
@@ -386,6 +400,7 @@ const PoolModelManager = () => {
       if (tmplErr) throw tmplErr;
       const items = currentIncludedItems.map((i, idx) => ({
         template_id: tmpl.id, store_id: store.id, name: i.name,
+        quantity: Number(i.quantity) || 1,
         cost: Number(i.cost), margin_percent: Number(i.margin_percent),
         price: Number(i.price), display_order: idx,
       }));
@@ -406,6 +421,7 @@ const PoolModelManager = () => {
       // Insert template items
       const items = tmpl.items.map((i, idx) => ({
         model_id: editing, store_id: store.id, name: i.name,
+        quantity: i.quantity || 1,
         cost: i.cost, margin_percent: i.margin_percent,
         price: i.price, display_order: idx,
       }));
@@ -636,18 +652,26 @@ const PoolModelManager = () => {
 
                 {/* Add/edit form */}
                 <Card className="p-4 bg-muted/30">
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                    <div className="col-span-2 md:col-span-1">
+                  <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+                    <div>
+                      <Label>Qtd *</Label>
+                      <Input type="number" min="1" value={inclForm.quantity}
+                        onChange={(e) => {
+                          const quantity = e.target.value;
+                          const price = calcInclPrice(quantity, inclForm.cost, inclForm.margin_percent);
+                          setInclForm({ ...inclForm, quantity, price });
+                        }} placeholder="1" />
+                    </div>
+                    <div className="col-span-1">
                       <Label>Nome do Item *</Label>
                       <Input value={inclForm.name} onChange={(e) => setInclForm({ ...inclForm, name: e.target.value })} placeholder="Ex: Instalação" />
                     </div>
                     <div>
-                      <Label>Custo (R$)</Label>
+                      <Label>Custo Unit. (R$)</Label>
                       <Input type="number" step="0.01" value={inclForm.cost}
                         onChange={(e) => {
                           const cost = e.target.value;
-                          const margin = inclForm.margin_percent;
-                          const price = cost && margin ? (parseFloat(cost) * (1 + parseFloat(margin) / 100)).toFixed(2) : inclForm.price;
+                          const price = calcInclPrice(inclForm.quantity, cost, inclForm.margin_percent);
                           setInclForm({ ...inclForm, cost, price });
                         }} placeholder="0.00" />
                     </div>
@@ -656,15 +680,19 @@ const PoolModelManager = () => {
                       <Input type="number" step="0.1" value={inclForm.margin_percent}
                         onChange={(e) => {
                           const margin = e.target.value;
-                          const cost = inclForm.cost;
-                          const price = cost && margin ? (parseFloat(cost) * (1 + parseFloat(margin) / 100)).toFixed(2) : inclForm.price;
+                          const price = calcInclPrice(inclForm.quantity, inclForm.cost, margin);
                           setInclForm({ ...inclForm, margin_percent: margin, price });
                         }} placeholder="Ex: 30" />
                     </div>
                     <div>
-                      <Label>Preço Venda (R$)</Label>
+                      <Label>Preço Total (R$)</Label>
                       <Input type="number" step="0.01" value={inclForm.price}
                         onChange={(e) => setInclForm({ ...inclForm, price: e.target.value })} placeholder="0.00" />
+                      {inclForm.cost && parseFloat(inclForm.cost) > 0 && inclForm.quantity && (
+                        <p className="text-xs text-muted-foreground mt-1">
+                          {inclForm.quantity}x R$ {fmt(parseFloat(inclForm.cost))} = R$ {fmt((parseFloat(inclForm.quantity) || 1) * parseFloat(inclForm.cost))} (custo)
+                        </p>
+                      )}
                     </div>
                   </div>
                   <div className="flex gap-2 mt-3">
@@ -672,7 +700,7 @@ const PoolModelManager = () => {
                       <Plus className="w-4 h-4 mr-1" /> {editingIncl ? "Atualizar" : "Adicionar"}
                     </Button>
                     {editingIncl && (
-                      <Button variant="outline" onClick={() => { setEditingIncl(null); setInclForm({ name: "", cost: "", margin_percent: "", price: "" }); }}>
+                      <Button variant="outline" onClick={() => { setEditingIncl(null); setInclForm({ name: "", quantity: "1", cost: "", margin_percent: "", price: "" }); }}>
                         Cancelar
                       </Button>
                     )}
@@ -688,8 +716,10 @@ const PoolModelManager = () => {
                       <Table>
                         <TableHeader>
                           <TableRow>
+                            <TableHead className="w-[60px] text-center">Qtd</TableHead>
                             <TableHead>Item</TableHead>
-                            <TableHead className="text-right">Custo</TableHead>
+                            <TableHead className="text-right">Custo Unit.</TableHead>
+                            <TableHead className="text-right">Custo Total</TableHead>
                             <TableHead className="text-right">Margem</TableHead>
                             <TableHead className="text-right">Preço Venda</TableHead>
                             <TableHead className="text-right">Lucro</TableHead>
@@ -698,11 +728,16 @@ const PoolModelManager = () => {
                         </TableHeader>
                         <TableBody>
                           {currentIncludedItems.map((item) => {
-                            const lucro = Number(item.price) - Number(item.cost);
+                            const qty = Number(item.quantity) || 1;
+                            const unitCost = Number(item.cost);
+                            const totalCost = qty * unitCost;
+                            const lucro = Number(item.price) - totalCost;
                             return (
                               <TableRow key={item.id}>
+                                <TableCell className="text-center font-medium">{qty}</TableCell>
                                 <TableCell className="font-medium">{item.name}</TableCell>
-                                <TableCell className="text-right text-muted-foreground">R$ {fmt(Number(item.cost))}</TableCell>
+                                <TableCell className="text-right text-muted-foreground">R$ {fmt(unitCost)}</TableCell>
+                                <TableCell className="text-right text-muted-foreground">R$ {fmt(totalCost)}</TableCell>
                                 <TableCell className="text-right text-muted-foreground">{item.margin_percent}%</TableCell>
                                 <TableCell className="text-right font-medium">R$ {fmt(Number(item.price))}</TableCell>
                                 <TableCell className="text-right text-emerald-600">R$ {fmt(lucro)}</TableCell>
@@ -719,12 +754,14 @@ const PoolModelManager = () => {
                           })}
                           {/* Totals row */}
                           <TableRow className="bg-muted/50 font-bold">
+                            <TableCell></TableCell>
                             <TableCell>TOTAL ITENS INCLUSOS</TableCell>
-                            <TableCell className="text-right">R$ {fmt(currentIncludedItems.reduce((s, i) => s + Number(i.cost), 0))}</TableCell>
+                            <TableCell></TableCell>
+                            <TableCell className="text-right">R$ {fmt(currentIncludedItems.reduce((s, i) => s + (Number(i.quantity) || 1) * Number(i.cost), 0))}</TableCell>
                             <TableCell></TableCell>
                             <TableCell className="text-right text-primary">R$ {fmt(includedItemsTotal)}</TableCell>
                             <TableCell className="text-right text-emerald-600">
-                              R$ {fmt(currentIncludedItems.reduce((s, i) => s + (Number(i.price) - Number(i.cost)), 0))}
+                              R$ {fmt(currentIncludedItems.reduce((s, i) => s + (Number(i.price) - (Number(i.quantity) || 1) * Number(i.cost)), 0))}
                             </TableCell>
                             <TableCell></TableCell>
                           </TableRow>

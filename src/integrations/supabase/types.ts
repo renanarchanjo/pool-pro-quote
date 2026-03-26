@@ -164,6 +164,7 @@ export type Database = {
           margin_percent: number
           name: string
           price: number
+          quantity: number
           store_id: string
           template_id: string
         }
@@ -175,6 +176,7 @@ export type Database = {
           margin_percent?: number
           name: string
           price?: number
+          quantity?: number
           store_id: string
           template_id: string
         }
@@ -186,6 +188,7 @@ export type Database = {
           margin_percent?: number
           name?: string
           price?: number
+          quantity?: number
           store_id?: string
           template_id?: string
         }
@@ -401,6 +404,7 @@ export type Database = {
           model_id: string
           name: string
           price: number
+          quantity: number
           store_id: string | null
           updated_at: string | null
         }
@@ -414,6 +418,7 @@ export type Database = {
           model_id: string
           name: string
           price?: number
+          quantity?: number
           store_id?: string | null
           updated_at?: string | null
         }
@@ -427,6 +432,7 @@ export type Database = {
           model_id?: string
           name?: string
           price?: number
+          quantity?: number
           store_id?: string | null
           updated_at?: string | null
         }
