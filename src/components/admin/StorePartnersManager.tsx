@@ -105,8 +105,8 @@ const StorePartnersManager = () => {
           <div className="text-sm">
             <p className="font-semibold text-foreground">Como funciona?</p>
             <p className="text-muted-foreground mt-1">
-              Ao marcar um parceiro, a <strong>Marca</strong> e suas <strong>Categorias</strong> são criadas automaticamente no seu catálogo.
-              Você fica livre para cadastrar <strong>modelos, opcionais e preços</strong> dentro dessas categorias.
+              Ao marcar um parceiro, a <strong>Marca</strong> é criada automaticamente no seu catálogo.
+              Você fica livre para criar <strong>categorias, modelos, opcionais e preços</strong> dentro dessa marca.
             </p>
             <p className="text-muted-foreground mt-1">
               Propostas geradas para marcas parceiras exibirão automaticamente o banner do parceiro.
