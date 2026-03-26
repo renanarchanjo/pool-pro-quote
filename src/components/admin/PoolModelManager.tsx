@@ -650,18 +650,26 @@ const PoolModelManager = () => {
 
                 {/* Add/edit form */}
                 <Card className="p-4 bg-muted/30">
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                    <div className="col-span-2 md:col-span-1">
+                  <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+                    <div>
+                      <Label>Qtd *</Label>
+                      <Input type="number" min="1" value={inclForm.quantity}
+                        onChange={(e) => {
+                          const quantity = e.target.value;
+                          const price = calcInclPrice(quantity, inclForm.cost, inclForm.margin_percent);
+                          setInclForm({ ...inclForm, quantity, price });
+                        }} placeholder="1" />
+                    </div>
+                    <div className="col-span-1">
                       <Label>Nome do Item *</Label>
                       <Input value={inclForm.name} onChange={(e) => setInclForm({ ...inclForm, name: e.target.value })} placeholder="Ex: Instalação" />
                     </div>
                     <div>
-                      <Label>Custo (R$)</Label>
+                      <Label>Custo Unit. (R$)</Label>
                       <Input type="number" step="0.01" value={inclForm.cost}
                         onChange={(e) => {
                           const cost = e.target.value;
-                          const margin = inclForm.margin_percent;
-                          const price = cost && margin ? (parseFloat(cost) * (1 + parseFloat(margin) / 100)).toFixed(2) : inclForm.price;
+                          const price = calcInclPrice(inclForm.quantity, cost, inclForm.margin_percent);
                           setInclForm({ ...inclForm, cost, price });
                         }} placeholder="0.00" />
                     </div>
@@ -670,15 +678,19 @@ const PoolModelManager = () => {
                       <Input type="number" step="0.1" value={inclForm.margin_percent}
                         onChange={(e) => {
                           const margin = e.target.value;
-                          const cost = inclForm.cost;
-                          const price = cost && margin ? (parseFloat(cost) * (1 + parseFloat(margin) / 100)).toFixed(2) : inclForm.price;
+                          const price = calcInclPrice(inclForm.quantity, inclForm.cost, margin);
                           setInclForm({ ...inclForm, margin_percent: margin, price });
                         }} placeholder="Ex: 30" />
                     </div>
                     <div>
-                      <Label>Preço Venda (R$)</Label>
+                      <Label>Preço Total (R$)</Label>
                       <Input type="number" step="0.01" value={inclForm.price}
                         onChange={(e) => setInclForm({ ...inclForm, price: e.target.value })} placeholder="0.00" />
+                      {inclForm.cost && parseFloat(inclForm.cost) > 0 && inclForm.quantity && (
+                        <p className="text-xs text-muted-foreground mt-1">
+                          {inclForm.quantity}x R$ {fmt(parseFloat(inclForm.cost))} = R$ {fmt((parseFloat(inclForm.quantity) || 1) * parseFloat(inclForm.cost))} (custo)
+                        </p>
+                      )}
                     </div>
                   </div>
                   <div className="flex gap-2 mt-3">
