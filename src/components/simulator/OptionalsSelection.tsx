@@ -211,72 +211,78 @@ const OptionalsSelection = ({ optionals, modelOptionals = [], selectedOptionals:
                   onValueChange={(value) => handleRadioChange(group.id, value)}
                 >
                   <div className="space-y-3">
-                    {groupOptionals.map((optional) => (
-                      <div key={optional.id} className="space-y-2">
-                        <div className="flex items-start gap-3">
-                          <RadioGroupItem value={optional.id} id={optional.id} />
-                          <Label htmlFor={optional.id} className="flex-1 cursor-pointer">
-                            <div className="flex justify-between items-start">
-                              <div>
-                                <p className="font-semibold">{optional.name}</p>
-                                {optional.description && (
-                                  <p className="text-sm text-muted-foreground">
-                                    {optional.description}
-                                  </p>
-                                )}
-                              </div>
-                              <p className="font-bold text-primary ml-4">
-                                + R$ {optional.price.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
-                              </p>
+                    {groupOptionals.map((optional) => {
+                      const isSelected = selected[group.id]?.[0] === optional.id;
+                      return (
+                        <div key={optional.id} className="space-y-2">
+                          <div
+                            onClick={() => handleRadioChange(group.id, optional.id)}
+                            className={`flex items-center gap-3 p-4 rounded-xl border-2 cursor-pointer transition-all ${
+                              isSelected
+                                ? "border-primary bg-primary/5 shadow-sm"
+                                : "border-border hover:border-primary/40"
+                            }`}
+                          >
+                            <RadioGroupItem value={optional.id} id={optional.id} className="pointer-events-none" />
+                            <div className="flex-1">
+                              <p className="font-semibold">{optional.name}</p>
+                              {optional.description && (
+                                <p className="text-sm text-muted-foreground">{optional.description}</p>
+                              )}
                             </div>
-                          </Label>
+                            <p className="font-bold text-primary ml-4 whitespace-nowrap">
+                              + R$ {optional.price.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                            </p>
+                          </div>
+                          {optional.warning_note && isSelected && (
+                            <Alert variant="destructive" className="ml-2">
+                              <AlertCircle className="h-4 w-4" />
+                              <AlertDescription>{optional.warning_note}</AlertDescription>
+                            </Alert>
+                          )}
                         </div>
-                        {optional.warning_note && selected[group.id]?.includes(optional.id) && (
-                          <Alert variant="destructive" className="ml-7">
+                      );
+                    })}
+                  </div>
+                </RadioGroup>
+              ) : (
+                <div className="space-y-3">
+                  {groupOptionals.map((optional) => {
+                    const isSelected = selected[group.id]?.includes(optional.id) || false;
+                    return (
+                      <div key={optional.id} className="space-y-2">
+                        <div
+                          onClick={() => handleCheckboxChange(group.id, optional.id, !isSelected)}
+                          className={`flex items-center gap-3 p-4 rounded-xl border-2 cursor-pointer transition-all ${
+                            isSelected
+                              ? "border-primary bg-primary/5 shadow-sm"
+                              : "border-border hover:border-primary/40"
+                          }`}
+                        >
+                          <Checkbox
+                            id={optional.id}
+                            checked={isSelected}
+                            className="pointer-events-none"
+                          />
+                          <div className="flex-1">
+                            <p className="font-semibold">{optional.name}</p>
+                            {optional.description && (
+                              <p className="text-sm text-muted-foreground">{optional.description}</p>
+                            )}
+                          </div>
+                          <p className="font-bold text-primary ml-4 whitespace-nowrap">
+                            + R$ {optional.price.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                          </p>
+                        </div>
+                        {optional.warning_note && isSelected && (
+                          <Alert variant="destructive" className="ml-2">
                             <AlertCircle className="h-4 w-4" />
                             <AlertDescription>{optional.warning_note}</AlertDescription>
                           </Alert>
                         )}
                       </div>
-                    ))}
-                  </div>
-                </RadioGroup>
-              ) : (
-                <div className="space-y-3">
-                  {groupOptionals.map((optional) => (
-                    <div key={optional.id} className="space-y-2">
-                      <div className="flex items-start gap-3">
-                        <Checkbox
-                          id={optional.id}
-                          checked={selected[group.id]?.includes(optional.id)}
-                          onCheckedChange={(checked) =>
-                            handleCheckboxChange(group.id, optional.id, checked as boolean)
-                          }
-                        />
-                        <Label htmlFor={optional.id} className="flex-1 cursor-pointer">
-                          <div className="flex justify-between items-start">
-                            <div>
-                              <p className="font-semibold">{optional.name}</p>
-                              {optional.description && (
-                                <p className="text-sm text-muted-foreground">
-                                  {optional.description}
-                                </p>
-                              )}
-                            </div>
-                            <p className="font-bold text-primary ml-4">
-                              + R$ {optional.price.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
-                            </p>
-                          </div>
-                        </Label>
-                      </div>
-                      {optional.warning_note && selected[group.id]?.includes(optional.id) && (
-                        <Alert variant="destructive" className="ml-7">
-                          <AlertCircle className="h-4 w-4" />
-                          <AlertDescription>{optional.warning_note}</AlertDescription>
-                        </Alert>
-                      )}
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               )}
             </Card>
@@ -290,26 +296,33 @@ const OptionalsSelection = ({ optionals, modelOptionals = [], selectedOptionals:
             <h3 className="text-xl font-display font-bold mb-2">Opcionais Exclusivos — {model.name}</h3>
             <p className="text-sm text-muted-foreground mb-4">Opcionais calculados especificamente para este modelo</p>
             <div className="space-y-3">
-              {modelOptionals.map((mOpt) => (
-                <div key={mOpt.id} className="flex items-start gap-3">
-                  <Checkbox
-                    id={`mopt-${mOpt.id}`}
-                    checked={selectedModelOpts.includes(mOpt.id)}
-                    onCheckedChange={() => toggleModelOpt(mOpt.id)}
-                  />
-                  <Label htmlFor={`mopt-${mOpt.id}`} className="flex-1 cursor-pointer">
-                    <div className="flex justify-between items-start">
-                      <div>
-                        <p className="font-semibold">{mOpt.name}</p>
-                        {mOpt.description && <p className="text-sm text-muted-foreground">{mOpt.description}</p>}
-                      </div>
-                      <p className="font-bold text-primary ml-4">
-                        + R$ {mOpt.price.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
-                      </p>
+              {modelOptionals.map((mOpt) => {
+                const isSelected = selectedModelOpts.includes(mOpt.id);
+                return (
+                  <div
+                    key={mOpt.id}
+                    onClick={() => toggleModelOpt(mOpt.id)}
+                    className={`flex items-center gap-3 p-4 rounded-xl border-2 cursor-pointer transition-all ${
+                      isSelected
+                        ? "border-primary bg-primary/5 shadow-sm"
+                        : "border-border hover:border-primary/40"
+                    }`}
+                  >
+                    <Checkbox
+                      id={`mopt-${mOpt.id}`}
+                      checked={isSelected}
+                      className="pointer-events-none"
+                    />
+                    <div className="flex-1">
+                      <p className="font-semibold">{mOpt.name}</p>
+                      {mOpt.description && <p className="text-sm text-muted-foreground">{mOpt.description}</p>}
                     </div>
-                  </Label>
-                </div>
-              ))}
+                    <p className="font-bold text-primary ml-4 whitespace-nowrap">
+                      + R$ {mOpt.price.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                    </p>
+                  </div>
+                );
+              })}
             </div>
           </Card>
         )}
