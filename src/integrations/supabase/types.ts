@@ -1051,6 +1051,122 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_lead_plans_public: {
+        Args: never
+        Returns: {
+          active: boolean
+          created_at: string
+          display_order: number
+          excess_price: number
+          id: string
+          lead_limit: number
+          name: string
+          price_monthly: number
+          updated_at: string
+        }[]
+      }
+      get_model_optionals_public: {
+        Args: { _store_id?: string }
+        Returns: {
+          active: boolean
+          created_at: string
+          description: string
+          display_order: number
+          id: string
+          model_id: string
+          name: string
+          price: number
+          store_id: string
+          updated_at: string
+        }[]
+      }
+      get_optionals_public: {
+        Args: { _store_id?: string }
+        Returns: {
+          active: boolean
+          created_at: string
+          description: string
+          display_order: number
+          group_id: string
+          id: string
+          name: string
+          price: number
+          store_id: string
+          updated_at: string
+          warning_note: string
+        }[]
+      }
+      get_pool_models_public: {
+        Args: { _store_id?: string }
+        Returns: {
+          active: boolean
+          base_price: number
+          category_id: string
+          created_at: string
+          delivery_days: number
+          depth: number
+          differentials: string[]
+          display_order: number
+          id: string
+          included_items: string[]
+          installation_days: number
+          length: number
+          name: string
+          not_included_items: string[]
+          notes: string
+          payment_terms: string
+          photo_url: string
+          store_id: string
+          updated_at: string
+          width: number
+        }[]
+      }
+      get_store_public_by_id: {
+        Args: { _id: string }
+        Returns: {
+          city: string
+          name: string
+          state: string
+        }[]
+      }
+      get_stores_public: {
+        Args: never
+        Returns: {
+          city: string
+          id: string
+          latitude: number
+          longitude: number
+          name: string
+          slug: string
+          state: string
+        }[]
+      }
+      get_stores_public_by_state: {
+        Args: { _state: string }
+        Returns: {
+          city: string
+          id: string
+          latitude: number
+          longitude: number
+          name: string
+          slug: string
+          state: string
+        }[]
+      }
+      get_subscription_plans_public: {
+        Args: never
+        Returns: {
+          active: boolean
+          created_at: string
+          display_order: number
+          id: string
+          max_proposals_per_month: number
+          max_users: number
+          name: string
+          price_monthly: number
+          slug: string
+        }[]
+      }
       get_user_store_id: { Args: { _user_id: string }; Returns: string }
       has_role: {
         Args: {

@@ -109,13 +109,13 @@ const PoolSimulator = ({ onBack }: PoolSimulatorProps) => {
       const modelOptCols = "id, model_id, store_id, price, active, display_order, name, description, created_at, updated_at";
 
       const [modelsRes, brandsRes, catsRes, optionalsRes, modelOptsRes, settingsRes, storeRes, partnersRes] = await Promise.all([
-        supabase.from("pool_models").select(poolModelCols).eq("active", true).eq("store_id", sid).order("display_order"),
+        supabase.rpc("get_pool_models_public", { _store_id: sid }),
         supabase.from("brands").select("id, name, logo_url").eq("active", true).eq("store_id", sid).order("name"),
         supabase.from("categories").select("id, name, brand_id").eq("active", true).eq("store_id", sid).order("name"),
-        supabase.from("optionals").select(optionalCols).eq("active", true).eq("store_id", sid).order("display_order"),
-        supabase.from("model_optionals").select(modelOptCols).eq("active", true).eq("store_id", sid).order("display_order"),
+        supabase.rpc("get_optionals_public", { _store_id: sid }),
+        supabase.rpc("get_model_optionals_public", { _store_id: sid }),
         supabase.from("store_settings").select("*").eq("store_id", sid).maybeSingle(),
-        supabase.from("stores").select("name, city, state").eq("id", sid).single(),
+        supabase.rpc("get_store_public_by_id", { _id: sid }),
         supabase.from("partners").select("id, name, logo_url, banner_1_url, banner_2_url").eq("active", true).order("display_order"),
       ]);
 
@@ -129,10 +129,10 @@ const PoolSimulator = ({ onBack }: PoolSimulatorProps) => {
       setModelOptionals(modelOptsRes.data || []);
       setStoreSettings(settingsRes.data || null);
       setPartners(partnersRes.data || []);
-      if (storeRes.data) {
-        setSelectedStoreName(storeRes.data.name);
-        setStoreCity(storeRes.data.city);
-        setStoreState(storeRes.data.state);
+      if (storeRes.data && storeRes.data.length > 0) {
+        setSelectedStoreName(storeRes.data[0].name);
+        setStoreCity(storeRes.data[0].city);
+        setStoreState(storeRes.data[0].state);
       }
       setStep(1);
     } catch (error) {
@@ -156,11 +156,11 @@ const PoolSimulator = ({ onBack }: PoolSimulatorProps) => {
       const modelOptCols = "id, model_id, store_id, price, active, display_order, name, description, created_at, updated_at";
 
       const [modelsRes, brandsRes, catsRes, optionalsRes, modelOptsRes] = await Promise.all([
-        supabase.from("pool_models").select(poolModelCols).eq("active", true).order("display_order"),
+        supabase.rpc("get_pool_models_public"),
         supabase.from("brands").select("id, name").eq("active", true).order("name"),
         supabase.from("categories").select("id, name, brand_id").eq("active", true).order("name"),
-        supabase.from("optionals").select(optionalCols).eq("active", true).order("display_order"),
-        supabase.from("model_optionals").select(modelOptCols).eq("active", true).order("display_order"),
+        supabase.rpc("get_optionals_public"),
+        supabase.rpc("get_model_optionals_public"),
       ]);
       if (modelsRes.error) throw modelsRes.error;
       setModels(modelsRes.data || []);
