@@ -36,6 +36,7 @@ interface IncludedItem {
   id: string;
   model_id: string;
   name: string;
+  quantity: number;
   cost: number;
   margin_percent: number;
   price: number;
@@ -45,7 +46,7 @@ interface IncludedItem {
 interface ItemTemplate {
   id: string;
   name: string;
-  items: { name: string; cost: number; margin_percent: number; price: number; display_order: number }[];
+  items: { name: string; quantity: number; cost: number; margin_percent: number; price: number; display_order: number }[];
 }
 interface PoolModel {
   id: string;
@@ -99,7 +100,7 @@ const PoolModelManager = () => {
   const [editingOpt, setEditingOpt] = useState<string | null>(null);
 
   // Included item form
-  const [inclForm, setInclForm] = useState({ name: "", cost: "", margin_percent: "", price: "" });
+  const [inclForm, setInclForm] = useState({ name: "", quantity: "1", cost: "", margin_percent: "", price: "" });
   const [editingIncl, setEditingIncl] = useState<string | null>(null);
 
   // Templates
@@ -312,17 +313,29 @@ const PoolModelManager = () => {
   };
 
   // ---- Included Items CRUD ----
+  const calcInclPrice = (qty: string, cost: string, margin: string) => {
+    const q = parseFloat(qty) || 1;
+    const c = parseFloat(cost) || 0;
+    const m = parseFloat(margin) || 0;
+    return (q * c * (1 + m / 100)).toFixed(2);
+  };
+
   const handleInclSubmit = async () => {
     if (!editing) { toast.error("Salve o modelo primeiro para adicionar itens inclusos"); return; }
     if (!inclForm.name.trim()) { toast.error("Preencha o nome do item"); return; }
     try {
+      const qty = parseInt(inclForm.quantity) || 1;
+      const unitCost = inclForm.cost ? parseFloat(inclForm.cost) : 0;
+      const margin = inclForm.margin_percent ? parseFloat(inclForm.margin_percent) : 0;
+      const totalPrice = inclForm.price ? parseFloat(inclForm.price) : 0;
       const data = {
         model_id: editing,
         store_id: store!.id,
         name: inclForm.name,
-        cost: inclForm.cost ? parseFloat(inclForm.cost) : 0,
-        margin_percent: inclForm.margin_percent ? parseFloat(inclForm.margin_percent) : 0,
-        price: inclForm.price ? parseFloat(inclForm.price) : 0,
+        quantity: qty,
+        cost: unitCost,
+        margin_percent: margin,
+        price: totalPrice,
         display_order: currentIncludedItems.length,
       };
       if (editingIncl) {
@@ -334,7 +347,7 @@ const PoolModelManager = () => {
         if (error) throw error;
         toast.success("Item adicionado");
       }
-      setInclForm({ name: "", cost: "", margin_percent: "", price: "" });
+      setInclForm({ name: "", quantity: "1", cost: "", margin_percent: "", price: "" });
       setEditingIncl(null);
       loadData();
     } catch { toast.error("Erro ao salvar item incluso"); }
@@ -351,6 +364,7 @@ const PoolModelManager = () => {
     setEditingIncl(item.id);
     setInclForm({
       name: item.name,
+      quantity: item.quantity?.toString() || "1",
       cost: item.cost?.toString() || "",
       margin_percent: item.margin_percent?.toString() || "",
       price: item.price?.toString() || "",
