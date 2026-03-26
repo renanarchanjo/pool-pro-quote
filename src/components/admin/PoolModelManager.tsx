@@ -102,6 +102,11 @@ const PoolModelManager = () => {
   const [inclForm, setInclForm] = useState({ name: "", cost: "", margin_percent: "", price: "" });
   const [editingIncl, setEditingIncl] = useState<string | null>(null);
 
+  // Templates
+  const [templates, setTemplates] = useState<ItemTemplate[]>([]);
+  const [templateName, setTemplateName] = useState("");
+  const [showSaveTemplate, setShowSaveTemplate] = useState(false);
+
   useEffect(() => { if (store) loadData(); }, [store]);
 
   const loadData = async () => {
