@@ -166,7 +166,11 @@ const SubscriptionManager = () => {
       if (error) throw error;
       if (data?.url) {
         toast.info("Redirecionando para o pagamento...");
-        window.location.href = data.url;
+        const w = window.open(data.url, "_blank");
+        if (!w) {
+          window.location.href = data.url;
+        }
+        setCheckoutLoading(null);
         return;
       }
       throw new Error("URL de checkout não recebida");
