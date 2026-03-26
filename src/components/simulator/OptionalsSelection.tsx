@@ -280,7 +280,7 @@ const OptionalsSelection = ({ optionals, modelOptionals = [], selectedOptionals:
         {/* Model-specific optionals */}
         {modelOptionals.length > 0 && (
           <Card className="p-6 bg-card/80 backdrop-blur-sm border-accent/30">
-            <h3 className="text-xl font-display font-bold mb-2">Opcionais Exclusivos — {model.name}</h3>
+            <h3 className="text-xl font-display font-bold mb-2">Opcionais Dimensionados — {model.name}</h3>
             <p className="text-sm text-muted-foreground mb-4">Opcionais calculados especificamente para este modelo</p>
             <div className="space-y-3">
               {modelOptionals.map((mOpt) => {

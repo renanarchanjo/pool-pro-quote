@@ -210,7 +210,7 @@ const PoolModelManager = () => {
 
   // ---- Model Optionals CRUD ----
   const handleOptSubmit = async () => {
-    if (!editing) { toast.error("Salve o modelo primeiro para adicionar opcionais exclusivos"); return; }
+    if (!editing) { toast.error("Salve o modelo primeiro para adicionar opcionais dimensionados"); return; }
     if (!optForm.name.trim() || !optForm.price) { toast.error("Preencha nome e preço"); return; }
     try {
       const data = {
@@ -308,7 +308,7 @@ const PoolModelManager = () => {
         <Tabs value={formTab} onValueChange={setFormTab}>
           <TabsList className="mb-3">
             <TabsTrigger value="dados" className="text-xs sm:text-sm">Dados</TabsTrigger>
-            <TabsTrigger value="opcionais" disabled={!editing} className="text-xs sm:text-sm">Opcionais Exclusivos</TabsTrigger>
+            <TabsTrigger value="opcionais" disabled={!editing} className="text-xs sm:text-sm">Opcionais Dimensionados</TabsTrigger>
             <TabsTrigger value="itens" className="text-xs sm:text-sm">Itens Inclusos</TabsTrigger>
           </TabsList>
 
@@ -418,14 +418,14 @@ const PoolModelManager = () => {
             </form>
           </TabsContent>
 
-          {/* TAB: Opcionais Exclusivos */}
+          {/* TAB: Opcionais Dimensionados */}
           <TabsContent value="opcionais">
             {!editing ? (
-              <p className="text-muted-foreground text-center py-8">Salve o modelo primeiro para gerenciar opcionais exclusivos.</p>
+              <p className="text-muted-foreground text-center py-8">Salve o modelo primeiro para gerenciar opcionais dimensionados.</p>
             ) : (
               <div className="space-y-4">
                 <p className="text-sm text-muted-foreground">
-                  Opcionais exclusivos deste modelo. Esses itens aparecem apenas para este modelo na proposta.
+                  Opcionais dimensionados deste modelo. Esses itens aparecem apenas para este modelo na proposta.
                 </p>
 
                 {/* Add/edit form */}
@@ -686,7 +686,7 @@ const PoolModelManager = () => {
                       )}
                       {mOpts.length > 0 && (
                         <div>
-                          <span className="font-semibold text-sm">Opcionais Exclusivos:</span>
+                          <span className="font-semibold text-sm">Opcionais Dimensionados:</span>
                           <div className="space-y-1 mt-1">
                             {mOpts.map((o) => (
                               <div key={o.id} className="flex justify-between text-sm px-2 py-1 bg-muted/50 rounded">

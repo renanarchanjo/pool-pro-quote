@@ -502,11 +502,11 @@ const ManualProposal = () => {
           </CardContent>
         </Card>
 
-        {/* Opcionais Exclusivos do Modelo */}
+        {/* Opcionais Dimensionados do Modelo */}
         {selectedModel && currentModelOpts.length > 0 && (
           <Card className="md:col-span-2">
             <CardHeader>
-              <CardTitle className="text-lg">Opcionais Exclusivos — {selectedModel.name}</CardTitle>
+              <CardTitle className="text-lg">Opcionais Dimensionados — {selectedModel.name}</CardTitle>
               <p className="text-xs text-muted-foreground">Opcionais específicos calculados para este modelo</p>
             </CardHeader>
             <CardContent>
