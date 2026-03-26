@@ -196,15 +196,18 @@ const PoolSimulator = ({ onBack }: PoolSimulatorProps) => {
     }
 
     try {
-      const optionalsPrice = optionals
+      const selectedGeneralOpts = optionals
         .filter(opt => selectedOptionals.includes(opt.id))
-        .reduce((sum, opt) => sum + opt.price, 0);
+        .map(opt => ({ id: opt.id, name: opt.name, price: opt.price }));
 
-      const modelOptsPrice = modelOptionals
-        .filter(opt => selectedOptionals.includes(opt.id))
-        .reduce((sum: number, opt: any) => sum + opt.price, 0);
+      const selectedModelOpts = modelOptionals
+        .filter((opt: any) => selectedOptionals.includes(opt.id))
+        .map((opt: any) => ({ id: opt.id, name: opt.name, price: opt.price }));
 
-      const totalPrice = selectedModel.base_price + optionalsPrice + modelOptsPrice;
+      const allSelectedOpts = [...selectedGeneralOpts, ...selectedModelOpts];
+
+      const optionalsPrice = allSelectedOpts.reduce((sum, opt) => sum + opt.price, 0);
+      const totalPrice = selectedModel.base_price + optionalsPrice;
 
       const { error } = await supabase
         .from("proposals")
@@ -213,7 +216,7 @@ const PoolSimulator = ({ onBack }: PoolSimulatorProps) => {
           customer_city: data.city,
           customer_whatsapp: data.whatsapp,
           model_id: selectedModel.id,
-          selected_optionals: selectedOptionals,
+          selected_optionals: allSelectedOpts as any,
           total_price: totalPrice,
           store_id: targetStoreId,
         });
