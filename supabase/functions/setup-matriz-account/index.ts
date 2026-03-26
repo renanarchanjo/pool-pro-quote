@@ -14,12 +14,17 @@ Deno.serve(async (req) => {
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     
+    // Read credentials from environment secrets - never hardcode
+    const email = Deno.env.get("MATRIZ_EMAIL");
+    const password = Deno.env.get("MATRIZ_PASSWORD");
+
+    if (!email || !password) {
+      throw new Error("MATRIZ_EMAIL and MATRIZ_PASSWORD secrets must be configured");
+    }
+
     const supabase = createClient(supabaseUrl, serviceRoleKey, {
       auth: { autoRefreshToken: false, persistSession: false },
     });
-
-    const email = "simulapool@gmal.com";
-    const password = "Faffran0568@";
 
     // Check if user already exists
     const { data: existingUsers } = await supabase.auth.admin.listUsers();

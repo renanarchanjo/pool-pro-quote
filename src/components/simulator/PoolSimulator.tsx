@@ -104,12 +104,16 @@ const PoolSimulator = ({ onBack }: PoolSimulatorProps) => {
     try {
       setLoading(true);
 
+      const poolModelCols = "id, name, category_id, base_price, delivery_days, installation_days, active, store_id, length, width, depth, display_order, differentials, included_items, not_included_items, photo_url, payment_terms, notes, created_at, updated_at";
+      const optionalCols = "id, name, description, price, group_id, store_id, display_order, active, warning_note, created_at, updated_at";
+      const modelOptCols = "id, model_id, store_id, price, active, display_order, name, description, created_at, updated_at";
+
       const [modelsRes, brandsRes, catsRes, optionalsRes, modelOptsRes, settingsRes, storeRes, partnersRes] = await Promise.all([
-        supabase.from("pool_models").select("*").eq("active", true).eq("store_id", sid).order("display_order"),
+        supabase.from("pool_models").select(poolModelCols).eq("active", true).eq("store_id", sid).order("display_order"),
         supabase.from("brands").select("id, name, logo_url").eq("active", true).eq("store_id", sid).order("name"),
         supabase.from("categories").select("id, name, brand_id").eq("active", true).eq("store_id", sid).order("name"),
-        supabase.from("optionals").select("*").eq("active", true).eq("store_id", sid).order("display_order"),
-        supabase.from("model_optionals").select("*").eq("active", true).eq("store_id", sid).order("display_order"),
+        supabase.from("optionals").select(optionalCols).eq("active", true).eq("store_id", sid).order("display_order"),
+        supabase.from("model_optionals").select(modelOptCols).eq("active", true).eq("store_id", sid).order("display_order"),
         supabase.from("store_settings").select("*").eq("store_id", sid).maybeSingle(),
         supabase.from("stores").select("name, city, state").eq("id", sid).single(),
         supabase.from("partners").select("id, name, logo_url, banner_1_url, banner_2_url").eq("active", true).order("display_order"),
@@ -147,12 +151,16 @@ const PoolSimulator = ({ onBack }: PoolSimulatorProps) => {
   const handleSkipLocation = async () => {
     try {
       setLoading(true);
+      const poolModelCols = "id, name, category_id, base_price, delivery_days, installation_days, active, store_id, length, width, depth, display_order, differentials, included_items, not_included_items, photo_url, payment_terms, notes, created_at, updated_at";
+      const optionalCols = "id, name, description, price, group_id, store_id, display_order, active, warning_note, created_at, updated_at";
+      const modelOptCols = "id, model_id, store_id, price, active, display_order, name, description, created_at, updated_at";
+
       const [modelsRes, brandsRes, catsRes, optionalsRes, modelOptsRes] = await Promise.all([
-        supabase.from("pool_models").select("*").eq("active", true).order("display_order"),
+        supabase.from("pool_models").select(poolModelCols).eq("active", true).order("display_order"),
         supabase.from("brands").select("id, name").eq("active", true).order("name"),
         supabase.from("categories").select("id, name, brand_id").eq("active", true).order("name"),
-        supabase.from("optionals").select("*").eq("active", true).order("display_order"),
-        supabase.from("model_optionals").select("*").eq("active", true).order("display_order"),
+        supabase.from("optionals").select(optionalCols).eq("active", true).order("display_order"),
+        supabase.from("model_optionals").select(modelOptCols).eq("active", true).order("display_order"),
       ]);
       if (modelsRes.error) throw modelsRes.error;
       setModels(modelsRes.data || []);
