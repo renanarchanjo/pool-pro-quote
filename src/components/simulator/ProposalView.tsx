@@ -35,6 +35,7 @@ interface Partner {
   logo_url: string | null;
   banner_1_url: string | null;
   banner_2_url: string | null;
+  display_percent?: number;
 }
 
 interface ProposalViewProps {
@@ -82,11 +83,29 @@ const ProposalView = ({
 
   const fmt = (v: number) => `R$ ${v.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`;
 
-  // Banner logic: if brand matches a partner name, show only that partner's banners; else show all
+  // Banner logic: if brand matches a partner name, show only that partner's banner
+  // For non-partner brands, use weighted random selection based on display_percent
   const matchedPartner = brandName
     ? partners.find(p => p.name.toLowerCase().trim() === brandName.toLowerCase().trim())
     : null;
-  const bannersToShow = matchedPartner ? [matchedPartner] : partners;
+
+  const selectWeightedPartner = (): Partner | null => {
+    const eligible = partners.filter(p => p.banner_1_url && (p.display_percent || 0) > 0);
+    if (eligible.length === 0) return null;
+    const totalWeight = eligible.reduce((sum, p) => sum + (p.display_percent || 0), 0);
+    if (totalWeight <= 0) return eligible[0];
+    const rand = Math.random() * totalWeight;
+    let cumulative = 0;
+    for (const p of eligible) {
+      cumulative += (p.display_percent || 0);
+      if (rand <= cumulative) return p;
+    }
+    return eligible[eligible.length - 1];
+  };
+
+  const bannersToShow = matchedPartner
+    ? [matchedPartner]
+    : (() => { const selected = selectWeightedPartner(); return selected ? [selected] : partners; })();
   const banner1Urls = bannersToShow.filter(p => p.banner_1_url).map(p => ({ url: p.banner_1_url!, name: p.name }));
   
   // Removed WhatsApp and email send functions - lead only gets PDF download and view

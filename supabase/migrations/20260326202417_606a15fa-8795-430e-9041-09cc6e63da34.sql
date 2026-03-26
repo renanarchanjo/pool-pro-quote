@@ -1,0 +1,1 @@
+ALTER TABLE public.partners ADD COLUMN IF NOT EXISTS display_percent numeric NOT NULL DEFAULT 0;

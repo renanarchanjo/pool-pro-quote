@@ -17,6 +17,7 @@ interface Partner {
   active: boolean;
   display_order: number;
   ranking: number;
+  display_percent: number;
 }
 
 const RANKING_LABELS: Record<number, string> = {
@@ -203,19 +204,28 @@ const PartnersManager = () => {
         </div>
       </Card>
 
-      {/* Ranking explanation */}
+      {/* Ranking explanation + total percentage */}
       <Card className="p-4 bg-primary/5 border-primary/20">
         <div className="flex items-start gap-3">
           <Trophy className="w-5 h-5 text-primary mt-0.5 shrink-0" />
-          <div className="text-sm">
-            <p className="font-semibold text-foreground">Sistema de Ranking</p>
+          <div className="text-sm flex-1">
+            <p className="font-semibold text-foreground">Sistema de Ranking e Frequência</p>
             <p className="text-muted-foreground mt-1">
-              Parceiros com ranking menor (1º, 2º, 3º...) aparecem com <strong>maior frequência</strong> nas propostas de marcas não-parceiras.
+              Defina a <strong>% de aparição</strong> de cada parceiro nas propostas de marcas <strong>não-parceiras</strong>.
               Propostas de marcas que correspondem a um parceiro <strong>sempre</strong> exibem o banner desse parceiro.
             </p>
             <p className="text-muted-foreground mt-1">
               O nome do parceiro deve ser <strong>idêntico</strong> ao nome da Marca cadastrada pelos lojistas para a vinculação funcionar.
             </p>
+            {(() => {
+              const totalPercent = partners.filter(p => p.active).reduce((sum, p) => sum + p.display_percent, 0);
+              const isValid = totalPercent === 100;
+              return (
+                <div className={`mt-3 p-2 rounded-lg text-sm font-semibold ${isValid ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400" : "bg-destructive/10 text-destructive"}`}>
+                  Total de aparição (ativos): {totalPercent}% {isValid ? "✓" : `— deve somar 100%`}
+                </div>
+              );
+            })()}
           </div>
         </div>
       </Card>
@@ -296,8 +306,32 @@ const PartnersManager = () => {
                     )}
                   </div>
                   <p className="text-xs text-muted-foreground">
-                    {RANKING_LABELS[partner.ranking] || `${partner.ranking}º Lugar`} · {partner.active ? "Ativo" : "Oculto"}
+                    {RANKING_LABELS[partner.ranking] || `${partner.ranking}º Lugar`} · {partner.active ? "Ativo" : "Oculto"} · {partner.display_percent}%
                   </p>
+
+                  {/* Display percent */}
+                  <div className="flex items-center gap-2 mt-2">
+                    <Label className="text-xs shrink-0">Frequência:</Label>
+                    <Input
+                      type="number"
+                      min={0}
+                      max={100}
+                      value={partner.display_percent}
+                      onChange={(e) => {
+                        const val = parseFloat(e.target.value);
+                        if (!isNaN(val)) setPartners(prev => prev.map(p => p.id === partner.id ? { ...p, display_percent: val } : p));
+                      }}
+                      onBlur={async (e) => {
+                        const val = parseFloat(e.target.value);
+                        if (isNaN(val) || val === partner.display_percent) return;
+                        const { error } = await supabase.from("partners").update({ display_percent: val }).eq("id", partner.id);
+                        if (error) { toast.error("Erro ao salvar frequência"); return; }
+                        toast.success("Frequência atualizada!");
+                      }}
+                      className="w-20 h-7 text-xs text-center"
+                    />
+                    <span className="text-xs text-muted-foreground">%</span>
+                  </div>
 
                   {/* Banner URL */}
                   <div className="mt-3 space-y-2 border-t border-border/50 pt-3">
