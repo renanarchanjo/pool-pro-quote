@@ -165,11 +165,13 @@ const SubscriptionManager = () => {
       });
       if (error) throw error;
       if (data?.url) {
+        toast.info("Redirecionando para o pagamento...");
         window.location.href = data.url;
+        return;
       }
+      throw new Error("URL de checkout não recebida");
     } catch (err: any) {
       toast.error("Erro ao iniciar checkout: " + (err.message || "Tente novamente"));
-    } finally {
       setCheckoutLoading(null);
     }
   };
@@ -198,11 +200,13 @@ const SubscriptionManager = () => {
       const { data, error } = await supabase.functions.invoke("customer-portal");
       if (error) throw error;
       if (data?.url) {
+        toast.info("Abrindo portal de pagamentos...");
         window.location.href = data.url;
+        return;
       }
+      throw new Error("URL do portal não recebida");
     } catch (err: any) {
       toast.error("Erro ao abrir portal: " + (err.message || "Tente novamente"));
-    } finally {
       setPortalLoading(false);
     }
   };

@@ -130,7 +130,7 @@ const InvoiceHistory = () => {
                         <Button
                           variant="outline"
                           size="sm"
-                          onClick={() => window.open(inv.hosted_invoice_url!, "_blank")}
+                          onClick={() => { window.location.href = inv.hosted_invoice_url!; }}
                           title="Ver fatura"
                         >
                           <ExternalLink className="w-4 h-4" />
@@ -140,7 +140,7 @@ const InvoiceHistory = () => {
                         <Button
                           variant="outline"
                           size="sm"
-                          onClick={() => window.open(inv.invoice_pdf!, "_blank")}
+                          onClick={() => { window.location.href = inv.invoice_pdf!; }}
                           title="Baixar PDF"
                         >
                           <Download className="w-4 h-4" />
