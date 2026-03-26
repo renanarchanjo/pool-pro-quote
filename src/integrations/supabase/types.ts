@@ -504,6 +504,7 @@ export type Database = {
           banner_2_url: string | null
           created_at: string | null
           display_order: number | null
+          display_percent: number
           id: string
           logo_url: string | null
           name: string
@@ -516,6 +517,7 @@ export type Database = {
           banner_2_url?: string | null
           created_at?: string | null
           display_order?: number | null
+          display_percent?: number
           id?: string
           logo_url?: string | null
           name: string
@@ -528,6 +530,7 @@ export type Database = {
           banner_2_url?: string | null
           created_at?: string | null
           display_order?: number | null
+          display_percent?: number
           id?: string
           logo_url?: string | null
           name?: string
