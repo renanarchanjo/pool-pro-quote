@@ -83,7 +83,7 @@ const ProposalView = ({
 
   const fmt = (v: number) => `R$ ${v.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`;
 
-  // Banner logic: if brand matches a partner name, show only that partner's banner
+  // Banner logic: if brand has a partner_id, match by ID; fallback to name matching
   // For non-partner brands, use weighted random selection based on display_percent
   const matchedPartner = brandName
     ? partners.find(p => p.name.toLowerCase().trim() === brandName.toLowerCase().trim())
