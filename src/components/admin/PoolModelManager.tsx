@@ -229,7 +229,7 @@ const PoolModelManager = () => {
     });
     setEditing(null);
     setFormTab("dados");
-    setInclForm({ name: "", cost: "", margin_percent: "", price: "" });
+    setInclForm({ name: "", quantity: "1", cost: "", margin_percent: "", price: "" });
     setEditingIncl(null);
   };
 
@@ -686,7 +686,7 @@ const PoolModelManager = () => {
                       <Plus className="w-4 h-4 mr-1" /> {editingIncl ? "Atualizar" : "Adicionar"}
                     </Button>
                     {editingIncl && (
-                      <Button variant="outline" onClick={() => { setEditingIncl(null); setInclForm({ name: "", cost: "", margin_percent: "", price: "" }); }}>
+                      <Button variant="outline" onClick={() => { setEditingIncl(null); setInclForm({ name: "", quantity: "1", cost: "", margin_percent: "", price: "" }); }}>
                         Cancelar
                       </Button>
                     )}
