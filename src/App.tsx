@@ -5,7 +5,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "next-themes";
-import { Loader2 } from "lucide-react";
+import PageTransition from "@/components/PageTransition";
 
 // Eager load landing page for instant first paint
 import Index from "./pages/Index";
@@ -22,19 +22,13 @@ const NotFound = lazy(() => import("./pages/NotFound"));
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: 1000 * 60 * 2, // 2 min - avoid refetching on every mount
-      gcTime: 1000 * 60 * 10, // 10 min garbage collection
-      refetchOnWindowFocus: false, // don't refetch on tab switch
-      retry: 1, // only 1 retry on failure
+      staleTime: 1000 * 60 * 2,
+      gcTime: 1000 * 60 * 10,
+      refetchOnWindowFocus: false,
+      retry: 1,
     },
   },
 });
-
-const PageLoader = () => (
-  <div className="min-h-screen flex items-center justify-center">
-    <Loader2 className="w-8 h-8 animate-spin text-primary" />
-  </div>
-);
 
 const App = () => (
   <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false}>
@@ -43,17 +37,19 @@ const App = () => (
         <Toaster />
         <Sonner />
         <BrowserRouter>
-          <Suspense fallback={<PageLoader />}>
-            <Routes>
-              <Route path="/" element={<Index />} />
-              <Route path="/precos" element={<Precos />} />
-              <Route path="/parceiros" element={<Parceiros />} />
-              <Route path="/auth" element={<Auth />} />
-              <Route path="/admin/*" element={<Admin />} />
-              <Route path="/matriz/*" element={<Matriz />} />
-              <Route path="/login/app" element={<MobileApp />} />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
+          <Suspense fallback={null}>
+            <PageTransition>
+              <Routes>
+                <Route path="/" element={<Index />} />
+                <Route path="/precos" element={<Precos />} />
+                <Route path="/parceiros" element={<Parceiros />} />
+                <Route path="/auth" element={<Auth />} />
+                <Route path="/admin/*" element={<Admin />} />
+                <Route path="/matriz/*" element={<Matriz />} />
+                <Route path="/login/app" element={<MobileApp />} />
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </PageTransition>
           </Suspense>
         </BrowserRouter>
       </TooltipProvider>
