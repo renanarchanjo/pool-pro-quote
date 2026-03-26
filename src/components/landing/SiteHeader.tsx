@@ -6,7 +6,6 @@ import logoHorizontal from "@/assets/simulapool-horizontal.png";
 
 const navLinks = [
   { label: "Simular Agora!", to: "/" },
-  { label: "Planos", to: "/precos" },
   { label: "Parceiros", to: "/parceiros" },
 ];
 
@@ -72,11 +71,6 @@ const SiteHeader = () => {
                 {link.label}
               </Link>
             )}
-            <Link to="/auth">
-              <Button size="sm" className="gradient-primary text-white font-display font-semibold shadow-sm">
-                Área do Lojista
-              </Button>
-            </Link>
           </div>
 
           {/* Mobile Toggle - enters from right */}
@@ -106,11 +100,6 @@ const SiteHeader = () => {
                 {link.label}
               </Link>
           )}
-            <Link to="/auth" onClick={() => setMobileMenuOpen(false)} className="block pt-2">
-              <Button size="lg" className="w-full gradient-primary text-white font-display font-semibold text-base">
-                Área do Lojista
-              </Button>
-            </Link>
           </div>
         }
       </nav>
