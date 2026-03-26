@@ -274,13 +274,13 @@ const PricingSection = () => {
             </p>
           </div>
 
-          <div className={`grid grid-cols-1 sm:grid-cols-2 ${leadPlans.length >= 3 ? "lg:grid-cols-" + Math.min(leadPlans.length, 4) : ""} gap-4 max-w-3xl mx-auto`}>
+          <div className={`flex flex-wrap justify-center gap-4 max-w-4xl mx-auto`}>
             {leadPlans.map((lp, idx) => {
               const isBest = leadPlans.length > 1 && idx === 1;
               return (
                 <Card
                   key={lp.id}
-                  className={`p-6 text-center transition-all duration-300 ${
+                  className={`p-6 text-center transition-all duration-300 w-full sm:w-[280px] ${
                     isBest
                       ? "border-orange-400 shadow-lg ring-2 ring-orange-200 scale-[1.03]"
                       : "border-border/50 hover:shadow-card hover:border-orange-300"
