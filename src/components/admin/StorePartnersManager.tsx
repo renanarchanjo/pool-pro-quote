@@ -128,7 +128,6 @@ const StorePartnersManager = () => {
           <div className="space-y-2">
             {partners.map((partner) => {
               const isLinked = linkedIds.has(partner.id);
-              const cats = partnerCategories[partner.id] || [];
               return (
                 <label
                   key={partner.id}
@@ -153,16 +152,8 @@ const StorePartnersManager = () => {
                       <p className="font-medium truncate">{partner.name}</p>
                       {isLinked && <CheckCircle2 className="w-4 h-4 text-primary shrink-0" />}
                     </div>
-                    {cats.length > 0 && (
-                      <div className="flex items-center gap-1 mt-1 flex-wrap">
-                        <Tag className="w-3 h-3 text-muted-foreground shrink-0" />
-                        {cats.map((cat, i) => (
-                          <span key={cat.id} className="text-xs text-muted-foreground">
-                            {cat.name}{i < cats.length - 1 ? "," : ""}
-                          </span>
-                        ))}
-                      </div>
-                    )}
+                    <p className="text-xs text-muted-foreground">#{partner.ranking} no ranking</p>
+                  </div>
                   </div>
                   {toggling === partner.id && <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />}
                 </label>
