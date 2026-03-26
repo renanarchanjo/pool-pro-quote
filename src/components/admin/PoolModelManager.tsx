@@ -349,6 +349,7 @@ const PoolModelManager = () => {
       }
       setInclForm({ name: "", quantity: "1", cost: "", margin_percent: "", price: "" });
       setEditingIncl(null);
+      await syncIncludedItemsToModel(editing!);
       loadData();
     } catch { toast.error("Erro ao salvar item incluso"); }
   };
