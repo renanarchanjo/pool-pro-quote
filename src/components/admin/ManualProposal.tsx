@@ -75,6 +75,7 @@ const ManualProposal = () => {
   const [modelOptionals, setModelOptionals] = useState<any[]>([]);
   const [optionalGroups, setOptionalGroups] = useState<{ id: string; name: string; description: string | null; display_order: number }[]>([]);
   const [partners, setPartners] = useState<Partner[]>([]);
+  const [includedItemsTotal, setIncludedItemsTotal] = useState(0);
 
   const [selectedBrandId, setSelectedBrandId] = useState<string>("");
   const [selectedCategoryId, setSelectedCategoryId] = useState<string>("");
@@ -156,7 +157,7 @@ const ManualProposal = () => {
   const currentModelOpts = selectedModel ? modelOptionals.filter((o: any) => o.model_id === selectedModel.id) : [];
   const selectedModelOptsList = currentModelOpts.filter((o: any) => selectedModelOptIds.includes(o.id));
   const optionalsTotal = selectedOptionalsList.reduce((s, o) => s + o.price, 0) + selectedModelOptsList.reduce((s: number, o: any) => s + o.price, 0);
-  const totalPrice = (selectedModel?.base_price || 0) + optionalsTotal;
+  const totalPrice = (selectedModel?.base_price || 0) + includedItemsTotal + optionalsTotal;
 
   const toggleEnabled = (id: string) => {
     setEnabledOptionalIds((prev) =>
