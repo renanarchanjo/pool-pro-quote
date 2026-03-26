@@ -460,7 +460,7 @@ const BrandCategoryManager = () => {
                       </Badge>
                     </CollapsibleTrigger>
 
-                    <div className="flex items-center gap-3 ml-auto shrink-0" onClick={(e) => e.stopPropagation()}
+                    <div className="flex items-center gap-3 ml-auto shrink-0" onClick={(e) => e.stopPropagation()}>
                       <div className="flex items-center gap-2">
                         <Switch checked={brand.active} onCheckedChange={() => toggleBrandActive(brand.id, brand.active)} />
                         <span className="text-sm hidden sm:inline">{brand.active ? "Ativo" : "Inativo"}</span>
@@ -517,7 +517,7 @@ const BrandCategoryManager = () => {
                               <p className="font-medium">{cat.name}</p>
                               {cat.description && <p className="text-sm text-muted-foreground">{cat.description}</p>}
                             </div>
-                            <div className="flex items-center gap-2 shrink-0" onClick={(e) => e.stopPropagation()}
+                            <div className="flex items-center gap-2 shrink-0" onClick={(e) => e.stopPropagation()}>
                               <Switch checked={cat.active} onCheckedChange={() => toggleCategoryActive(cat.id, cat.active)} />
                               <span className="text-xs hidden sm:inline">{cat.active ? "Ativo" : "Inativo"}</span>
                               <Button variant="ghost" size="sm" onClick={() => {

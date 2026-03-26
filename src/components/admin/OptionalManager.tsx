@@ -213,7 +213,7 @@ const OptionalManager = () => {
                 <p className="text-sm text-muted-foreground">{optional.description}</p>
               )}
             </div>
-            <div className="flex flex-col items-end gap-2 shrink-0" onClick={(e) => e.stopPropagation()}
+            <div className="flex flex-col items-end gap-2 shrink-0" onClick={(e) => e.stopPropagation()}>
               <div className="flex items-center gap-2">
                 <Switch checked={optional.active}
                   onCheckedChange={() => toggleActive(optional.id, optional.active)} />
