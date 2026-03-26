@@ -24,6 +24,7 @@ import PendingLeadsAlert from "@/components/admin/PendingLeadsAlert";
 const Admin = () => {
   const [authLoading, setAuthLoading] = useState(true);
   const navigate = useNavigate();
+  const location = useLocation();
   const { store, role, loading: storeLoading } = useStoreData();
 
   useEffect(() => {
