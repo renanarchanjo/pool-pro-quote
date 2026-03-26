@@ -406,6 +406,7 @@ const PoolSimulator = ({ onBack }: PoolSimulatorProps) => {
             onConfirm={handleOptionalsConfirm}
             onBack={() => setStep(1)}
             model={selectedModel}
+            includedItemsTotal={includedItemsTotal}
           />
         )}
 
