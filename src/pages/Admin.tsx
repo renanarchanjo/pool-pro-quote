@@ -92,8 +92,9 @@ const Admin = () => {
                   "opcionais": "Opcionais",
                   "equipe": "Minha Equipe",
                   "lojistas": "Lojistas",
-                  "assinatura": "Assinatura",
-                  "performance": "Performance",
+                   "assinatura": "Assinatura",
+                    "parceiros": "Marcas Parceiras",
+                    "performance": "Performance",
                   "comissao": "Comissão",
                 };
                 return map[path] || "Dashboard";
