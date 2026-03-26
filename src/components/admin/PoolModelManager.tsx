@@ -112,12 +112,13 @@ const PoolModelManager = () => {
   const loadData = async () => {
     if (!store) return;
     try {
-      const [brandsRes, categoriesRes, modelsRes, optRes, inclRes] = await Promise.all([
+      const [brandsRes, categoriesRes, modelsRes, optRes, inclRes, tmplRes] = await Promise.all([
         supabase.from("brands").select("id, name, partner_id").eq("active", true).eq("store_id", store.id),
         supabase.from("categories").select("id, name, brand_id").eq("active", true).eq("store_id", store.id),
         supabase.from("pool_models").select("*").eq("store_id", store.id).order("created_at", { ascending: false }),
         supabase.from("model_optionals").select("*").eq("store_id", store.id).order("display_order"),
         supabase.from("model_included_items").select("*").eq("store_id", store.id).order("display_order"),
+        supabase.from("included_item_templates").select("id, name").eq("store_id", store.id).order("name"),
       ]);
       if (brandsRes.error) throw brandsRes.error;
       if (categoriesRes.error) throw categoriesRes.error;
@@ -127,6 +128,27 @@ const PoolModelManager = () => {
       setModels(modelsRes.data || []);
       setModelOptionals(optRes.data || []);
       setIncludedItems(inclRes.data || []);
+
+      // Load template items
+      const tmplList = tmplRes.data || [];
+      if (tmplList.length > 0) {
+        const { data: tmplItems } = await supabase
+          .from("included_item_template_items")
+          .select("*")
+          .eq("store_id", store.id)
+          .order("display_order");
+        const loadedTemplates: ItemTemplate[] = tmplList.map((t: any) => ({
+          id: t.id,
+          name: t.name,
+          items: (tmplItems || []).filter((i: any) => i.template_id === t.id).map((i: any) => ({
+            name: i.name, cost: Number(i.cost), margin_percent: Number(i.margin_percent),
+            price: Number(i.price), display_order: i.display_order,
+          })),
+        }));
+        setTemplates(loadedTemplates);
+      } else {
+        setTemplates([]);
+      }
     } catch (error) {
       console.error(error);
       toast.error("Erro ao carregar dados");
