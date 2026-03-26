@@ -471,15 +471,15 @@ const PoolModelManager = () => {
     return <div className="flex justify-center p-8"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
   }
 
-  const ArrayField = ({ label, field, inputField, placeholder }: { label: string; field: "differentials" | "not_included_items"; inputField: string; placeholder: string }) => (
+  const renderArrayField = (label: string, field: "differentials" | "not_included_items", inputField: string, placeholder: string) => (
     <div>
       <Label>{label}</Label>
       <div className="flex gap-2 mb-2">
         <Input
           value={formData[inputField as keyof typeof formData] as string}
-          onChange={(e) => setFormData({ ...formData, [inputField]: e.target.value })}
+          onChange={(e) => setFormData(prev => ({ ...prev, [inputField]: e.target.value }))}
           placeholder={placeholder}
-          onKeyPress={(e) => e.key === "Enter" && (e.preventDefault(), addToArray(field, inputField))}
+          onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addToArray(field, inputField); } }}
         />
         <Button type="button" onClick={() => addToArray(field, inputField)}><Plus className="w-4 h-4" /></Button>
       </div>
@@ -615,7 +615,7 @@ const PoolModelManager = () => {
                 <Textarea value={formData.notes} onChange={(e) => setFormData({ ...formData, notes: e.target.value })} placeholder="Informações adicionais..." rows={3} />
               </div>
 
-              <ArrayField label="Diferenciais" field="differentials" inputField="newDifferential" placeholder="Ex: Acabamento premium" />
+              {renderArrayField("Diferenciais", "differentials", "newDifferential", "Ex: Acabamento premium")}
 
               <div className="flex gap-2">
                 <Button type="submit" className="gradient-primary text-white">{editing ? "Salvar Alterações" : "Criar Modelo"}</Button>
@@ -824,7 +824,7 @@ const PoolModelManager = () => {
 
                 {/* Not included items */}
                 <div className="pt-4 border-t">
-                  <ArrayField label="Itens Não Inclusos" field="not_included_items" inputField="newNotIncluded" placeholder="Ex: Aquecedor solar" />
+                  {renderArrayField("Itens Não Inclusos", "not_included_items", "newNotIncluded", "Ex: Aquecedor solar")}
                   <div className="flex gap-2 mt-3">
                     <Button type="button" onClick={handleSubmit as any} className="gradient-primary text-white">Salvar</Button>
                   </div>
