@@ -300,8 +300,8 @@ const PoolModelManager = () => {
   return (
     <div className="space-y-6">
       {/* ===== FORM ===== */}
-      <Card className="p-6">
-        <h2 className="text-2xl font-bold mb-4">{editing ? "Editar Modelo" : "Novo Modelo"}</h2>
+      <Card className="p-3 sm:p-6">
+        <h2 className="text-lg sm:text-2xl font-bold mb-3 sm:mb-4">{editing ? "Editar Modelo" : "Novo Modelo"}</h2>
 
         <Tabs value={formTab} onValueChange={setFormTab}>
           <TabsList className="mb-4">

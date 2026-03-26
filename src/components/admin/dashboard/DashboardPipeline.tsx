@@ -90,91 +90,94 @@ const DashboardPipeline = ({ proposals, onUpdateStatus, onViewProposal, onExport
   });
 
   return (
-    <div className="space-y-3">
-      <div className="flex items-center justify-between">
-        <h3 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
-          Controle e Acompanhamento de Propostas
+    <div className="space-y-2 sm:space-y-3">
+      <div className="flex items-center justify-between gap-2">
+        <h3 className="text-xs sm:text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+          <span className="hidden sm:inline">Controle e Acompanhamento de Propostas</span>
+          <span className="sm:hidden">Propostas</span>
         </h3>
-        <span className="text-xs text-muted-foreground">
+        <span className="text-[10px] sm:text-xs text-muted-foreground whitespace-nowrap">
           {filtered.length} de {proposals.length}
         </span>
       </div>
 
       {/* Filters */}
-      <div className="flex flex-col sm:flex-row gap-2">
+      <div className="space-y-1.5 sm:space-y-0 sm:flex sm:flex-row sm:gap-2">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-          <Input className="pl-9 h-9" placeholder="Buscar por nome, cidade, modelo ou data..." value={search} onChange={(e) => setSearch(e.target.value)} />
+          <Input className="pl-9 h-8 sm:h-9 text-sm" placeholder="Buscar nome, cidade..." value={search} onChange={(e) => setSearch(e.target.value)} />
         </div>
-        <Select value={statusFilter} onValueChange={setStatusFilter}>
-          <SelectTrigger className="w-full sm:w-[150px] h-9">
-            <SelectValue placeholder="Status" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">Todos</SelectItem>
-            {Object.entries(STATUS_CONFIG).map(([k, v]) => (
-              <SelectItem key={k} value={k}>{v.label}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        <Select value={sortMode} onValueChange={(v) => setSortMode(v as SortMode)}>
-          <SelectTrigger className="w-full sm:w-[160px] h-9">
-            <div className="flex items-center gap-1.5">
-              <ArrowUpDown className="w-3 h-3" />
-              <SelectValue />
-            </div>
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="recente">Mais Recente</SelectItem>
-            <SelectItem value="valor">Maior Valor</SelectItem>
-            <SelectItem value="probabilidade">Maior Probabilidade</SelectItem>
-            <SelectItem value="tempo">Mais Antigo</SelectItem>
-          </SelectContent>
-        </Select>
+        <div className="flex gap-1.5">
+          <Select value={statusFilter} onValueChange={setStatusFilter}>
+            <SelectTrigger className="flex-1 sm:w-[130px] h-8 sm:h-9 text-xs">
+              <SelectValue placeholder="Status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todos</SelectItem>
+              {Object.entries(STATUS_CONFIG).map(([k, v]) => (
+                <SelectItem key={k} value={k}>{v.label}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Select value={sortMode} onValueChange={(v) => setSortMode(v as SortMode)}>
+            <SelectTrigger className="flex-1 sm:w-[140px] h-8 sm:h-9 text-xs">
+              <div className="flex items-center gap-1">
+                <ArrowUpDown className="w-3 h-3" />
+                <SelectValue />
+              </div>
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="recente">Recente</SelectItem>
+              <SelectItem value="valor">Maior Valor</SelectItem>
+              <SelectItem value="probabilidade">Probabilidade</SelectItem>
+              <SelectItem value="tempo">Mais Antigo</SelectItem>
+            </SelectContent>
+          </Select>
 
         {/* Date Filter */}
-        <Popover open={datePopoverOpen} onOpenChange={setDatePopoverOpen}>
-          <PopoverTrigger asChild>
-            <Button variant="outline" className="w-full sm:w-auto justify-start text-left font-normal gap-2 h-9">
-              <CalendarIcon className="w-4 h-4 text-muted-foreground" />
-              <span className="truncate text-sm">{getDateLabel()}</span>
-              {(dateFrom || dateTo) && (
-                <X className="w-3.5 h-3.5 ml-auto text-muted-foreground hover:text-foreground shrink-0"
-                  onClick={(e) => { e.stopPropagation(); setDateFrom(undefined); setDateTo(undefined); setDatePreset("all"); }} />
-              )}
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-auto p-0" align="end" sideOffset={8}>
-            <div className="flex flex-col sm:flex-row">
-              <div className="border-b sm:border-b-0 sm:border-r border-border p-3 sm:w-[170px] max-h-[280px] overflow-y-auto">
-                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2 px-1">Período</p>
-                <div className="space-y-0.5">
-                  <button className={`w-full text-left text-sm px-2 py-1.5 rounded-md transition-colors ${datePreset === "all" ? "bg-primary text-primary-foreground" : "hover:bg-muted"}`}
-                    onClick={() => { applyDatePreset("all"); setDatePopoverOpen(false); }}>Todas as datas</button>
-                  {DATE_PRESETS.map((p) => (
-                    <button key={p.value}
-                      className={`w-full text-left text-sm px-2 py-1.5 rounded-md transition-colors ${datePreset === p.value ? "bg-primary text-primary-foreground" : "hover:bg-muted"}`}
-                      onClick={() => { applyDatePreset(p.value); setDatePopoverOpen(false); }}>{p.label}</button>
-                  ))}
+          <Popover open={datePopoverOpen} onOpenChange={setDatePopoverOpen}>
+            <PopoverTrigger asChild>
+              <Button variant="outline" className="flex-1 sm:flex-none justify-start text-left font-normal gap-1.5 h-8 sm:h-9 text-xs">
+                <CalendarIcon className="w-3.5 h-3.5 text-muted-foreground" />
+                <span className="truncate">{getDateLabel()}</span>
+                {(dateFrom || dateTo) && (
+                  <X className="w-3 h-3 ml-auto text-muted-foreground hover:text-foreground shrink-0"
+                    onClick={(e) => { e.stopPropagation(); setDateFrom(undefined); setDateTo(undefined); setDatePreset("all"); }} />
+                )}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0" align="end" sideOffset={8}>
+              <div className="flex flex-col sm:flex-row">
+                <div className="border-b sm:border-b-0 sm:border-r border-border p-2 sm:w-[160px] max-h-[260px] overflow-y-auto">
+                  <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-1.5 px-1">Período</p>
+                  <div className="space-y-0.5">
+                    <button className={`w-full text-left text-xs px-2 py-1.5 rounded-md transition-colors ${datePreset === "all" ? "bg-primary text-primary-foreground" : "hover:bg-muted"}`}
+                      onClick={() => { applyDatePreset("all"); setDatePopoverOpen(false); }}>Todas</button>
+                    {DATE_PRESETS.map((p) => (
+                      <button key={p.value}
+                        className={`w-full text-left text-xs px-2 py-1.5 rounded-md transition-colors ${datePreset === p.value ? "bg-primary text-primary-foreground" : "hover:bg-muted"}`}
+                        onClick={() => { applyDatePreset(p.value); setDatePopoverOpen(false); }}>{p.label}</button>
+                    ))}
+                  </div>
+                </div>
+                <div className="p-2">
+                  <Calendar mode="range"
+                    selected={dateFrom && dateTo ? { from: dateFrom, to: dateTo } : undefined}
+                    onSelect={(range) => {
+                      setDateFrom(range?.from ? startOfDay(range.from) : undefined);
+                      setDateTo(range?.to ? endOfDay(range.to) : undefined);
+                      setDatePreset("custom");
+                      if (range?.from && range?.to) setDatePopoverOpen(false);
+                    }}
+                    numberOfMonths={1} locale={ptBR} className="pointer-events-auto" />
+                  <div className="flex justify-end mt-1.5 pt-1.5 border-t border-border">
+                    <Button variant="outline" size="sm" className="h-7 text-xs" onClick={() => { setDateFrom(undefined); setDateTo(undefined); setDatePreset("all"); setDatePopoverOpen(false); }}>Limpar</Button>
+                  </div>
                 </div>
               </div>
-              <div className="p-3">
-                <Calendar mode="range"
-                  selected={dateFrom && dateTo ? { from: dateFrom, to: dateTo } : undefined}
-                  onSelect={(range) => {
-                    setDateFrom(range?.from ? startOfDay(range.from) : undefined);
-                    setDateTo(range?.to ? endOfDay(range.to) : undefined);
-                    setDatePreset("custom");
-                    if (range?.from && range?.to) setDatePopoverOpen(false);
-                  }}
-                  numberOfMonths={1} locale={ptBR} className="pointer-events-auto" />
-                <div className="flex justify-end gap-2 mt-2 pt-2 border-t border-border">
-                  <Button variant="outline" size="sm" onClick={() => { setDateFrom(undefined); setDateTo(undefined); setDatePreset("all"); setDatePopoverOpen(false); }}>Limpar</Button>
-                </div>
-              </div>
-            </div>
-          </PopoverContent>
-        </Popover>
+            </PopoverContent>
+          </Popover>
+        </div>
       </div>
 
       {/* Proposals */}
@@ -188,34 +191,34 @@ const DashboardPipeline = ({ proposals, onUpdateStatus, onViewProposal, onExport
           ) : (
             <>
               {/* Mobile */}
-              <div className="block md:hidden space-y-0 divide-y divide-border">
+               <div className="block md:hidden space-y-0 divide-y divide-border">
                 {filtered.map((p) => {
                   const sc = STATUS_CONFIG[p.status] || STATUS_CONFIG.nova;
                   const priority = getPriority(p);
                   const pc = PRIORITY_CONFIG[priority];
                   const days = daysSince(p.created_at);
                   return (
-                    <div key={p.id} className="p-3 space-y-2.5">
-                      <div className="flex items-start justify-between gap-2">
+                    <div key={p.id} className="px-2.5 py-2 space-y-1.5">
+                      <div className="flex items-start justify-between gap-1.5">
                         <div className="min-w-0 flex-1">
-                          <div className="flex items-center gap-1.5">
-                            <div className={`w-2 h-2 rounded-full shrink-0 ${pc.dot}`} />
-                            <p className="font-semibold text-[13px] truncate">{p.customer_name}</p>
+                          <div className="flex items-center gap-1">
+                            <div className={`w-1.5 h-1.5 rounded-full shrink-0 ${pc.dot}`} />
+                            <p className="font-semibold text-xs truncate">{p.customer_name}</p>
                           </div>
-                          <p className="text-[11px] text-muted-foreground mt-0.5 truncate">
+                          <p className="text-[10px] text-muted-foreground truncate">
                             {p.pool_models?.name || "N/A"} · {p.customer_city}
                           </p>
-                          <p className="text-[10px] text-muted-foreground">
+                          <p className="text-[9px] text-muted-foreground">
                             {new Date(p.created_at).toLocaleDateString("pt-BR")} · {days}d
                           </p>
                         </div>
-                        <span className="font-bold text-primary text-sm whitespace-nowrap">
+                        <span className="font-bold text-primary text-xs whitespace-nowrap">
                           {formatCurrency(p.total_price)}
                         </span>
                       </div>
-                      <div className="flex items-center justify-between gap-2">
+                      <div className="flex items-center justify-between gap-1.5">
                         <Select value={p.status} onValueChange={(v) => onUpdateStatus(p.id, v as ProposalStatus)}>
-                          <SelectTrigger className={`w-[130px] h-9 text-xs font-medium border ${sc.className}`}>
+                          <SelectTrigger className={`w-[110px] h-7 text-[10px] font-medium border ${sc.className}`}>
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
@@ -224,12 +227,12 @@ const DashboardPipeline = ({ proposals, onUpdateStatus, onViewProposal, onExport
                             ))}
                           </SelectContent>
                         </Select>
-                        <div className="flex gap-2">
-                          <Button size="sm" variant="outline" className="h-9 w-9 p-0" onClick={() => onViewProposal(p)}>
-                            <Eye className="w-4 h-4" />
+                        <div className="flex gap-1">
+                          <Button size="sm" variant="outline" className="h-7 w-7 p-0" onClick={() => onViewProposal(p)}>
+                            <Eye className="w-3.5 h-3.5" />
                           </Button>
-                          <Button size="sm" variant="outline" className="h-9 w-9 p-0" onClick={() => onExportPDF(p)}>
-                            <Download className="w-4 h-4" />
+                          <Button size="sm" variant="outline" className="h-7 w-7 p-0" onClick={() => onExportPDF(p)}>
+                            <Download className="w-3.5 h-3.5" />
                           </Button>
                         </div>
                       </div>
