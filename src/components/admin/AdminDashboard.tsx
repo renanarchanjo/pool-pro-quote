@@ -201,17 +201,9 @@ const AdminDashboard = () => {
     <div className="space-y-3 md:space-y-6">
       {/* Header */}
       <div className="space-y-2">
-        <div className="flex items-center justify-between gap-2">
-          <div className="min-w-0 flex-1">
-            <p className="text-sm md:text-base text-muted-foreground truncate">
-              Olá, <span className="font-bold text-foreground">{profile?.full_name || "Lojista"}</span>
-            </p>
-          </div>
-          <Button onClick={handleExportPDF} variant="outline" size="sm" className="h-8 shrink-0 text-xs">
-            <Download className="w-3.5 h-3.5 mr-1" />
-            PDF
-          </Button>
-        </div>
+        <p className="text-sm md:text-base text-muted-foreground truncate">
+          Olá, <span className="font-bold text-foreground">{profile?.full_name || "Lojista"}</span>
+        </p>
         <div className="flex items-center gap-1.5 flex-wrap">
           {isOwner && teamMembers.length > 1 && (
             <Select value={filterMember} onValueChange={setFilterMember}>
@@ -259,6 +251,10 @@ const AdminDashboard = () => {
               />
             </PopoverContent>
           </Popover>
+          <Button onClick={handleExportPDF} variant="outline" size="sm" className="h-8 shrink-0 text-xs">
+            <Download className="w-3.5 h-3.5 mr-1" />
+            PDF
+          </Button>
         </div>
       </div>
 
