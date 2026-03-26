@@ -1265,6 +1265,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      store_exists: { Args: { _store_id: string }; Returns: boolean }
     }
     Enums: {
       app_role: "owner" | "seller" | "super_admin"
