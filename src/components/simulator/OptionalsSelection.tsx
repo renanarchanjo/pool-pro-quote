@@ -40,9 +40,10 @@ interface OptionalsSelectionProps {
   onConfirm: (selectedIds: string[]) => void;
   onBack: () => void;
   model: any;
+  includedItemsTotal?: number;
 }
 
-const OptionalsSelection = ({ optionals, modelOptionals = [], selectedOptionals: initialSelected, onConfirm, onBack, model }: OptionalsSelectionProps) => {
+const OptionalsSelection = ({ optionals, modelOptionals = [], selectedOptionals: initialSelected, onConfirm, onBack, model, includedItemsTotal = 0 }: OptionalsSelectionProps) => {
   const [selected, setSelected] = useState<Record<string, string[]>>({});
   const [selectedModelOpts, setSelectedModelOpts] = useState<string[]>([]);
   const [groups, setGroups] = useState<OptionalGroup[]>([]);
@@ -111,7 +112,7 @@ const OptionalsSelection = ({ optionals, modelOptionals = [], selectedOptionals:
   };
 
   const calculateTotal = () => {
-    let total = model.base_price;
+    let total = model.base_price + includedItemsTotal;
     Object.values(selected).flat().forEach((optId) => {
       const optional = optionals.find((o) => o.id === optId);
       if (optional) total += optional.price;

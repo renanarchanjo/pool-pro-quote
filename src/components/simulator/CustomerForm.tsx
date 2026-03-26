@@ -18,9 +18,10 @@ interface CustomerFormProps {
   onBack: () => void;
   model: any;
   optionals: any[];
+  includedItemsTotal?: number;
 }
 
-const CustomerForm = ({ onSubmit, onBack, model, optionals }: CustomerFormProps) => {
+const CustomerForm = ({ onSubmit, onBack, model, optionals, includedItemsTotal = 0 }: CustomerFormProps) => {
   const [loading, setLoading] = useState(false);
   const [uf, setUf] = useState("");
   const [city, setCity] = useState("");
@@ -57,7 +58,7 @@ const CustomerForm = ({ onSubmit, onBack, model, optionals }: CustomerFormProps)
     fetchCities();
   }, [uf]);
 
-  const totalPrice = model.base_price + optionals.reduce((sum: number, opt: any) => sum + opt.price, 0);
+  const totalPrice = model.base_price + includedItemsTotal + optionals.reduce((sum: number, opt: any) => sum + opt.price, 0);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

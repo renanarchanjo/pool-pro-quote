@@ -95,6 +95,7 @@ const PoolSimulator = ({ onBack }: PoolSimulatorProps) => {
   const [customerData, setCustomerData] = useState<CustomerData | null>(null);
   const [proposalId, setProposalId] = useState<string | null>(null);
   const [showCongrats, setShowCongrats] = useState(false);
+  const [includedItemsTotal, setIncludedItemsTotal] = useState(0);
 
   // Store settings for proposal branding
   const [storeSettings, setStoreSettings] = useState<any>(null);
@@ -187,6 +188,18 @@ const PoolSimulator = ({ onBack }: PoolSimulatorProps) => {
     }
 
     setSelectedModel(model);
+
+    // Fetch included items total for selected model
+    const fetchInclTotal = async () => {
+      const { data } = await supabase
+        .from("model_included_items")
+        .select("price")
+        .eq("model_id", model.id)
+        .eq("active", true);
+      setIncludedItemsTotal((data || []).reduce((sum, item) => sum + Number(item.price), 0));
+    };
+    fetchInclTotal();
+
     setStep(2);
   };
 
@@ -216,8 +229,17 @@ const PoolSimulator = ({ onBack }: PoolSimulatorProps) => {
 
       const allSelectedOpts = [...selectedGeneralOpts, ...selectedModelOpts];
 
+      // Fetch included items total for this model
+      const { data: inclItems } = await supabase
+        .from("model_included_items")
+        .select("price")
+        .eq("model_id", selectedModel.id)
+        .eq("active", true);
+      const inclTotal = (inclItems || []).reduce((sum, item) => sum + Number(item.price), 0);
+      setIncludedItemsTotal(inclTotal);
+
       const optionalsPrice = allSelectedOpts.reduce((sum, opt) => sum + opt.price, 0);
-      const totalPrice = selectedModel.base_price + optionalsPrice;
+      const totalPrice = selectedModel.base_price + inclTotal + optionalsPrice;
 
       const { error } = await supabase
         .from("proposals")
@@ -256,6 +278,7 @@ const PoolSimulator = ({ onBack }: PoolSimulatorProps) => {
     setOptionals([]);
     setShowCongrats(false);
     setStoreSettings(null);
+    setIncludedItemsTotal(0);
   };
 
   if (loading) {
@@ -306,6 +329,7 @@ const PoolSimulator = ({ onBack }: PoolSimulatorProps) => {
               brandName={brand?.name}
               brandPartnerId={brand?.partner_id}
               partners={partners}
+              includedItemsTotal={includedItemsTotal}
             />
           );
         })()}
@@ -382,6 +406,7 @@ const PoolSimulator = ({ onBack }: PoolSimulatorProps) => {
             onConfirm={handleOptionalsConfirm}
             onBack={() => setStep(1)}
             model={selectedModel}
+            includedItemsTotal={includedItemsTotal}
           />
         )}
 
@@ -394,6 +419,7 @@ const PoolSimulator = ({ onBack }: PoolSimulatorProps) => {
               ...optionals.filter(opt => selectedOptionals.includes(opt.id)),
               ...modelOptionals.filter((opt: any) => selectedOptionals.includes(opt.id)).map((o: any) => ({ name: o.name, price: o.price, id: o.id, description: "", group_id: "", warning_note: null })),
             ]}
+            includedItemsTotal={includedItemsTotal}
           />
         )}
       </main>
