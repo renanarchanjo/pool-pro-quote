@@ -198,20 +198,26 @@ const AdminDashboard = () => {
   }
 
   return (
-    <div className="space-y-4 md:space-y-6">
-      {/* Header - excluded from PDF */}
-      <div className="flex items-center justify-between gap-3">
-        <div className="min-w-0 flex-1">
-          <h1 className="text-lg sm:text-xl md:text-3xl font-bold truncate">Painel Comercial</h1>
-          <p className="text-muted-foreground text-xs sm:text-sm truncate">
-            Olá, <span className="font-bold text-foreground">{profile?.full_name || "Lojista"}</span>
-          </p>
+    <div className="space-y-3 md:space-y-6">
+      {/* Header */}
+      <div className="space-y-2">
+        <div className="flex items-center justify-between gap-2">
+          <div className="min-w-0 flex-1">
+            <h1 className="text-lg md:text-3xl font-bold truncate">Dashboard</h1>
+            <p className="text-muted-foreground text-[11px] sm:text-sm truncate">
+              Olá, <span className="font-bold text-foreground">{profile?.full_name || "Lojista"}</span>
+            </p>
+          </div>
+          <Button onClick={handleExportPDF} variant="outline" size="sm" className="h-8 shrink-0 text-xs">
+            <Download className="w-3.5 h-3.5 mr-1" />
+            PDF
+          </Button>
         </div>
-        <div className="flex items-center gap-2 shrink-0 flex-wrap justify-end">
+        <div className="flex items-center gap-1.5 flex-wrap">
           {isOwner && teamMembers.length > 1 && (
             <Select value={filterMember} onValueChange={setFilterMember}>
-              <SelectTrigger className="h-8 w-[150px] text-xs">
-                <SelectValue placeholder="Filtrar membro" />
+              <SelectTrigger className="h-8 w-[120px] sm:w-[150px] text-xs">
+                <SelectValue placeholder="Membro" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">Todos</SelectItem>
@@ -222,7 +228,7 @@ const AdminDashboard = () => {
             </Select>
           )}
           <Select value={pdfDatePreset} onValueChange={applyPdfPreset}>
-            <SelectTrigger className="h-8 w-[130px] text-xs">
+            <SelectTrigger className="h-8 w-[110px] sm:w-[130px] text-xs">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -248,17 +254,12 @@ const AdminDashboard = () => {
                   setPdfDatePreset("custom");
                   if (range?.from && range?.to) setCalendarOpen(false);
                 }}
-                numberOfMonths={2}
+                numberOfMonths={1}
                 locale={ptBR}
-                className={cn("p-3 pointer-events-auto")}
+                className={cn("p-2 pointer-events-auto")}
               />
             </PopoverContent>
           </Popover>
-          <Button onClick={handleExportPDF} variant="outline" size="sm" className="h-8 shrink-0">
-            <Download className="w-4 h-4 mr-1 sm:mr-2" />
-            <span className="hidden sm:inline">Exportar PDF</span>
-            <span className="sm:hidden">PDF</span>
-          </Button>
         </div>
       </div>
 
@@ -273,14 +274,14 @@ const AdminDashboard = () => {
       </div>
 
       {/* On-screen interactive dashboard */}
-      <div className="space-y-4 md:space-y-6">
+      <div className="space-y-3 md:space-y-6">
         {/* (A) KPIs */}
         <div style={{ pageBreakInside: "avoid" }}>
           <DashboardKPIs proposals={filteredProposals} role={role} commissionPercent={commissionPercent} />
         </div>
 
         {/* (B) Funnel + (D) Alerts */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 md:gap-4" style={{ pageBreakInside: "avoid" }}>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-2 md:gap-4" style={{ pageBreakInside: "avoid" }}>
           <DashboardFunnel proposals={filteredProposals} />
           <DashboardAlerts proposals={filteredProposals} onSelectProposal={setViewingProposal} />
         </div>
