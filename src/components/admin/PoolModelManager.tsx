@@ -85,6 +85,7 @@ const PoolModelManager = () => {
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState<string | null>(null);
   const [formTab, setFormTab] = useState("dados");
+  const [saving, setSaving] = useState(false);
 
   // Form state
   const [formData, setFormData] = useState({
