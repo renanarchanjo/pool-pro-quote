@@ -95,6 +95,7 @@ const PoolSimulator = ({ onBack }: PoolSimulatorProps) => {
   const [customerData, setCustomerData] = useState<CustomerData | null>(null);
   const [proposalId, setProposalId] = useState<string | null>(null);
   const [showCongrats, setShowCongrats] = useState(false);
+  const [includedItemsTotal, setIncludedItemsTotal] = useState(0);
 
   // Store settings for proposal branding
   const [storeSettings, setStoreSettings] = useState<any>(null);
@@ -216,8 +217,17 @@ const PoolSimulator = ({ onBack }: PoolSimulatorProps) => {
 
       const allSelectedOpts = [...selectedGeneralOpts, ...selectedModelOpts];
 
+      // Fetch included items total for this model
+      const { data: inclItems } = await supabase
+        .from("model_included_items")
+        .select("price")
+        .eq("model_id", selectedModel.id)
+        .eq("active", true);
+      const inclTotal = (inclItems || []).reduce((sum, item) => sum + Number(item.price), 0);
+      setIncludedItemsTotal(inclTotal);
+
       const optionalsPrice = allSelectedOpts.reduce((sum, opt) => sum + opt.price, 0);
-      const totalPrice = selectedModel.base_price + optionalsPrice;
+      const totalPrice = selectedModel.base_price + inclTotal + optionalsPrice;
 
       const { error } = await supabase
         .from("proposals")
