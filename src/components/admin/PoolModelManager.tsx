@@ -842,8 +842,29 @@ const PoolModelManager = () => {
                       </div>
                     </Card>
 
+                    {/* Not included items */}
+                    <div className="pt-4 border-t">
+                      {renderArrayField("Itens Não Inclusos", "not_included_items", "newNotIncluded", "Ex: Aquecedor solar")}
+                    </div>
+
+                    {/* Templates salvos */}
+                    {templates.length > 0 && (
+                      <div className="flex flex-wrap gap-2 items-center">
+                        <span className="text-xs text-muted-foreground">Templates salvos:</span>
+                        {templates.map((t) => (
+                          <Badge key={t.id} variant="secondary" className="cursor-pointer gap-1" onClick={() => handleDeleteTemplate(t.id)}>
+                            {t.name} ({t.items.length}) <X className="w-3 h-3" />
+                          </Badge>
+                        ))}
+                      </div>
+                    )}
+
+                    {/* Action buttons */}
                     <div className="flex flex-wrap gap-2">
-                      <Button type="button" onClick={handleSaveIncludedToModel} className="gradient-primary text-white">
+                      <Button type="button" onClick={handleSubmit as any} className="gradient-primary text-white">
+                        Salvar
+                      </Button>
+                      <Button type="button" onClick={handleSaveIncludedToModel} variant="outline">
                         Sincronizar com Modelo
                       </Button>
                       {currentIncludedItems.length > 0 && !showSaveTemplate && (
@@ -864,26 +885,6 @@ const PoolModelManager = () => {
                         <Button variant="outline" onClick={() => { setShowSaveTemplate(false); setTemplateName(""); }}>Cancelar</Button>
                       </Card>
                     )}
-                    {templates.length > 0 && (
-                      <div className="flex flex-wrap gap-2 items-center">
-                        <span className="text-xs text-muted-foreground">Templates salvos:</span>
-                        {templates.map((t) => (
-                          <Badge key={t.id} variant="secondary" className="cursor-pointer gap-1" onClick={() => handleDeleteTemplate(t.id)}>
-                            {t.name} ({t.items.length}) <X className="w-3 h-3" />
-                          </Badge>
-                        ))}
-                      </div>
-                    )}
-                  </>
-                )}
-
-                {/* Not included items */}
-                <div className="pt-4 border-t">
-                  {renderArrayField("Itens Não Inclusos", "not_included_items", "newNotIncluded", "Ex: Aquecedor solar")}
-                  <div className="flex gap-2 mt-3">
-                    <Button type="button" onClick={handleSubmit as any} className="gradient-primary text-white">Salvar</Button>
-                  </div>
-                </div>
               </div>
             )}
           </TabsContent>
