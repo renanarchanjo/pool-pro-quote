@@ -123,7 +123,8 @@ const AdminDashboard = () => {
           stores (name)
         `)
         .eq("store_id", store.id)
-        .order("created_at", { ascending: false }),
+        .order("created_at", { ascending: false })
+        .limit(2000),
         supabase.from("lead_distributions").select("proposal_id, accepted_by, status").eq("store_id", store.id),
         (supabase as any).from("profiles").select("id, full_name").eq("store_id", store.id),
       ]);

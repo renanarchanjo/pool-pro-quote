@@ -223,23 +223,43 @@ const Auth = () => {
         }
 
         // Use edge function to create store (bypasses RLS when email not confirmed)
-        const { data: storeResult, error: storeError } = await supabase.functions.invoke("setup-store", {
-          body: {
-            userId: authData.user.id,
-            storeName: nomeFantasia || razaoSocial,
-            slug,
-            city,
-            state,
-            cnpj: cnpjDigits,
-            razaoSocial,
-            nomeFantasia,
-            phone: phone.replace(/\D/g, ""),
-            fullName: nomeFantasia || razaoSocial,
-          },
-        });
+        let storeSetupSuccess = false;
+        let storeSetupAttempt = 0;
+        const maxRetries = 2;
 
-        if (storeError) throw storeError;
-        if (storeResult?.error) throw new Error(storeResult.error);
+        while (!storeSetupSuccess && storeSetupAttempt <= maxRetries) {
+          try {
+            const { data: storeResult, error: storeError } = await supabase.functions.invoke("setup-store", {
+              body: {
+                userId: authData.user.id,
+                storeName: nomeFantasia || razaoSocial,
+                slug: storeSetupAttempt > 0 ? slug + '-' + storeSetupAttempt : slug,
+                city,
+                state,
+                cnpj: cnpjDigits,
+                razaoSocial,
+                nomeFantasia,
+                phone: phone.replace(/\D/g, ""),
+                fullName: nomeFantasia || razaoSocial,
+              },
+            });
+
+            if (storeError) throw storeError;
+            if (storeResult?.error) throw new Error(storeResult.error);
+            storeSetupSuccess = true;
+          } catch (retryErr: any) {
+            storeSetupAttempt++;
+            if (storeSetupAttempt > maxRetries) {
+              console.error("Setup store failed after retries:", retryErr);
+              toast.error("Conta criada, mas houve um erro ao configurar a loja. Faça login para tentar novamente.");
+              setPendingEmail(email);
+              setPendingConfirmation(true);
+              setResendCooldown(0);
+              return;
+            }
+            await new Promise(r => setTimeout(r, 1000));
+          }
+        }
 
         if (authData.session) {
           toast.success("Loja criada com sucesso!");

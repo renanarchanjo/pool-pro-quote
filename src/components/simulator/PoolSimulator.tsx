@@ -347,7 +347,21 @@ const PoolSimulator = ({ onBack }: PoolSimulatorProps) => {
           />
         )}
 
-        {step === 1 && (
+        {step === 1 && models.length === 0 ? (
+          <div className="text-center py-20 max-w-md mx-auto">
+            <div className="mx-auto w-16 h-16 rounded-full bg-muted flex items-center justify-center mb-4">
+              <span className="text-2xl">🏊</span>
+            </div>
+            <h2 className="text-xl font-bold mb-2">Nenhum modelo disponível</h2>
+            <p className="text-muted-foreground text-sm mb-6">
+              Esta loja ainda não cadastrou modelos de piscina. Tente outra loja ou volte mais tarde.
+            </p>
+            <Button variant="outline" onClick={() => setStep(0)}>
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Escolher outra loja
+            </Button>
+          </div>
+        ) : step === 1 ? (
           <ModelSelection
             models={models}
             brands={brands}
@@ -355,7 +369,7 @@ const PoolSimulator = ({ onBack }: PoolSimulatorProps) => {
             onSelect={handleModelSelect}
             onBack={() => setStep(0)}
           />
-        )}
+        ) : null}
 
         {step === 2 && selectedModel && (
           <OptionalsSelection

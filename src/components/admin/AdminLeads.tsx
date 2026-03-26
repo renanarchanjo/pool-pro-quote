@@ -129,7 +129,8 @@ const AdminLeads = () => {
         .from("lead_distributions")
         .select("*, proposals(customer_name, customer_city, customer_whatsapp, total_price, created_at, pool_models(name)), accepted_by_profile:profiles!accepted_by(full_name), assigned_to_profile:profiles!assigned_to(full_name)")
         .eq("store_id", store.id)
-        .order("created_at", { ascending: false }),
+        .order("created_at", { ascending: false })
+        .limit(2000),
       (supabase as any)
         .from("stores")
         .select("lead_limit_monthly, lead_price_excess, lead_plan_active")

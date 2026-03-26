@@ -80,8 +80,8 @@ const MatrizLeads = () => {
   const loadData = async () => {
     setLoading(true);
     const [leadsRes, distRes, storesRes] = await Promise.all([
-      supabase.from("proposals").select("*, pool_models(name), stores(name, city, state)").is("created_by", null).order("created_at", { ascending: false }),
-      (supabase as any).from("lead_distributions").select("*, stores(name, city)"),
+      supabase.from("proposals").select("*, pool_models(name), stores(name, city, state)").is("created_by", null).order("created_at", { ascending: false }).limit(3000),
+      (supabase as any).from("lead_distributions").select("*, stores(name, city)").limit(5000),
       (supabase as any).from("stores").select("id, name, city, state, lead_plan_active, lead_limit_monthly").order("name"),
     ]);
     if (leadsRes.data) setLeads(leadsRes.data as Lead[]);

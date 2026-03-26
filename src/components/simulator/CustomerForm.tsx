@@ -65,9 +65,18 @@ const CustomerForm = ({ onSubmit, onBack, model, optionals }: CustomerFormProps)
       toast.error("Preencha todos os campos");
       return;
     }
+    const whatsappDigits = formData.whatsapp.replace(/\D/g, "");
+    if (whatsappDigits.length < 10 || whatsappDigits.length > 11) {
+      toast.error("Informe um número de WhatsApp válido com DDD");
+      return;
+    }
+    if (formData.name.trim().length < 3) {
+      toast.error("Informe seu nome completo");
+      return;
+    }
     setLoading(true);
     try {
-      await onSubmit({ name: formData.name, city: `${city} / ${uf}`, whatsapp: formData.whatsapp });
+      await onSubmit({ name: formData.name.trim(), city: `${city} / ${uf}`, whatsapp: formData.whatsapp });
     } finally {
       setLoading(false);
     }
@@ -154,8 +163,16 @@ const CustomerForm = ({ onSubmit, onBack, model, optionals }: CustomerFormProps)
             <Label htmlFor="whatsapp">WhatsApp *</Label>
             <Input
               id="whatsapp"
+              type="tel"
+              inputMode="numeric"
               value={formData.whatsapp}
-              onChange={(e) => setFormData({ ...formData, whatsapp: e.target.value })}
+              onChange={(e) => {
+                const digits = e.target.value.replace(/\D/g, "").slice(0, 11);
+                const formatted = digits
+                  .replace(/^(\d{2})(\d)/, "($1) $2")
+                  .replace(/(\d{5})(\d)/, "$1-$2");
+                setFormData({ ...formData, whatsapp: formatted });
+              }}
               placeholder="(00) 00000-0000"
               required
             />
