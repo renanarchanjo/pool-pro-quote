@@ -19,7 +19,7 @@ import {
   AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 
-interface Brand { id: string; name: string; }
+interface Brand { id: string; name: string; partner_id?: string | null; }
 interface Category { id: string; name: string; brand_id: string | null; }
 interface ModelOptional {
   id: string;
@@ -87,7 +87,7 @@ const PoolModelManager = () => {
     if (!store) return;
     try {
       const [brandsRes, categoriesRes, modelsRes, optRes] = await Promise.all([
-        supabase.from("brands").select("id, name").eq("active", true).eq("store_id", store.id),
+        supabase.from("brands").select("id, name, partner_id").eq("active", true).eq("store_id", store.id),
         supabase.from("categories").select("id, name, brand_id").eq("active", true).eq("store_id", store.id),
         supabase.from("pool_models").select("*").eq("store_id", store.id).order("created_at", { ascending: false }),
         supabase.from("model_optionals").select("*").eq("store_id", store.id).order("display_order"),
