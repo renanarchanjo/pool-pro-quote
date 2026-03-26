@@ -142,7 +142,7 @@ const PoolModelManager = () => {
           id: t.id,
           name: t.name,
           items: (tmplItems || []).filter((i: any) => i.template_id === t.id).map((i: any) => ({
-            name: i.name, cost: Number(i.cost), margin_percent: Number(i.margin_percent),
+            name: i.name, quantity: Number(i.quantity) || 1, cost: Number(i.cost), margin_percent: Number(i.margin_percent),
             price: Number(i.price), display_order: i.display_order,
           })),
         }));
