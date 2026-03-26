@@ -307,6 +307,63 @@ export type Database = {
         }
         Relationships: []
       }
+      model_included_items: {
+        Row: {
+          active: boolean | null
+          cost: number
+          created_at: string | null
+          display_order: number | null
+          id: string
+          margin_percent: number
+          model_id: string
+          name: string
+          price: number
+          store_id: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          active?: boolean | null
+          cost?: number
+          created_at?: string | null
+          display_order?: number | null
+          id?: string
+          margin_percent?: number
+          model_id: string
+          name: string
+          price?: number
+          store_id?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          active?: boolean | null
+          cost?: number
+          created_at?: string | null
+          display_order?: number | null
+          id?: string
+          margin_percent?: number
+          model_id?: string
+          name?: string
+          price?: number
+          store_id?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "model_included_items_model_id_fkey"
+            columns: ["model_id"]
+            isOneToOne: false
+            referencedRelation: "pool_models"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "model_included_items_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       model_optionals: {
         Row: {
           active: boolean | null
