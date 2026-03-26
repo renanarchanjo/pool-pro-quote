@@ -370,7 +370,7 @@ const PoolModelManager = () => {
       const margin = inclForm.margin_percent ? parseFloat(inclForm.margin_percent) : 0;
       const totalPrice = inclForm.price ? parseFloat(inclForm.price) : 0;
       const data = {
-        model_id: editing,
+        model_id: modelId,
         store_id: store!.id,
         name: inclForm.name,
         quantity: qty,
@@ -390,7 +390,7 @@ const PoolModelManager = () => {
       }
       setInclForm({ name: "", quantity: "1", cost: "", margin_percent: "", price: "" });
       setEditingIncl(null);
-      await syncIncludedItemsToModel(editing!);
+      await syncIncludedItemsToModel(modelId);
       loadData();
     } catch { toast.error("Erro ao salvar item incluso"); }
   };
