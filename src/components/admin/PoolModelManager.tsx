@@ -214,8 +214,9 @@ const PoolModelManager = () => {
         if (error) throw error;
         toast.success("Modelo atualizado");
       } else {
-        const { error } = await supabase.from("pool_models").insert(data);
+        const { data: newModel, error } = await supabase.from("pool_models").insert(data).select("id").single();
         if (error) throw error;
+        setEditing(newModel.id);
         toast.success("Modelo criado");
       }
       resetForm(); loadData();
