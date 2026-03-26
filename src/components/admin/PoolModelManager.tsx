@@ -214,8 +214,9 @@ const PoolModelManager = () => {
         if (error) throw error;
         toast.success("Modelo atualizado");
       } else {
-        const { error } = await supabase.from("pool_models").insert(data);
+        const { data: newModel, error } = await supabase.from("pool_models").insert(data).select("id").single();
         if (error) throw error;
+        setEditing(newModel.id);
         toast.success("Modelo criado");
       }
       resetForm(); loadData();
@@ -514,11 +515,46 @@ const PoolModelManager = () => {
       <Card className="p-3 sm:p-6">
         <h2 className="text-base sm:text-lg font-bold mb-2 sm:mb-3">{editing ? "Editar Modelo" : "Novo Modelo"}</h2>
 
-        <Tabs value={formTab} onValueChange={setFormTab}>
+        <Tabs value={formTab} onValueChange={async (tab) => {
+          if ((tab === "itens" || tab === "opcionais") && !editing) {
+            // Auto-save model before switching to items/optionals tabs
+            if (!formData.name.trim() || !formData.category_id) {
+              toast.error("Preencha o nome e selecione a categoria antes de continuar");
+              return;
+            }
+            if (!store) return;
+            try {
+              const data = {
+                category_id: formData.category_id, name: formData.name,
+                length: formData.length ? parseFloat(formData.length) : null,
+                width: formData.width ? parseFloat(formData.width) : null,
+                depth: formData.depth ? parseFloat(formData.depth) : null,
+                photo_url: formData.photo_url || null,
+                cost: formData.cost ? parseFloat(formData.cost) : 0,
+                margin_percent: formData.margin_percent ? parseFloat(formData.margin_percent) : 0,
+                base_price: parseFloat(formData.base_price) || 0,
+                delivery_days: parseInt(formData.delivery_days) || 30,
+                installation_days: parseInt(formData.installation_days) || 5,
+                payment_terms: formData.payment_terms,
+                notes: formData.notes || null,
+                differentials: formData.differentials,
+                included_items: [],
+                not_included_items: formData.not_included_items,
+                store_id: store.id,
+              };
+              const { data: newModel, error } = await supabase.from("pool_models").insert(data).select("id").single();
+              if (error) throw error;
+              setEditing(newModel.id);
+              toast.success("Modelo salvo automaticamente");
+              loadData();
+            } catch (e) { console.error(e); toast.error("Erro ao salvar modelo"); return; }
+          }
+          setFormTab(tab);
+        }}>
           <TabsList className="mb-3">
             <TabsTrigger value="dados" className="text-xs sm:text-sm">Dados</TabsTrigger>
-            <TabsTrigger value="itens" disabled={!editing} className="text-xs sm:text-sm">Itens Inclusos</TabsTrigger>
-            <TabsTrigger value="opcionais" disabled={!editing} className="text-xs sm:text-sm">Opcionais Dimensionados</TabsTrigger>
+            <TabsTrigger value="itens" disabled={!formData.category_id} className="text-xs sm:text-sm">Itens Inclusos</TabsTrigger>
+            <TabsTrigger value="opcionais" disabled={!formData.category_id} className="text-xs sm:text-sm">Opcionais Dimensionados</TabsTrigger>
           </TabsList>
 
           {/* TAB: Dados */}
