@@ -614,9 +614,25 @@ const PoolModelManager = () => {
               <p className="text-muted-foreground text-center py-8">Salve o modelo primeiro para gerenciar itens inclusos.</p>
             ) : (
               <div className="space-y-4">
-                <p className="text-sm text-muted-foreground">
-                  Cadastre cada item incluso com custo, margem e preço de venda. Na proposta, apenas o nome do item será exibido ao cliente.
-                </p>
+                {/* Template actions */}
+                <div className="flex flex-wrap items-center gap-2">
+                  <p className="text-sm text-muted-foreground flex-1">
+                    Cadastre cada item incluso com custo, margem e preço. Na proposta, apenas o nome será exibido.
+                  </p>
+                  {templates.length > 0 && (
+                    <Select onValueChange={handleApplyTemplate}>
+                      <SelectTrigger className="w-[220px] h-9">
+                        <FileDown className="w-4 h-4 mr-1 shrink-0" />
+                        <SelectValue placeholder="Aplicar Template..." />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {templates.map((t) => (
+                          <SelectItem key={t.id} value={t.id}>{t.name} ({t.items.length} itens)</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  )}
+                </div>
 
                 {/* Add/edit form */}
                 <Card className="p-4 bg-muted/30">
