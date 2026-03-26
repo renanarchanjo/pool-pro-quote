@@ -187,7 +187,10 @@ const PoolModelManager = () => {
     if (!store) { toast.error("Loja não encontrada"); return; }
     try {
       // Build included_items text array from DB items for proposal display
-      const inclNames = currentIncludedItems.map(i => i.name);
+      const inclNames = currentIncludedItems.map(i => {
+        const qty = Number(i.quantity) || 1;
+        return qty > 1 ? `${qty}x ${i.name}` : i.name;
+      });
       const data = {
         category_id: formData.category_id, name: formData.name,
         length: formData.length ? parseFloat(formData.length) : null,
