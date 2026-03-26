@@ -439,6 +439,7 @@ const PoolModelManager = () => {
         if (error) throw error;
       }
       toast.success(`Template "${tmpl.name}" aplicado com ${items.length} itens`);
+      await syncIncludedItemsToModel(editing);
       loadData();
     } catch { toast.error("Erro ao aplicar template"); }
   };
