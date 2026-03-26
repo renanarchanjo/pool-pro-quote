@@ -280,7 +280,7 @@ const PricingSection = () => {
               return (
                 <Card
                   key={lp.id}
-                  className={`p-6 text-center transition-all duration-300 ${
+                  className={`p-6 text-center transition-all duration-300 w-full sm:w-[280px] ${
                     isBest
                       ? "border-orange-400 shadow-lg ring-2 ring-orange-200 scale-[1.03]"
                       : "border-border/50 hover:shadow-card hover:border-orange-300"
