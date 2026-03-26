@@ -57,6 +57,7 @@ interface ProposalViewProps {
   brandName?: string | null;
   brandPartnerId?: string | null;
   partners?: Partner[];
+  includedItemsTotal?: number;
 }
 
 const ProposalView = ({
@@ -74,10 +75,12 @@ const ProposalView = ({
   brandName,
   brandPartnerId,
   partners = [],
+  includedItemsTotal = 0,
 }: ProposalViewProps) => {
   const hasAutoDownloaded = useRef(false);
+  const displayBasePrice = model.base_price + includedItemsTotal;
   const optionalsTotal = selectedOptionals.reduce((sum, opt) => sum + opt.price, 0);
-  const totalPrice = model.base_price + optionalsTotal;
+  const totalPrice = displayBasePrice + optionalsTotal;
   const today = new Date().toLocaleDateString("pt-BR");
   const validUntil = new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toLocaleDateString("pt-BR");
 
@@ -348,7 +351,7 @@ const ProposalView = ({
                     </p>
                   )}
                   <p style={{ fontSize: "13px", color: "#374151", margin: 0 }}>
-                    <strong>Valor base:</strong> {fmt(model.base_price)}
+                    <strong>Valor base:</strong> {fmt(displayBasePrice)}
                   </p>
                 </div>
               </div>
@@ -398,7 +401,7 @@ const ProposalView = ({
                   <tbody>
                     <tr style={{ borderBottom: "1px solid #f3f4f6" }}>
                       <td style={{ padding: "8px 0", color: "#6b7280" }}>Valor base</td>
-                      <td style={{ padding: "8px 0", textAlign: "right", color: "#111827" }}>{fmt(model.base_price)}</td>
+                      <td style={{ padding: "8px 0", textAlign: "right", color: "#111827" }}>{fmt(displayBasePrice)}</td>
                     </tr>
                     {optionalsTotal > 0 && (
                       <tr style={{ borderBottom: "1px solid #f3f4f6" }}>
