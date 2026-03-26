@@ -507,6 +507,7 @@ export type Database = {
           id: string
           logo_url: string | null
           name: string
+          ranking: number
           updated_at: string | null
         }
         Insert: {
@@ -518,6 +519,7 @@ export type Database = {
           id?: string
           logo_url?: string | null
           name: string
+          ranking?: number
           updated_at?: string | null
         }
         Update: {
@@ -529,6 +531,7 @@ export type Database = {
           id?: string
           logo_url?: string | null
           name?: string
+          ranking?: number
           updated_at?: string | null
         }
         Relationships: []
@@ -867,6 +870,42 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      store_partners: {
+        Row: {
+          created_at: string
+          id: string
+          partner_id: string
+          store_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          partner_id: string
+          store_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          partner_id?: string
+          store_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "store_partners_partner_id_fkey"
+            columns: ["partner_id"]
+            isOneToOne: false
+            referencedRelation: "partners"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "store_partners_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       store_settings: {
         Row: {
