@@ -47,6 +47,7 @@ interface ItemTemplate {
   id: string;
   name: string;
   items: { name: string; quantity: number; cost: number; margin_percent: number; price: number; display_order: number }[];
+  not_included_items: string[];
 }
 interface PoolModel {
   id: string;
