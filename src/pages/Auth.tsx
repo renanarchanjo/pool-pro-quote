@@ -23,7 +23,7 @@ const formatCNPJ = (value: string) => {
 const Auth = () => {
   useForceLightTheme();
   const [loading, setLoading] = useState(false);
-  const [isLogin, setIsLogin] = useState(true);
+  const [isLogin] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -185,24 +185,6 @@ const Auth = () => {
     setLoading(true);
 
     try {
-      if (isLogin) {
-        const { error } = await supabase.auth.signInWithPassword({
-          email,
-          password,
-        });
-
-        if (error) {
-          // If email not confirmed, show the confirmation screen
-          if (error.message?.toLowerCase().includes("email not confirmed")) {
-            setPendingEmail(email);
-            setPendingConfirmation(true);
-            setResendCooldown(0);
-            return;
-          }
-          throw error;
-        }
-        toast.success("Login realizado com sucesso!");
-      } else {
         const slug = email.split('@')[0].toLowerCase().replace(/[^a-z0-9]/g, '') + '-' + Date.now();
         const cnpjDigits = cnpj.replace(/\D/g, "");
         
@@ -217,12 +199,10 @@ const Auth = () => {
         if (signUpError) throw signUpError;
         if (!authData.user) throw new Error("Erro ao criar usuário");
 
-        // Detect repeated signup (user already exists but unconfirmed)
         if (authData.user.identities && authData.user.identities.length === 0) {
           throw new Error("Este e-mail já está cadastrado. Verifique sua caixa de entrada ou faça login.");
         }
 
-        // Use edge function to create store (bypasses RLS when email not confirmed)
         let storeSetupSuccess = false;
         let storeSetupAttempt = 0;
         const maxRetries = 2;
@@ -269,7 +249,6 @@ const Auth = () => {
           setPendingConfirmation(true);
           setResendCooldown(60);
         }
-      }
     } catch (error: any) {
       console.error("Auth error:", error);
       toast.error(error.message || "Erro na autenticação");
@@ -330,7 +309,7 @@ const Auth = () => {
               type="button"
               onClick={() => {
                 setPendingConfirmation(false);
-                setIsLogin(true);
+                navigate("/login");
               }}
               className="text-sm text-primary hover:underline font-medium"
             >
@@ -344,7 +323,6 @@ const Auth = () => {
               className="w-full"
               onClick={() => {
                 setPendingConfirmation(false);
-                setIsLogin(false);
               }}
             >
               Voltar ao cadastro
@@ -363,9 +341,7 @@ const Auth = () => {
             <img src={logoDark} alt="SIMULAPOOL" className="h-20 object-contain" />
           </div>
           <h1 className="text-3xl font-display font-bold mb-2">Área do Lojista</h1>
-          <p className="text-muted-foreground">
-            {isLogin ? "Entre com suas credenciais" : "Crie sua loja agora"}
-          </p>
+          <p className="text-muted-foreground">Crie sua loja agora</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -531,7 +507,7 @@ const Auth = () => {
                 Processando...
               </>
             ) : (
-              <>{isLogin ? "Entrar" : "Criar Loja"}</>
+              <>Criar Loja</>
             )}
           </Button>
         </form>
@@ -539,11 +515,10 @@ const Auth = () => {
         <div className="mt-6 text-center">
           <button
             type="button"
-            onClick={() => setIsLogin(!isLogin)}
+            onClick={() => navigate("/login")}
             className="text-sm text-primary hover:underline font-medium"
-            disabled={loading}
           >
-            {isLogin ? "Ainda não tem loja? Cadastre-se grátis" : "Já tem conta? Entre"}
+            Já tem conta? Entre
           </button>
         </div>
 
