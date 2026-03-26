@@ -750,11 +750,38 @@ const PoolModelManager = () => {
                       </div>
                     </Card>
 
-                    <div className="flex gap-2">
+                    <div className="flex flex-wrap gap-2">
                       <Button type="button" onClick={handleSaveIncludedToModel} className="gradient-primary text-white">
                         Sincronizar com Modelo
                       </Button>
+                      {currentIncludedItems.length > 0 && !showSaveTemplate && (
+                        <Button type="button" variant="outline" onClick={() => setShowSaveTemplate(true)}>
+                          <Save className="w-4 h-4 mr-1" /> Salvar como Template
+                        </Button>
+                      )}
                     </div>
+                    {showSaveTemplate && (
+                      <Card className="p-3 bg-muted/30 flex flex-wrap items-end gap-2">
+                        <div className="flex-1 min-w-[200px]">
+                          <Label>Nome do Template</Label>
+                          <Input value={templateName} onChange={(e) => setTemplateName(e.target.value)} placeholder="Ex: Kit Básico Fibra" />
+                        </div>
+                        <Button onClick={handleSaveAsTemplate} className="gradient-primary text-white">
+                          <Save className="w-4 h-4 mr-1" /> Salvar
+                        </Button>
+                        <Button variant="outline" onClick={() => { setShowSaveTemplate(false); setTemplateName(""); }}>Cancelar</Button>
+                      </Card>
+                    )}
+                    {templates.length > 0 && (
+                      <div className="flex flex-wrap gap-2 items-center">
+                        <span className="text-xs text-muted-foreground">Templates salvos:</span>
+                        {templates.map((t) => (
+                          <Badge key={t.id} variant="secondary" className="cursor-pointer gap-1" onClick={() => handleDeleteTemplate(t.id)}>
+                            {t.name} ({t.items.length}) <X className="w-3 h-3" />
+                          </Badge>
+                        ))}
+                      </div>
+                    )}
                   </>
                 )}
 
