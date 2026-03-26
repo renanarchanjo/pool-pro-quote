@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate, Routes, Route } from "react-router-dom";
+import { useNavigate, useLocation, Routes, Route } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -24,6 +24,7 @@ import PendingLeadsAlert from "@/components/admin/PendingLeadsAlert";
 const Admin = () => {
   const [authLoading, setAuthLoading] = useState(true);
   const navigate = useNavigate();
+  const location = useLocation();
   const { store, role, loading: storeLoading } = useStoreData();
 
   useEffect(() => {
@@ -76,7 +77,27 @@ const Admin = () => {
         <div className="flex-1 flex flex-col min-w-0">
           <header className="flex items-center border-b border-border/50 bg-background px-3 md:px-4 h-[72px] pt-[env(safe-area-inset-top,0px)]">
             <SidebarTrigger className="h-12 w-12 md:h-10 md:w-10 [&>svg]:!w-6 [&>svg]:!h-6 md:[&>svg]:!w-5 md:[&>svg]:!h-5 text-primary shrink-0 rounded-xl" />
-            <span className="ml-2 text-xl font-semibold text-foreground md:hidden flex-1 min-w-0">Dashboard</span>
+            <span className="ml-2 text-xl font-semibold text-foreground md:hidden flex-1 min-w-0 truncate">
+              {(() => {
+                const path = location.pathname.replace("/admin", "").replace(/^\//, "");
+                const map: Record<string, string> = {
+                  "": "Dashboard",
+                  "gerar-proposta": "Gerar Proposta",
+                  "leads": "Leads",
+                  "faturas": "Faturas",
+                  "perfil": "Minha Conta",
+                  "marcas": "Marcas e Categorias",
+                  "modelos": "Modelos",
+                  "opcionais": "Opcionais",
+                  "equipe": "Minha Equipe",
+                  "lojistas": "Lojistas",
+                  "assinatura": "Assinatura",
+                  "performance": "Performance",
+                  "comissao": "Comissão",
+                };
+                return map[path] || "Dashboard";
+              })()}
+            </span>
           </header>
           <main className="flex-1 p-3 md:p-6 overflow-x-hidden overflow-y-auto safe-area-bottom">
             <PendingLeadsAlert />
