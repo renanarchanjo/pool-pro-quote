@@ -203,8 +203,7 @@ const AdminDashboard = () => {
       <div className="space-y-2">
         <div className="flex items-center justify-between gap-2">
           <div className="min-w-0 flex-1">
-            <h1 className="text-lg md:text-3xl font-bold truncate">Dashboard</h1>
-            <p className="text-muted-foreground text-[11px] sm:text-sm truncate">
+            <p className="text-sm md:text-base text-muted-foreground truncate">
               Olá, <span className="font-bold text-foreground">{profile?.full_name || "Lojista"}</span>
             </p>
           </div>
