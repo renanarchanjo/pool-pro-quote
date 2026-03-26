@@ -56,7 +56,7 @@ const Login = () => {
       <Card className="w-full max-w-md p-8 shadow-xl border-0 bg-white/95 backdrop-blur-md">
         <div className="flex flex-col items-center mb-8">
           <img src={logoHorizontal} alt="SIMULAPOOL" className="h-16 object-contain mb-4" />
-          <h1 className="text-xl font-bold text-primary font-display">Acesso Colaborador</h1>
+          <h1 className="text-xl font-bold text-primary font-display">Meu Acesso</h1>
           <p className="text-sm text-muted-foreground mt-1">Somente para usuários cadastrados</p>
         </div>
 
