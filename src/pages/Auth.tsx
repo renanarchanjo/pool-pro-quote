@@ -252,7 +252,6 @@ const Auth = () => {
           setPendingConfirmation(true);
           setResendCooldown(60);
         }
-      }
     } catch (error: any) {
       console.error("Auth error:", error);
       toast.error(error.message || "Erro na autenticação");
