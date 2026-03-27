@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import { toast } from "sonner";
-import logoHorizontal from "@/assets/simulapool-horizontal.png";
+import logoHorizontal from "@/assets/simulapool-horizontal-sm.png";
 import { useForceLightTheme } from "@/hooks/useForceLightTheme";
 
 const Login = () => {
