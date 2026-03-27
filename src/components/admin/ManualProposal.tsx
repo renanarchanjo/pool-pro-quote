@@ -412,7 +412,7 @@ const ManualProposal = () => {
             ) : (
               <div className="space-y-6">
                 {optionalGroups.map((group) => {
-                  const groupOpts = optionals.filter((o) => o.group_id === group.id);
+                  const groupOpts = optionals.filter((o) => o.group_id === group.id).sort((a, b) => a.price - b.price);
                   if (groupOpts.length === 0) return null;
                   return (
                     <div key={group.id}>
@@ -469,7 +469,7 @@ const ManualProposal = () => {
                   <div>
                     <h4 className="text-sm font-bold text-foreground mb-2">Outros</h4>
                     <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                      {optionals.filter((o) => !o.group_id || !optionalGroups.some((g) => g.id === o.group_id)).map((opt) => {
+                      {optionals.filter((o) => !o.group_id || !optionalGroups.some((g) => g.id === o.group_id)).sort((a, b) => a.price - b.price).map((opt) => {
                         const isEnabled = enabledOptionalIds.includes(opt.id);
                         const isSelected = selectedOptionalIds.includes(opt.id);
                         return (
