@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import logoHorizontal from "@/assets/simulapool-horizontal.png";
+import logoHorizontal from "@/assets/simulapool-horizontal-sm.png";
 
 const navLinks = [
   { label: "Simular Agora!", to: "/" },
@@ -46,7 +46,7 @@ const SiteHeader = () => {
               transform: entered ? 'translateX(0)' : 'translateX(-40px)',
             }}
           >
-            <img src={logoHorizontal} alt="SIMULAPOOL" className="h-16 md:h-16 object-contain" />
+            <img src={logoHorizontal} alt="SIMULAPOOL" width={192} height={64} className="h-16 md:h-16 object-contain" />
           </Link>
 
           {/* Desktop Nav - enters from right */}
