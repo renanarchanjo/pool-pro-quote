@@ -414,9 +414,9 @@ const PoolModelManager = () => {
   const handleDeleteIncl = async (id: string) => {
     try {
       await supabase.from("model_included_items").delete().eq("id", id);
+      setIncludedItems(prev => prev.filter(item => item.id !== id));
       toast.success("Item excluído");
       await syncIncludedItemsToModel(editing!);
-      loadData();
     } catch { toast.error("Erro ao excluir item"); }
   };
 
