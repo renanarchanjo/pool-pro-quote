@@ -785,13 +785,8 @@ const PoolModelManager = () => {
                   </div>
                   <div className="flex gap-2 mt-3">
                     <Button type="button" onClick={handleInclSubmit} className="gradient-primary text-white">
-                      <Plus className="w-4 h-4 mr-1" /> {editingIncl ? "Atualizar" : "Adicionar"}
+                      <Plus className="w-4 h-4 mr-1" /> Adicionar
                     </Button>
-                    {editingIncl && (
-                      <Button variant="outline" onClick={() => { setEditingIncl(null); setInclForm({ name: "", quantity: "1", cost: "", margin_percent: "", price: "" }); }}>
-                        Cancelar
-                      </Button>
-                    )}
                   </div>
                 </Card>
 
