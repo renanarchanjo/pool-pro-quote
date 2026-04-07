@@ -184,7 +184,9 @@ const PoolModelManager = () => {
   };
 
   // ---- Included items total for current model ----
-  const currentIncludedItems = editing ? includedItems.filter((i) => i.model_id === editing) : [];
+  const currentIncludedItems = editing
+    ? includedItems.filter((i) => i.model_id === editing).sort((a, b) => (a.display_order ?? 0) - (b.display_order ?? 0))
+    : [];
   const includedItemsTotal = useMemo(() => currentIncludedItems.reduce((sum, i) => sum + Number(i.price), 0), [currentIncludedItems]);
 
   // ---- Model CRUD ----
@@ -858,6 +860,7 @@ const PoolModelManager = () => {
                       <Table>
                         <TableHeader>
                           <TableRow>
+                            <TableHead className="w-[40px]"></TableHead>
                             <TableHead className="w-[60px] text-center">Qtd</TableHead>
                             <TableHead>Item</TableHead>
                             <TableHead className="text-right">Custo Unit.</TableHead>
@@ -884,6 +887,7 @@ const PoolModelManager = () => {
                               const inlineLucro = inlinePrice - inlineTotalCost;
                               return (
                                 <TableRow key={item.id} className="bg-primary/5">
+                                  <TableCell className="p-1"></TableCell>
                                   <TableCell className="p-1">
                                     <Input type="number" min="1" className="w-16 h-8 text-center" value={inlineInclForm.quantity}
                                       onChange={(e) => {
