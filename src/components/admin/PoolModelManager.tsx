@@ -1402,6 +1402,35 @@ const PoolModelManager = () => {
           </div>
         );
       })()}
+      {/* Dialog para nomear template */}
+      <Dialog open={showSaveTemplateDialog} onOpenChange={setShowSaveTemplateDialog}>
+        <DialogContent className="max-w-sm">
+          <DialogHeader>
+            <DialogTitle>Salvar Template</DialogTitle>
+          </DialogHeader>
+          <div>
+            <Label>Nome do Template</Label>
+            <Input
+              value={templateName}
+              onChange={(e) => setTemplateName(e.target.value)}
+              placeholder="Ex: Fibra Padrão"
+              autoFocus
+            />
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowSaveTemplateDialog(false)}>Cancelar</Button>
+            <Button
+              disabled={!templateName.trim()}
+              onClick={() => {
+                handleSaveAsTemplate(templateName.trim());
+                setShowSaveTemplateDialog(false);
+              }}
+            >
+              <Save className="w-4 h-4 mr-1" /> Salvar
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
