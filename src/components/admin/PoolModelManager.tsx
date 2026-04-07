@@ -811,10 +811,64 @@ const PoolModelManager = () => {
                         </TableHeader>
                         <TableBody>
                           {currentIncludedItems.map((item) => {
+                            const isInlineEditing = inlineEditIncl === item.id;
                             const qty = Number(item.quantity) || 1;
                             const unitCost = Number(item.cost);
                             const totalCost = qty * unitCost;
                             const lucro = Number(item.price) - totalCost;
+
+                            if (isInlineEditing) {
+                              const inlineQty = parseInt(inlineInclForm.quantity) || 1;
+                              const inlineUnitCost = parseFloat(inlineInclForm.cost) || 0;
+                              const inlineTotalCost = inlineQty * inlineUnitCost;
+                              const inlinePrice = parseFloat(inlineInclForm.price) || 0;
+                              const inlineLucro = inlinePrice - inlineTotalCost;
+                              return (
+                                <TableRow key={item.id} className="bg-primary/5">
+                                  <TableCell className="p-1">
+                                    <Input type="number" min="1" className="w-16 h-8 text-center" value={inlineInclForm.quantity}
+                                      onChange={(e) => {
+                                        const quantity = e.target.value;
+                                        const price = calcInclPrice(quantity, inlineInclForm.cost, inlineInclForm.margin_percent);
+                                        setInlineInclForm({ ...inlineInclForm, quantity, price });
+                                      }} />
+                                  </TableCell>
+                                  <TableCell className="p-1">
+                                    <Input className="h-8" value={inlineInclForm.name}
+                                      onChange={(e) => setInlineInclForm({ ...inlineInclForm, name: e.target.value })} />
+                                  </TableCell>
+                                  <TableCell className="p-1">
+                                    <Input type="number" step="0.01" className="w-24 h-8 text-right" value={inlineInclForm.cost}
+                                      onChange={(e) => {
+                                        const cost = e.target.value;
+                                        const price = calcInclPrice(inlineInclForm.quantity, cost, inlineInclForm.margin_percent);
+                                        setInlineInclForm({ ...inlineInclForm, cost, price });
+                                      }} />
+                                  </TableCell>
+                                  <TableCell className="text-right text-muted-foreground text-sm">R$ {fmt(inlineTotalCost)}</TableCell>
+                                  <TableCell className="p-1">
+                                    <Input type="number" step="0.1" className="w-20 h-8 text-right" value={inlineInclForm.margin_percent}
+                                      onChange={(e) => {
+                                        const margin = e.target.value;
+                                        const price = calcInclPrice(inlineInclForm.quantity, inlineInclForm.cost, margin);
+                                        setInlineInclForm({ ...inlineInclForm, margin_percent: margin, price });
+                                      }} />
+                                  </TableCell>
+                                  <TableCell className="p-1">
+                                    <Input type="number" step="0.01" className="w-28 h-8 text-right" value={inlineInclForm.price}
+                                      onChange={(e) => setInlineInclForm({ ...inlineInclForm, price: e.target.value })} />
+                                  </TableCell>
+                                  <TableCell className="text-right text-sm">{inlineLucro >= 0 ? <span className="text-emerald-600">R$ {fmt(inlineLucro)}</span> : <span className="text-destructive">R$ {fmt(inlineLucro)}</span>}</TableCell>
+                                  <TableCell className="text-right p-1">
+                                    <div className="flex gap-1 justify-end">
+                                      <Button variant="ghost" size="sm" className="text-primary hover:text-primary" onClick={handleInlineInclSave}><Save className="w-3.5 h-3.5" /></Button>
+                                      <Button variant="ghost" size="sm" onClick={() => setInlineEditIncl(null)}><X className="w-3.5 h-3.5" /></Button>
+                                    </div>
+                                  </TableCell>
+                                </TableRow>
+                              );
+                            }
+
                             return (
                               <TableRow key={item.id}>
                                 <TableCell className="text-center font-medium">{qty}</TableCell>
