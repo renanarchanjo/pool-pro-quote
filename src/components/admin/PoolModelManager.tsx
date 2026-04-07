@@ -921,6 +921,15 @@ const PoolModelManager = () => {
                                       onChange={(e) => setInlineInclForm({ ...inlineInclForm, name: e.target.value })} />
                                   </TableCell>
                                   <TableCell className="p-1">
+                                    <Select value={inlineInclForm.item_type} onValueChange={(v) => setInlineInclForm({ ...inlineInclForm, item_type: v })}>
+                                      <SelectTrigger className="h-8 w-[120px]"><SelectValue /></SelectTrigger>
+                                      <SelectContent>
+                                        <SelectItem value="material">🧱 Material</SelectItem>
+                                        <SelectItem value="mao_de_obra">🔧 M. Obra</SelectItem>
+                                      </SelectContent>
+                                    </Select>
+                                  </TableCell>
+                                  <TableCell className="p-1">
                                     <Input type="number" step="0.01" className="w-24 h-8 text-right" value={inlineInclForm.cost}
                                       onChange={(e) => {
                                         const cost = e.target.value;
