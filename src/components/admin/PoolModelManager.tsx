@@ -101,9 +101,12 @@ const PoolModelManager = () => {
   const [optForm, setOptForm] = useState({ name: "", description: "", cost: "", margin_percent: "", price: "" });
   const [editingOpt, setEditingOpt] = useState<string | null>(null);
 
-  // Included item form
+  // Included item form (for adding new items)
   const [inclForm, setInclForm] = useState({ name: "", quantity: "1", cost: "", margin_percent: "", price: "" });
   const [editingIncl, setEditingIncl] = useState<string | null>(null);
+  // Inline editing state (for editing existing items in-place)
+  const [inlineEditIncl, setInlineEditIncl] = useState<string | null>(null);
+  const [inlineInclForm, setInlineInclForm] = useState({ name: "", quantity: "1", cost: "", margin_percent: "", price: "" });
 
   // Template (single)
   const [template, setTemplate] = useState<ItemTemplate | null>(null);
@@ -421,8 +424,8 @@ const PoolModelManager = () => {
   };
 
   const handleEditIncl = (item: IncludedItem) => {
-    setEditingIncl(item.id);
-    setInclForm({
+    setInlineEditIncl(item.id);
+    setInlineInclForm({
       name: item.name,
       quantity: item.quantity?.toString() || "1",
       cost: item.cost?.toString() || "",
@@ -431,7 +434,33 @@ const PoolModelManager = () => {
     });
   };
 
-  // Auto-sync included_items text array on pool_models after any item change
+  const handleInlineInclSave = async () => {
+    if (!inlineEditIncl) return;
+    if (!inlineInclForm.name.trim()) { toast.error("Preencha o nome do item"); return; }
+    try {
+      const qty = parseInt(inlineInclForm.quantity) || 1;
+      const unitCost = inlineInclForm.cost ? parseFloat(inlineInclForm.cost) : 0;
+      const margin = inlineInclForm.margin_percent ? parseFloat(inlineInclForm.margin_percent) : 0;
+      const totalPrice = inlineInclForm.price ? parseFloat(inlineInclForm.price) : 0;
+      const existingItem = includedItems.find(i => i.id === inlineEditIncl);
+      const data = {
+        name: inlineInclForm.name,
+        quantity: qty,
+        cost: unitCost,
+        margin_percent: margin,
+        price: totalPrice,
+        display_order: existingItem?.display_order ?? 0,
+      };
+      const { error } = await supabase.from("model_included_items").update(data).eq("id", inlineEditIncl);
+      if (error) throw error;
+      setIncludedItems(prev => prev.map(item =>
+        item.id === inlineEditIncl ? { ...item, ...data } : item
+      ));
+      toast.success("Item atualizado");
+      setInlineEditIncl(null);
+      if (existingItem) await syncIncludedItemsToModel(existingItem.model_id);
+    } catch { toast.error("Erro ao salvar item incluso"); }
+  };
   const syncIncludedItemsToModel = async (modelId: string) => {
     try {
       const { data: items } = await supabase
@@ -756,13 +785,8 @@ const PoolModelManager = () => {
                   </div>
                   <div className="flex gap-2 mt-3">
                     <Button type="button" onClick={handleInclSubmit} className="gradient-primary text-white">
-                      <Plus className="w-4 h-4 mr-1" /> {editingIncl ? "Atualizar" : "Adicionar"}
+                      <Plus className="w-4 h-4 mr-1" /> Adicionar
                     </Button>
-                    {editingIncl && (
-                      <Button variant="outline" onClick={() => { setEditingIncl(null); setInclForm({ name: "", quantity: "1", cost: "", margin_percent: "", price: "" }); }}>
-                        Cancelar
-                      </Button>
-                    )}
                   </div>
                 </Card>
 
@@ -787,10 +811,64 @@ const PoolModelManager = () => {
                         </TableHeader>
                         <TableBody>
                           {currentIncludedItems.map((item) => {
+                            const isInlineEditing = inlineEditIncl === item.id;
                             const qty = Number(item.quantity) || 1;
                             const unitCost = Number(item.cost);
                             const totalCost = qty * unitCost;
                             const lucro = Number(item.price) - totalCost;
+
+                            if (isInlineEditing) {
+                              const inlineQty = parseInt(inlineInclForm.quantity) || 1;
+                              const inlineUnitCost = parseFloat(inlineInclForm.cost) || 0;
+                              const inlineTotalCost = inlineQty * inlineUnitCost;
+                              const inlinePrice = parseFloat(inlineInclForm.price) || 0;
+                              const inlineLucro = inlinePrice - inlineTotalCost;
+                              return (
+                                <TableRow key={item.id} className="bg-primary/5">
+                                  <TableCell className="p-1">
+                                    <Input type="number" min="1" className="w-16 h-8 text-center" value={inlineInclForm.quantity}
+                                      onChange={(e) => {
+                                        const quantity = e.target.value;
+                                        const price = calcInclPrice(quantity, inlineInclForm.cost, inlineInclForm.margin_percent);
+                                        setInlineInclForm({ ...inlineInclForm, quantity, price });
+                                      }} />
+                                  </TableCell>
+                                  <TableCell className="p-1">
+                                    <Input className="h-8" value={inlineInclForm.name}
+                                      onChange={(e) => setInlineInclForm({ ...inlineInclForm, name: e.target.value })} />
+                                  </TableCell>
+                                  <TableCell className="p-1">
+                                    <Input type="number" step="0.01" className="w-24 h-8 text-right" value={inlineInclForm.cost}
+                                      onChange={(e) => {
+                                        const cost = e.target.value;
+                                        const price = calcInclPrice(inlineInclForm.quantity, cost, inlineInclForm.margin_percent);
+                                        setInlineInclForm({ ...inlineInclForm, cost, price });
+                                      }} />
+                                  </TableCell>
+                                  <TableCell className="text-right text-muted-foreground text-sm">R$ {fmt(inlineTotalCost)}</TableCell>
+                                  <TableCell className="p-1">
+                                    <Input type="number" step="0.1" className="w-20 h-8 text-right" value={inlineInclForm.margin_percent}
+                                      onChange={(e) => {
+                                        const margin = e.target.value;
+                                        const price = calcInclPrice(inlineInclForm.quantity, inlineInclForm.cost, margin);
+                                        setInlineInclForm({ ...inlineInclForm, margin_percent: margin, price });
+                                      }} />
+                                  </TableCell>
+                                  <TableCell className="p-1">
+                                    <Input type="number" step="0.01" className="w-28 h-8 text-right" value={inlineInclForm.price}
+                                      onChange={(e) => setInlineInclForm({ ...inlineInclForm, price: e.target.value })} />
+                                  </TableCell>
+                                  <TableCell className="text-right text-sm">{inlineLucro >= 0 ? <span className="text-emerald-600">R$ {fmt(inlineLucro)}</span> : <span className="text-destructive">R$ {fmt(inlineLucro)}</span>}</TableCell>
+                                  <TableCell className="text-right p-1">
+                                    <div className="flex gap-1 justify-end">
+                                      <Button variant="ghost" size="sm" className="text-primary hover:text-primary" onClick={handleInlineInclSave}><Save className="w-3.5 h-3.5" /></Button>
+                                      <Button variant="ghost" size="sm" onClick={() => setInlineEditIncl(null)}><X className="w-3.5 h-3.5" /></Button>
+                                    </div>
+                                  </TableCell>
+                                </TableRow>
+                              );
+                            }
+
                             return (
                               <TableRow key={item.id}>
                                 <TableCell className="text-center font-medium">{qty}</TableCell>
