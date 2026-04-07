@@ -368,38 +368,55 @@ const PoolModelManager = () => {
       const unitCost = inclForm.cost ? parseFloat(inclForm.cost) : 0;
       const margin = inclForm.margin_percent ? parseFloat(inclForm.margin_percent) : 0;
       const totalPrice = inclForm.price ? parseFloat(inclForm.price) : 0;
-      const data = {
-        model_id: modelId,
-        store_id: store!.id,
-        name: inclForm.name,
-        quantity: qty,
-        cost: unitCost,
-        margin_percent: margin,
-        price: totalPrice,
-        display_order: currentIncludedItems.length,
-      };
+
       if (editingIncl) {
+        // Preserve existing display_order on edit
+        const existingItem = includedItems.find(i => i.id === editingIncl);
+        const data = {
+          name: inclForm.name,
+          quantity: qty,
+          cost: unitCost,
+          margin_percent: margin,
+          price: totalPrice,
+          display_order: existingItem?.display_order ?? 0,
+        };
         const { error } = await supabase.from("model_included_items").update(data).eq("id", editingIncl);
         if (error) throw error;
+        // Update local state in-place without full reload
+        setIncludedItems(prev => prev.map(item =>
+          item.id === editingIncl
+            ? { ...item, ...data }
+            : item
+        ));
         toast.success("Item atualizado");
       } else {
-        const { error } = await supabase.from("model_included_items").insert(data);
+        const data = {
+          model_id: modelId,
+          store_id: store!.id,
+          name: inclForm.name,
+          quantity: qty,
+          cost: unitCost,
+          margin_percent: margin,
+          price: totalPrice,
+          display_order: currentIncludedItems.length,
+        };
+        const { data: inserted, error } = await supabase.from("model_included_items").insert(data).select().single();
         if (error) throw error;
+        setIncludedItems(prev => [...prev, inserted as IncludedItem]);
         toast.success("Item adicionado");
       }
       setInclForm({ name: "", quantity: "1", cost: "", margin_percent: "", price: "" });
       setEditingIncl(null);
       await syncIncludedItemsToModel(modelId);
-      loadData();
     } catch { toast.error("Erro ao salvar item incluso"); }
   };
 
   const handleDeleteIncl = async (id: string) => {
     try {
       await supabase.from("model_included_items").delete().eq("id", id);
+      setIncludedItems(prev => prev.filter(item => item.id !== id));
       toast.success("Item excluído");
       await syncIncludedItemsToModel(editing!);
-      loadData();
     } catch { toast.error("Erro ao excluir item"); }
   };
 
