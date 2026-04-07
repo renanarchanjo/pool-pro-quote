@@ -984,6 +984,7 @@ const PoolModelManager = () => {
                                   </Badge>
                                 </TableCell>
                                 <TableCell className="text-right text-muted-foreground">R$ {fmt(unitCost)}</TableCell>
+                                <TableCell className="text-right text-muted-foreground">R$ {fmt(totalCost)}</TableCell>
                                 <TableCell className="text-right text-muted-foreground">{item.margin_percent}%</TableCell>
                                 <TableCell className="text-right font-medium">R$ {fmt(Number(item.price))}</TableCell>
                                 <TableCell className="text-right text-emerald-600">R$ {fmt(lucro)}</TableCell>
