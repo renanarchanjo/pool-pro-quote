@@ -100,15 +100,15 @@ const PoolModelManager = () => {
   });
 
   // Model optional form
-  const [optForm, setOptForm] = useState({ name: "", description: "", cost: "", margin_percent: "", price: "" });
+  const [optForm, setOptForm] = useState({ name: "", description: "", cost: "", margin_percent: "", price: "", item_type: "material" });
   const [editingOpt, setEditingOpt] = useState<string | null>(null);
 
   // Included item form (for adding new items)
-  const [inclForm, setInclForm] = useState({ name: "", quantity: "1", cost: "", margin_percent: "", price: "" });
+  const [inclForm, setInclForm] = useState({ name: "", quantity: "1", cost: "", margin_percent: "", price: "", item_type: "material" });
   const [editingIncl, setEditingIncl] = useState<string | null>(null);
   // Inline editing state (for editing existing items in-place)
   const [inlineEditIncl, setInlineEditIncl] = useState<string | null>(null);
-  const [inlineInclForm, setInlineInclForm] = useState({ name: "", quantity: "1", cost: "", margin_percent: "", price: "" });
+  const [inlineInclForm, setInlineInclForm] = useState({ name: "", quantity: "1", cost: "", margin_percent: "", price: "", item_type: "material" });
 
   // Drag-and-drop reorder state
   const [dragItemId, setDragItemId] = useState<string | null>(null);
