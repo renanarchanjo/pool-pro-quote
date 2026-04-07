@@ -155,7 +155,7 @@ const PoolModelManager = () => {
           not_included_items: t.not_included_items || [],
           items: (tmplItems || []).map((i: any) => ({
             name: i.name, quantity: Number(i.quantity) || 1, cost: Number(i.cost), margin_percent: Number(i.margin_percent),
-            price: Number(i.price), display_order: i.display_order,
+            price: Number(i.price), display_order: i.display_order, item_type: i.item_type || "material",
           })),
         });
       } else {
