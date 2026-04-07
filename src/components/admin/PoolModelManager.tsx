@@ -462,6 +462,7 @@ const PoolModelManager = () => {
         margin_percent: margin,
         price: totalPrice,
         display_order: existingItem?.display_order ?? 0,
+        item_type: inlineInclForm.item_type,
       };
       const { error } = await supabase.from("model_included_items").update(data).eq("id", inlineEditIncl);
       if (error) throw error;
@@ -477,12 +478,13 @@ const PoolModelManager = () => {
     try {
       const { data: items } = await supabase
         .from("model_included_items")
-        .select("name, quantity")
+        .select("name, quantity, item_type")
         .eq("model_id", modelId)
         .order("display_order");
       const inclNames = (items || []).map(i => {
         const qty = Number(i.quantity) || 1;
-        return qty > 1 ? `${qty}x ${i.name}` : i.name;
+        const prefix = i.item_type === "mao_de_obra" ? "[MO] " : "";
+        return qty > 1 ? `${qty}x ${prefix}${i.name}` : `${prefix}${i.name}`;
       });
       await supabase.from("pool_models").update({ included_items: inclNames }).eq("id", modelId);
     } catch (e) { console.error("Erro ao sincronizar itens inclusos:", e); }
