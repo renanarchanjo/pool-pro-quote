@@ -9,7 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Plus, Pencil, Loader2, X, Trash2, CheckSquare, Square, Copy, Save, FileDown } from "lucide-react";
+import { Plus, Pencil, Loader2, X, Trash2, CheckSquare, Square, Copy, Save, FileDown, GripVertical } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
@@ -107,6 +107,10 @@ const PoolModelManager = () => {
   // Inline editing state (for editing existing items in-place)
   const [inlineEditIncl, setInlineEditIncl] = useState<string | null>(null);
   const [inlineInclForm, setInlineInclForm] = useState({ name: "", quantity: "1", cost: "", margin_percent: "", price: "" });
+
+  // Drag-and-drop reorder state
+  const [dragItemId, setDragItemId] = useState<string | null>(null);
+  const [dragOverItemId, setDragOverItemId] = useState<string | null>(null);
 
   // Template (single)
   const [template, setTemplate] = useState<ItemTemplate | null>(null);
