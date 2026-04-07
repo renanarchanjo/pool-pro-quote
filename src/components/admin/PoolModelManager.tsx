@@ -853,7 +853,17 @@ const PoolModelManager = () => {
                       )}
                     </div>
                   </div>
-                  <div className="flex gap-2 mt-3">
+                  <div className="flex gap-3 mt-3 items-end">
+                    <div>
+                      <Label>Tipo</Label>
+                      <Select value={inclForm.item_type} onValueChange={(v) => setInclForm({ ...inclForm, item_type: v })}>
+                        <SelectTrigger className="w-[160px]"><SelectValue /></SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="material">🧱 Material</SelectItem>
+                          <SelectItem value="mao_de_obra">🔧 Mão de Obra</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
                     <Button type="button" onClick={handleInclSubmit} className="gradient-primary text-white">
                       <Plus className="w-4 h-4 mr-1" /> Adicionar
                     </Button>
