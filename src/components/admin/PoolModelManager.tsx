@@ -101,9 +101,12 @@ const PoolModelManager = () => {
   const [optForm, setOptForm] = useState({ name: "", description: "", cost: "", margin_percent: "", price: "" });
   const [editingOpt, setEditingOpt] = useState<string | null>(null);
 
-  // Included item form
+  // Included item form (for adding new items)
   const [inclForm, setInclForm] = useState({ name: "", quantity: "1", cost: "", margin_percent: "", price: "" });
   const [editingIncl, setEditingIncl] = useState<string | null>(null);
+  // Inline editing state (for editing existing items in-place)
+  const [inlineEditIncl, setInlineEditIncl] = useState<string | null>(null);
+  const [inlineInclForm, setInlineInclForm] = useState({ name: "", quantity: "1", cost: "", margin_percent: "", price: "" });
 
   // Template (single)
   const [template, setTemplate] = useState<ItemTemplate | null>(null);
