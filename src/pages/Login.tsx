@@ -112,7 +112,7 @@ const Login = () => {
           <Button
             variant="outline"
             className="w-full"
-            onClick={() => navigate("/")}}
+            onClick={() => navigate("/")}
           >
             Voltar ao Início
           </Button>
