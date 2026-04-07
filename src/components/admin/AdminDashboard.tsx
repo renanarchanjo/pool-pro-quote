@@ -129,10 +129,10 @@ const AdminDashboard = () => {
       );
 
       if (needsResolve.length > 0) {
-        const allIds = [...new Set(needsResolve.flatMap((p: any) => p.selected_optionals as string[]))];
+        const allIds = [...new Set(needsResolve.flatMap((p: any) => p.selected_optionals as string[]))] as string[];
         const [{ data: generalOpts }, { data: modelOpts }] = await Promise.all([
-          supabase.from("optionals").select("id, name, price").in("id", allIds),
-          supabase.from("model_optionals").select("id, name, price").in("id", allIds),
+          supabase.from("optionals").select("id, name, price").in("id", allIds as string[]),
+          supabase.from("model_optionals").select("id, name, price").in("id", allIds as string[]),
         ]);
         const allOpts = [...(generalOpts || []), ...(modelOpts || [])];
         for (const p of needsResolve) {
