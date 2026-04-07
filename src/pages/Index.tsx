@@ -75,7 +75,7 @@ const Index = () => {
             
             <Button
               size="lg"
-              className="gradient-primary text-white shadow-pool hover:shadow-glow transition-all text-base md:text-lg px-8 py-6 md:px-10 md:py-7 font-display font-semibold w-full sm:w-auto touch-manipulation"
+              className="bg-[hsl(210,90%,28%)] hover:bg-[hsl(210,90%,22%)] text-white shadow-pool hover:shadow-glow transition-all text-base md:text-lg px-8 py-6 md:px-10 md:py-7 font-display font-semibold w-full sm:w-auto touch-manipulation"
               onClick={() => setShowSimulator(true)}>
               
               Simular Minha Piscina
