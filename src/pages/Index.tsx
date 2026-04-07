@@ -39,37 +39,54 @@ const Index = () => {
       {/* Animated flowing water background – lençol d'água */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
         {/* Layer 1 – large slow sheet */}
-        <div className="absolute inset-0 animate-sheet-1 opacity-[0.18]" style={{
+        <div className="absolute inset-0 animate-sheet-1 opacity-[0.22]" style={{
           backgroundImage: `
-            radial-gradient(ellipse 70% 50% at 30% 40%, hsl(199 80% 78%) 0%, transparent 70%),
-            radial-gradient(ellipse 60% 60% at 70% 60%, hsl(199 70% 82%) 0%, transparent 65%),
-            radial-gradient(ellipse 80% 40% at 50% 80%, hsl(199 90% 75%) 0%, transparent 60%)
+            radial-gradient(ellipse 70% 50% at 30% 40%, hsl(199 80% 75%) 0%, transparent 70%),
+            radial-gradient(ellipse 60% 60% at 70% 60%, hsl(199 70% 78%) 0%, transparent 65%),
+            radial-gradient(ellipse 80% 40% at 50% 80%, hsl(199 90% 72%) 0%, transparent 60%)
           `
         }} />
         {/* Layer 2 – medium counter-flow */}
-        <div className="absolute inset-0 animate-sheet-2 opacity-[0.14]" style={{
+        <div className="absolute inset-0 animate-sheet-2 opacity-[0.20]" style={{
           backgroundImage: `
-            radial-gradient(ellipse 50% 70% at 60% 30%, hsl(199 85% 80%) 0%, transparent 65%),
-            radial-gradient(ellipse 70% 45% at 20% 70%, hsl(199 75% 76%) 0%, transparent 60%),
-            radial-gradient(ellipse 55% 55% at 80% 50%, hsl(199 95% 84%) 0%, transparent 70%)
+            radial-gradient(ellipse 50% 70% at 60% 30%, hsl(199 85% 76%) 0%, transparent 65%),
+            radial-gradient(ellipse 70% 45% at 20% 70%, hsl(199 75% 72%) 0%, transparent 60%),
+            radial-gradient(ellipse 55% 55% at 80% 50%, hsl(199 95% 80%) 0%, transparent 70%)
           `
         }} />
-        {/* Layer 3 – subtle fast shimmer */}
-        <div className="absolute inset-0 animate-sheet-3 opacity-[0.10]" style={{
+        {/* Layer 3 – fast shimmer */}
+        <div className="absolute inset-0 animate-sheet-3 opacity-[0.16]" style={{
           backgroundImage: `
-            radial-gradient(ellipse 40% 80% at 45% 50%, hsl(199 100% 85%) 0%, transparent 60%),
-            radial-gradient(ellipse 65% 35% at 15% 45%, hsl(199 80% 80%) 0%, transparent 65%),
-            radial-gradient(ellipse 50% 50% at 85% 35%, hsl(199 90% 82%) 0%, transparent 55%)
+            radial-gradient(ellipse 40% 80% at 45% 50%, hsl(199 100% 80%) 0%, transparent 60%),
+            radial-gradient(ellipse 65% 35% at 15% 45%, hsl(199 80% 76%) 0%, transparent 65%),
+            radial-gradient(ellipse 50% 50% at 85% 35%, hsl(199 90% 78%) 0%, transparent 55%)
+          `
+        }} />
+        {/* Layer 4 – diagonal drift */}
+        <div className="absolute inset-0 animate-sheet-4 opacity-[0.18]" style={{
+          backgroundImage: `
+            radial-gradient(ellipse 75% 55% at 15% 25%, hsl(199 85% 74%) 0%, transparent 65%),
+            radial-gradient(ellipse 45% 65% at 85% 75%, hsl(199 80% 70%) 0%, transparent 60%),
+            radial-gradient(ellipse 60% 50% at 50% 15%, hsl(199 90% 80%) 0%, transparent 70%)
+          `
+        }} />
+        {/* Layer 5 – deep undercurrent */}
+        <div className="absolute inset-0 animate-sheet-5 opacity-[0.14]" style={{
+          backgroundImage: `
+            radial-gradient(ellipse 90% 35% at 40% 90%, hsl(199 75% 68%) 0%, transparent 60%),
+            radial-gradient(ellipse 55% 75% at 75% 20%, hsl(199 85% 72%) 0%, transparent 65%),
+            radial-gradient(ellipse 65% 45% at 10% 60%, hsl(199 95% 76%) 0%, transparent 55%)
           `
         }} />
         {/* Caustic light spots */}
-        <div className="absolute inset-0 animate-caustics opacity-[0.08]" style={{
+        <div className="absolute inset-0 animate-caustics opacity-[0.10]" style={{
           backgroundImage: `
             radial-gradient(ellipse 60px 60px at 20% 30%, hsl(199 100% 70%) 0%, transparent 70%),
             radial-gradient(ellipse 80px 40px at 50% 50%, hsl(199 90% 75%) 0%, transparent 70%),
             radial-gradient(ellipse 50px 70px at 75% 25%, hsl(199 100% 80%) 0%, transparent 70%),
             radial-gradient(ellipse 70px 50px at 35% 70%, hsl(199 85% 72%) 0%, transparent 70%),
-            radial-gradient(ellipse 90px 45px at 85% 65%, hsl(199 95% 78%) 0%, transparent 70%)
+            radial-gradient(ellipse 90px 45px at 85% 65%, hsl(199 95% 78%) 0%, transparent 70%),
+            radial-gradient(ellipse 45px 55px at 55% 85%, hsl(199 90% 74%) 0%, transparent 70%)
           `
         }} />
       </div>
