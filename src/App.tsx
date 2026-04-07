@@ -14,6 +14,7 @@ import Index from "./pages/Index";
 const MobileApp = lazy(() => import("./pages/MobileApp"));
 const Login = lazy(() => import("./pages/Login"));
 const LoginMatriz = lazy(() => import("./pages/LoginMatriz"));
+const ResetPassword = lazy(() => import("./pages/ResetPassword"));
 const Auth = lazy(() => import("./pages/Auth"));
 const Admin = lazy(() => import("./pages/Admin"));
 const Matriz = lazy(() => import("./pages/Matriz"));
@@ -51,6 +52,7 @@ const App = () => (
                 <Route path="/login" element={<Login />} />
                 <Route path="/login/app" element={<MobileApp />} />
                 <Route path="/loginmatriz" element={<LoginMatriz />} />
+                <Route path="/reset-password" element={<ResetPassword />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </PageTransition>
