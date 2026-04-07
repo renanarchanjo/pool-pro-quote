@@ -978,8 +978,12 @@ const PoolModelManager = () => {
                                 </TableCell>
                                 <TableCell className="text-center font-medium">{qty}</TableCell>
                                 <TableCell className="font-medium">{item.name}</TableCell>
+                                <TableCell>
+                                  <Badge variant="outline" className={item.item_type === "mao_de_obra" ? "text-amber-600 border-amber-300 bg-amber-50" : "text-sky-600 border-sky-300 bg-sky-50"}>
+                                    {item.item_type === "mao_de_obra" ? "🔧 M. Obra" : "🧱 Material"}
+                                  </Badge>
+                                </TableCell>
                                 <TableCell className="text-right text-muted-foreground">R$ {fmt(unitCost)}</TableCell>
-                                <TableCell className="text-right text-muted-foreground">R$ {fmt(totalCost)}</TableCell>
                                 <TableCell className="text-right text-muted-foreground">{item.margin_percent}%</TableCell>
                                 <TableCell className="text-right font-medium">R$ {fmt(Number(item.price))}</TableCell>
                                 <TableCell className="text-right text-emerald-600">R$ {fmt(lucro)}</TableCell>
