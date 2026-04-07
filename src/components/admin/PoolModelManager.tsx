@@ -1107,6 +1107,18 @@ const PoolModelManager = () => {
                         onChange={(e) => setOptForm({ ...optForm, price: e.target.value })} placeholder="0.00" />
                     </div>
                   </div>
+                  <div className="grid md:grid-cols-4 gap-3 mt-3">
+                    <div>
+                      <Label>Tipo</Label>
+                      <Select value={optForm.item_type} onValueChange={(v) => setOptForm({ ...optForm, item_type: v })}>
+                        <SelectTrigger><SelectValue /></SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="material">🧱 Material</SelectItem>
+                          <SelectItem value="mao_de_obra">🔧 Mão de Obra</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
                   <div className="flex gap-2 mt-3">
                     <Button onClick={handleOptSubmit} className="gradient-primary text-white">
                       <Plus className="w-4 h-4 mr-1" /> {editingOpt ? "Atualizar" : "Adicionar"}
@@ -1130,6 +1142,9 @@ const PoolModelManager = () => {
                           <p className="font-medium">{opt.name}</p>
                           {opt.description && <p className="text-xs text-muted-foreground">{opt.description}</p>}
                           <div className="flex gap-3 text-xs text-muted-foreground mt-1">
+                            <Badge variant="outline" className={opt.item_type === "mao_de_obra" ? "text-amber-600 border-amber-300 bg-amber-50" : "text-sky-600 border-sky-300 bg-sky-50"}>
+                              {opt.item_type === "mao_de_obra" ? "🔧 M. Obra" : "🧱 Material"}
+                            </Badge>
                             {opt.cost > 0 && <span>Custo: R$ {fmt(opt.cost)}</span>}
                             {opt.margin_percent > 0 && <span>Margem: {opt.margin_percent}%</span>}
                           </div>
