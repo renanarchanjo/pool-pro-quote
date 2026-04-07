@@ -1083,7 +1083,7 @@ const PoolModelManager = () => {
                       <Plus className="w-4 h-4 mr-1" /> {editingOpt ? "Atualizar" : "Adicionar"}
                     </Button>
                     {editingOpt && (
-                      <Button variant="outline" onClick={() => { setEditingOpt(null); setOptForm({ name: "", description: "", cost: "", margin_percent: "", price: "" }); }}>
+                      <Button variant="outline" onClick={() => { setEditingOpt(null); setOptForm({ name: "", description: "", cost: "", margin_percent: "", price: "", item_type: "material" }); }}>
                         Cancelar
                       </Button>
                     )}
