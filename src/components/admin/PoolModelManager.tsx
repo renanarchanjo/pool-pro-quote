@@ -9,7 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Plus, Pencil, Loader2, X, Trash2, CheckSquare, Square, Copy, Save, FileDown } from "lucide-react";
+import { Plus, Pencil, Loader2, X, Trash2, CheckSquare, Square, Copy, Save, FileDown, GripVertical } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
@@ -108,6 +108,10 @@ const PoolModelManager = () => {
   const [inlineEditIncl, setInlineEditIncl] = useState<string | null>(null);
   const [inlineInclForm, setInlineInclForm] = useState({ name: "", quantity: "1", cost: "", margin_percent: "", price: "" });
 
+  // Drag-and-drop reorder state
+  const [dragItemId, setDragItemId] = useState<string | null>(null);
+  const [dragOverItemId, setDragOverItemId] = useState<string | null>(null);
+
   // Template (single)
   const [template, setTemplate] = useState<ItemTemplate | null>(null);
 
@@ -180,7 +184,9 @@ const PoolModelManager = () => {
   };
 
   // ---- Included items total for current model ----
-  const currentIncludedItems = editing ? includedItems.filter((i) => i.model_id === editing) : [];
+  const currentIncludedItems = editing
+    ? includedItems.filter((i) => i.model_id === editing).sort((a, b) => (a.display_order ?? 0) - (b.display_order ?? 0))
+    : [];
   const includedItemsTotal = useMemo(() => currentIncludedItems.reduce((sum, i) => sum + Number(i.price), 0), [currentIncludedItems]);
 
   // ---- Model CRUD ----
@@ -484,7 +490,62 @@ const PoolModelManager = () => {
     loadData();
   };
 
-  // ---- Template (single) ----
+  // ---- Drag-and-drop reorder ----
+  const handleDragStart = (e: React.DragEvent, itemId: string) => {
+    setDragItemId(itemId);
+    e.dataTransfer.effectAllowed = "move";
+  };
+
+  const handleDragOver = (e: React.DragEvent, itemId: string) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "move";
+    if (itemId !== dragOverItemId) setDragOverItemId(itemId);
+  };
+
+  const handleDrop = async (e: React.DragEvent, targetId: string) => {
+    e.preventDefault();
+    if (!dragItemId || dragItemId === targetId || !editing) {
+      setDragItemId(null);
+      setDragOverItemId(null);
+      return;
+    }
+
+    const items = [...currentIncludedItems];
+    const dragIndex = items.findIndex(i => i.id === dragItemId);
+    const targetIndex = items.findIndex(i => i.id === targetId);
+    if (dragIndex === -1 || targetIndex === -1) return;
+
+    const [moved] = items.splice(dragIndex, 1);
+    items.splice(targetIndex, 0, moved);
+
+    // Update display_order locally
+    const updatedItems = items.map((item, idx) => ({ ...item, display_order: idx }));
+    setIncludedItems(prev => {
+      const otherItems = prev.filter(i => i.model_id !== editing);
+      return [...otherItems, ...updatedItems];
+    });
+
+    setDragItemId(null);
+    setDragOverItemId(null);
+
+    // Persist all display_order updates
+    try {
+      await Promise.all(
+        updatedItems.map((item, idx) =>
+          supabase.from("model_included_items").update({ display_order: idx }).eq("id", item.id)
+        )
+      );
+      await syncIncludedItemsToModel(editing);
+    } catch {
+      toast.error("Erro ao salvar ordem");
+      loadData();
+    }
+  };
+
+  const handleDragEnd = () => {
+    setDragItemId(null);
+    setDragOverItemId(null);
+  };
   const handleSaveAsTemplate = async () => {
     if (!store || currentIncludedItems.length === 0) {
       toast.error("Tenha pelo menos 1 item para salvar como template"); return;
@@ -799,6 +860,7 @@ const PoolModelManager = () => {
                       <Table>
                         <TableHeader>
                           <TableRow>
+                            <TableHead className="w-[40px]"></TableHead>
                             <TableHead className="w-[60px] text-center">Qtd</TableHead>
                             <TableHead>Item</TableHead>
                             <TableHead className="text-right">Custo Unit.</TableHead>
@@ -825,6 +887,7 @@ const PoolModelManager = () => {
                               const inlineLucro = inlinePrice - inlineTotalCost;
                               return (
                                 <TableRow key={item.id} className="bg-primary/5">
+                                  <TableCell className="p-1"></TableCell>
                                   <TableCell className="p-1">
                                     <Input type="number" min="1" className="w-16 h-8 text-center" value={inlineInclForm.quantity}
                                       onChange={(e) => {
@@ -870,7 +933,18 @@ const PoolModelManager = () => {
                             }
 
                             return (
-                              <TableRow key={item.id}>
+                              <TableRow
+                                key={item.id}
+                                draggable
+                                onDragStart={(e) => handleDragStart(e, item.id)}
+                                onDragOver={(e) => handleDragOver(e, item.id)}
+                                onDrop={(e) => handleDrop(e, item.id)}
+                                onDragEnd={handleDragEnd}
+                                className={`transition-colors ${dragItemId === item.id ? "opacity-40" : ""} ${dragOverItemId === item.id && dragItemId !== item.id ? "border-t-2 border-primary" : ""}`}
+                              >
+                                <TableCell className="cursor-grab active:cursor-grabbing px-2">
+                                  <GripVertical className="w-4 h-4 text-muted-foreground" />
+                                </TableCell>
                                 <TableCell className="text-center font-medium">{qty}</TableCell>
                                 <TableCell className="font-medium">{item.name}</TableCell>
                                 <TableCell className="text-right text-muted-foreground">R$ {fmt(unitCost)}</TableCell>
@@ -891,6 +965,7 @@ const PoolModelManager = () => {
                           })}
                           {/* Totals row */}
                           <TableRow className="bg-muted/50 font-bold">
+                            <TableCell></TableCell>
                             <TableCell></TableCell>
                             <TableCell>TOTAL ITENS INCLUSOS</TableCell>
                             <TableCell></TableCell>
