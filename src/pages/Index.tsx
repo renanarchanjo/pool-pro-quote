@@ -36,50 +36,42 @@ const Index = () => {
           backgroundPosition: 'center'
         }} />
 
-      {/* Animated water waves */}
+      {/* Animated flowing water background – lençol d'água */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
-        <svg className="absolute bottom-0 left-0 w-[200%] h-[40%] animate-water-wave-1" viewBox="0 0 1440 320" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
-          <path fill="hsl(199 80% 85% / 0.15)" d="M0,224L48,213.3C96,203,192,181,288,186.7C384,192,480,224,576,229.3C672,235,768,213,864,197.3C960,181,1056,171,1152,181.3C1248,192,1344,224,1392,240L1440,256L1440,320L0,320Z"/>
-        </svg>
-        <svg className="absolute bottom-0 left-0 w-[200%] h-[35%] animate-water-wave-2" viewBox="0 0 1440 320" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
-          <path fill="hsl(199 70% 80% / 0.12)" d="M0,288L48,272C96,256,192,224,288,208C384,192,480,192,576,202.7C672,213,768,235,864,240C960,245,1056,235,1152,218.7C1248,203,1344,181,1392,170.7L1440,160L1440,320L0,320Z"/>
-        </svg>
-        <svg className="absolute bottom-0 left-0 w-[200%] h-[30%] animate-water-wave-3" viewBox="0 0 1440 320" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
-          <path fill="hsl(199 90% 88% / 0.18)" d="M0,256L48,240C96,224,192,192,288,197.3C384,203,480,245,576,261.3C672,277,768,267,864,245.3C960,224,1056,192,1152,186.7C1248,181,1344,203,1392,213.3L1440,224L1440,320L0,320Z"/>
-        </svg>
-        {/* Caustic light ripples */}
-        <div className="absolute inset-0 animate-caustics opacity-[0.07]" style={{
+        {/* Layer 1 – large slow sheet */}
+        <div className="absolute inset-0 animate-sheet-1 opacity-[0.18]" style={{
+          backgroundImage: `
+            radial-gradient(ellipse 70% 50% at 30% 40%, hsl(199 80% 78%) 0%, transparent 70%),
+            radial-gradient(ellipse 60% 60% at 70% 60%, hsl(199 70% 82%) 0%, transparent 65%),
+            radial-gradient(ellipse 80% 40% at 50% 80%, hsl(199 90% 75%) 0%, transparent 60%)
+          `
+        }} />
+        {/* Layer 2 – medium counter-flow */}
+        <div className="absolute inset-0 animate-sheet-2 opacity-[0.14]" style={{
+          backgroundImage: `
+            radial-gradient(ellipse 50% 70% at 60% 30%, hsl(199 85% 80%) 0%, transparent 65%),
+            radial-gradient(ellipse 70% 45% at 20% 70%, hsl(199 75% 76%) 0%, transparent 60%),
+            radial-gradient(ellipse 55% 55% at 80% 50%, hsl(199 95% 84%) 0%, transparent 70%)
+          `
+        }} />
+        {/* Layer 3 – subtle fast shimmer */}
+        <div className="absolute inset-0 animate-sheet-3 opacity-[0.10]" style={{
+          backgroundImage: `
+            radial-gradient(ellipse 40% 80% at 45% 50%, hsl(199 100% 85%) 0%, transparent 60%),
+            radial-gradient(ellipse 65% 35% at 15% 45%, hsl(199 80% 80%) 0%, transparent 65%),
+            radial-gradient(ellipse 50% 50% at 85% 35%, hsl(199 90% 82%) 0%, transparent 55%)
+          `
+        }} />
+        {/* Caustic light spots */}
+        <div className="absolute inset-0 animate-caustics opacity-[0.08]" style={{
           backgroundImage: `
             radial-gradient(ellipse 60px 60px at 20% 30%, hsl(199 100% 70%) 0%, transparent 70%),
             radial-gradient(ellipse 80px 40px at 50% 50%, hsl(199 90% 75%) 0%, transparent 70%),
             radial-gradient(ellipse 50px 70px at 75% 25%, hsl(199 100% 80%) 0%, transparent 70%),
             radial-gradient(ellipse 70px 50px at 35% 70%, hsl(199 85% 72%) 0%, transparent 70%),
-            radial-gradient(ellipse 90px 45px at 85% 65%, hsl(199 95% 78%) 0%, transparent 70%),
-            radial-gradient(ellipse 55px 65px at 10% 80%, hsl(199 80% 76%) 0%, transparent 70%)
+            radial-gradient(ellipse 90px 45px at 85% 65%, hsl(199 95% 78%) 0%, transparent 70%)
           `
         }} />
-
-        {/* Pool splash / dive ripple rings */}
-        {/* Center splash - main impact point */}
-        <div className="splash-ring" style={{ left: '55%', top: '60%', width: '500px', height: '500px', animationDelay: '0s' }} />
-        <div className="splash-ring" style={{ left: '55%', top: '60%', width: '350px', height: '350px', animationDelay: '0.6s' }} />
-        <div className="splash-ring" style={{ left: '55%', top: '60%', width: '220px', height: '220px', animationDelay: '1.2s' }} />
-
-        {/* Secondary splash */}
-        <div className="splash-ring" style={{ left: '25%', top: '45%', width: '300px', height: '300px', animationDelay: '2s', animationDuration: '5s' }} />
-        <div className="splash-ring" style={{ left: '25%', top: '45%', width: '180px', height: '180px', animationDelay: '2.5s', animationDuration: '5s' }} />
-
-        {/* Third splash */}
-        <div className="splash-ring" style={{ left: '80%', top: '70%', width: '260px', height: '260px', animationDelay: '3s', animationDuration: '4.5s' }} />
-        <div className="splash-ring" style={{ left: '80%', top: '70%', width: '150px', height: '150px', animationDelay: '3.4s', animationDuration: '4.5s' }} />
-
-        {/* Water spray drops */}
-        <div className="splash-drop" style={{ left: '53%', top: '58%', animationDelay: '0.2s' }} />
-        <div className="splash-drop" style={{ left: '57%', top: '56%', animationDelay: '0.4s', animationDuration: '2.5s' }} />
-        <div className="splash-drop" style={{ left: '50%', top: '62%', animationDelay: '0.7s', animationDuration: '3.5s' }} />
-        <div className="splash-drop" style={{ left: '59%', top: '60%', animationDelay: '1s', animationDuration: '2.8s' }} />
-        <div className="splash-drop" style={{ left: '24%', top: '43%', animationDelay: '2.2s', animationDuration: '3.2s' }} />
-        <div className="splash-drop" style={{ left: '27%', top: '42%', animationDelay: '2.5s', animationDuration: '2.7s' }} />
       </div>
       
       
