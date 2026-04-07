@@ -1072,8 +1072,8 @@ const PoolModelManager = () => {
                         Salvar Modelo e Itens
                       </Button>
                       {currentIncludedItems.length > 0 && (
-                        <Button type="button" variant="outline" onClick={handleSaveAsTemplate}>
-                          <Save className="w-4 h-4 mr-1" /> {template ? "Atualizar Template" : "Salvar como Template"}
+                        <Button type="button" variant="outline" onClick={() => { setTemplateName(""); setShowSaveTemplateDialog(true); }}>
+                          <Save className="w-4 h-4 mr-1" /> Salvar como Template
                         </Button>
                       )}
                     </div>
