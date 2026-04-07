@@ -488,7 +488,62 @@ const PoolModelManager = () => {
     loadData();
   };
 
-  // ---- Template (single) ----
+  // ---- Drag-and-drop reorder ----
+  const handleDragStart = (e: React.DragEvent, itemId: string) => {
+    setDragItemId(itemId);
+    e.dataTransfer.effectAllowed = "move";
+  };
+
+  const handleDragOver = (e: React.DragEvent, itemId: string) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "move";
+    if (itemId !== dragOverItemId) setDragOverItemId(itemId);
+  };
+
+  const handleDrop = async (e: React.DragEvent, targetId: string) => {
+    e.preventDefault();
+    if (!dragItemId || dragItemId === targetId || !editing) {
+      setDragItemId(null);
+      setDragOverItemId(null);
+      return;
+    }
+
+    const items = [...currentIncludedItems];
+    const dragIndex = items.findIndex(i => i.id === dragItemId);
+    const targetIndex = items.findIndex(i => i.id === targetId);
+    if (dragIndex === -1 || targetIndex === -1) return;
+
+    const [moved] = items.splice(dragIndex, 1);
+    items.splice(targetIndex, 0, moved);
+
+    // Update display_order locally
+    const updatedItems = items.map((item, idx) => ({ ...item, display_order: idx }));
+    setIncludedItems(prev => {
+      const otherItems = prev.filter(i => i.model_id !== editing);
+      return [...otherItems, ...updatedItems];
+    });
+
+    setDragItemId(null);
+    setDragOverItemId(null);
+
+    // Persist all display_order updates
+    try {
+      await Promise.all(
+        updatedItems.map((item, idx) =>
+          supabase.from("model_included_items").update({ display_order: idx }).eq("id", item.id)
+        )
+      );
+      await syncIncludedItemsToModel(editing);
+    } catch {
+      toast.error("Erro ao salvar ordem");
+      loadData();
+    }
+  };
+
+  const handleDragEnd = () => {
+    setDragItemId(null);
+    setDragOverItemId(null);
+  };
   const handleSaveAsTemplate = async () => {
     if (!store || currentIncludedItems.length === 0) {
       toast.error("Tenha pelo menos 1 item para salvar como template"); return;
