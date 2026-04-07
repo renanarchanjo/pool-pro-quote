@@ -105,10 +105,8 @@ const PoolModelManager = () => {
   const [inclForm, setInclForm] = useState({ name: "", quantity: "1", cost: "", margin_percent: "", price: "" });
   const [editingIncl, setEditingIncl] = useState<string | null>(null);
 
-  // Templates
-  const [templates, setTemplates] = useState<ItemTemplate[]>([]);
-  const [templateName, setTemplateName] = useState("");
-  const [showSaveTemplate, setShowSaveTemplate] = useState(false);
+  // Template (single)
+  const [template, setTemplate] = useState<ItemTemplate | null>(null);
 
   useEffect(() => { if (store) loadData(); }, [store]);
 
@@ -132,26 +130,27 @@ const PoolModelManager = () => {
       setModelOptionals(optRes.data || []);
       setIncludedItems(inclRes.data || []);
 
-      // Load template items
+      // Load single template (use first one)
       const tmplList = tmplRes.data || [];
       if (tmplList.length > 0) {
+        const t = tmplList[0];
         const { data: tmplItems } = await supabase
           .from("included_item_template_items")
           .select("*")
           .eq("store_id", store.id)
+          .eq("template_id", t.id)
           .order("display_order");
-        const loadedTemplates: ItemTemplate[] = tmplList.map((t: any) => ({
+        setTemplate({
           id: t.id,
           name: t.name,
           not_included_items: t.not_included_items || [],
-          items: (tmplItems || []).filter((i: any) => i.template_id === t.id).map((i: any) => ({
+          items: (tmplItems || []).map((i: any) => ({
             name: i.name, quantity: Number(i.quantity) || 1, cost: Number(i.cost), margin_percent: Number(i.margin_percent),
             price: Number(i.price), display_order: i.display_order,
           })),
-        }));
-        setTemplates(loadedTemplates);
+        });
       } else {
-        setTemplates([]);
+        setTemplate(null);
       }
     } catch (error) {
       console.error(error);
@@ -439,14 +438,19 @@ const PoolModelManager = () => {
     loadData();
   };
 
-  // ---- Template CRUD ----
+  // ---- Template (single) ----
   const handleSaveAsTemplate = async () => {
-    if (!store || !templateName.trim() || currentIncludedItems.length === 0) {
-      toast.error("Dê um nome ao template e tenha pelo menos 1 item"); return;
+    if (!store || currentIncludedItems.length === 0) {
+      toast.error("Tenha pelo menos 1 item para salvar como template"); return;
     }
     try {
+      // Delete existing template(s) for this store
+      if (template) {
+        await supabase.from("included_item_template_items").delete().eq("template_id", template.id);
+        await supabase.from("included_item_templates").delete().eq("id", template.id);
+      }
       const { data: tmpl, error: tmplErr } = await supabase.from("included_item_templates")
-        .insert({ store_id: store.id, name: templateName.trim(), not_included_items: formData.not_included_items || [] }).select("id").single();
+        .insert({ store_id: store.id, name: "Template Padrão", not_included_items: formData.not_included_items || [] }).select("id").single();
       if (tmplErr) throw tmplErr;
       const items = currentIncludedItems.map((i, idx) => ({
         template_id: tmpl.id, store_id: store.id, name: i.name,
@@ -456,23 +460,18 @@ const PoolModelManager = () => {
       }));
       const { error: itemsErr } = await supabase.from("included_item_template_items").insert(items);
       if (itemsErr) throw itemsErr;
-      toast.success(`Template "${templateName}" salvo com ${items.length} itens`);
-      setTemplateName(""); setShowSaveTemplate(false); loadData();
+      toast.success(`Template salvo com ${items.length} itens`);
+      loadData();
     } catch { toast.error("Erro ao salvar template"); }
   };
 
-  const handleApplyTemplate = async (templateId: string) => {
-    if (!store) return;
-    // Auto-create model if not yet saved
+  const handleApplyTemplate = async () => {
+    if (!store || !template) return;
     const modelId = editing || await ensureModelSaved();
     if (!modelId) return;
-    const tmpl = templates.find(t => t.id === templateId);
-    if (!tmpl) return;
     try {
-      // Delete existing items for this model
       await supabase.from("model_included_items").delete().eq("model_id", modelId).eq("store_id", store.id);
-      // Insert template items
-      const items = tmpl.items.map((i, idx) => ({
+      const items = template.items.map((i, idx) => ({
         model_id: modelId, store_id: store.id, name: i.name,
         quantity: i.quantity || 1,
         cost: i.cost, margin_percent: i.margin_percent,
@@ -482,21 +481,12 @@ const PoolModelManager = () => {
         const { error } = await supabase.from("model_included_items").insert(items);
         if (error) throw error;
       }
-      // Apply not_included_items to formData
-      setFormData(prev => ({ ...prev, not_included_items: tmpl.not_included_items || [] }));
-      // Also update the model in DB
-      await supabase.from("pool_models").update({ not_included_items: tmpl.not_included_items || [] }).eq("id", modelId);
-      toast.success(`Template "${tmpl.name}" aplicado com ${items.length} itens`);
+      setFormData(prev => ({ ...prev, not_included_items: template.not_included_items || [] }));
+      await supabase.from("pool_models").update({ not_included_items: template.not_included_items || [] }).eq("id", modelId);
+      toast.success(`Template aplicado com ${items.length} itens — edite livremente e salve neste modelo`);
       await syncIncludedItemsToModel(modelId);
       loadData();
     } catch { toast.error("Erro ao aplicar template"); }
-  };
-
-  const handleDeleteTemplate = async (templateId: string) => {
-    try {
-      await supabase.from("included_item_templates").delete().eq("id", templateId);
-      toast.success("Template excluído"); loadData();
-    } catch { toast.error("Erro ao excluir template"); }
   };
 
   // ---- Bulk actions ----
@@ -695,18 +685,10 @@ const PoolModelManager = () => {
                   <p className="text-sm text-muted-foreground flex-1">
                     Cadastre cada item incluso com custo, margem e preço. Na proposta, apenas o nome será exibido.
                   </p>
-                  {templates.length > 0 && (
-                    <Select onValueChange={handleApplyTemplate}>
-                      <SelectTrigger className="w-[220px] h-9">
-                        <FileDown className="w-4 h-4 mr-1 shrink-0" />
-                        <SelectValue placeholder="Aplicar Template..." />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {templates.map((t) => (
-                          <SelectItem key={t.id} value={t.id}>{t.name} ({t.items.length} itens)</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                  {template && (
+                    <Button type="button" variant="outline" size="sm" onClick={handleApplyTemplate}>
+                      <FileDown className="w-4 h-4 mr-1" /> Aplicar Template ({template.items.length} itens)
+                    </Button>
                   )}
                 </div>
 
@@ -852,41 +834,17 @@ const PoolModelManager = () => {
                       {renderArrayField("Itens Não Inclusos", "not_included_items", "newNotIncluded", "Ex: Aquecedor solar")}
                     </div>
 
-                    {/* Templates salvos */}
-                    {templates.length > 0 && (
-                      <div className="flex flex-wrap gap-2 items-center">
-                        <span className="text-xs text-muted-foreground">Templates salvos:</span>
-                        {templates.map((t) => (
-                          <Badge key={t.id} variant="secondary" className="cursor-pointer gap-1" onClick={() => handleDeleteTemplate(t.id)}>
-                            {t.name} ({t.items.length}) <X className="w-3 h-3" />
-                          </Badge>
-                        ))}
-                      </div>
-                    )}
-
                     {/* Action buttons */}
                     <div className="flex flex-wrap gap-2">
                       <Button type="button" onClick={() => handleSubmit()} className="gradient-primary text-white">
                         Salvar Modelo e Itens
                       </Button>
-                      {currentIncludedItems.length > 0 && !showSaveTemplate && (
-                        <Button type="button" variant="outline" onClick={() => setShowSaveTemplate(true)}>
-                          <Save className="w-4 h-4 mr-1" /> Salvar como Template
+                      {currentIncludedItems.length > 0 && (
+                        <Button type="button" variant="outline" onClick={handleSaveAsTemplate}>
+                          <Save className="w-4 h-4 mr-1" /> {template ? "Atualizar Template" : "Salvar como Template"}
                         </Button>
                       )}
                     </div>
-                    {showSaveTemplate && (
-                      <Card className="p-3 bg-muted/30 flex flex-wrap items-end gap-2">
-                        <div className="flex-1 min-w-[200px]">
-                          <Label>Nome do Template</Label>
-                          <Input value={templateName} onChange={(e) => setTemplateName(e.target.value)} placeholder="Ex: Kit Básico Fibra" />
-                        </div>
-                        <Button onClick={handleSaveAsTemplate} className="gradient-primary text-white">
-                          <Save className="w-4 h-4 mr-1" /> Salvar
-                        </Button>
-                        <Button variant="outline" onClick={() => { setShowSaveTemplate(false); setTemplateName(""); }}>Cancelar</Button>
-                      </Card>
-                    )}
                   </>
                 )}
               </div>
