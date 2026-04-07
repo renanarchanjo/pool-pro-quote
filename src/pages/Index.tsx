@@ -58,6 +58,28 @@ const Index = () => {
             radial-gradient(ellipse 55px 65px at 10% 80%, hsl(199 80% 76%) 0%, transparent 70%)
           `
         }} />
+
+        {/* Pool splash / dive ripple rings */}
+        {/* Center splash - main impact point */}
+        <div className="splash-ring" style={{ left: '55%', top: '60%', width: '500px', height: '500px', animationDelay: '0s' }} />
+        <div className="splash-ring" style={{ left: '55%', top: '60%', width: '350px', height: '350px', animationDelay: '0.6s' }} />
+        <div className="splash-ring" style={{ left: '55%', top: '60%', width: '220px', height: '220px', animationDelay: '1.2s' }} />
+
+        {/* Secondary splash */}
+        <div className="splash-ring" style={{ left: '25%', top: '45%', width: '300px', height: '300px', animationDelay: '2s', animationDuration: '5s' }} />
+        <div className="splash-ring" style={{ left: '25%', top: '45%', width: '180px', height: '180px', animationDelay: '2.5s', animationDuration: '5s' }} />
+
+        {/* Third splash */}
+        <div className="splash-ring" style={{ left: '80%', top: '70%', width: '260px', height: '260px', animationDelay: '3s', animationDuration: '4.5s' }} />
+        <div className="splash-ring" style={{ left: '80%', top: '70%', width: '150px', height: '150px', animationDelay: '3.4s', animationDuration: '4.5s' }} />
+
+        {/* Water spray drops */}
+        <div className="splash-drop" style={{ left: '53%', top: '58%', animationDelay: '0.2s' }} />
+        <div className="splash-drop" style={{ left: '57%', top: '56%', animationDelay: '0.4s', animationDuration: '2.5s' }} />
+        <div className="splash-drop" style={{ left: '50%', top: '62%', animationDelay: '0.7s', animationDuration: '3.5s' }} />
+        <div className="splash-drop" style={{ left: '59%', top: '60%', animationDelay: '1s', animationDuration: '2.8s' }} />
+        <div className="splash-drop" style={{ left: '24%', top: '43%', animationDelay: '2.2s', animationDuration: '3.2s' }} />
+        <div className="splash-drop" style={{ left: '27%', top: '42%', animationDelay: '2.5s', animationDuration: '2.7s' }} />
       </div>
       
       
