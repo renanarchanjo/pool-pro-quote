@@ -279,7 +279,7 @@ const PoolModelManager = () => {
     });
     setEditing(null);
     setFormTab("dados");
-    setInclForm({ name: "", quantity: "1", cost: "", margin_percent: "", price: "" });
+    setInclForm({ name: "", quantity: "1", cost: "", margin_percent: "", price: "", item_type: "material" });
     setEditingIncl(null);
   };
 
@@ -330,6 +330,7 @@ const PoolModelManager = () => {
         cost: optForm.cost ? parseFloat(optForm.cost) : 0,
         margin_percent: optForm.margin_percent ? parseFloat(optForm.margin_percent) : 0,
         price: parseFloat(optForm.price),
+        item_type: optForm.item_type,
       };
       if (editingOpt) {
         const { error } = await supabase.from("model_optionals").update(data).eq("id", editingOpt);
@@ -340,7 +341,7 @@ const PoolModelManager = () => {
         if (error) throw error;
         toast.success("Opcional adicionado");
       }
-      setOptForm({ name: "", description: "", cost: "", margin_percent: "", price: "" });
+      setOptForm({ name: "", description: "", cost: "", margin_percent: "", price: "", item_type: "material" });
       setEditingOpt(null);
       loadData();
     } catch { toast.error("Erro ao salvar opcional"); }
@@ -358,7 +359,7 @@ const PoolModelManager = () => {
     setOptForm({
       name: opt.name, description: opt.description || "",
       cost: opt.cost?.toString() || "", margin_percent: opt.margin_percent?.toString() || "",
-      price: opt.price.toString(),
+      price: opt.price.toString(), item_type: opt.item_type || "material",
     });
   };
 
@@ -390,6 +391,7 @@ const PoolModelManager = () => {
           margin_percent: margin,
           price: totalPrice,
           display_order: existingItem?.display_order ?? 0,
+          item_type: inclForm.item_type,
         };
         const { error } = await supabase.from("model_included_items").update(data).eq("id", editingIncl);
         if (error) throw error;
@@ -410,13 +412,14 @@ const PoolModelManager = () => {
           margin_percent: margin,
           price: totalPrice,
           display_order: currentIncludedItems.length,
+          item_type: inclForm.item_type,
         };
         const { data: inserted, error } = await supabase.from("model_included_items").insert(data).select().single();
         if (error) throw error;
         setIncludedItems(prev => [...prev, inserted as IncludedItem]);
         toast.success("Item adicionado");
       }
-      setInclForm({ name: "", quantity: "1", cost: "", margin_percent: "", price: "" });
+      setInclForm({ name: "", quantity: "1", cost: "", margin_percent: "", price: "", item_type: "material" });
       setEditingIncl(null);
       await syncIncludedItemsToModel(modelId);
     } catch { toast.error("Erro ao salvar item incluso"); }
@@ -439,6 +442,7 @@ const PoolModelManager = () => {
       cost: item.cost?.toString() || "",
       margin_percent: item.margin_percent?.toString() || "",
       price: item.price?.toString() || "",
+      item_type: item.item_type || "material",
     });
   };
 
