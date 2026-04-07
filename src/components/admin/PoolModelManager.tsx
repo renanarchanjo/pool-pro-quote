@@ -424,8 +424,8 @@ const PoolModelManager = () => {
   };
 
   const handleEditIncl = (item: IncludedItem) => {
-    setEditingIncl(item.id);
-    setInclForm({
+    setInlineEditIncl(item.id);
+    setInlineInclForm({
       name: item.name,
       quantity: item.quantity?.toString() || "1",
       cost: item.cost?.toString() || "",
@@ -434,7 +434,33 @@ const PoolModelManager = () => {
     });
   };
 
-  // Auto-sync included_items text array on pool_models after any item change
+  const handleInlineInclSave = async () => {
+    if (!inlineEditIncl) return;
+    if (!inlineInclForm.name.trim()) { toast.error("Preencha o nome do item"); return; }
+    try {
+      const qty = parseInt(inlineInclForm.quantity) || 1;
+      const unitCost = inlineInclForm.cost ? parseFloat(inlineInclForm.cost) : 0;
+      const margin = inlineInclForm.margin_percent ? parseFloat(inlineInclForm.margin_percent) : 0;
+      const totalPrice = inlineInclForm.price ? parseFloat(inlineInclForm.price) : 0;
+      const existingItem = includedItems.find(i => i.id === inlineEditIncl);
+      const data = {
+        name: inlineInclForm.name,
+        quantity: qty,
+        cost: unitCost,
+        margin_percent: margin,
+        price: totalPrice,
+        display_order: existingItem?.display_order ?? 0,
+      };
+      const { error } = await supabase.from("model_included_items").update(data).eq("id", inlineEditIncl);
+      if (error) throw error;
+      setIncludedItems(prev => prev.map(item =>
+        item.id === inlineEditIncl ? { ...item, ...data } : item
+      ));
+      toast.success("Item atualizado");
+      setInlineEditIncl(null);
+      if (existingItem) await syncIncludedItemsToModel(existingItem.model_id);
+    } catch { toast.error("Erro ao salvar item incluso"); }
+  };
   const syncIncludedItemsToModel = async (modelId: string) => {
     try {
       const { data: items } = await supabase
