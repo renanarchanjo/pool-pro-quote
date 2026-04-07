@@ -92,12 +92,8 @@ const MatrizLeads = () => {
 
   useEffect(() => {
     loadData();
-    const channel = supabase
-      .channel("matriz-leads-all")
-      .on("postgres_changes", { event: "*", schema: "public", table: "proposals" }, () => loadData())
-      .on("postgres_changes", { event: "*", schema: "public", table: "lead_distributions" }, () => loadData())
-      .subscribe();
-    return () => { supabase.removeChannel(channel); };
+    const interval = setInterval(() => loadData(), 30000);
+    return () => clearInterval(interval);
   }, []);
 
   // Distribution map - only active (pending/accepted) distributions count

@@ -150,11 +150,8 @@ const AdminLeads = () => {
   useEffect(() => {
     if (!store) return;
     loadData();
-    const channel = supabase
-      .channel("store-leads-" + store.id)
-      .on("postgres_changes", { event: "*", schema: "public", table: "lead_distributions" }, () => loadData())
-      .subscribe();
-    return () => { supabase.removeChannel(channel); };
+    const interval = setInterval(() => loadData(), 30000);
+    return () => clearInterval(interval);
   }, [store]);
 
   const handleAccept = async (distId: string) => {

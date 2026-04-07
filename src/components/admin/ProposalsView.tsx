@@ -34,18 +34,11 @@ const ProposalsView = () => {
     if (store) loadProposals();
   }, [store]);
 
-  // Realtime: auto-reload when proposals change for this store
+  // Polling: auto-reload proposals periodically
   useEffect(() => {
     if (!store) return;
-    const channel = supabase
-      .channel('proposals-list')
-      .on(
-        'postgres_changes',
-        { event: '*', schema: 'public', table: 'proposals', filter: `store_id=eq.${store.id}` },
-        () => { loadProposals(); }
-      )
-      .subscribe();
-    return () => { supabase.removeChannel(channel); };
+    const interval = setInterval(() => loadProposals(), 30000);
+    return () => clearInterval(interval);
   }, [store]);
 
   useEffect(() => {
