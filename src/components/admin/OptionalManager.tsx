@@ -392,7 +392,7 @@ const OptionalManager = () => {
             {editing && (
               <Button type="button" variant="outline" onClick={() => {
                 setEditing(null);
-                setFormData({ name: "", description: "", price: "", cost: "", margin_percent: "", group_id: "" });
+                setFormData({ name: "", description: "", price: "", cost: "", margin_percent: "", group_id: "", item_type: "material" });
               }}>Cancelar</Button>
             )}
           </div>
