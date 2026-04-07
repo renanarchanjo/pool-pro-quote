@@ -526,7 +526,7 @@ const Auth = () => {
           <Button
             variant="outline"
             className="w-full"
-            onClick={() => navigate("/lojista")}
+            onClick={() => navigate("/")}}
           >
             Voltar ao Início
           </Button>

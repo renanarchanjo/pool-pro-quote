@@ -17,7 +17,7 @@ const LoginMatriz = lazy(() => import("./pages/LoginMatriz"));
 const Auth = lazy(() => import("./pages/Auth"));
 const Admin = lazy(() => import("./pages/Admin"));
 const Matriz = lazy(() => import("./pages/Matriz"));
-const Lojista = lazy(() => import("./pages/Lojista"));
+
 const Parceiros = lazy(() => import("./pages/Parceiros"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
@@ -43,7 +43,7 @@ const App = () => (
             <PageTransition>
               <Routes>
                 <Route path="/" element={<Index />} />
-                <Route path="/lojista" element={<Lojista />} />
+                
                 <Route path="/parceiros" element={<Parceiros />} />
                 <Route path="/auth" element={<Auth />} />
                 <Route path="/admin/*" element={<Admin />} />
