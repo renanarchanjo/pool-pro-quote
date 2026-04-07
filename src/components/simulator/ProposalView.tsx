@@ -369,7 +369,7 @@ const ProposalView = ({
                       <>
                         {materiais.length > 0 && (
                           <>
-                            <p style={{ fontSize: "10px", fontWeight: 700, color: "#0284c7", textTransform: "uppercase", margin: "0 0 4px", letterSpacing: "0.5px" }}>🧱 Materiais</p>
+                            <p style={{ fontSize: "10px", fontWeight: 700, color: "#0284c7", textTransform: "uppercase", margin: "0 0 4px", letterSpacing: "0.5px" }}>Equipamentos e Produtos</p>
                             <ul style={{ margin: "0 0 8px", paddingLeft: "18px", fontSize: "12px", lineHeight: "1.8" }}>
                               {materiais.map((item, i) => (
                                 <li key={`m-${i}`} style={{ color: "#374151" }}>{item}</li>
@@ -379,7 +379,7 @@ const ProposalView = ({
                         )}
                         {maoDeObra.length > 0 && (
                           <>
-                            <p style={{ fontSize: "10px", fontWeight: 700, color: "#d97706", textTransform: "uppercase", margin: "0 0 4px", letterSpacing: "0.5px" }}>🔧 Mão de Obra</p>
+                            <p style={{ fontSize: "10px", fontWeight: 700, color: "#d97706", textTransform: "uppercase", margin: "0 0 4px", letterSpacing: "0.5px" }}>Mão de Obra</p>
                             <ul style={{ margin: 0, paddingLeft: "18px", fontSize: "12px", lineHeight: "1.8" }}>
                               {maoDeObra.map((item, i) => (
                                 <li key={`mo-${i}`} style={{ color: "#374151" }}>{item}</li>

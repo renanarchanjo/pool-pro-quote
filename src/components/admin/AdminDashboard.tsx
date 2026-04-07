@@ -118,7 +118,32 @@ const AdminDashboard = () => {
       ]);
 
       if (proposalsRes.error) throw proposalsRes.error;
-      setProposals((proposalsRes.data as any) || []);
+
+      // Resolve any proposals that stored optionals as plain UUID arrays
+      const rawProposals = (proposalsRes.data as any) || [];
+      const needsResolve = rawProposals.filter((p: any) =>
+        Array.isArray(p.selected_optionals) &&
+        p.selected_optionals.length > 0 &&
+        typeof p.selected_optionals[0] === "string" &&
+        !p.selected_optionals[0].includes("{")
+      );
+
+      if (needsResolve.length > 0) {
+        const allIds = [...new Set(needsResolve.flatMap((p: any) => p.selected_optionals as string[]))] as string[];
+        const [{ data: generalOpts }, { data: modelOpts }] = await Promise.all([
+          supabase.from("optionals").select("id, name, price").in("id", allIds as string[]),
+          supabase.from("model_optionals").select("id, name, price").in("id", allIds as string[]),
+        ]);
+        const allOpts = [...(generalOpts || []), ...(modelOpts || [])];
+        for (const p of needsResolve) {
+          p.selected_optionals = (p.selected_optionals as string[]).map((id: string) => {
+            const found = allOpts.find((o: any) => o.id === id);
+            return found ? { id: found.id, name: found.name, price: found.price } : { id, name: id, price: 0 };
+          });
+        }
+      }
+
+      setProposals(rawProposals);
       setLeadDistributions(distRes.data || []);
       setTeamMembers(teamRes.data || []);
 
