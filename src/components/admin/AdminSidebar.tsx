@@ -119,7 +119,7 @@ const AdminSidebar = () => {
         {renderGroup("CONTA", accountItems)}
       </SidebarContent>
 
-      <SidebarFooter className="p-3 safe-area-bottom space-y-2">
+      <SidebarFooter className="mt-auto p-3 safe-area-bottom space-y-2 border-t border-border/50">
         <div className="flex items-center justify-between">
           {!collapsed && <span className="text-xs text-muted-foreground">Tema</span>}
           <ThemeToggle />
