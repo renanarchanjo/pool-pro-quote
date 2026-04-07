@@ -859,8 +859,8 @@ const PoolModelManager = () => {
                       <Select value={inclForm.item_type} onValueChange={(v) => setInclForm({ ...inclForm, item_type: v })}>
                         <SelectTrigger className="w-[160px]"><SelectValue /></SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="material">🧱 Material</SelectItem>
-                          <SelectItem value="mao_de_obra">🔧 Mão de Obra</SelectItem>
+                          <SelectItem value="material">Equip. e Produtos</SelectItem>
+                          <SelectItem value="mao_de_obra">Mão de Obra</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
@@ -924,8 +924,8 @@ const PoolModelManager = () => {
                                     <Select value={inlineInclForm.item_type} onValueChange={(v) => setInlineInclForm({ ...inlineInclForm, item_type: v })}>
                                       <SelectTrigger className="h-8 w-[120px]"><SelectValue /></SelectTrigger>
                                       <SelectContent>
-                                        <SelectItem value="material">🧱 Material</SelectItem>
-                                        <SelectItem value="mao_de_obra">🔧 M. Obra</SelectItem>
+                                         <SelectItem value="material">Equip. e Produtos</SelectItem>
+                                         <SelectItem value="mao_de_obra">Mão de Obra</SelectItem>
                                       </SelectContent>
                                     </Select>
                                   </TableCell>
@@ -979,9 +979,9 @@ const PoolModelManager = () => {
                                 <TableCell className="text-center font-medium">{qty}</TableCell>
                                 <TableCell className="font-medium">{item.name}</TableCell>
                                 <TableCell>
-                                  <Badge variant="outline" className={item.item_type === "mao_de_obra" ? "text-amber-600 border-amber-300 bg-amber-50" : "text-sky-600 border-sky-300 bg-sky-50"}>
-                                    {item.item_type === "mao_de_obra" ? "🔧 M. Obra" : "🧱 Material"}
-                                  </Badge>
+                                   <Badge variant="outline" className={item.item_type === "mao_de_obra" ? "text-amber-600 border-amber-300 bg-amber-50" : "text-sky-600 border-sky-300 bg-sky-50"}>
+                                     {item.item_type === "mao_de_obra" ? "M. Obra" : "Equip. e Produtos"}
+                                   </Badge>
                                 </TableCell>
                                 <TableCell className="text-right text-muted-foreground">R$ {fmt(unitCost)}</TableCell>
                                 <TableCell className="text-right text-muted-foreground">R$ {fmt(totalCost)}</TableCell>
@@ -1113,8 +1113,8 @@ const PoolModelManager = () => {
                       <Select value={optForm.item_type} onValueChange={(v) => setOptForm({ ...optForm, item_type: v })}>
                         <SelectTrigger><SelectValue /></SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="material">🧱 Material</SelectItem>
-                          <SelectItem value="mao_de_obra">🔧 Mão de Obra</SelectItem>
+                          <SelectItem value="material">Equip. e Produtos</SelectItem>
+                          <SelectItem value="mao_de_obra">Mão de Obra</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
@@ -1143,7 +1143,7 @@ const PoolModelManager = () => {
                           {opt.description && <p className="text-xs text-muted-foreground">{opt.description}</p>}
                           <div className="flex gap-3 text-xs text-muted-foreground mt-1">
                             <Badge variant="outline" className={opt.item_type === "mao_de_obra" ? "text-amber-600 border-amber-300 bg-amber-50" : "text-sky-600 border-sky-300 bg-sky-50"}>
-                              {opt.item_type === "mao_de_obra" ? "🔧 M. Obra" : "🧱 Material"}
+                              {opt.item_type === "mao_de_obra" ? "M. Obra" : "Equip. e Produtos"}
                             </Badge>
                             {opt.cost > 0 && <span>Custo: R$ {fmt(opt.cost)}</span>}
                             {opt.margin_percent > 0 && <span>Margem: {opt.margin_percent}%</span>}

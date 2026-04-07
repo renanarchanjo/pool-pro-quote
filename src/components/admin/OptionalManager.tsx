@@ -200,9 +200,6 @@ const OptionalManager = () => {
             <div className="flex-1">
               <h3 className="text-lg font-semibold mb-1">
                 {optional.name}
-                <span className={`ml-2 text-xs px-2 py-0.5 rounded-full ${optional.item_type === "mao_de_obra" ? "bg-amber-50 text-amber-600 border border-amber-300" : "bg-sky-50 text-sky-600 border border-sky-300"}`}>
-                  {optional.item_type === "mao_de_obra" ? "🔧 M. Obra" : "🧱 Material"}
-                </span>
               </h3>
               <p className="text-xl font-bold text-primary mb-1">
                 R$ {optional.price.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
@@ -340,18 +337,6 @@ const OptionalManager = () => {
                   {groups.map((g) => (
                     <SelectItem key={g.id} value={g.id}>{g.name}</SelectItem>
                   ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div>
-              <Label>Tipo</Label>
-              <Select value={formData.item_type} onValueChange={(v) => setFormData({ ...formData, item_type: v })}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="material">🧱 Material</SelectItem>
-                  <SelectItem value="mao_de_obra">🔧 Mão de Obra</SelectItem>
                 </SelectContent>
               </Select>
             </div>
