@@ -31,6 +31,7 @@ interface ModelOptional {
   cost: number;
   margin_percent: number;
   active: boolean;
+  item_type: string;
 }
 interface IncludedItem {
   id: string;
@@ -42,11 +43,12 @@ interface IncludedItem {
   price: number;
   display_order: number;
   active: boolean;
+  item_type: string;
 }
 interface ItemTemplate {
   id: string;
   name: string;
-  items: { name: string; quantity: number; cost: number; margin_percent: number; price: number; display_order: number }[];
+  items: { name: string; quantity: number; cost: number; margin_percent: number; price: number; display_order: number; item_type: string }[];
   not_included_items: string[];
 }
 interface PoolModel {
