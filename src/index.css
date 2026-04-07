@@ -124,17 +124,19 @@
   /* SIMULAPOOL Gradientes Premium */
   .gradient-hero {
     background: linear-gradient(180deg, 
-      hsl(199 100% 97%) 0%,
-      hsl(199 80% 92%) 40%,
-      hsl(199 70% 88%) 100%
+      hsl(199 100% 96%) 0%,
+      hsl(199 85% 88%) 30%,
+      hsl(199 75% 78%) 60%,
+      hsl(199 70% 65%) 100%
     );
   }
 
   .bg-gradient-hero {
     background: linear-gradient(180deg, 
-      hsl(199 100% 97%) 0%,
-      hsl(199 80% 92%) 40%,
-      hsl(199 70% 88%) 100%
+      hsl(199 100% 96%) 0%,
+      hsl(199 85% 88%) 30%,
+      hsl(199 75% 78%) 60%,
+      hsl(199 70% 65%) 100%
     );
     position: relative;
   }
