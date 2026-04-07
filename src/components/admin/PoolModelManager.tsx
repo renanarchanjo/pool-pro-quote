@@ -557,18 +557,13 @@ const PoolModelManager = () => {
     setDragItemId(null);
     setDragOverItemId(null);
   };
-  const handleSaveAsTemplate = async () => {
+   const handleSaveAsTemplate = async (name: string) => {
     if (!store || currentIncludedItems.length === 0) {
       toast.error("Tenha pelo menos 1 item para salvar como template"); return;
     }
     try {
-      // Delete existing template(s) for this store
-      if (template) {
-        await supabase.from("included_item_template_items").delete().eq("template_id", template.id);
-        await supabase.from("included_item_templates").delete().eq("id", template.id);
-      }
       const { data: tmpl, error: tmplErr } = await supabase.from("included_item_templates")
-        .insert({ store_id: store.id, name: "Template Padrão", not_included_items: formData.not_included_items || [] }).select("id").single();
+        .insert({ store_id: store.id, name, not_included_items: formData.not_included_items || [] }).select("id").single();
       if (tmplErr) throw tmplErr;
       const items = currentIncludedItems.map((i, idx) => ({
         template_id: tmpl.id, store_id: store.id, name: i.name,
@@ -579,18 +574,28 @@ const PoolModelManager = () => {
       }));
       const { error: itemsErr } = await supabase.from("included_item_template_items").insert(items);
       if (itemsErr) throw itemsErr;
-      toast.success(`Template salvo com ${items.length} itens`);
+      toast.success(`Template "${name}" salvo com ${items.length} itens`);
       loadData();
     } catch { toast.error("Erro ao salvar template"); }
   };
 
-  const handleApplyTemplate = async () => {
-    if (!store || !template) return;
+  const handleDeleteTemplate = async (tmpl: ItemTemplate) => {
+    if (!store) return;
+    try {
+      await supabase.from("included_item_template_items").delete().eq("template_id", tmpl.id);
+      await supabase.from("included_item_templates").delete().eq("id", tmpl.id);
+      toast.success(`Template "${tmpl.name}" excluído`);
+      loadData();
+    } catch { toast.error("Erro ao excluir template"); }
+  };
+
+  const handleApplyTemplate = async (tmpl: ItemTemplate) => {
+    if (!store) return;
     const modelId = editing || await ensureModelSaved();
     if (!modelId) return;
     try {
       await supabase.from("model_included_items").delete().eq("model_id", modelId).eq("store_id", store.id);
-      const items = template.items.map((i, idx) => ({
+      const items = tmpl.items.map((i, idx) => ({
         model_id: modelId, store_id: store.id, name: i.name,
         quantity: i.quantity || 1,
         cost: i.cost, margin_percent: i.margin_percent,
@@ -600,9 +605,9 @@ const PoolModelManager = () => {
         const { error } = await supabase.from("model_included_items").insert(items);
         if (error) throw error;
       }
-      setFormData(prev => ({ ...prev, not_included_items: template.not_included_items || [] }));
-      await supabase.from("pool_models").update({ not_included_items: template.not_included_items || [] }).eq("id", modelId);
-      toast.success(`Template aplicado com ${items.length} itens — edite livremente e salve neste modelo`);
+      setFormData(prev => ({ ...prev, not_included_items: tmpl.not_included_items || [] }));
+      await supabase.from("pool_models").update({ not_included_items: tmpl.not_included_items || [] }).eq("id", modelId);
+      toast.success(`Template "${tmpl.name}" aplicado com ${items.length} itens`);
       await syncIncludedItemsToModel(modelId);
       loadData();
     } catch { toast.error("Erro ao aplicar template"); }
