@@ -9,7 +9,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Plus, Pencil, Loader2, X, Trash2, CheckSquare, Square, Copy, Save, FileDown, GripVertical } from "lucide-react";
+import { Plus, Pencil, Loader2, X, Trash2, CheckSquare, Square, Copy, Save, FileDown, GripVertical, MoreVertical } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
@@ -114,8 +116,10 @@ const PoolModelManager = () => {
   const [dragItemId, setDragItemId] = useState<string | null>(null);
   const [dragOverItemId, setDragOverItemId] = useState<string | null>(null);
 
-  // Template (single)
-  const [template, setTemplate] = useState<ItemTemplate | null>(null);
+  // Templates (multiple)
+  const [templates, setTemplates] = useState<ItemTemplate[]>([]);
+  const [showSaveTemplateDialog, setShowSaveTemplateDialog] = useState(false);
+  const [templateName, setTemplateName] = useState("");
 
   useEffect(() => { if (store) loadData(); }, [store]);
 
@@ -139,17 +143,17 @@ const PoolModelManager = () => {
       setModelOptionals(optRes.data || []);
       setIncludedItems(inclRes.data || []);
 
-      // Load single template (use first one)
+      // Load all templates
       const tmplList = tmplRes.data || [];
-      if (tmplList.length > 0) {
-        const t = tmplList[0];
+      const loadedTemplates: ItemTemplate[] = [];
+      for (const t of tmplList) {
         const { data: tmplItems } = await supabase
           .from("included_item_template_items")
           .select("*")
           .eq("store_id", store.id)
           .eq("template_id", t.id)
           .order("display_order");
-        setTemplate({
+        loadedTemplates.push({
           id: t.id,
           name: t.name,
           not_included_items: t.not_included_items || [],
@@ -158,9 +162,8 @@ const PoolModelManager = () => {
             price: Number(i.price), display_order: i.display_order, item_type: i.item_type || "material",
           })),
         });
-      } else {
-        setTemplate(null);
       }
+      setTemplates(loadedTemplates);
     } catch (error) {
       console.error(error);
       toast.error("Erro ao carregar dados");
@@ -554,18 +557,13 @@ const PoolModelManager = () => {
     setDragItemId(null);
     setDragOverItemId(null);
   };
-  const handleSaveAsTemplate = async () => {
+   const handleSaveAsTemplate = async (name: string) => {
     if (!store || currentIncludedItems.length === 0) {
       toast.error("Tenha pelo menos 1 item para salvar como template"); return;
     }
     try {
-      // Delete existing template(s) for this store
-      if (template) {
-        await supabase.from("included_item_template_items").delete().eq("template_id", template.id);
-        await supabase.from("included_item_templates").delete().eq("id", template.id);
-      }
       const { data: tmpl, error: tmplErr } = await supabase.from("included_item_templates")
-        .insert({ store_id: store.id, name: "Template Padrão", not_included_items: formData.not_included_items || [] }).select("id").single();
+        .insert({ store_id: store.id, name, not_included_items: formData.not_included_items || [] }).select("id").single();
       if (tmplErr) throw tmplErr;
       const items = currentIncludedItems.map((i, idx) => ({
         template_id: tmpl.id, store_id: store.id, name: i.name,
@@ -576,18 +574,28 @@ const PoolModelManager = () => {
       }));
       const { error: itemsErr } = await supabase.from("included_item_template_items").insert(items);
       if (itemsErr) throw itemsErr;
-      toast.success(`Template salvo com ${items.length} itens`);
+      toast.success(`Template "${name}" salvo com ${items.length} itens`);
       loadData();
     } catch { toast.error("Erro ao salvar template"); }
   };
 
-  const handleApplyTemplate = async () => {
-    if (!store || !template) return;
+  const handleDeleteTemplate = async (tmpl: ItemTemplate) => {
+    if (!store) return;
+    try {
+      await supabase.from("included_item_template_items").delete().eq("template_id", tmpl.id);
+      await supabase.from("included_item_templates").delete().eq("id", tmpl.id);
+      toast.success(`Template "${tmpl.name}" excluído`);
+      loadData();
+    } catch { toast.error("Erro ao excluir template"); }
+  };
+
+  const handleApplyTemplate = async (tmpl: ItemTemplate) => {
+    if (!store) return;
     const modelId = editing || await ensureModelSaved();
     if (!modelId) return;
     try {
       await supabase.from("model_included_items").delete().eq("model_id", modelId).eq("store_id", store.id);
-      const items = template.items.map((i, idx) => ({
+      const items = tmpl.items.map((i, idx) => ({
         model_id: modelId, store_id: store.id, name: i.name,
         quantity: i.quantity || 1,
         cost: i.cost, margin_percent: i.margin_percent,
@@ -597,9 +605,9 @@ const PoolModelManager = () => {
         const { error } = await supabase.from("model_included_items").insert(items);
         if (error) throw error;
       }
-      setFormData(prev => ({ ...prev, not_included_items: template.not_included_items || [] }));
-      await supabase.from("pool_models").update({ not_included_items: template.not_included_items || [] }).eq("id", modelId);
-      toast.success(`Template aplicado com ${items.length} itens — edite livremente e salve neste modelo`);
+      setFormData(prev => ({ ...prev, not_included_items: tmpl.not_included_items || [] }));
+      await supabase.from("pool_models").update({ not_included_items: tmpl.not_included_items || [] }).eq("id", modelId);
+      toast.success(`Template "${tmpl.name}" aplicado com ${items.length} itens`);
       await syncIncludedItemsToModel(modelId);
       loadData();
     } catch { toast.error("Erro ao aplicar template"); }
@@ -801,10 +809,27 @@ const PoolModelManager = () => {
                   <p className="text-sm text-muted-foreground flex-1">
                     Cadastre cada item incluso com custo, margem e preço. Na proposta, apenas o nome será exibido.
                   </p>
-                  {template && (
-                    <Button type="button" variant="outline" size="sm" onClick={handleApplyTemplate}>
-                      <FileDown className="w-4 h-4 mr-1" /> Aplicar Template ({template.items.length} itens)
-                    </Button>
+                  {templates.length > 0 && (
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button type="button" variant="outline" size="sm">
+                          <FileDown className="w-4 h-4 mr-1" /> Templates ({templates.length})
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end" className="w-64">
+                        {templates.map((t) => (
+                          <div key={t.id} className="flex items-center justify-between px-2 py-1 hover:bg-accent rounded-sm">
+                            <DropdownMenuItem className="flex-1 cursor-pointer" onClick={() => handleApplyTemplate(t)}>
+                              <FileDown className="w-3 h-3 mr-1.5" />
+                              {t.name} ({t.items.length} itens)
+                            </DropdownMenuItem>
+                            <Button type="button" variant="ghost" size="icon" className="h-6 w-6 shrink-0" onClick={() => handleDeleteTemplate(t)}>
+                              <Trash2 className="w-3 h-3 text-destructive" />
+                            </Button>
+                          </div>
+                        ))}
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   )}
                 </div>
 
@@ -1047,8 +1072,8 @@ const PoolModelManager = () => {
                         Salvar Modelo e Itens
                       </Button>
                       {currentIncludedItems.length > 0 && (
-                        <Button type="button" variant="outline" onClick={handleSaveAsTemplate}>
-                          <Save className="w-4 h-4 mr-1" /> {template ? "Atualizar Template" : "Salvar como Template"}
+                        <Button type="button" variant="outline" onClick={() => { setTemplateName(""); setShowSaveTemplateDialog(true); }}>
+                          <Save className="w-4 h-4 mr-1" /> Salvar como Template
                         </Button>
                       )}
                     </div>
@@ -1377,6 +1402,35 @@ const PoolModelManager = () => {
           </div>
         );
       })()}
+      {/* Dialog para nomear template */}
+      <Dialog open={showSaveTemplateDialog} onOpenChange={setShowSaveTemplateDialog}>
+        <DialogContent className="max-w-sm">
+          <DialogHeader>
+            <DialogTitle>Salvar Template</DialogTitle>
+          </DialogHeader>
+          <div>
+            <Label>Nome do Template</Label>
+            <Input
+              value={templateName}
+              onChange={(e) => setTemplateName(e.target.value)}
+              placeholder="Ex: Fibra Padrão"
+              autoFocus
+            />
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowSaveTemplateDialog(false)}>Cancelar</Button>
+            <Button
+              disabled={!templateName.trim()}
+              onClick={() => {
+                handleSaveAsTemplate(templateName.trim());
+                setShowSaveTemplateDialog(false);
+              }}
+            >
+              <Save className="w-4 h-4 mr-1" /> Salvar
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
