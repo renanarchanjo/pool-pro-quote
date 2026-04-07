@@ -143,17 +143,17 @@ const PoolModelManager = () => {
       setModelOptionals(optRes.data || []);
       setIncludedItems(inclRes.data || []);
 
-      // Load single template (use first one)
+      // Load all templates
       const tmplList = tmplRes.data || [];
-      if (tmplList.length > 0) {
-        const t = tmplList[0];
+      const loadedTemplates: ItemTemplate[] = [];
+      for (const t of tmplList) {
         const { data: tmplItems } = await supabase
           .from("included_item_template_items")
           .select("*")
           .eq("store_id", store.id)
           .eq("template_id", t.id)
           .order("display_order");
-        setTemplate({
+        loadedTemplates.push({
           id: t.id,
           name: t.name,
           not_included_items: t.not_included_items || [],
@@ -162,9 +162,8 @@ const PoolModelManager = () => {
             price: Number(i.price), display_order: i.display_order, item_type: i.item_type || "material",
           })),
         });
-      } else {
-        setTemplate(null);
       }
+      setTemplates(loadedTemplates);
     } catch (error) {
       console.error(error);
       toast.error("Erro ao carregar dados");
