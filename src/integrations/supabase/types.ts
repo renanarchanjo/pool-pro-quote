@@ -161,6 +161,7 @@ export type Database = {
           created_at: string | null
           display_order: number | null
           id: string
+          item_type: string
           margin_percent: number
           name: string
           price: number
@@ -173,6 +174,7 @@ export type Database = {
           created_at?: string | null
           display_order?: number | null
           id?: string
+          item_type?: string
           margin_percent?: number
           name: string
           price?: number
@@ -185,6 +187,7 @@ export type Database = {
           created_at?: string | null
           display_order?: number | null
           id?: string
+          item_type?: string
           margin_percent?: number
           name?: string
           price?: number
@@ -403,6 +406,7 @@ export type Database = {
           created_at: string | null
           display_order: number | null
           id: string
+          item_type: string
           margin_percent: number
           model_id: string
           name: string
@@ -417,6 +421,7 @@ export type Database = {
           created_at?: string | null
           display_order?: number | null
           id?: string
+          item_type?: string
           margin_percent?: number
           model_id: string
           name: string
@@ -431,6 +436,7 @@ export type Database = {
           created_at?: string | null
           display_order?: number | null
           id?: string
+          item_type?: string
           margin_percent?: number
           model_id?: string
           name?: string
@@ -464,6 +470,7 @@ export type Database = {
           description: string | null
           display_order: number | null
           id: string
+          item_type: string
           margin_percent: number | null
           model_id: string
           name: string
@@ -478,6 +485,7 @@ export type Database = {
           description?: string | null
           display_order?: number | null
           id?: string
+          item_type?: string
           margin_percent?: number | null
           model_id: string
           name: string
@@ -492,6 +500,7 @@ export type Database = {
           description?: string | null
           display_order?: number | null
           id?: string
+          item_type?: string
           margin_percent?: number | null
           model_id?: string
           name?: string
@@ -602,6 +611,7 @@ export type Database = {
           display_order: number | null
           group_id: string | null
           id: string
+          item_type: string
           margin_percent: number | null
           name: string
           price: number
@@ -617,6 +627,7 @@ export type Database = {
           display_order?: number | null
           group_id?: string | null
           id?: string
+          item_type?: string
           margin_percent?: number | null
           name: string
           price: number
@@ -632,6 +643,7 @@ export type Database = {
           display_order?: number | null
           group_id?: string | null
           id?: string
+          item_type?: string
           margin_percent?: number | null
           name?: string
           price?: number

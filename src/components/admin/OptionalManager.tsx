@@ -26,6 +26,7 @@ interface Optional {
   margin_percent: number;
   active: boolean;
   group_id: string | null;
+  item_type: string;
 }
 
 interface OptionalGroup {
@@ -41,7 +42,7 @@ const OptionalManager = () => {
   const [groups, setGroups] = useState<OptionalGroup[]>([]);
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState<string | null>(null);
-  const [formData, setFormData] = useState({ name: "", description: "", price: "", cost: "", margin_percent: "", group_id: "" });
+  const [formData, setFormData] = useState({ name: "", description: "", price: "", cost: "", margin_percent: "", group_id: "", item_type: "material" });
   const [selected, setSelected] = useState<string[]>([]);
   const [newGroupName, setNewGroupName] = useState("");
   const [showGroupForm, setShowGroupForm] = useState(false);
@@ -138,6 +139,7 @@ const OptionalManager = () => {
         cost: formData.cost ? parseFloat(formData.cost) : 0,
         margin_percent: formData.margin_percent ? parseFloat(formData.margin_percent) : 0,
         group_id: formData.group_id || null,
+        item_type: formData.item_type,
         ...(editing ? {} : { store_id: store.id }),
       };
       if (editing) {
@@ -149,7 +151,7 @@ const OptionalManager = () => {
         if (error) throw error;
         toast.success("Opcional criado");
       }
-      setFormData({ name: "", description: "", price: "", cost: "", margin_percent: "", group_id: "" });
+      setFormData({ name: "", description: "", price: "", cost: "", margin_percent: "", group_id: "", item_type: "material" });
       setEditing(null);
       loadData();
     } catch {
@@ -159,7 +161,7 @@ const OptionalManager = () => {
 
   const handleEdit = (o: Optional) => {
     setEditing(o.id);
-    setFormData({ name: o.name, description: o.description || "", price: o.price.toString(), cost: o.cost?.toString() || "", margin_percent: o.margin_percent?.toString() || "", group_id: o.group_id || "" });
+    setFormData({ name: o.name, description: o.description || "", price: o.price.toString(), cost: o.cost?.toString() || "", margin_percent: o.margin_percent?.toString() || "", group_id: o.group_id || "", item_type: o.item_type || "material" });
   };
 
   const handleDelete = async (id: string) => {
@@ -196,7 +198,12 @@ const OptionalManager = () => {
         <div className="flex-1 min-w-0">
           <div className="flex justify-between items-start">
             <div className="flex-1">
-              <h3 className="text-lg font-semibold mb-1">{optional.name}</h3>
+              <h3 className="text-lg font-semibold mb-1">
+                {optional.name}
+                <span className={`ml-2 text-xs px-2 py-0.5 rounded-full ${optional.item_type === "mao_de_obra" ? "bg-amber-50 text-amber-600 border border-amber-300" : "bg-sky-50 text-sky-600 border border-sky-300"}`}>
+                  {optional.item_type === "mao_de_obra" ? "🔧 M. Obra" : "🧱 Material"}
+                </span>
+              </h3>
               <p className="text-xl font-bold text-primary mb-1">
                 R$ {optional.price.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
               </p>
@@ -321,7 +328,7 @@ const OptionalManager = () => {
           {editing ? "Editar Opcional" : "Novo Opcional"}
         </h2>
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="grid md:grid-cols-5 gap-4">
+          <div className="grid md:grid-cols-6 gap-4">
             <div>
               <Label htmlFor="group">Grupo</Label>
               <Select value={formData.group_id} onValueChange={(v) => setFormData({ ...formData, group_id: v === "none" ? "" : v })}>
@@ -333,6 +340,18 @@ const OptionalManager = () => {
                   {groups.map((g) => (
                     <SelectItem key={g.id} value={g.id}>{g.name}</SelectItem>
                   ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label>Tipo</Label>
+              <Select value={formData.item_type} onValueChange={(v) => setFormData({ ...formData, item_type: v })}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="material">🧱 Material</SelectItem>
+                  <SelectItem value="mao_de_obra">🔧 Mão de Obra</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -390,7 +409,7 @@ const OptionalManager = () => {
             {editing && (
               <Button type="button" variant="outline" onClick={() => {
                 setEditing(null);
-                setFormData({ name: "", description: "", price: "", cost: "", margin_percent: "", group_id: "" });
+                setFormData({ name: "", description: "", price: "", cost: "", margin_percent: "", group_id: "", item_type: "material" });
               }}>Cancelar</Button>
             )}
           </div>

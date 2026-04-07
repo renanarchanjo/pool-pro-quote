@@ -31,6 +31,7 @@ interface ModelOptional {
   cost: number;
   margin_percent: number;
   active: boolean;
+  item_type: string;
 }
 interface IncludedItem {
   id: string;
@@ -42,11 +43,12 @@ interface IncludedItem {
   price: number;
   display_order: number;
   active: boolean;
+  item_type: string;
 }
 interface ItemTemplate {
   id: string;
   name: string;
-  items: { name: string; quantity: number; cost: number; margin_percent: number; price: number; display_order: number }[];
+  items: { name: string; quantity: number; cost: number; margin_percent: number; price: number; display_order: number; item_type: string }[];
   not_included_items: string[];
 }
 interface PoolModel {
@@ -98,15 +100,15 @@ const PoolModelManager = () => {
   });
 
   // Model optional form
-  const [optForm, setOptForm] = useState({ name: "", description: "", cost: "", margin_percent: "", price: "" });
+  const [optForm, setOptForm] = useState({ name: "", description: "", cost: "", margin_percent: "", price: "", item_type: "material" });
   const [editingOpt, setEditingOpt] = useState<string | null>(null);
 
   // Included item form (for adding new items)
-  const [inclForm, setInclForm] = useState({ name: "", quantity: "1", cost: "", margin_percent: "", price: "" });
+  const [inclForm, setInclForm] = useState({ name: "", quantity: "1", cost: "", margin_percent: "", price: "", item_type: "material" });
   const [editingIncl, setEditingIncl] = useState<string | null>(null);
   // Inline editing state (for editing existing items in-place)
   const [inlineEditIncl, setInlineEditIncl] = useState<string | null>(null);
-  const [inlineInclForm, setInlineInclForm] = useState({ name: "", quantity: "1", cost: "", margin_percent: "", price: "" });
+  const [inlineInclForm, setInlineInclForm] = useState({ name: "", quantity: "1", cost: "", margin_percent: "", price: "", item_type: "material" });
 
   // Drag-and-drop reorder state
   const [dragItemId, setDragItemId] = useState<string | null>(null);
@@ -153,7 +155,7 @@ const PoolModelManager = () => {
           not_included_items: t.not_included_items || [],
           items: (tmplItems || []).map((i: any) => ({
             name: i.name, quantity: Number(i.quantity) || 1, cost: Number(i.cost), margin_percent: Number(i.margin_percent),
-            price: Number(i.price), display_order: i.display_order,
+            price: Number(i.price), display_order: i.display_order, item_type: i.item_type || "material",
           })),
         });
       } else {
@@ -277,7 +279,7 @@ const PoolModelManager = () => {
     });
     setEditing(null);
     setFormTab("dados");
-    setInclForm({ name: "", quantity: "1", cost: "", margin_percent: "", price: "" });
+    setInclForm({ name: "", quantity: "1", cost: "", margin_percent: "", price: "", item_type: "material" });
     setEditingIncl(null);
   };
 
@@ -328,6 +330,7 @@ const PoolModelManager = () => {
         cost: optForm.cost ? parseFloat(optForm.cost) : 0,
         margin_percent: optForm.margin_percent ? parseFloat(optForm.margin_percent) : 0,
         price: parseFloat(optForm.price),
+        item_type: optForm.item_type,
       };
       if (editingOpt) {
         const { error } = await supabase.from("model_optionals").update(data).eq("id", editingOpt);
@@ -338,7 +341,7 @@ const PoolModelManager = () => {
         if (error) throw error;
         toast.success("Opcional adicionado");
       }
-      setOptForm({ name: "", description: "", cost: "", margin_percent: "", price: "" });
+      setOptForm({ name: "", description: "", cost: "", margin_percent: "", price: "", item_type: "material" });
       setEditingOpt(null);
       loadData();
     } catch { toast.error("Erro ao salvar opcional"); }
@@ -356,7 +359,7 @@ const PoolModelManager = () => {
     setOptForm({
       name: opt.name, description: opt.description || "",
       cost: opt.cost?.toString() || "", margin_percent: opt.margin_percent?.toString() || "",
-      price: opt.price.toString(),
+      price: opt.price.toString(), item_type: opt.item_type || "material",
     });
   };
 
@@ -388,6 +391,7 @@ const PoolModelManager = () => {
           margin_percent: margin,
           price: totalPrice,
           display_order: existingItem?.display_order ?? 0,
+          item_type: inclForm.item_type,
         };
         const { error } = await supabase.from("model_included_items").update(data).eq("id", editingIncl);
         if (error) throw error;
@@ -408,13 +412,14 @@ const PoolModelManager = () => {
           margin_percent: margin,
           price: totalPrice,
           display_order: currentIncludedItems.length,
+          item_type: inclForm.item_type,
         };
         const { data: inserted, error } = await supabase.from("model_included_items").insert(data).select().single();
         if (error) throw error;
         setIncludedItems(prev => [...prev, inserted as IncludedItem]);
         toast.success("Item adicionado");
       }
-      setInclForm({ name: "", quantity: "1", cost: "", margin_percent: "", price: "" });
+      setInclForm({ name: "", quantity: "1", cost: "", margin_percent: "", price: "", item_type: "material" });
       setEditingIncl(null);
       await syncIncludedItemsToModel(modelId);
     } catch { toast.error("Erro ao salvar item incluso"); }
@@ -437,6 +442,7 @@ const PoolModelManager = () => {
       cost: item.cost?.toString() || "",
       margin_percent: item.margin_percent?.toString() || "",
       price: item.price?.toString() || "",
+      item_type: item.item_type || "material",
     });
   };
 
@@ -456,6 +462,7 @@ const PoolModelManager = () => {
         margin_percent: margin,
         price: totalPrice,
         display_order: existingItem?.display_order ?? 0,
+        item_type: inlineInclForm.item_type,
       };
       const { error } = await supabase.from("model_included_items").update(data).eq("id", inlineEditIncl);
       if (error) throw error;
@@ -471,12 +478,13 @@ const PoolModelManager = () => {
     try {
       const { data: items } = await supabase
         .from("model_included_items")
-        .select("name, quantity")
+        .select("name, quantity, item_type")
         .eq("model_id", modelId)
         .order("display_order");
       const inclNames = (items || []).map(i => {
         const qty = Number(i.quantity) || 1;
-        return qty > 1 ? `${qty}x ${i.name}` : i.name;
+        const prefix = i.item_type === "mao_de_obra" ? "[MO] " : "";
+        return qty > 1 ? `${qty}x ${prefix}${i.name}` : `${prefix}${i.name}`;
       });
       await supabase.from("pool_models").update({ included_items: inclNames }).eq("id", modelId);
     } catch (e) { console.error("Erro ao sincronizar itens inclusos:", e); }
@@ -564,6 +572,7 @@ const PoolModelManager = () => {
         quantity: Number(i.quantity) || 1,
         cost: Number(i.cost), margin_percent: Number(i.margin_percent),
         price: Number(i.price), display_order: idx,
+        item_type: i.item_type || "material",
       }));
       const { error: itemsErr } = await supabase.from("included_item_template_items").insert(items);
       if (itemsErr) throw itemsErr;
@@ -844,7 +853,17 @@ const PoolModelManager = () => {
                       )}
                     </div>
                   </div>
-                  <div className="flex gap-2 mt-3">
+                  <div className="flex gap-3 mt-3 items-end">
+                    <div>
+                      <Label>Tipo</Label>
+                      <Select value={inclForm.item_type} onValueChange={(v) => setInclForm({ ...inclForm, item_type: v })}>
+                        <SelectTrigger className="w-[160px]"><SelectValue /></SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="material">🧱 Material</SelectItem>
+                          <SelectItem value="mao_de_obra">🔧 Mão de Obra</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
                     <Button type="button" onClick={handleInclSubmit} className="gradient-primary text-white">
                       <Plus className="w-4 h-4 mr-1" /> Adicionar
                     </Button>
@@ -863,6 +882,7 @@ const PoolModelManager = () => {
                             <TableHead className="w-[40px]"></TableHead>
                             <TableHead className="w-[60px] text-center">Qtd</TableHead>
                             <TableHead>Item</TableHead>
+                            <TableHead className="w-[100px]">Tipo</TableHead>
                             <TableHead className="text-right">Custo Unit.</TableHead>
                             <TableHead className="text-right">Custo Total</TableHead>
                             <TableHead className="text-right">Margem</TableHead>
@@ -899,6 +919,15 @@ const PoolModelManager = () => {
                                   <TableCell className="p-1">
                                     <Input className="h-8" value={inlineInclForm.name}
                                       onChange={(e) => setInlineInclForm({ ...inlineInclForm, name: e.target.value })} />
+                                  </TableCell>
+                                  <TableCell className="p-1">
+                                    <Select value={inlineInclForm.item_type} onValueChange={(v) => setInlineInclForm({ ...inlineInclForm, item_type: v })}>
+                                      <SelectTrigger className="h-8 w-[120px]"><SelectValue /></SelectTrigger>
+                                      <SelectContent>
+                                        <SelectItem value="material">🧱 Material</SelectItem>
+                                        <SelectItem value="mao_de_obra">🔧 M. Obra</SelectItem>
+                                      </SelectContent>
+                                    </Select>
                                   </TableCell>
                                   <TableCell className="p-1">
                                     <Input type="number" step="0.01" className="w-24 h-8 text-right" value={inlineInclForm.cost}
@@ -949,6 +978,11 @@ const PoolModelManager = () => {
                                 </TableCell>
                                 <TableCell className="text-center font-medium">{qty}</TableCell>
                                 <TableCell className="font-medium">{item.name}</TableCell>
+                                <TableCell>
+                                  <Badge variant="outline" className={item.item_type === "mao_de_obra" ? "text-amber-600 border-amber-300 bg-amber-50" : "text-sky-600 border-sky-300 bg-sky-50"}>
+                                    {item.item_type === "mao_de_obra" ? "🔧 M. Obra" : "🧱 Material"}
+                                  </Badge>
+                                </TableCell>
                                 <TableCell className="text-right text-muted-foreground">R$ {fmt(unitCost)}</TableCell>
                                 <TableCell className="text-right text-muted-foreground">R$ {fmt(totalCost)}</TableCell>
                                 <TableCell className="text-right text-muted-foreground">{item.margin_percent}%</TableCell>
@@ -970,6 +1004,7 @@ const PoolModelManager = () => {
                             <TableCell></TableCell>
                             <TableCell></TableCell>
                             <TableCell>TOTAL ITENS INCLUSOS</TableCell>
+                            <TableCell></TableCell>
                             <TableCell></TableCell>
                             <TableCell className="text-right">R$ {fmt(currentIncludedItems.reduce((s, i) => s + (Number(i.quantity) || 1) * Number(i.cost), 0))}</TableCell>
                             <TableCell></TableCell>
@@ -1072,12 +1107,24 @@ const PoolModelManager = () => {
                         onChange={(e) => setOptForm({ ...optForm, price: e.target.value })} placeholder="0.00" />
                     </div>
                   </div>
+                  <div className="grid md:grid-cols-4 gap-3 mt-3">
+                    <div>
+                      <Label>Tipo</Label>
+                      <Select value={optForm.item_type} onValueChange={(v) => setOptForm({ ...optForm, item_type: v })}>
+                        <SelectTrigger><SelectValue /></SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="material">🧱 Material</SelectItem>
+                          <SelectItem value="mao_de_obra">🔧 Mão de Obra</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
                   <div className="flex gap-2 mt-3">
                     <Button onClick={handleOptSubmit} className="gradient-primary text-white">
                       <Plus className="w-4 h-4 mr-1" /> {editingOpt ? "Atualizar" : "Adicionar"}
                     </Button>
                     {editingOpt && (
-                      <Button variant="outline" onClick={() => { setEditingOpt(null); setOptForm({ name: "", description: "", cost: "", margin_percent: "", price: "" }); }}>
+                      <Button variant="outline" onClick={() => { setEditingOpt(null); setOptForm({ name: "", description: "", cost: "", margin_percent: "", price: "", item_type: "material" }); }}>
                         Cancelar
                       </Button>
                     )}
@@ -1095,6 +1142,9 @@ const PoolModelManager = () => {
                           <p className="font-medium">{opt.name}</p>
                           {opt.description && <p className="text-xs text-muted-foreground">{opt.description}</p>}
                           <div className="flex gap-3 text-xs text-muted-foreground mt-1">
+                            <Badge variant="outline" className={opt.item_type === "mao_de_obra" ? "text-amber-600 border-amber-300 bg-amber-50" : "text-sky-600 border-sky-300 bg-sky-50"}>
+                              {opt.item_type === "mao_de_obra" ? "🔧 M. Obra" : "🧱 Material"}
+                            </Badge>
                             {opt.cost > 0 && <span>Custo: R$ {fmt(opt.cost)}</span>}
                             {opt.margin_percent > 0 && <span>Margem: {opt.margin_percent}%</span>}
                           </div>

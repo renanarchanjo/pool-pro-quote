@@ -362,11 +362,34 @@ const ProposalView = ({
               <div style={{ ...sectionStyle, flex: 1, marginBottom: 0 }}>
                 <div style={sectionHeaderStyle}>Itens Inclusos</div>
                 <div style={sectionBodyStyle}>
-                  <ul style={{ margin: 0, paddingLeft: "18px", fontSize: "12px", lineHeight: "1.8" }}>
-                    {model.included_items.map((item, i) => (
-                      <li key={i} style={{ color: "#374151" }}>{item}</li>
-                    ))}
-                  </ul>
+                  {(() => {
+                    const materiais = model.included_items.filter(item => !item.startsWith("[MO] "));
+                    const maoDeObra = model.included_items.filter(item => item.startsWith("[MO] ")).map(item => item.replace("[MO] ", ""));
+                    return (
+                      <>
+                        {materiais.length > 0 && (
+                          <>
+                            <p style={{ fontSize: "10px", fontWeight: 700, color: "#0284c7", textTransform: "uppercase", margin: "0 0 4px", letterSpacing: "0.5px" }}>🧱 Materiais</p>
+                            <ul style={{ margin: "0 0 8px", paddingLeft: "18px", fontSize: "12px", lineHeight: "1.8" }}>
+                              {materiais.map((item, i) => (
+                                <li key={`m-${i}`} style={{ color: "#374151" }}>{item}</li>
+                              ))}
+                            </ul>
+                          </>
+                        )}
+                        {maoDeObra.length > 0 && (
+                          <>
+                            <p style={{ fontSize: "10px", fontWeight: 700, color: "#d97706", textTransform: "uppercase", margin: "0 0 4px", letterSpacing: "0.5px" }}>🔧 Mão de Obra</p>
+                            <ul style={{ margin: 0, paddingLeft: "18px", fontSize: "12px", lineHeight: "1.8" }}>
+                              {maoDeObra.map((item, i) => (
+                                <li key={`mo-${i}`} style={{ color: "#374151" }}>{item}</li>
+                              ))}
+                            </ul>
+                          </>
+                        )}
+                      </>
+                    );
+                  })()}
                 </div>
               </div>
 
