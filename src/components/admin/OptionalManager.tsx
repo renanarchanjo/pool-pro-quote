@@ -323,7 +323,7 @@ const OptionalManager = () => {
           {editing ? "Editar Opcional" : "Novo Opcional"}
         </h2>
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="grid md:grid-cols-5 gap-4">
+          <div className="grid md:grid-cols-6 gap-4">
             <div>
               <Label htmlFor="group">Grupo</Label>
               <Select value={formData.group_id} onValueChange={(v) => setFormData({ ...formData, group_id: v === "none" ? "" : v })}>
@@ -335,6 +335,18 @@ const OptionalManager = () => {
                   {groups.map((g) => (
                     <SelectItem key={g.id} value={g.id}>{g.name}</SelectItem>
                   ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label>Tipo</Label>
+              <Select value={formData.item_type} onValueChange={(v) => setFormData({ ...formData, item_type: v })}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="material">🧱 Material</SelectItem>
+                  <SelectItem value="mao_de_obra">🔧 Mão de Obra</SelectItem>
                 </SelectContent>
               </Select>
             </div>
