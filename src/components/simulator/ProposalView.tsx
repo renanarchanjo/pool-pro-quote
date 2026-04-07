@@ -363,8 +363,8 @@ const ProposalView = ({
                 <div style={sectionHeaderStyle}>Itens Inclusos</div>
                 <div style={sectionBodyStyle}>
                   {(() => {
-                    const materiais = model.included_items.filter(item => !item.startsWith("[MO] "));
-                    const maoDeObra = model.included_items.filter(item => item.startsWith("[MO] ")).map(item => item.replace("[MO] ", ""));
+                    const materiais = model.included_items.filter(item => !item.includes("[MO]"));
+                    const maoDeObra = model.included_items.filter(item => item.includes("[MO]")).map(item => item.replace("[MO] ", "").replace("[MO]", ""));
                     return (
                       <>
                         {materiais.length > 0 && (
