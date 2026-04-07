@@ -572,6 +572,7 @@ const PoolModelManager = () => {
         quantity: Number(i.quantity) || 1,
         cost: Number(i.cost), margin_percent: Number(i.margin_percent),
         price: Number(i.price), display_order: idx,
+        item_type: i.item_type || "material",
       }));
       const { error: itemsErr } = await supabase.from("included_item_template_items").insert(items);
       if (itemsErr) throw itemsErr;
