@@ -966,6 +966,7 @@ const PoolModelManager = () => {
                           {/* Totals row */}
                           <TableRow className="bg-muted/50 font-bold">
                             <TableCell></TableCell>
+                            <TableCell></TableCell>
                             <TableCell>TOTAL ITENS INCLUSOS</TableCell>
                             <TableCell></TableCell>
                             <TableCell className="text-right">R$ {fmt(currentIncludedItems.reduce((s, i) => s + (Number(i.quantity) || 1) * Number(i.cost), 0))}</TableCell>
