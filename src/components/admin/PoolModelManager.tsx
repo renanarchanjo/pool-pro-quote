@@ -809,10 +809,27 @@ const PoolModelManager = () => {
                   <p className="text-sm text-muted-foreground flex-1">
                     Cadastre cada item incluso com custo, margem e preço. Na proposta, apenas o nome será exibido.
                   </p>
-                  {template && (
-                    <Button type="button" variant="outline" size="sm" onClick={handleApplyTemplate}>
-                      <FileDown className="w-4 h-4 mr-1" /> Aplicar Template ({template.items.length} itens)
-                    </Button>
+                  {templates.length > 0 && (
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button type="button" variant="outline" size="sm">
+                          <FileDown className="w-4 h-4 mr-1" /> Templates ({templates.length})
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end" className="w-64">
+                        {templates.map((t) => (
+                          <div key={t.id} className="flex items-center justify-between px-2 py-1 hover:bg-accent rounded-sm">
+                            <DropdownMenuItem className="flex-1 cursor-pointer" onClick={() => handleApplyTemplate(t)}>
+                              <FileDown className="w-3 h-3 mr-1.5" />
+                              {t.name} ({t.items.length} itens)
+                            </DropdownMenuItem>
+                            <Button type="button" variant="ghost" size="icon" className="h-6 w-6 shrink-0" onClick={() => handleDeleteTemplate(t)}>
+                              <Trash2 className="w-3 h-3 text-destructive" />
+                            </Button>
+                          </div>
+                        ))}
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   )}
                 </div>
 
