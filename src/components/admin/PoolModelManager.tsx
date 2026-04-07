@@ -933,7 +933,18 @@ const PoolModelManager = () => {
                             }
 
                             return (
-                              <TableRow key={item.id}>
+                              <TableRow
+                                key={item.id}
+                                draggable
+                                onDragStart={(e) => handleDragStart(e, item.id)}
+                                onDragOver={(e) => handleDragOver(e, item.id)}
+                                onDrop={(e) => handleDrop(e, item.id)}
+                                onDragEnd={handleDragEnd}
+                                className={`transition-colors ${dragItemId === item.id ? "opacity-40" : ""} ${dragOverItemId === item.id && dragItemId !== item.id ? "border-t-2 border-primary" : ""}`}
+                              >
+                                <TableCell className="cursor-grab active:cursor-grabbing px-2">
+                                  <GripVertical className="w-4 h-4 text-muted-foreground" />
+                                </TableCell>
                                 <TableCell className="text-center font-medium">{qty}</TableCell>
                                 <TableCell className="font-medium">{item.name}</TableCell>
                                 <TableCell className="text-right text-muted-foreground">R$ {fmt(unitCost)}</TableCell>
