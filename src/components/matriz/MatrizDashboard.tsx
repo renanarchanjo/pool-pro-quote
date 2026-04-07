@@ -58,11 +58,8 @@ const MatrizDashboard = () => {
 
   useEffect(() => {
     loadAll();
-    const channel = supabase
-      .channel("matriz-dashboard-proposals")
-      .on("postgres_changes", { event: "UPDATE", schema: "public", table: "proposals" }, () => loadAll())
-      .subscribe();
-    return () => { supabase.removeChannel(channel); };
+    const interval = setInterval(() => loadAll(), 30000);
+    return () => clearInterval(interval);
   }, []);
 
   const loadAll = async () => {

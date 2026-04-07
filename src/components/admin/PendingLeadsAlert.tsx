@@ -50,27 +50,10 @@ const PendingLeadsAlert = () => {
     return () => clearTimeout(timer);
   }, []);
 
-  // Realtime: listen for new distributions and re-check
+  // Polling: check for new leads periodically
   useEffect(() => {
-    const channel = supabase
-      .channel("pending-leads-alert")
-      .on(
-        "postgres_changes",
-        {
-          event: "INSERT",
-          schema: "public",
-          table: "lead_distributions",
-        },
-        () => {
-          // Small delay to ensure DB is consistent
-          setTimeout(() => checkPendingLeads(true), 1000);
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
+    const interval = setInterval(() => checkPendingLeads(true), 30000);
+    return () => clearInterval(interval);
   }, [checkPendingLeads]);
 
   const handleGoToLeads = () => {
