@@ -597,9 +597,10 @@ const PoolModelManager = () => {
       await supabase.from("model_included_items").delete().eq("model_id", modelId).eq("store_id", store.id);
       const items = tmpl.items.map((i, idx) => ({
         model_id: modelId, store_id: store.id, name: i.name,
-        quantity: i.quantity || 1,
-        cost: i.cost, margin_percent: i.margin_percent,
-        price: i.price, display_order: idx,
+        quantity: Number(i.quantity) || 1,
+        cost: Number(i.cost) || 0, margin_percent: Number(i.margin_percent) || 0,
+        price: Number(i.price) || 0, display_order: idx,
+        item_type: i.item_type || "material",
       }));
       if (items.length > 0) {
         const { error } = await supabase.from("model_included_items").insert(items);
