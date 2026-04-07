@@ -116,8 +116,10 @@ const PoolModelManager = () => {
   const [dragItemId, setDragItemId] = useState<string | null>(null);
   const [dragOverItemId, setDragOverItemId] = useState<string | null>(null);
 
-  // Template (single)
-  const [template, setTemplate] = useState<ItemTemplate | null>(null);
+  // Templates (multiple)
+  const [templates, setTemplates] = useState<ItemTemplate[]>([]);
+  const [showSaveTemplateDialog, setShowSaveTemplateDialog] = useState(false);
+  const [templateName, setTemplateName] = useState("");
 
   useEffect(() => { if (store) loadData(); }, [store]);
 
