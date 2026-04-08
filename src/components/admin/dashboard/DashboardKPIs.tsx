@@ -57,16 +57,16 @@ const DashboardKPIs = ({ proposals, role, commissionPercent = 0 }: Props) => {
   ];
 
   return (
-    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+    <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
       {kpis.map((kpi) => (
         <div
           key={kpi.label}
-          className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-xl py-5 px-6"
+          className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-xl py-4 px-4 md:py-5 md:px-6"
         >
-          <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[#9CA3AF] mb-2">
+          <p className="text-[10px] md:text-[11px] font-semibold uppercase tracking-[0.08em] text-[#9CA3AF] mb-1.5 md:mb-2">
             {kpi.label}
           </p>
-          <p className="text-[28px] font-bold text-[#0D0D0D] leading-tight">{kpi.value}</p>
+          <p className="text-[22px] md:text-[28px] font-bold text-[#0D0D0D] leading-tight">{kpi.value}</p>
           {kpi.subtitle && (
             <p className="text-[12px] text-[#6B7280] mt-1">{kpi.subtitle}</p>
           )}

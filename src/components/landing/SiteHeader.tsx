@@ -21,6 +21,7 @@ const SiteHeader = ({ onSimulate }: SiteHeaderProps) => {
             <span className="w-1.5 h-1.5 rounded-full bg-primary ml-0.5 mb-2" />
           </Link>
 
+          {/* Desktop nav */}
           <div className="hidden md:flex items-center gap-6">
             <Link
               to="/parceiros"
@@ -40,32 +41,16 @@ const SiteHeader = ({ onSimulate }: SiteHeaderProps) => {
             </button>
           </div>
 
-          <button
-            className="md:hidden min-w-[44px] min-h-[44px] flex items-center justify-center -mr-2 touch-manipulation"
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            aria-label="Menu"
-          >
-            {mobileMenuOpen ? <X className="w-5 h-5 text-[#0D0D0D]" /> : <Menu className="w-5 h-5 text-[#0D0D0D]" />}
-          </button>
-        </div>
-
-        {mobileMenuOpen && (
-          <div className="md:hidden border-t border-[#E5E7EB] bg-[#FFFFFF] px-4 py-3 space-y-1">
-            <Link
-              to="/parceiros"
-              onClick={() => setMobileMenuOpen(false)}
-              className="block text-[13px] py-3 px-2 rounded-lg text-[#6B7280] hover:text-[#0D0D0D] transition-all duration-150"
-            >
-              Parceiros
-            </Link>
+          {/* Mobile: CTA button always visible + hamburger for menu */}
+          <div className="flex md:hidden items-center gap-2">
             <button
-              onClick={() => { setMobileMenuOpen(false); onSimulate?.(); }}
-              className="block w-full text-left text-[13px] py-3 px-2 rounded-lg text-primary font-medium"
+              onClick={onSimulate}
+              className="h-9 px-4 text-[13px] font-medium rounded-lg bg-primary hover:bg-[#0284C7] text-white transition-all duration-150"
             >
               Simular Agora
             </button>
           </div>
-        )}
+        </div>
       </nav>
     </>
   );
