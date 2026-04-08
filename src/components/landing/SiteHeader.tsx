@@ -12,7 +12,7 @@ const SiteHeader = ({ onSimulate }: SiteHeaderProps) => {
     <>
       <div className="h-0 w-full md:hidden" style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }} />
 
-      <nav className="sticky top-0 z-50 h-14 md:h-[68px]" style={{ backgroundColor: '#0F172A' }}>
+      <nav className="sticky top-0 z-50 h-14 md:h-[68px] bg-transparent">
         <div className="container mx-auto px-5 md:px-12 h-full flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2">
             <img src={logoIcon} alt="SimulaPool" className="w-8 h-8 rounded-lg" />

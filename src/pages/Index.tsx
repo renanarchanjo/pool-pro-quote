@@ -27,52 +27,53 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-[#FFFFFF] flex flex-col">
-      <SiteHeader onSimulate={() => setShowSimulator(true)} />
-
-      {/* Hero */}
-      <section
-        className="hero-gradient relative flex-1 flex items-center justify-center px-4 py-12 md:py-32 overflow-hidden"
+      {/* Unified Navbar + Hero block */}
+      <div
+        className="hero-gradient relative overflow-hidden"
         style={{
-          background: 'linear-gradient(180deg, #0F172A 0%, #0F172A 30%, #0C2340 55%, #F8FBFF 85%, #FFFFFF 100%)',
+          background: 'linear-gradient(180deg, #0A1628 0%, #0D1F3C 25%, #0A2744 50%, #E8F4FD 85%, #FFFFFF 100%)',
         }}
       >
+        <SiteHeader onSimulate={() => setShowSimulator(true)} />
+
         {/* Background grid + blobs — hidden on mobile */}
         <div
           className="hidden md:block absolute inset-0 pointer-events-none"
           style={{
             backgroundImage:
-              "linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px)",
-            backgroundSize: "40px 40px",
+              "linear-gradient(rgba(56,189,248,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(56,189,248,0.05) 1px, transparent 1px)",
+            backgroundSize: "48px 48px",
           }}
         />
         <div
           className="hidden md:block absolute pointer-events-none rounded-full"
           style={{
-            width: 480,
-            height: 480,
-            top: -100,
-            left: -100,
-            background: "radial-gradient(circle, rgba(14,165,233,0.12) 0%, transparent 70%)",
+            width: 500,
+            height: 500,
+            top: -80,
+            left: -120,
+            background: "radial-gradient(circle, rgba(14,165,233,0.15) 0%, transparent 70%)",
           }}
         />
         <div
           className="hidden md:block absolute pointer-events-none rounded-full"
           style={{
-            width: 420,
-            height: 420,
-            bottom: 0,
+            width: 400,
+            height: 400,
+            bottom: 60,
             right: -80,
-            background: "radial-gradient(circle, rgba(56,189,248,0.08) 0%, transparent 70%)",
+            background: "radial-gradient(circle, rgba(56,189,248,0.1) 0%, transparent 70%)",
           }}
         />
 
-        <div className="relative max-w-[600px] mx-auto text-center z-10">
+        {/* Hero content */}
+        <div className="relative max-w-[680px] mx-auto text-center z-10 px-5 md:px-4 py-16 md:py-32">
           {/* Eyebrow chip */}
           <span
-            className="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1 rounded-md mb-6 md:mb-8"
+            className="inline-flex items-center gap-1.5 text-[12px] font-semibold px-3 py-1 rounded-md mb-6 md:mb-8"
             style={{
-              background: "rgba(14,165,233,0.15)",
-              border: "1px solid rgba(56,189,248,0.4)",
+              background: "rgba(56,189,248,0.12)",
+              border: "1px solid rgba(56,189,248,0.3)",
               color: "#7DD3FC",
             }}
           >
@@ -80,21 +81,21 @@ const Index = () => {
             Mais de 200 modelos de piscinas de fibra
           </span>
 
-          <h1 className="text-[28px] leading-[1.2] md:text-[44px] md:leading-[1.12] font-semibold text-white tracking-[-0.02em] mb-4 md:mb-5">
+          <h1 className="text-[34px] leading-[1.15] md:text-[52px] md:leading-[1.1] font-bold text-white tracking-[-0.02em] mb-4 md:mb-5">
             Descubra o{" "}
             <span style={{ color: "#38BDF8" }}>preço</span>{" "}
             da sua piscina em menos de 1 minuto
           </h1>
 
-          <p className="text-[15px] md:text-base max-w-[480px] mx-auto mb-8 md:mb-10 leading-relaxed" style={{ color: 'rgba(255,255,255,0.65)' }}>
+          <p className="text-[15px] md:text-[17px] max-w-[480px] mx-auto mb-8 md:mb-10 leading-relaxed" style={{ color: 'rgba(255,255,255,0.6)' }}>
             Escolha o tamanho, os opcionais e receba seu orçamento completo na hora — sem precisar falar com vendedor.
           </p>
 
           {/* CTA with shimmer */}
           <button
             onClick={() => setShowSimulator(true)}
-            className="group w-full md:w-auto inline-flex items-center justify-center h-11 px-7 text-[15px] font-semibold rounded-lg text-white transition-all duration-200 mb-6 md:mb-8"
-            style={{ backgroundColor: "#0EA5E9" }}
+            className="group w-full md:w-auto inline-flex items-center justify-center h-12 px-8 text-[16px] font-semibold rounded-[10px] text-white transition-all duration-200 mb-6 md:mb-8"
+            style={{ backgroundColor: "#0EA5E9", boxShadow: '0 0 32px rgba(14,165,233,0.35)' }}
             onMouseEnter={(e) => {
               const el = e.currentTarget;
               el.style.backgroundImage = "linear-gradient(90deg, #0EA5E9 0%, #38BDF8 50%, #0EA5E9 100%)";
@@ -114,15 +115,15 @@ const Index = () => {
           </button>
 
           {/* Trust pills */}
-          <div className="flex flex-col md:flex-row items-center justify-center gap-2 md:gap-3 mb-10 md:mb-12">
+          <div className="flex flex-wrap md:flex-nowrap items-center justify-center gap-2 md:gap-3 mb-10 md:mb-12">
             {["Grátis", "Sem cadastro", "Resultado na hora"].map((label) => (
               <span
                 key={label}
                 className="inline-flex items-center gap-1.5 text-[13px] font-medium rounded-full"
                 style={{
-                  background: "rgba(14,165,233,0.1)",
-                  border: "1px solid rgba(56,189,248,0.25)",
-                  color: "rgba(255,255,255,0.8)",
+                  background: "rgba(255,255,255,0.08)",
+                  border: "1px solid rgba(255,255,255,0.15)",
+                  color: "rgba(255,255,255,0.75)",
                   padding: "6px 14px",
                 }}
               >
@@ -133,24 +134,24 @@ const Index = () => {
           </div>
 
           {/* Social proof metrics */}
-          <div className="flex items-center justify-center gap-0">
-            <div className="text-center px-5">
-              <p className="text-[22px] font-bold text-white">4.800+</p>
-              <p className="text-[12px]" style={{ color: 'rgba(255,255,255,0.5)' }}>orçamentos gerados</p>
+          <div className="flex items-center justify-center gap-0 md:gap-0">
+            <div className="text-center px-4 md:px-5">
+              <p className="text-[24px] font-bold text-white">4.800+</p>
+              <p className="text-[12px]" style={{ color: 'rgba(255,255,255,0.45)' }}>orçamentos gerados</p>
             </div>
             <div className="w-px h-10" style={{ background: 'rgba(255,255,255,0.1)' }} />
-            <div className="text-center px-5">
-              <p className="text-[22px] font-bold text-white">200+</p>
-              <p className="text-[12px]" style={{ color: 'rgba(255,255,255,0.5)' }}>modelos disponíveis</p>
+            <div className="text-center px-4 md:px-5">
+              <p className="text-[24px] font-bold text-white">200+</p>
+              <p className="text-[12px]" style={{ color: 'rgba(255,255,255,0.45)' }}>modelos disponíveis</p>
             </div>
             <div className="w-px h-10" style={{ background: 'rgba(255,255,255,0.1)' }} />
-            <div className="text-center px-5">
-              <p className="text-[22px] font-bold" style={{ color: "#38BDF8" }}>&lt; 1 min</p>
-              <p className="text-[12px]" style={{ color: 'rgba(255,255,255,0.5)' }}>para seu orçamento</p>
+            <div className="text-center px-4 md:px-5">
+              <p className="text-[24px] font-bold" style={{ color: "#38BDF8" }}>&lt; 1 min</p>
+              <p className="text-[12px]" style={{ color: 'rgba(255,255,255,0.45)' }}>para seu orçamento</p>
             </div>
           </div>
         </div>
-      </section>
+      </div>
 
       {/* Como Funciona */}
       <section className="bg-[#FFFFFF] py-12 md:py-20 px-4">
