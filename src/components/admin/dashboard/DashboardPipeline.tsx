@@ -126,7 +126,7 @@ const DashboardPipeline = ({ proposals, onUpdateStatus, onViewProposal, onExport
         </Select>
 
         <Select value={sortMode} onValueChange={(v) => setSortMode(v as SortMode)}>
-          <SelectTrigger className="w-auto min-w-[110px] h-8 text-[13px] bg-secondary border-border rounded-md text-muted-foreground whitespace-nowrap shrink-0">
+          <SelectTrigger className="w-auto min-w-[110px] h-8 text-[13px] bg-input border-border rounded-md text-foreground whitespace-nowrap shrink-0">
             <div className="flex items-center gap-1.5">
               <ArrowUpDown className="w-3.5 h-3.5" />
               <SelectValue />
@@ -142,7 +142,7 @@ const DashboardPipeline = ({ proposals, onUpdateStatus, onViewProposal, onExport
 
         <Popover open={datePopoverOpen} onOpenChange={setDatePopoverOpen}>
           <PopoverTrigger asChild>
-            <button className="inline-flex items-center gap-1.5 h-8 px-3 text-[13px] bg-secondary border border-border rounded-md text-muted-foreground transition-all duration-150 hover:bg-accent whitespace-nowrap shrink-0">
+            <button className="inline-flex items-center gap-1.5 h-8 px-3 text-[13px] bg-input border border-border rounded-md text-foreground transition-all duration-150 hover:bg-accent whitespace-nowrap shrink-0">
               <CalendarIcon className="w-3.5 h-3.5 text-muted-foreground" />
               <span className="truncate max-w-[120px]">{getDateLabel()}</span>
               {(dateFrom || dateTo) && (
