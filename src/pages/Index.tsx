@@ -100,9 +100,10 @@ const Index = () => {
           <motion.div variants={fadeUp} initial="hidden" animate="visible" custom={3}>
             <button
               onClick={() => setShowSimulator(true)}
-              className="group w-full md:w-auto inline-flex items-center justify-center h-[52px] px-10 text-[16px] font-semibold rounded-xl text-white transition-all duration-300 hover:scale-[1.03] active:scale-[0.98] animate-cta-pulse"
+              className="group w-full md:w-auto inline-flex items-center justify-center h-[52px] px-10 text-[16px] font-semibold rounded-xl transition-all duration-300 hover:scale-[1.03] active:scale-[0.98] animate-cta-pulse"
               style={{
-                backgroundColor: "#0EA5E9",
+                backgroundColor: "#FFFFFF",
+                color: "#0A1628",
               }}
             >
               Simular Minha Piscina
