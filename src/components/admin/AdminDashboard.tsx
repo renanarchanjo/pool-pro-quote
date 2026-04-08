@@ -200,7 +200,7 @@ const AdminDashboard = () => {
   if (loading) {
     return (
       <div className="flex justify-center p-8">
-        <Loader2 className="w-8 h-8 animate-spin text-[#0EA5E9]" />
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
       </div>
     );
   }
@@ -209,13 +209,13 @@ const AdminDashboard = () => {
     <div className="space-y-4 md:space-y-6">
       {/* Header with filters */}
       <div className="space-y-3">
-        <p className="text-sm text-[#6B7280]">
-          Olá, <span className="font-medium text-[#0D0D0D]">{profile?.full_name || "Lojista"}</span>
+        <p className="text-sm text-muted-foreground">
+          Olá, <span className="font-medium text-foreground">{profile?.full_name || "Lojista"}</span>
         </p>
         <div className="flex items-center gap-2 flex-wrap">
           {isOwner && teamMembers.length > 1 && (
             <Select value={filterMember} onValueChange={setFilterMember}>
-              <SelectTrigger className="h-8 w-[140px] text-[13px] bg-[#F8F9FA] border-[#E5E7EB] rounded-md">
+              <SelectTrigger className="h-8 w-[140px] text-[13px] bg-input border-border text-foreground rounded-md">
                 <SelectValue placeholder="Membro" />
               </SelectTrigger>
               <SelectContent>
@@ -227,7 +227,7 @@ const AdminDashboard = () => {
             </Select>
           )}
           <Select value={pdfDatePreset} onValueChange={applyPdfPreset}>
-            <SelectTrigger className="h-8 w-[130px] text-[13px] bg-[#F8F9FA] border-[#E5E7EB] rounded-md">
+            <SelectTrigger className="h-8 w-[130px] text-[13px] bg-input border-border text-foreground rounded-md">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -239,7 +239,7 @@ const AdminDashboard = () => {
           </Select>
           <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
             <PopoverTrigger asChild>
-              <Button variant="outline" size="sm" className="h-8 text-[13px] gap-1.5 bg-[#F8F9FA] border-[#E5E7EB] rounded-md font-normal text-[#6B7280]">
+              <Button variant="outline" size="sm" className="h-8 text-[13px] gap-1.5 bg-input border-border rounded-md font-normal text-foreground">
                 <CalendarIcon className="w-3.5 h-3.5" />
                 {pdfDateLabel}
               </Button>
@@ -259,7 +259,7 @@ const AdminDashboard = () => {
               />
             </PopoverContent>
           </Popover>
-          <Button onClick={handleExportPDF} variant="outline" size="sm" className="h-8 shrink-0 text-[13px] bg-[#F8F9FA] border-[#E5E7EB] rounded-md gap-1.5 text-[#6B7280]">
+          <Button onClick={handleExportPDF} variant="outline" size="sm" className="h-8 shrink-0 text-[13px] bg-input border-border rounded-md gap-1.5 text-foreground">
             <Download className="w-3.5 h-3.5" />
             PDF
           </Button>
