@@ -15,7 +15,6 @@ import {
 } from "lucide-react";
 import LojistaHeader from "@/components/landing/LojistaHeader";
 import SiteFooter from "@/components/landing/SiteFooter";
-import PricingSection from "@/components/landing/PricingSection";
 import { useForceLightTheme } from "@/hooks/useForceLightTheme";
 
 const METRICS = [
@@ -486,12 +485,8 @@ const Lojista = () => {
         </div>
       </section>
 
-      {/* ─── Pricing ─── */}
-      <section id="planos" className="px-4 bg-background scroll-mt-20">
-        <div className="container mx-auto">
-          <PricingSection hideLeadPlans hideFinalCta />
-        </div>
-      </section>
+
+
 
       {/* ─── Final CTA ─── */}
       <section

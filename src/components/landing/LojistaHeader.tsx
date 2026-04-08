@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import logoIcon from "@/assets/logo-icon.png";
-import { User } from "lucide-react";
+import { User, CreditCard } from "lucide-react";
 
 const LojistaHeader = () => {
   return (
@@ -11,32 +11,30 @@ const LojistaHeader = () => {
         <div className="container mx-auto px-5 md:px-12 h-full flex items-center justify-between">
           <Link to="/lojista" className="flex items-center gap-2">
             <img src={logoIcon} alt="SimulaPool" className="h-11 w-auto" />
-            <span className="text-[22px] font-bold text-white tracking-[-0.01em]">SimulaPool</span>
+            <span className="text-[22px] font-bold text-white tracking-[-0.01em] hidden sm:inline">SimulaPool</span>
           </Link>
 
-          {/* Desktop */}
-          <div className="hidden md:flex items-center gap-9">
-            <Link
-              to="/login"
-              className="h-10 px-5 text-[14px] font-semibold rounded-lg text-white transition-all duration-150 inline-flex items-center gap-2"
-              style={{ background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.2)' }}
-              onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.2)'; }}
-              onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.12)'; }}
-            >
-              <User className="w-4 h-4" /> Minha Conta
-            </Link>
-          </div>
+          {/* Central: Planos e Preços */}
+          <Link
+            to="/lojista/planos"
+            className="h-10 px-5 text-[13px] md:text-[14px] font-semibold rounded-lg text-white transition-all duration-150 inline-flex items-center gap-2"
+            style={{ background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.2)' }}
+            onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.2)'; }}
+            onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.12)'; }}
+          >
+            <CreditCard className="w-4 h-4" /> Planos e Preços
+          </Link>
 
-          {/* Mobile */}
-          <div className="flex md:hidden items-center gap-2">
-            <Link
-              to="/login"
-              className="h-9 px-4 text-[13px] font-medium rounded-lg text-white transition-all duration-150 inline-flex items-center gap-1.5"
-              style={{ background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.2)' }}
-            >
-              <User className="w-3.5 h-3.5" /> Minha Conta
-            </Link>
-          </div>
+          {/* Minha Conta */}
+          <Link
+            to="/login"
+            className="h-10 px-4 md:px-5 text-[13px] md:text-[14px] font-semibold rounded-lg text-white transition-all duration-150 inline-flex items-center gap-2"
+            style={{ background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)' }}
+            onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.15)'; }}
+            onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.08)'; }}
+          >
+            <User className="w-4 h-4" /> <span className="hidden sm:inline">Minha Conta</span>
+          </Link>
         </div>
       </nav>
     </>
