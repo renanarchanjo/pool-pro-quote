@@ -9,7 +9,6 @@ import {
   Clock,
   Shield,
   Zap,
-  Star,
 } from "lucide-react";
 import LojistaHeader from "@/components/landing/LojistaHeader";
 import SiteFooter from "@/components/landing/SiteFooter";
