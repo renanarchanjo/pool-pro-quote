@@ -263,7 +263,7 @@ const DashboardPipeline = ({ proposals, onUpdateStatus, onViewProposal, onExport
               <div className="overflow-x-auto">
                 <table className="w-full text-left">
                   <thead>
-                    <tr className="bg-secondary border-b border-border">
+                    <tr className="bg-muted border-b border-border">
                       <th className="text-[11px] font-semibold uppercase tracking-[0.06em] text-muted-foreground h-10 px-4">Cliente</th>
                       <th className="text-[11px] font-semibold uppercase tracking-[0.06em] text-muted-foreground h-10 px-4">Modelo</th>
                       <th className="text-[11px] font-semibold uppercase tracking-[0.06em] text-muted-foreground h-10 px-4 text-right">Valor</th>
