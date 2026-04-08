@@ -16,7 +16,7 @@ import ModelSelection from "./ModelSelection";
 import OptionalsSelection from "./OptionalsSelection";
 import CustomerForm from "./CustomerForm";
 import ProposalView from "./ProposalView";
-import logoHorizontal from "@/assets/simulapool-horizontal-sm.png";
+import logoIcon from "@/assets/logo-icon.png";
 
 interface PoolModel {
   id: string;

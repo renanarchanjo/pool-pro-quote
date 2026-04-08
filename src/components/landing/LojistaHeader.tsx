@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import logoHorizontal from "@/assets/simulapool-horizontal-sm.png";
+import logoIcon from "@/assets/logo-icon.png";
 
 const navLinks = [
   { label: "Planos", to: "/lojista" },

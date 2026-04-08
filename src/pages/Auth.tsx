@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
-import logoHorizontal from "@/assets/simulapool-horizontal-sm.png";
+import logoIcon from "@/assets/logo-icon.png";
 import { useForceLightTheme } from "@/hooks/useForceLightTheme";
 
 const formatCNPJ = (value: string) => {
