@@ -15,7 +15,7 @@ const BrandLogo = ({ size = "md", className = "" }: BrandLogoProps) => {
   const s = sizes[size];
   return (
     <div className={`flex items-center gap-2 ${className}`}>
-      <img src={logoIcon} alt="SimulaPool" className={`${s.img} rounded-lg`} />
+      <img src={logoIcon} alt="SimulaPool" className={s.img} />
       <span className={`${s.text} font-bold tracking-[-0.01em] text-foreground`}>
         SimulaPool
       </span>
