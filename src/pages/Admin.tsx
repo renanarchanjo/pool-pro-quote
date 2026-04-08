@@ -22,18 +22,37 @@ import StorePartnersManager from "@/components/admin/StorePartnersManager";
 import { useStoreData } from "@/hooks/useStoreData";
 import PendingLeadsAlert from "@/components/admin/PendingLeadsAlert";
 
+const PAGE_TITLES: Record<string, string> = {
+  "": "Dashboard",
+  "gerar-proposta": "Gerar Proposta",
+  "leads": "Leads",
+  "faturas": "Faturas",
+  "perfil": "Minha Conta",
+  "marcas": "Marcas",
+  "categorias": "Categorias de Marcas",
+  "modelos": "Modelos",
+  "opcionais": "Opcionais",
+  "equipe": "Minha Equipe",
+  "lojistas": "Lojistas",
+  "assinatura": "Assinatura",
+  "parceiros": "Marcas Parceiras",
+  "performance": "Performance",
+  "comissao": "Comissão",
+};
+
 const Admin = () => {
   const [authLoading, setAuthLoading] = useState(true);
   const navigate = useNavigate();
   const location = useLocation();
   const { store, role, loading: storeLoading } = useStoreData();
 
+  const path = location.pathname.replace("/admin", "").replace(/^\//, "");
+  const pageTitle = PAGE_TITLES[path] || "Dashboard";
+
   useEffect(() => {
     const checkAuth = async () => {
       const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
-        navigate("/auth");
-      }
+      if (!session) navigate("/auth");
       setAuthLoading(false);
     };
     checkAuth();
@@ -41,8 +60,8 @@ const Admin = () => {
 
   if (authLoading || storeLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
       </div>
     );
   }
@@ -54,15 +73,13 @@ const Admin = () => {
     };
 
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <p className="text-lg mb-4">Nenhuma loja vinculada a esta conta.</p>
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="text-center max-w-md">
+          <p className="text-base font-semibold mb-2">Nenhuma loja vinculada</p>
           <p className="text-sm text-muted-foreground mb-6">Faça login com uma conta que possua uma loja cadastrada.</p>
           <div className="flex gap-3 justify-center">
             <Button variant="outline" onClick={() => navigate("/")}>Voltar ao Início</Button>
-            <Button onClick={handleLogoutAndRetry} className="gradient-primary text-white">
-              Trocar de Conta
-            </Button>
+            <Button onClick={handleLogoutAndRetry}>Trocar de Conta</Button>
           </div>
         </div>
       </div>
@@ -73,36 +90,18 @@ const Admin = () => {
 
   return (
     <SidebarProvider>
-      <div className="min-h-screen flex w-full bg-muted/30 overflow-x-hidden">
+      <div className="min-h-screen flex w-full bg-secondary overflow-x-hidden">
         <AdminSidebar />
         <div className="flex-1 flex flex-col min-w-0">
-          <header className="flex items-center border-b border-border/50 bg-background px-3 md:px-4 h-[72px] pt-[env(safe-area-inset-top,0px)]">
-            <SidebarTrigger className="h-12 w-12 md:h-10 md:w-10 [&>svg]:!w-6 [&>svg]:!h-6 md:[&>svg]:!w-5 md:[&>svg]:!h-5 text-primary shrink-0 rounded-xl" />
-            <span className="ml-2 text-xl font-semibold text-foreground md:hidden flex-1 min-w-0 truncate">
-              {(() => {
-                const path = location.pathname.replace("/admin", "").replace(/^\//, "");
-                const map: Record<string, string> = {
-                  "": "Dashboard",
-                  "gerar-proposta": "Gerar Proposta",
-                  "leads": "Leads",
-                  "faturas": "Faturas",
-                  "perfil": "Minha Conta",
-                  "marcas": "Marcas",
-                  "categorias": "Categorias de Marcas",
-                  "modelos": "Modelos",
-                  "opcionais": "Opcionais",
-                  "equipe": "Minha Equipe",
-                  "lojistas": "Lojistas",
-                  "assinatura": "Assinatura",
-                  "parceiros": "Marcas Parceiras",
-                  "performance": "Performance",
-                  "comissao": "Comissão",
-                };
-                return map[path] || "Dashboard";
-              })()}
-            </span>
+          {/* App Header — 56px */}
+          <header className="flex items-center border-b border-border bg-background px-4 h-14 pt-[env(safe-area-inset-top,0px)]">
+            <SidebarTrigger className="h-9 w-9 [&>svg]:!w-5 [&>svg]:!h-5 text-muted-foreground hover:text-foreground shrink-0 rounded-lg transition-colors duration-150" />
+            <div className="ml-3 flex-1 min-w-0">
+              <h1 className="text-sm font-semibold text-foreground truncate">{pageTitle}</h1>
+            </div>
           </header>
-          <main className="flex-1 p-3 md:p-6 overflow-x-hidden overflow-y-auto safe-area-bottom">
+
+          <main className="flex-1 p-4 md:p-6 overflow-x-hidden overflow-y-auto safe-area-bottom">
             <PendingLeadsAlert />
             <Routes>
               <Route index element={<AdminDashboard />} />
@@ -116,7 +115,6 @@ const Admin = () => {
                   <Route path="comissao" element={<TeamCommissions />} />
                 </>
               )}
-              {/* Owner-only routes */}
               {isOwner && (
                 <>
                   <Route path="marcas" element={<BrandCategoryManager mode="brands" />} />

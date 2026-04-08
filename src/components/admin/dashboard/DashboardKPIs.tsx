@@ -1,5 +1,3 @@
-import { Card, CardContent } from "@/components/ui/card";
-import { DollarSign, TrendingUp, BarChart3, Receipt, Percent } from "lucide-react";
 import { Proposal, formatCurrency } from "./types";
 
 interface Props {
@@ -9,104 +7,71 @@ interface Props {
 }
 
 const DashboardKPIs = ({ proposals, role, commissionPercent = 0 }: Props) => {
-  const all = proposals;
-  const closed = all.filter((p) => p.status === "fechada");
+  const closed = proposals.filter((p) => p.status === "fechada");
   const isOwner = role === "owner";
 
-  // Faturamento Bruto = soma total_price das fechadas
   const faturamentoBruto = closed.reduce((s, p) => s + p.total_price, 0);
 
-  // Owner: Faturamento Líquido | Seller: Comissão
   const faturamentoLiquido = closed.reduce((s, p) => {
     const cost = p.pool_models?.cost || 0;
     return s + (p.total_price - cost);
   }, 0);
   const comissaoTotal = faturamentoBruto * (commissionPercent / 100);
 
-  // Taxa de Conversão FV = fechadas / (total - novas)
-  const totalWorked = all.filter((p) => p.status !== "nova").length;
+  const totalWorked = proposals.filter((p) => p.status !== "nova").length;
   const conversionRate = totalWorked > 0 ? (closed.length / totalWorked) * 100 : 0;
 
-  // Ticket Médio = bruto / qtd fechadas
   const ticketMedio = closed.length > 0 ? faturamentoBruto / closed.length : 0;
 
-  // Secondary
   const marginPct = faturamentoBruto > 0 ? (faturamentoLiquido / faturamentoBruto) * 100 : 0;
 
-  // Second KPI changes based on role
   const secondKpi = isOwner
     ? {
-        label: "Faturamento Líquido",
+        label: "FATURAMENTO LÍQUIDO",
         value: formatCurrency(faturamentoLiquido),
         subtitle: faturamentoBruto > 0 ? `margem ${marginPct.toFixed(1)}%` : undefined,
-        icon: TrendingUp,
-        iconBg: "bg-blue-500/10",
-        iconColor: "text-blue-600",
       }
     : {
-        label: "Comissão",
+        label: "COMISSÃO",
         value: formatCurrency(comissaoTotal),
         subtitle: `${commissionPercent}% sobre vendas`,
-        icon: Percent,
-        iconBg: "bg-amber-500/10",
-        iconColor: "text-amber-600",
       };
 
   const kpis = [
     {
-      label: "Faturamento Bruto",
+      label: "FATURAMENTO BRUTO",
       value: formatCurrency(faturamentoBruto),
       subtitle: closed.length > 0 ? `${closed.length} venda${closed.length > 1 ? "s" : ""} fechada${closed.length > 1 ? "s" : ""}` : undefined,
-      icon: DollarSign,
-      iconBg: "bg-emerald-500/10",
-      iconColor: "text-emerald-600",
     },
     secondKpi,
     {
-      label: "Taxa de Conversão FV",
+      label: "TAXA DE CONVERSÃO FV",
       value: `${conversionRate.toFixed(1)}%`,
       subtitle: totalWorked > 0 ? `${closed.length}/${totalWorked} trabalhadas` : undefined,
-      icon: BarChart3,
-      iconBg: "bg-primary/10",
-      iconColor: "text-primary",
     },
     {
-      label: "Ticket Médio",
+      label: "TICKET MÉDIO",
       value: formatCurrency(ticketMedio),
       subtitle: closed.length > 0 ? `base: ${closed.length} venda${closed.length > 1 ? "s" : ""}` : undefined,
-      icon: Receipt,
-      iconBg: "bg-violet-500/10",
-      iconColor: "text-violet-600",
     },
   ];
 
   return (
-    <div className="space-y-3 md:space-y-4">
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 md:gap-3">
-        {kpis.map((kpi) => {
-          const Icon = kpi.icon;
-          return (
-            <Card key={kpi.label} className="border-border/50">
-              <CardContent className="p-3 md:p-4">
-                <div className="flex items-start justify-between gap-2">
-                  <div className="min-w-0 flex-1">
-                    <p className="text-[10px] sm:text-[11px] font-medium text-muted-foreground uppercase tracking-wider leading-tight">
-                      {kpi.label}
-                    </p>
-                    <p className="text-base sm:text-2xl font-bold mt-0.5 md:mt-1 truncate">{kpi.value}</p>
-                    {kpi.subtitle && (
-                      <p className="text-[10px] md:text-[11px] text-muted-foreground mt-0.5">{kpi.subtitle}</p>
-                    )}
-                  </div>
-                  <div className={`hidden sm:flex h-9 w-9 rounded-lg ${kpi.iconBg} items-center justify-center shrink-0`}>
-                    <Icon className={`h-4 w-4 ${kpi.iconColor}`} />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          );
-        })}
-      </div>
+    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      {kpis.map((kpi) => (
+        <div
+          key={kpi.label}
+          className="bg-card border border-border rounded-xl px-5 py-4"
+        >
+          <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground mb-2">
+            {kpi.label}
+          </p>
+          <p className="text-2xl font-bold text-foreground">{kpi.value}</p>
+          {kpi.subtitle && (
+            <p className="text-[12px] text-muted-foreground mt-1">{kpi.subtitle}</p>
+          )}
+        </div>
+      ))}
     </div>
   );
 };
