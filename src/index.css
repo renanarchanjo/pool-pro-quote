@@ -277,9 +277,6 @@
   0% { background-position: -200% center; }
   100% { background-position: 200% center; }
 }
-  0% { transform: translateX(0); }
-  100% { transform: translateX(-50%); }
-}
 
 /* Respect reduced motion */
 @media (prefers-reduced-motion: reduce) {
