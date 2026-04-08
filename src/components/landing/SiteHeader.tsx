@@ -14,10 +14,18 @@ const SiteHeader = ({ onSimulate }: SiteHeaderProps) => {
 
       <nav className="sticky top-0 z-50 bg-[#FFFFFF] border-b border-[#E5E7EB] h-14">
         <div className="container mx-auto px-4 h-full flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-2">
-            <img src={logoIcon} alt="SimulaPool" className="w-8 h-8 rounded-lg" />
-            <span className="text-[15px] font-semibold text-[#0D0D0D] tracking-[-0.01em]">SimulaPool</span>
-          </Link>
+          {/* Logo + status */}
+          <div className="flex items-center gap-4">
+            <Link to="/" className="flex items-center gap-2">
+              <img src={logoIcon} alt="SimulaPool" className="w-8 h-8 rounded-lg" />
+              <span className="text-[15px] font-semibold text-[#0D0D0D] tracking-[-0.01em]">SimulaPool</span>
+            </Link>
+            {/* Online status — desktop only */}
+            <div className="hidden md:flex items-center gap-1.5">
+              <span className="w-2 h-2 rounded-full bg-[#22C55E] animate-[pulse-dot_2s_ease-in-out_infinite]" />
+              <span className="text-[12px] font-medium text-[#16A34A]">Sistema online</span>
+            </div>
+          </div>
 
           {/* Desktop nav */}
           <div className="hidden md:flex items-center gap-6">
@@ -33,7 +41,7 @@ const SiteHeader = ({ onSimulate }: SiteHeaderProps) => {
             </Link>
             <button
               onClick={onSimulate}
-              className="h-9 px-5 text-[13px] font-medium rounded-lg bg-primary hover:bg-[#0284C7] text-white transition-all duration-150"
+              className="h-9 px-5 text-[13px] font-medium rounded-lg bg-[#16A34A] hover:bg-[#15803D] text-white transition-all duration-150"
             >
               Ver Preços →
             </button>
@@ -43,7 +51,7 @@ const SiteHeader = ({ onSimulate }: SiteHeaderProps) => {
           <div className="flex md:hidden items-center gap-2">
             <button
               onClick={onSimulate}
-              className="h-9 px-4 text-[13px] font-medium rounded-lg bg-primary hover:bg-[#0284C7] text-white transition-all duration-150"
+              className="h-9 px-4 text-[13px] font-medium rounded-lg bg-[#16A34A] hover:bg-[#15803D] text-white transition-all duration-150"
             >
               Ver Preços →
             </button>
