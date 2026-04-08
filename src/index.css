@@ -187,6 +187,10 @@
 }
 
 @media (max-width: 768px) {
+  .hero-gradient {
+    background: linear-gradient(180deg, #0F172A 0%, #FFFFFF 70%) !important;
+  }
+
   .mobile-matriz-header {
     height: 4.5rem;
     min-height: 4.5rem;

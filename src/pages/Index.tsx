@@ -31,7 +31,7 @@ const Index = () => {
 
       {/* Hero */}
       <section
-        className="relative flex-1 flex items-center justify-center px-4 py-12 md:py-32 overflow-hidden"
+        className="hero-gradient relative flex-1 flex items-center justify-center px-4 py-12 md:py-32 overflow-hidden"
         style={{
           background: 'linear-gradient(180deg, #0F172A 0%, #0F172A 30%, #0C2340 55%, #F8FBFF 85%, #FFFFFF 100%)',
         }}
