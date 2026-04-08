@@ -11,7 +11,7 @@ import {
   Zap,
   Star,
 } from "lucide-react";
-import SiteHeader from "@/components/landing/SiteHeader";
+import LojistaHeader from "@/components/landing/LojistaHeader";
 import SiteFooter from "@/components/landing/SiteFooter";
 import PricingSection from "@/components/landing/PricingSection";
 import { useForceLightTheme } from "@/hooks/useForceLightTheme";
