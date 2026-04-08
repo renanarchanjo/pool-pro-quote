@@ -125,27 +125,8 @@ const Index = () => {
             </button>
           </motion.div>
 
-          {/* Trust pills */}
-          <motion.div
-            variants={fadeUp} initial="hidden" animate="visible" custom={4}
-            className="flex flex-wrap md:flex-nowrap items-center justify-center gap-2.5 md:gap-3 mt-8 md:mt-10 mb-14 md:mb-16"
-          >
-            {["Grátis", "Sem cadastro", "Resultado na hora"].map((label) => (
-              <span
-                key={label}
-                className="inline-flex items-center gap-1.5 text-[13px] font-medium rounded-full"
-                style={{
-                  background: "rgba(255,255,255,0.06)",
-                  border: "1px solid rgba(255,255,255,0.12)",
-                  color: "rgba(255,255,255,0.75)",
-                  padding: "7px 16px",
-                }}
-              >
-                <Check className="w-3.5 h-3.5" style={{ color: "#38BDF8" }} />
-                {label}
-              </span>
-            ))}
-          </motion.div>
+
+
 
           {/* Social proof metrics — cleaner spacing */}
           <motion.div
