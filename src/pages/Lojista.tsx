@@ -334,28 +334,44 @@ const Lojista = () => {
             "linear-gradient(180deg, hsl(var(--background)) 0%, hsl(var(--secondary)) 100%)",
         }}
       >
-        <div className="max-w-[1000px] mx-auto">
+        <div className="max-w-[1060px] mx-auto">
+          {/* Section header */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, amount: 0.5 }}
             transition={{ duration: 0.5 }}
-            className="text-center mb-12 md:mb-16"
+            className="text-center mb-14 md:mb-20"
           >
             <p className="text-[11px] font-semibold uppercase tracking-[0.1em] text-muted-foreground mb-3">
-              VANTAGENS
+              POR QUE USAR O SIMULAPOOL
             </p>
-            <h2 className="text-[24px] md:text-[32px] font-bold text-foreground tracking-[-0.02em] mb-3">
-              Tudo que você precisa para vender mais
+            <h2 className="text-[24px] md:text-[36px] font-bold text-foreground tracking-[-0.02em] mb-3">
+              Automação de ponta a ponta
             </h2>
-            <p className="text-[15px] text-muted-foreground max-w-[500px] mx-auto">
-              Automatize o orçamento, profissionalize suas propostas e
-              acompanhe cada lead do início ao fechamento.
+            <p className="text-[15px] md:text-[17px] text-muted-foreground max-w-[560px] mx-auto leading-relaxed">
+              Do orçamento ao fechamento — tudo automatizado. E de bônus,
+              você ainda recebe leads de consumidores que já simularam.
             </p>
           </motion.div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-            {BENEFITS.map((b, i) => (
+          {/* ── Group 1: Automação de Orçamentos ── */}
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.3 }}
+            transition={{ duration: 0.4 }}
+            className="mb-4"
+          >
+            <div className="flex items-center gap-2 mb-5 px-1">
+              <div className="w-1.5 h-6 rounded-full bg-primary" />
+              <h3 className="text-[13px] font-bold uppercase tracking-[0.06em] text-primary">
+                Automação de Orçamentos
+              </h3>
+            </div>
+          </motion.div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-14">
+            {BENEFITS_AUTOMATION.map((b, i) => (
               <motion.div
                 key={b.title}
                 variants={fadeUp}
@@ -363,84 +379,107 @@ const Lojista = () => {
                 whileInView="visible"
                 viewport={{ once: true, amount: 0.3 }}
                 custom={i}
-                className="group bg-background border border-border rounded-2xl p-7 transition-all duration-300 hover:border-primary/30 hover:shadow-[0_8px_30px_-12px_rgba(14,165,233,0.15)]"
+                className="group bg-background border border-border rounded-2xl p-7 transition-all duration-300 hover:border-primary/30 hover:shadow-[0_8px_30px_-12px_rgba(14,165,233,0.15)] flex flex-col"
               >
-                <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center mb-4 group-hover:bg-primary/15 transition-colors duration-300">
+                <div className="w-11 h-11 rounded-xl bg-primary/10 flex items-center justify-center mb-5 group-hover:bg-primary/15 transition-colors duration-300">
                   <b.icon className="w-5 h-5 text-primary" />
                 </div>
-                <h3 className="text-[15px] font-semibold text-foreground mb-2">
+                <h3 className="text-[16px] font-semibold text-foreground mb-2">
                   {b.title}
                 </h3>
-                <p className="text-[13px] text-muted-foreground leading-relaxed">
+                <p className="text-[13px] text-muted-foreground leading-relaxed mb-4 flex-1">
                   {b.description}
+                </p>
+                <p className="text-[12px] font-semibold text-primary/80 bg-primary/5 rounded-lg px-3 py-2">
+                  ✦ {b.highlight}
                 </p>
               </motion.div>
             ))}
           </div>
-        </div>
-      </section>
 
-      {/* ─── Social proof ─── */}
-      <section className="py-16 md:py-20 px-4 bg-background">
-        <div className="max-w-[800px] mx-auto">
+          {/* ── Group 2: Gestão & Inteligência ── */}
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 16 }}
             whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, amount: 0.5 }}
-            transition={{ duration: 0.5 }}
-            className="text-center mb-10"
+            viewport={{ once: true, amount: 0.3 }}
+            transition={{ duration: 0.4 }}
+            className="mb-4"
           >
-            <p className="text-[11px] font-semibold uppercase tracking-[0.1em] text-muted-foreground mb-3">
-              DEPOIMENTOS
-            </p>
-            <h2 className="text-[22px] md:text-[28px] font-bold text-foreground tracking-[-0.02em]">
-              Quem usa, recomenda
-            </h2>
+            <div className="flex items-center gap-2 mb-5 px-1">
+              <div className="w-1.5 h-6 rounded-full bg-primary" />
+              <h3 className="text-[13px] font-bold uppercase tracking-[0.06em] text-primary">
+                Gestão & Inteligência
+              </h3>
+            </div>
           </motion.div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-            {[
-              {
-                quote:
-                  "Antes eu demorava 30 minutos pra fazer um orçamento. Hoje o cliente faz sozinho e eu já recebo pronto.",
-                name: "Carlos M.",
-                role: "Lojista em Londrina/PR",
-              },
-              {
-                quote:
-                  "Meus vendedores ficaram mais produtivos. O painel mostra tudo: quem tá vendendo, quem precisa de ajuda.",
-                name: "Ana Paula S.",
-                role: "Dona de loja em Campinas/SP",
-              },
-            ].map((t, i) => (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-14">
+            {BENEFITS_MANAGEMENT.map((b, i) => (
               <motion.div
-                key={t.name}
+                key={b.title}
                 variants={fadeUp}
                 initial="hidden"
                 whileInView="visible"
                 viewport={{ once: true, amount: 0.3 }}
                 custom={i}
-                className="bg-background border border-border rounded-2xl p-7 transition-all duration-300 hover:border-primary/20"
+                className="group bg-background border border-border rounded-2xl p-7 transition-all duration-300 hover:border-primary/30 hover:shadow-[0_8px_30px_-12px_rgba(14,165,233,0.15)] flex flex-col"
               >
-                <div className="flex gap-0.5 mb-4">
-                  {Array.from({ length: 5 }).map((_, j) => (
-                    <Star
-                      key={j}
-                      className="w-4 h-4 fill-amber-400 text-amber-400"
-                    />
-                  ))}
+                <div className="w-11 h-11 rounded-xl bg-primary/10 flex items-center justify-center mb-5 group-hover:bg-primary/15 transition-colors duration-300">
+                  <b.icon className="w-5 h-5 text-primary" />
                 </div>
-                <p className="text-[14px] text-foreground leading-relaxed mb-4 italic">
-                  "{t.quote}"
+                <h3 className="text-[16px] font-semibold text-foreground mb-2">
+                  {b.title}
+                </h3>
+                <p className="text-[13px] text-muted-foreground leading-relaxed mb-4 flex-1">
+                  {b.description}
                 </p>
-                <div>
-                  <p className="text-[14px] font-semibold text-foreground">
-                    {t.name}
-                  </p>
-                  <p className="text-[12px] text-muted-foreground">
-                    {t.role}
-                  </p>
+                <p className="text-[12px] font-semibold text-primary/80 bg-primary/5 rounded-lg px-3 py-2">
+                  ✦ {b.highlight}
+                </p>
+              </motion.div>
+            ))}
+          </div>
+
+          {/* ── Group 3: Captação de Leads ── */}
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.3 }}
+            transition={{ duration: 0.4 }}
+            className="mb-4"
+          >
+            <div className="flex items-center gap-2 mb-5 px-1">
+              <div className="w-1.5 h-6 rounded-full bg-emerald-500" />
+              <h3 className="text-[13px] font-bold uppercase tracking-[0.06em] text-emerald-600">
+                Bônus — Captação de Leads
+              </h3>
+              <span className="text-[10px] font-bold uppercase tracking-wide bg-emerald-100 text-emerald-700 px-2.5 py-0.5 rounded-full ml-1">
+                Incluso
+              </span>
+            </div>
+          </motion.div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+            {BENEFITS_LEADS.map((b, i) => (
+              <motion.div
+                key={b.title}
+                variants={fadeUp}
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true, amount: 0.3 }}
+                custom={i}
+                className="group bg-background border border-emerald-200 rounded-2xl p-7 transition-all duration-300 hover:border-emerald-400/40 hover:shadow-[0_8px_30px_-12px_rgba(16,185,129,0.15)] flex flex-col"
+              >
+                <div className="w-11 h-11 rounded-xl bg-emerald-50 flex items-center justify-center mb-5 group-hover:bg-emerald-100 transition-colors duration-300">
+                  <b.icon className="w-5 h-5 text-emerald-600" />
                 </div>
+                <h3 className="text-[16px] font-semibold text-foreground mb-2">
+                  {b.title}
+                </h3>
+                <p className="text-[13px] text-muted-foreground leading-relaxed mb-4 flex-1">
+                  {b.description}
+                </p>
+                <p className="text-[12px] font-semibold text-emerald-700/80 bg-emerald-50 rounded-lg px-3 py-2">
+                  ✦ {b.highlight}
+                </p>
               </motion.div>
             ))}
           </div>
