@@ -22,42 +22,75 @@ const METRICS = [
   { value: "50+", label: "cidades cobertas" },
 ];
 
-const BENEFITS = [
+const BENEFITS_AUTOMATION = [
   {
     icon: Calculator,
-    title: "Orçamento instantâneo",
+    title: "Orçamento em segundos",
     description:
-      "Seus clientes simulam o projeto da piscina e recebem o valor na hora — sem você precisar parar o que está fazendo.",
+      "Seu cliente escolhe modelo, opcionais e recebe o preço final na hora. Você não precisa abrir planilha, ligar de volta nem calcular nada manualmente.",
+    highlight: "Reduz de 30 min para menos de 2 min por orçamento.",
+  },
+  {
+    icon: FileText,
+    title: "Proposta PDF profissional",
+    description:
+      "O sistema gera automaticamente um PDF com sua logo, cores, itens inclusos, opcionais e condições de pagamento. Pronto para enviar por WhatsApp.",
+    highlight: "Sua marca, sem marca d'água no plano pago.",
   },
   {
     icon: Smartphone,
-    title: "Funciona no celular",
+    title: "Simulador mobile-first",
     description:
-      "Compartilhe o link do seu simulador por WhatsApp. O cliente faz tudo pelo celular e você recebe o lead pronto.",
+      "Compartilhe o link do seu simulador por WhatsApp ou redes sociais. O cliente faz tudo pelo celular — e você recebe a proposta pronta no painel.",
+    highlight: "Funciona 24h, mesmo quando a loja está fechada.",
   },
+];
+
+const BENEFITS_MANAGEMENT = [
   {
     icon: Users,
-    title: "Gestão de equipe",
+    title: "Equipe e comissões",
     description:
-      "Cadastre seus vendedores, distribua leads automaticamente e acompanhe a performance de cada um em tempo real.",
+      "Cadastre vendedores, defina limite de leads por pessoa e acompanhe a performance individual. O sistema distribui leads automaticamente.",
+    highlight: "Controle de comissão por vendedor.",
   },
   {
     icon: BarChart3,
-    title: "Dashboard completo",
+    title: "Funil de vendas completo",
     description:
-      "Funil de vendas, propostas enviadas, taxa de conversão e faturamento. Tudo num painel visual e intuitivo.",
+      "Acompanhe cada proposta do primeiro contato ao fechamento. Veja taxa de conversão, ticket médio e faturamento em tempo real no dashboard.",
+    highlight: "Dados reais para decisões inteligentes.",
+  },
+  {
+    icon: Shield,
+    title: "100% personalizado",
+    description:
+      "Logo, paleta de cores e catálogo de piscinas configurados na sua conta. Cada orçamento sai com a identidade da sua loja, não com a nossa.",
+    highlight: "Seu catálogo, seus preços, sua marca.",
+  },
+];
+
+const BENEFITS_LEADS = [
+  {
+    icon: Target,
+    title: "Captação de leads automática",
+    description:
+      "Consumidores que simulam piscinas no nosso portal público viram leads qualificados. Receba direto no seu painel clientes que já sabem o que querem.",
+    highlight: "Leads que já escolheram modelo e viram o preço.",
+  },
+  {
+    icon: Send,
+    title: "Notificação instantânea",
+    description:
+      "Assim que um lead chega, você e sua equipe recebem alerta push no celular. Aceite, visualize os dados e entre em contato em minutos.",
+    highlight: "Tempo de resposta é tudo no fechamento.",
   },
   {
     icon: Clock,
     title: "Economize horas por dia",
     description:
-      "Chega de montar orçamento no papel ou planilha. O sistema gera a proposta PDF profissional automaticamente.",
-  },
-  {
-    icon: Shield,
-    title: "Seus dados, sua marca",
-    description:
-      "Logo, cores e catálogo personalizados. A proposta sai com a sua identidade visual, não com a nossa.",
+      "Sem rascunho no papel, sem retrabalho. O sistema centraliza orçamentos, propostas e follow-ups num só lugar. Mais vendas, menos burocracia.",
+    highlight: "Lojistas relatam economia de 2h+ por dia.",
   },
 ];
 
