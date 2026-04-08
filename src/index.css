@@ -212,8 +212,16 @@
     font-size: 16px !important;
   }
 
-  button, [role="button"], a {
+  button:not([data-compact]), [role="button"]:not([data-compact]), a:not([data-compact]) {
     min-height: 44px;
+  }
+
+  .scrollbar-none {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-none::-webkit-scrollbar {
+    display: none;
   }
 
   main.flex-1 {
