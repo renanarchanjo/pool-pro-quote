@@ -1426,6 +1426,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      remove_team_member: { Args: { _member_id: string }; Returns: undefined }
       store_exists: { Args: { _store_id: string }; Returns: boolean }
     }
     Enums: {
