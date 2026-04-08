@@ -29,7 +29,7 @@ const SiteHeader = ({ onSimulate }: SiteHeaderProps) => {
                   : "text-[#6B7280] hover:text-[#0D0D0D]"
               }`}
             >
-              Para Lojistas
+              Parceiros
             </Link>
             <button
               onClick={onSimulate}
