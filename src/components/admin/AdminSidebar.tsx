@@ -113,7 +113,7 @@ const AdminSidebar = () => {
   };
 
   return (
-    <Sidebar collapsible="none" className="!w-[220px] !bg-secondary !border-r !border-border">
+    <Sidebar collapsible="none" className="!w-[220px] !bg-sidebar !border-r !border-sidebar-border">
       <SidebarHeader className="border-b border-border p-4">
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
