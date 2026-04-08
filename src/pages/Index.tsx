@@ -44,7 +44,7 @@ const Index = () => {
         className="hero-gradient relative overflow-hidden"
         style={{
           background:
-            "linear-gradient(180deg, #0A1628 0%, #0D1F3C 55%, #0A2744 75%, #E8F4FD 92%, #FFFFFF 100%)",
+            "linear-gradient(180deg, #0A1628 0%, #0C1A33 30%, #0D1F3C 50%, #0F2847 65%, #1A3A5C 78%, #3D6B8D 86%, #7AADCB 91%, #C5E2F0 95%, #FFFFFF 100%)",
         }}
       >
         <SiteHeader onSimulate={() => setShowSimulator(true)} />
@@ -128,10 +128,11 @@ const Index = () => {
 
 
 
-          {/* Social proof metrics — cleaner spacing */}
+          {/* Social proof metrics */}
           <motion.div
             variants={fadeUp} initial="hidden" animate="visible" custom={5}
-            className="flex items-center justify-center mt-14"
+            className="flex items-center justify-center mt-14 bg-white/[0.07] backdrop-blur-sm rounded-2xl px-8 py-5 mx-auto w-fit"
+            style={{ border: "1px solid rgba(255,255,255,0.08)" }}
           >
             {[
               { value: "4.800+", label: "orçamentos gerados", highlight: false },
@@ -140,16 +141,16 @@ const Index = () => {
             ].map((metric, i) => (
               <div key={metric.label} className="flex items-center">
                 {i > 0 && (
-                  <div className="w-px h-10 mx-5 md:mx-6" style={{ background: "rgba(255,255,255,0.1)" }} />
+                  <div className="w-px h-10 mx-5 md:mx-7" style={{ background: "rgba(255,255,255,0.15)" }} />
                 )}
                 <div className="text-center">
                   <p
-                    className="text-[22px] md:text-[26px] font-bold"
+                    className="text-[22px] md:text-[28px] font-bold"
                     style={{ color: metric.highlight ? "#38BDF8" : "#FFFFFF" }}
                   >
                     {metric.value}
                   </p>
-                  <p className="text-[11px] md:text-[12px] mt-0.5" style={{ color: "rgba(255,255,255,0.45)" }}>
+                  <p className="text-[11px] md:text-[12px] mt-1 font-medium tracking-wide" style={{ color: "rgba(255,255,255,0.55)" }}>
                     {metric.label}
                   </p>
                 </div>
