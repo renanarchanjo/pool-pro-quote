@@ -11,7 +11,7 @@ import {
   Zap,
   Star,
 } from "lucide-react";
-import SiteHeader from "@/components/landing/SiteHeader";
+import LojistaHeader from "@/components/landing/LojistaHeader";
 import SiteFooter from "@/components/landing/SiteFooter";
 import PricingSection from "@/components/landing/PricingSection";
 import { useForceLightTheme } from "@/hooks/useForceLightTheme";
@@ -108,7 +108,7 @@ const Lojista = () => {
             "linear-gradient(180deg, #0A1628 0%, #0C1A33 30%, #0D1F3C 50%, #0F2847 65%, #1A3A5C 78%, #3D6B8D 86%, #7AADCB 91%, #C5E2F0 95%, #FFFFFF 100%)",
         }}
       >
-        <SiteHeader />
+        <LojistaHeader />
 
         {/* Blobs */}
         <div
