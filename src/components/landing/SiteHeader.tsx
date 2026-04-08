@@ -1,5 +1,7 @@
 import { Link, useLocation } from "react-router-dom";
 import logoIcon from "@/assets/logo-icon.png";
+
+interface SiteHeaderProps {
   onSimulate?: () => void;
 }
 
