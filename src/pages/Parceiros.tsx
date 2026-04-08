@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Loader2, TrendingUp, MapPin, Shield, Zap, Users, BarChart3, MessageCircle, ArrowRight, Star, CheckCircle2 } from "lucide-react";
+import { Loader2, Target, Eye, BarChart3, Megaphone, Sparkles, Trophy, MessageCircle, ArrowRight, Star } from "lucide-react";
 import { motion } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import SiteHeader from "@/components/landing/SiteHeader";
@@ -12,48 +12,48 @@ interface Partner {
   logo_url: string | null;
 }
 
-const RESULTS = [
-  { icon: TrendingUp, value: "4.800+", label: "leads gerados por mês" },
-  { icon: MapPin, value: "50+", label: "cidades atendidas" },
-  { icon: Users, value: "200+", label: "lojistas na rede" },
+const METRICS = [
+  { value: "4.800+", label: "simulações/mês" },
+  { value: "200+", label: "modelos no catálogo" },
+  { value: "50+", label: "cidades ativas" },
 ];
 
 const BENEFITS = [
   {
-    icon: MapPin,
-    title: "Exclusividade na sua cidade",
-    description: "Apenas um lojista por região. Todos os leads da sua cidade vão direto pro seu painel.",
+    icon: Target,
+    title: "Momento exato da decisão",
+    description: "Sua marca aparece quando o cliente já está escolhendo modelo, tamanho e opcionais. Não é impressão genérica — é influência direta na compra.",
   },
   {
-    icon: TrendingUp,
-    title: "Clientes prontos pra comprar",
-    description: "Leads qualificados que já escolheram modelo, tamanho e opcionais. Só falta o contato com você.",
+    icon: Eye,
+    title: "Milhares de impressões qualificadas",
+    description: "Cada simulação exibe sua marca no PDF, na tela de resultados e no compartilhamento via WhatsApp. Volume real, audiência certa.",
   },
   {
     icon: BarChart3,
-    title: "Dados de mercado em tempo real",
-    description: "Saiba quais modelos vendem mais na sua região, ticket médio e tendências antes da concorrência.",
+    title: "Dados estratégicos do mercado",
+    description: "Relatórios mensais com modelos mais buscados, cidades com maior demanda e ticket médio por região. Intel que seus concorrentes não têm.",
   },
   {
-    icon: Shield,
-    title: "Sua marca em cada orçamento",
-    description: "Logo, cores e dados da sua loja em todos os PDFs enviados — milhares de impressões mensais.",
+    icon: Megaphone,
+    title: "Presença em todo o funil",
+    description: "Landing page, simulador, proposta PDF e área do lojista — sua marca presente em cada etapa, do primeiro clique ao fechamento.",
   },
   {
-    icon: Zap,
-    title: "Zero custo de aquisição",
-    description: "O cliente vem até você pelo simulador. Sem gastar com anúncio, sem cold call, sem perder tempo.",
+    icon: Sparkles,
+    title: "Selo 'Recomendado SimulaPool'",
+    description: "Use o selo oficial nos seus materiais. Associe sua marca à plataforma que os lojistas já usam para vender.",
   },
   {
-    icon: Star,
-    title: "Setup e suporte completo",
-    description: "Time dedicado para cadastrar seus modelos, configurar preços e te acompanhar na operação.",
+    icon: Trophy,
+    title: "Prioridade no catálogo",
+    description: "Seus produtos e modelos aparecem em destaque no simulador — na frente da concorrência, direto na decisão do consumidor.",
   },
 ];
 
 const WHATSAPP_NUMBER = "5543999913065";
 const WHATSAPP_MESSAGE = encodeURIComponent(
-  "Olá! Quero receber clientes na minha cidade pelo SimulaPool. Podem me explicar como funciona?"
+  "Olá! Quero posicionar minha marca no SimulaPool. Podem me explicar como funciona a parceria?"
 );
 const WHATSAPP_URL = `https://wa.me/${WHATSAPP_NUMBER}?text=${WHATSAPP_MESSAGE}`;
 
@@ -86,71 +86,100 @@ const Parceiros = () => {
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
-      {/* ─── Hero: same unified dark block as Index ─── */}
+      {/* ─── Hero ─── */}
       <div
         className="hero-gradient relative overflow-hidden"
         style={{
-          background: "linear-gradient(180deg, #0A1628 0%, #0D1F3C 30%, #0A2744 55%, #E8F4FD 88%, #FFFFFF 100%)",
+          background: "linear-gradient(180deg, #0A1628 0%, #0D1F3C 40%, #0A2744 65%, #E8F4FD 90%, #FFFFFF 100%)",
         }}
       >
         <SiteHeader />
 
-        <div className="relative z-10 max-w-[720px] mx-auto text-center px-5 md:px-4 pt-12 pb-20 md:pt-20 md:pb-32">
+        {/* Blobs */}
+        <div
+          className="hidden md:block absolute pointer-events-none rounded-full"
+          style={{ width: 500, height: 500, top: -80, left: -120, background: "radial-gradient(circle, rgba(14,165,233,0.12) 0%, transparent 70%)" }}
+        />
+        <div
+          className="hidden md:block absolute pointer-events-none rounded-full"
+          style={{ width: 400, height: 400, bottom: 80, right: -80, background: "radial-gradient(circle, rgba(56,189,248,0.08) 0%, transparent 70%)" }}
+        />
+
+        <div className="relative z-10 max-w-[740px] mx-auto text-center px-5 md:px-4 pt-12 pb-24 md:pt-24 md:pb-36">
+          {/* Eyebrow */}
           <motion.span
             variants={fadeUp} initial="hidden" animate="visible" custom={0}
-            className="inline-flex items-center gap-1.5 text-[12px] font-semibold px-3 py-1 rounded-md mb-8"
+            className="inline-flex items-center gap-1.5 text-[12px] font-semibold px-3.5 py-1.5 rounded-md mb-8 md:mb-10"
             style={{ background: "rgba(56,189,248,0.12)", border: "1px solid rgba(56,189,248,0.3)", color: "#7DD3FC" }}
           >
             <span style={{ color: "#38BDF8" }}>✦</span>
-            Programa de Parceiros
+            Para Fabricantes e Marcas
           </motion.span>
 
+          {/* Headline */}
           <motion.h1
             variants={fadeUp} initial="hidden" animate="visible" custom={1}
-            className="text-[32px] leading-[1.12] md:text-[52px] md:leading-[1.08] font-bold text-white tracking-[-0.025em] mb-5"
+            className="text-[32px] leading-[1.1] md:text-[54px] md:leading-[1.06] font-bold text-white tracking-[-0.03em] mb-6 md:mb-7"
           >
-            Receba clientes{" "}
-            <span className="text-[#38BDF8]">prontos para comprar</span>
-            <br className="hidden md:block" />
-            {" "}na sua cidade
+            Coloque sua marca no{" "}
+            <span className="text-[#38BDF8]">momento exato</span>{" "}
+            da decisão de compra
           </motion.h1>
 
+          {/* Subheadline */}
           <motion.p
             variants={fadeUp} initial="hidden" animate="visible" custom={2}
-            className="text-[15px] md:text-[18px] max-w-[500px] mx-auto mb-10 leading-relaxed"
-            style={{ color: "rgba(255,255,255,0.6)" }}
+            className="text-[15px] md:text-[18px] max-w-[540px] mx-auto mb-10 md:mb-12 leading-relaxed"
+            style={{ color: "rgba(255,255,255,0.55)" }}
           >
-            Leads qualificados, exclusividade regional e zero custo de aquisição. O cliente simula, escolhe a piscina e chega pronto no seu WhatsApp.
+            Seja exibido dentro de milhares de simulações reais todos os meses e influencie diretamente quem já está pronto para comprar uma piscina.
           </motion.p>
 
-          <motion.div variants={fadeUp} initial="hidden" animate="visible" custom={3} className="flex flex-col sm:flex-row gap-3 justify-center">
+          {/* CTA */}
+          <motion.div variants={fadeUp} initial="hidden" animate="visible" custom={3}>
             <a
               href={WHATSAPP_URL}
               target="_blank"
               rel="noopener noreferrer"
-              className="group inline-flex items-center justify-center h-[52px] px-8 text-[16px] font-semibold rounded-xl text-white transition-all duration-300 hover:scale-[1.03] active:scale-[0.98]"
+              className="group w-full md:w-auto inline-flex items-center justify-center h-[52px] px-10 text-[16px] font-semibold rounded-xl text-white transition-all duration-300 hover:scale-[1.03] active:scale-[0.98]"
               style={{
                 backgroundColor: "#0EA5E9",
                 boxShadow: "0 0 40px rgba(14,165,233,0.4), 0 4px 16px rgba(14,165,233,0.25)",
               }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = "#0284C7";
+                e.currentTarget.style.boxShadow = "0 0 56px rgba(14,165,233,0.5), 0 8px 24px rgba(14,165,233,0.3)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = "#0EA5E9";
+                e.currentTarget.style.boxShadow = "0 0 40px rgba(14,165,233,0.4), 0 4px 16px rgba(14,165,233,0.25)";
+              }}
             >
-              <MessageCircle className="w-5 h-5 mr-2" />
-              Quero receber clientes na minha cidade
-              <ArrowRight className="ml-2 w-4 h-4 transition-transform group-hover:translate-x-0.5" />
+              Quero posicionar minha marca
+              <ArrowRight className="ml-2 w-5 h-5 transition-transform group-hover:translate-x-0.5" />
             </a>
           </motion.div>
 
-          {/* Results metrics */}
-          <motion.div
+          {/* Value prop line */}
+          <motion.p
             variants={fadeUp} initial="hidden" animate="visible" custom={4}
-            className="flex items-center justify-center mt-12"
+            className="text-[13px] mt-5"
+            style={{ color: "rgba(255,255,255,0.4)" }}
           >
-            {RESULTS.map((r, i) => (
-              <div key={r.label} className="flex items-center">
-                {i > 0 && <div className="w-px h-10 mx-5 md:mx-6" style={{ background: "rgba(255,255,255,0.1)" }} />}
+            Sua marca integrada ao fluxo de decisão de compra
+          </motion.p>
+
+          {/* Metrics */}
+          <motion.div
+            variants={fadeUp} initial="hidden" animate="visible" custom={5}
+            className="flex items-center justify-center mt-14"
+          >
+            {METRICS.map((m, i) => (
+              <div key={m.label} className="flex items-center">
+                {i > 0 && <div className="w-px h-10 mx-5 md:mx-7" style={{ background: "rgba(255,255,255,0.1)" }} />}
                 <div className="text-center">
-                  <p className="text-[22px] md:text-[26px] font-bold text-white">{r.value}</p>
-                  <p className="text-[11px] md:text-[12px] mt-0.5" style={{ color: "rgba(255,255,255,0.45)" }}>{r.label}</p>
+                  <p className="text-[22px] md:text-[26px] font-bold text-white">{m.value}</p>
+                  <p className="text-[11px] md:text-[12px] mt-0.5" style={{ color: "rgba(255,255,255,0.4)" }}>{m.label}</p>
                 </div>
               </div>
             ))}
@@ -158,8 +187,58 @@ const Parceiros = () => {
         </div>
       </div>
 
-      {/* ─── Benefits ─── */}
+      {/* ─── How it works — visual flow ─── */}
       <section className="py-16 md:py-24 px-4 bg-background">
+        <div className="max-w-[800px] mx-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.5 }}
+            transition={{ duration: 0.5, ease }}
+            className="text-center mb-12 md:mb-16"
+          >
+            <p className="text-[11px] font-semibold uppercase tracking-[0.1em] text-muted-foreground mb-3">
+              ONDE SUA MARCA APARECE
+            </p>
+            <h2 className="text-[24px] md:text-[32px] font-bold text-foreground tracking-[-0.02em] mb-3">
+              Presente em cada etapa do funil
+            </h2>
+            <p className="text-[15px] text-muted-foreground max-w-[500px] mx-auto">
+              Do primeiro acesso ao PDF compartilhado no WhatsApp — sua marca acompanha o cliente em toda a jornada.
+            </p>
+          </motion.div>
+
+          <div className="space-y-4">
+            {[
+              { step: "01", title: "Simulador público", desc: "O cliente acessa, escolhe modelo e opcionais. Sua marca aparece como fabricante recomendado." },
+              { step: "02", title: "Tela de resultado", desc: "O orçamento é gerado com seus produtos em destaque. Sua logo visível na proposta interativa." },
+              { step: "03", title: "PDF compartilhado", desc: "O cliente salva e envia o PDF via WhatsApp. Sua marca circula organicamente entre decisores." },
+              { step: "04", title: "Painel do lojista", desc: "O revendedor vê seus produtos como opção premium ao montar propostas para seus clientes." },
+            ].map((item, i) => (
+              <motion.div
+                key={item.step}
+                variants={fadeUp}
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true, amount: 0.3 }}
+                custom={i}
+                className="group flex items-start gap-5 bg-background border border-border rounded-2xl p-6 transition-all duration-300 hover:border-primary/30 hover:shadow-[0_8px_30px_-12px_rgba(14,165,233,0.12)]"
+              >
+                <span className="text-[28px] font-bold text-border group-hover:text-primary/40 transition-colors duration-300 leading-none mt-0.5 shrink-0">
+                  {item.step}
+                </span>
+                <div>
+                  <h3 className="text-[15px] font-semibold text-foreground mb-1">{item.title}</h3>
+                  <p className="text-[13px] text-muted-foreground leading-relaxed">{item.desc}</p>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ─── Benefits ─── */}
+      <section className="py-16 md:py-24 px-4" style={{ background: "linear-gradient(180deg, hsl(var(--background)) 0%, hsl(var(--secondary)) 100%)" }}>
         <div className="max-w-[1000px] mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -169,13 +248,13 @@ const Parceiros = () => {
             className="text-center mb-12 md:mb-16"
           >
             <p className="text-[11px] font-semibold uppercase tracking-[0.1em] text-muted-foreground mb-3">
-              POR QUE ENTRAR
+              VANTAGENS
             </p>
             <h2 className="text-[24px] md:text-[32px] font-bold text-foreground tracking-[-0.02em] mb-3">
-              O que você ganha sendo parceiro
+              Por que marcas líderes escolhem o SimulaPool
             </h2>
-            <p className="text-[15px] text-muted-foreground max-w-[480px] mx-auto">
-              Tudo pensado pra você vender mais gastando menos tempo e dinheiro com captação.
+            <p className="text-[15px] text-muted-foreground max-w-[500px] mx-auto">
+              Exposição segmentada onde a decisão de compra acontece — não em feeds genéricos.
             </p>
           </motion.div>
 
@@ -202,7 +281,7 @@ const Parceiros = () => {
       </section>
 
       {/* ─── Current Partners ─── */}
-      <section className="py-16 md:py-20 px-4" style={{ background: "linear-gradient(180deg, hsl(var(--background)) 0%, hsl(var(--secondary)) 100%)" }}>
+      <section className="py-16 md:py-20 px-4 bg-background">
         <div className="max-w-[800px] mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -212,10 +291,10 @@ const Parceiros = () => {
             className="text-center mb-10"
           >
             <p className="text-[11px] font-semibold uppercase tracking-[0.1em] text-muted-foreground mb-3">
-              REDE
+              QUEM JÁ ESTÁ
             </p>
             <h2 className="text-[22px] md:text-[28px] font-bold text-foreground tracking-[-0.02em]">
-              Quem já faz parte
+              Marcas que já estão no fluxo de compra
             </h2>
           </motion.div>
 
@@ -233,8 +312,8 @@ const Parceiros = () => {
               <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-4">
                 <Star className="w-8 h-8 text-primary" />
               </div>
-              <p className="text-foreground font-semibold mb-1">Vagas limitadas por cidade</p>
-              <p className="text-[14px] text-muted-foreground">Garanta exclusividade na sua região.</p>
+              <p className="text-foreground font-semibold mb-1">Vagas limitadas por segmento</p>
+              <p className="text-[14px] text-muted-foreground">Garanta presença antes dos seus concorrentes.</p>
             </motion.div>
           ) : (
             <div className="flex flex-wrap justify-center gap-4">
@@ -264,20 +343,23 @@ const Parceiros = () => {
       </section>
 
       {/* ─── Final CTA ─── */}
-      <section className="py-20 md:py-28 px-4 bg-background">
+      <section
+        className="py-20 md:py-28 px-4"
+        style={{ background: "linear-gradient(180deg, hsl(var(--background)) 0%, #F0F9FF 100%)" }}
+      >
         <motion.div
           initial={{ opacity: 0, y: 28 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, amount: 0.3 }}
-          transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+          transition={{ duration: 0.6, ease }}
           className="max-w-[560px] mx-auto text-center"
         >
           <h2 className="text-[24px] md:text-[32px] font-bold text-foreground tracking-[-0.02em] mb-3">
-            Sua cidade ainda está{" "}
-            <span className="text-primary">disponível?</span>
+            Sua marca já poderia estar{" "}
+            <span className="text-primary">influenciando compras</span>
           </h2>
-          <p className="text-[15px] text-muted-foreground mb-10 leading-relaxed max-w-[440px] mx-auto">
-            Vagas limitadas por região. Fale com o time comercial e garanta exclusividade antes da concorrência.
+          <p className="text-[15px] text-muted-foreground mb-10 leading-relaxed max-w-[460px] mx-auto">
+            Cada dia sem presença no SimulaPool são milhares de simulações onde seus concorrentes aparecem — e você não.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
@@ -288,8 +370,7 @@ const Parceiros = () => {
               className="group inline-flex items-center justify-center h-12 px-8 text-[15px] font-semibold rounded-xl bg-primary text-primary-foreground transition-all duration-300 hover:scale-[1.03] active:scale-[0.98]"
               style={{ boxShadow: "0 4px 20px rgba(14,165,233,0.3)" }}
             >
-              <MessageCircle className="w-4 h-4 mr-2" />
-              Quero ser parceiro
+              Quero posicionar minha marca
               <ArrowRight className="ml-2 w-4 h-4 transition-transform group-hover:translate-x-0.5" />
             </a>
             <a
