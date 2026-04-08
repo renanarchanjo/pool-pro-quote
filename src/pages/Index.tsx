@@ -131,7 +131,7 @@ const Index = () => {
             {[
               { value: "4.800+", label: "orçamentos gerados", highlight: false },
               { value: "200+", label: "modelos disponíveis", highlight: false },
-              { value: "- de 1 min", label: "para seu orçamento", highlight: true },
+              { value: "< 1 min", label: "para seu orçamento", highlight: true },
             ].map((metric, i) => (
               <div key={metric.label} className="flex items-center">
                 {i > 0 && (
