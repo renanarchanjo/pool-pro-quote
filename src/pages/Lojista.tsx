@@ -1,16 +1,475 @@
-import LojistaHeader from "@/components/landing/LojistaHeader";
+import { useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
+import {
+  ArrowRight,
+  Smartphone,
+  Calculator,
+  Users,
+  BarChart3,
+  Clock,
+  Shield,
+  Zap,
+  Star,
+} from "lucide-react";
+import SiteHeader from "@/components/landing/SiteHeader";
 import SiteFooter from "@/components/landing/SiteFooter";
 import PricingSection from "@/components/landing/PricingSection";
 import { useForceLightTheme } from "@/hooks/useForceLightTheme";
 
+const METRICS = [
+  { value: "200+", label: "lojistas ativos" },
+  { value: "4.800+", label: "simulações/mês" },
+  { value: "50+", label: "cidades cobertas" },
+];
+
+const BENEFITS = [
+  {
+    icon: Calculator,
+    title: "Orçamento instantâneo",
+    description:
+      "Seus clientes simulam o projeto da piscina e recebem o valor na hora — sem você precisar parar o que está fazendo.",
+  },
+  {
+    icon: Smartphone,
+    title: "Funciona no celular",
+    description:
+      "Compartilhe o link do seu simulador por WhatsApp. O cliente faz tudo pelo celular e você recebe o lead pronto.",
+  },
+  {
+    icon: Users,
+    title: "Gestão de equipe",
+    description:
+      "Cadastre seus vendedores, distribua leads automaticamente e acompanhe a performance de cada um em tempo real.",
+  },
+  {
+    icon: BarChart3,
+    title: "Dashboard completo",
+    description:
+      "Funil de vendas, propostas enviadas, taxa de conversão e faturamento. Tudo num painel visual e intuitivo.",
+  },
+  {
+    icon: Clock,
+    title: "Economize horas por dia",
+    description:
+      "Chega de montar orçamento no papel ou planilha. O sistema gera a proposta PDF profissional automaticamente.",
+  },
+  {
+    icon: Shield,
+    title: "Seus dados, sua marca",
+    description:
+      "Logo, cores e catálogo personalizados. A proposta sai com a sua identidade visual, não com a nossa.",
+  },
+];
+
+const STEPS = [
+  {
+    step: "01",
+    title: "Crie sua conta grátis",
+    desc: "Cadastre sua loja em menos de 2 minutos. Sem cartão de crédito, sem compromisso.",
+  },
+  {
+    step: "02",
+    title: "Configure seu catálogo",
+    desc: "Adicione seus modelos de piscina, opcionais e preços. Nós importamos tudo pra você se quiser.",
+  },
+  {
+    step: "03",
+    title: "Compartilhe o simulador",
+    desc: "Envie o link para seus clientes via WhatsApp, Instagram ou site. Eles simulam, você recebe o lead.",
+  },
+  {
+    step: "04",
+    title: "Feche mais vendas",
+    desc: "Acompanhe propostas, negocie pelo painel e converta mais com dados reais do seu funil.",
+  },
+];
+
+const ease: [number, number, number, number] = [0.22, 1, 0.36, 1];
+const fadeUp = {
+  hidden: { opacity: 0, y: 24 },
+  visible: (i: number) => ({
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.55, delay: i * 0.1, ease },
+  }),
+};
+
 const Lojista = () => {
   useForceLightTheme();
+  const navigate = useNavigate();
+
   return (
-    <div className="min-h-screen bg-gradient-hero flex flex-col">
-      <LojistaHeader />
-      <main className="flex-1 container mx-auto px-4">
-        <PricingSection />
-      </main>
+    <div className="min-h-screen bg-background flex flex-col">
+      {/* ─── Hero ─── */}
+      <div
+        className="relative overflow-hidden"
+        style={{
+          background:
+            "linear-gradient(180deg, #0A1628 0%, #0C1A33 30%, #0D1F3C 50%, #0F2847 65%, #1A3A5C 78%, #3D6B8D 86%, #7AADCB 91%, #C5E2F0 95%, #FFFFFF 100%)",
+        }}
+      >
+        <SiteHeader />
+
+        {/* Blobs */}
+        <div
+          className="hidden md:block absolute pointer-events-none rounded-full"
+          style={{
+            width: 500,
+            height: 500,
+            top: -80,
+            left: -120,
+            background:
+              "radial-gradient(circle, rgba(14,165,233,0.12) 0%, transparent 70%)",
+          }}
+        />
+        <div
+          className="hidden md:block absolute pointer-events-none rounded-full"
+          style={{
+            width: 400,
+            height: 400,
+            bottom: 80,
+            right: -80,
+            background:
+              "radial-gradient(circle, rgba(56,189,248,0.08) 0%, transparent 70%)",
+          }}
+        />
+
+        <div className="relative z-10 max-w-[740px] mx-auto text-center px-5 md:px-4 pt-12 pb-24 md:pt-24 md:pb-36">
+          {/* Eyebrow */}
+          <motion.p
+            variants={fadeUp}
+            initial="hidden"
+            animate="visible"
+            custom={0}
+            className="text-[12px] md:text-[13px] font-medium tracking-[0.08em] uppercase mb-5 md:mb-6"
+            style={{ color: "rgba(125,211,252,0.55)" }}
+          >
+            Para Lojistas de Piscinas
+          </motion.p>
+
+          {/* Headline */}
+          <motion.h1
+            variants={fadeUp}
+            initial="hidden"
+            animate="visible"
+            custom={1}
+            className="text-[32px] leading-[1.1] md:text-[54px] md:leading-[1.06] font-bold text-white tracking-[-0.03em] mb-6 md:mb-7"
+          >
+            Venda mais piscinas com{" "}
+            <span className="text-[#38BDF8]">orçamentos automáticos</span>
+          </motion.h1>
+
+          {/* Subheadline */}
+          <motion.p
+            variants={fadeUp}
+            initial="hidden"
+            animate="visible"
+            custom={2}
+            className="text-[15px] md:text-[18px] max-w-[540px] mx-auto mb-10 md:mb-12 leading-relaxed"
+            style={{ color: "rgba(255,255,255,0.55)" }}
+          >
+            Seu cliente simula a piscina pelo celular, recebe o preço na hora e
+            você recebe o lead pronto pra fechar. Sem planilha, sem ligação.
+          </motion.p>
+
+          {/* CTA */}
+          <motion.div
+            variants={fadeUp}
+            initial="hidden"
+            animate="visible"
+            custom={3}
+            className="flex flex-col sm:flex-row items-center justify-center gap-3"
+          >
+            <button
+              onClick={() => navigate("/auth")}
+              className="group w-full sm:w-auto inline-flex items-center justify-center h-[52px] px-10 text-[16px] font-semibold rounded-xl transition-all duration-300 hover:scale-[1.03] active:scale-[0.98] animate-cta-pulse"
+              style={{ backgroundColor: "#FFFFFF", color: "#0A1628" }}
+            >
+              Criar Minha Loja Grátis
+              <ArrowRight className="ml-2 w-5 h-5 transition-transform group-hover:translate-x-0.5" />
+            </button>
+            <button
+              onClick={() => navigate("/login")}
+              className="w-full sm:w-auto inline-flex items-center justify-center h-[52px] px-8 text-[15px] font-medium rounded-xl text-white transition-all duration-200"
+              style={{
+                background: "rgba(255,255,255,0.08)",
+                border: "1px solid rgba(255,255,255,0.15)",
+              }}
+            >
+              Já tenho conta
+            </button>
+          </motion.div>
+
+          {/* Trust */}
+          <motion.p
+            variants={fadeUp}
+            initial="hidden"
+            animate="visible"
+            custom={4}
+            className="text-[13px] mt-5"
+            style={{ color: "rgba(255,255,255,0.4)" }}
+          >
+            Sem cartão de crédito · Começa grátis · Cancele quando quiser
+          </motion.p>
+
+          {/* Metrics */}
+          <motion.div
+            variants={fadeUp}
+            initial="hidden"
+            animate="visible"
+            custom={5}
+            className="flex items-center justify-center mt-14 bg-white/[0.07] backdrop-blur-sm rounded-2xl px-8 py-5 mx-auto w-fit"
+            style={{ border: "1px solid rgba(255,255,255,0.08)" }}
+          >
+            {METRICS.map((m, i) => (
+              <div key={m.label} className="flex items-center">
+                {i > 0 && (
+                  <div
+                    className="w-px h-10 mx-5 md:mx-7"
+                    style={{ background: "rgba(255,255,255,0.15)" }}
+                  />
+                )}
+                <div className="text-center">
+                  <p className="text-[22px] md:text-[28px] font-bold text-white">
+                    {m.value}
+                  </p>
+                  <p
+                    className="text-[11px] md:text-[12px] mt-1 font-medium tracking-wide"
+                    style={{ color: "rgba(255,255,255,0.55)" }}
+                  >
+                    {m.label}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </motion.div>
+        </div>
+      </div>
+
+      {/* ─── How it works ─── */}
+      <section className="py-16 md:py-24 px-4 bg-background">
+        <div className="max-w-[800px] mx-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.5 }}
+            transition={{ duration: 0.5, ease }}
+            className="text-center mb-12 md:mb-16"
+          >
+            <p className="text-[11px] font-semibold uppercase tracking-[0.1em] text-muted-foreground mb-3">
+              COMO FUNCIONA
+            </p>
+            <h2 className="text-[24px] md:text-[32px] font-bold text-foreground tracking-[-0.02em] mb-3">
+              Da criação à primeira venda em minutos
+            </h2>
+            <p className="text-[15px] text-muted-foreground max-w-[500px] mx-auto">
+              Configure sua loja, compartilhe o link e comece a receber leads
+              qualificados automaticamente.
+            </p>
+          </motion.div>
+
+          <div className="space-y-4">
+            {STEPS.map((item, i) => (
+              <motion.div
+                key={item.step}
+                variants={fadeUp}
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true, amount: 0.3 }}
+                custom={i}
+                className="group flex items-start gap-5 bg-background border border-border rounded-2xl p-6 transition-all duration-300 hover:border-primary/30 hover:shadow-[0_8px_30px_-12px_rgba(14,165,233,0.12)]"
+              >
+                <span className="text-[28px] font-bold text-border group-hover:text-primary/40 transition-colors duration-300 leading-none mt-0.5 shrink-0">
+                  {item.step}
+                </span>
+                <div>
+                  <h3 className="text-[15px] font-semibold text-foreground mb-1">
+                    {item.title}
+                  </h3>
+                  <p className="text-[13px] text-muted-foreground leading-relaxed">
+                    {item.desc}
+                  </p>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ─── Benefits ─── */}
+      <section
+        className="py-16 md:py-24 px-4"
+        style={{
+          background:
+            "linear-gradient(180deg, hsl(var(--background)) 0%, hsl(var(--secondary)) 100%)",
+        }}
+      >
+        <div className="max-w-[1000px] mx-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.5 }}
+            transition={{ duration: 0.5 }}
+            className="text-center mb-12 md:mb-16"
+          >
+            <p className="text-[11px] font-semibold uppercase tracking-[0.1em] text-muted-foreground mb-3">
+              VANTAGENS
+            </p>
+            <h2 className="text-[24px] md:text-[32px] font-bold text-foreground tracking-[-0.02em] mb-3">
+              Tudo que você precisa para vender mais
+            </h2>
+            <p className="text-[15px] text-muted-foreground max-w-[500px] mx-auto">
+              Automatize o orçamento, profissionalize suas propostas e
+              acompanhe cada lead do início ao fechamento.
+            </p>
+          </motion.div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+            {BENEFITS.map((b, i) => (
+              <motion.div
+                key={b.title}
+                variants={fadeUp}
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true, amount: 0.3 }}
+                custom={i}
+                className="group bg-background border border-border rounded-2xl p-7 transition-all duration-300 hover:border-primary/30 hover:shadow-[0_8px_30px_-12px_rgba(14,165,233,0.15)]"
+              >
+                <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center mb-4 group-hover:bg-primary/15 transition-colors duration-300">
+                  <b.icon className="w-5 h-5 text-primary" />
+                </div>
+                <h3 className="text-[15px] font-semibold text-foreground mb-2">
+                  {b.title}
+                </h3>
+                <p className="text-[13px] text-muted-foreground leading-relaxed">
+                  {b.description}
+                </p>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ─── Social proof ─── */}
+      <section className="py-16 md:py-20 px-4 bg-background">
+        <div className="max-w-[800px] mx-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.5 }}
+            transition={{ duration: 0.5 }}
+            className="text-center mb-10"
+          >
+            <p className="text-[11px] font-semibold uppercase tracking-[0.1em] text-muted-foreground mb-3">
+              DEPOIMENTOS
+            </p>
+            <h2 className="text-[22px] md:text-[28px] font-bold text-foreground tracking-[-0.02em]">
+              Quem usa, recomenda
+            </h2>
+          </motion.div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            {[
+              {
+                quote:
+                  "Antes eu demorava 30 minutos pra fazer um orçamento. Hoje o cliente faz sozinho e eu já recebo pronto.",
+                name: "Carlos M.",
+                role: "Lojista em Londrina/PR",
+              },
+              {
+                quote:
+                  "Meus vendedores ficaram mais produtivos. O painel mostra tudo: quem tá vendendo, quem precisa de ajuda.",
+                name: "Ana Paula S.",
+                role: "Dona de loja em Campinas/SP",
+              },
+            ].map((t, i) => (
+              <motion.div
+                key={t.name}
+                variants={fadeUp}
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true, amount: 0.3 }}
+                custom={i}
+                className="bg-background border border-border rounded-2xl p-7 transition-all duration-300 hover:border-primary/20"
+              >
+                <div className="flex gap-0.5 mb-4">
+                  {Array.from({ length: 5 }).map((_, j) => (
+                    <Star
+                      key={j}
+                      className="w-4 h-4 fill-amber-400 text-amber-400"
+                    />
+                  ))}
+                </div>
+                <p className="text-[14px] text-foreground leading-relaxed mb-4 italic">
+                  "{t.quote}"
+                </p>
+                <div>
+                  <p className="text-[14px] font-semibold text-foreground">
+                    {t.name}
+                  </p>
+                  <p className="text-[12px] text-muted-foreground">
+                    {t.role}
+                  </p>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ─── Pricing ─── */}
+      <section className="px-4 bg-background">
+        <div className="container mx-auto">
+          <PricingSection />
+        </div>
+      </section>
+
+      {/* ─── Final CTA ─── */}
+      <section
+        className="py-20 md:py-28 px-4"
+        style={{
+          background:
+            "linear-gradient(180deg, hsl(var(--background)) 0%, #F0F9FF 100%)",
+        }}
+      >
+        <motion.div
+          initial={{ opacity: 0, y: 28 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.3 }}
+          transition={{ duration: 0.6, ease }}
+          className="max-w-[560px] mx-auto text-center"
+        >
+          <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-6">
+            <Zap className="w-7 h-7 text-primary" />
+          </div>
+          <h2 className="text-[24px] md:text-[32px] font-bold text-foreground tracking-[-0.02em] mb-3">
+            Comece agora e venda{" "}
+            <span className="text-primary">antes do verão</span>
+          </h2>
+          <p className="text-[15px] text-muted-foreground mb-10 leading-relaxed max-w-[460px] mx-auto">
+            Cada dia sem o SimulaPool são leads que vão pro concorrente. Crie
+            sua loja em 2 minutos e comece a receber simulações hoje.
+          </p>
+
+          <div className="flex flex-col sm:flex-row gap-3 justify-center">
+            <button
+              onClick={() => navigate("/auth")}
+              className="group inline-flex items-center justify-center h-12 px-8 text-[15px] font-semibold rounded-xl bg-primary text-primary-foreground transition-all duration-300 hover:scale-[1.03] active:scale-[0.98] animate-cta-pulse"
+              style={{ boxShadow: "0 4px 20px rgba(14,165,233,0.3)" }}
+            >
+              Criar Minha Loja Grátis
+              <ArrowRight className="ml-2 w-4 h-4 transition-transform group-hover:translate-x-0.5" />
+            </button>
+            <button
+              onClick={() => navigate("/login")}
+              className="inline-flex items-center justify-center h-12 px-8 text-[15px] font-semibold rounded-xl border border-border text-foreground transition-all duration-200 hover:border-primary/30 hover:text-primary"
+            >
+              Já tenho conta
+            </button>
+          </div>
+        </motion.div>
+      </section>
+
       <SiteFooter />
     </div>
   );
