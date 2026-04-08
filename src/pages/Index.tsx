@@ -1,5 +1,5 @@
 import { lazy, Suspense, useState } from "react";
-import { ChevronRight, Loader2, Check, ArrowRight } from "lucide-react";
+import { Loader2, ArrowRight } from "lucide-react";
 import { motion } from "framer-motion";
 import SiteHeader from "@/components/landing/SiteHeader";
 import SiteFooter from "@/components/landing/SiteFooter";
