@@ -387,6 +387,7 @@ const PricingSection = ({ hideLeadPlans = false, hideFinalCta = false }: { hideL
           </div>
         </Card>
       </div>
+      )}
     </section>
   );
 };
