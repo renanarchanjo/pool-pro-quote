@@ -67,19 +67,13 @@ const Index = () => {
 
         {/* ─── Hero Content ─── */}
         <div className="relative max-w-[720px] mx-auto text-center z-10 px-5 md:px-4 pt-12 pb-20 md:pt-24 md:pb-36">
-          {/* Eyebrow */}
-          <motion.span
+          <motion.p
             variants={fadeUp} initial="hidden" animate="visible" custom={0}
-            className="inline-flex items-center gap-1.5 text-[12px] font-semibold px-3 py-1 rounded-md mb-8 md:mb-10"
-            style={{
-              background: "rgba(56,189,248,0.12)",
-              border: "1px solid rgba(56,189,248,0.3)",
-              color: "#7DD3FC",
-            }}
+            className="text-[12px] md:text-[13px] font-medium tracking-[0.08em] uppercase mb-5 md:mb-6"
+            style={{ color: "rgba(125,211,252,0.55)" }}
           >
-            <span style={{ color: "#38BDF8" }}>✦</span>
-            Mais de 200 modelos de piscinas de fibra
-          </motion.span>
+            Mais de 4.800 simulações reais por mês
+          </motion.p>
 
           {/* Headline — biggest element, clear hierarchy */}
           <motion.h1
