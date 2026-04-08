@@ -49,15 +49,7 @@ const Index = () => {
       >
         <SiteHeader onSimulate={() => setShowSimulator(true)} />
 
-        {/* Background grid — desktop only */}
-        <div
-          className="hidden md:block absolute inset-0 pointer-events-none"
-          style={{
-            backgroundImage:
-              "linear-gradient(rgba(56,189,248,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(56,189,248,0.05) 1px, transparent 1px)",
-            backgroundSize: "48px 48px",
-          }}
-        />
+        {/* Subtle blobs — desktop only */}
         <div
           className="hidden md:block absolute pointer-events-none rounded-full"
           style={{
