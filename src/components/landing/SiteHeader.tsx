@@ -21,14 +21,6 @@ const SiteHeader = ({ onSimulate }: SiteHeaderProps) => {
 
           {/* Desktop nav */}
           <div className="hidden md:flex items-center gap-9">
-            {/* Sistema online dot */}
-            <span className="flex items-center gap-2 text-[12px] font-medium" style={{ color: 'rgba(255,255,255,0.55)' }}>
-              <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75" style={{ backgroundColor: '#38BDF8' }} />
-                <span className="relative inline-flex rounded-full h-2 w-2" style={{ backgroundColor: '#38BDF8' }} />
-              </span>
-              Sistema online
-            </span>
             <Link
               to="/parceiros"
               className="text-[15px] font-medium transition-colors duration-200"
