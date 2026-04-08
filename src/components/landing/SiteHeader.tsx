@@ -26,8 +26,8 @@ const SiteHeader = ({ onSimulate }: SiteHeaderProps) => {
       <nav className="sticky top-0 z-50 h-14 md:h-[68px] bg-transparent">
         <div className="container mx-auto px-5 md:px-12 h-full flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2">
-            <img src={logoIcon} alt="SimulaPool" className="h-9 w-auto" />
-            <span className="text-[18px] font-bold text-white tracking-[-0.01em]">SimulaPool</span>
+            <img src={logoIcon} alt="SimulaPool" className="h-11 w-auto" />
+            <span className="text-[22px] font-bold text-white tracking-[-0.01em]">SimulaPool</span>
           </Link>
 
           {/* Desktop nav */}
