@@ -6,16 +6,16 @@ interface BrandLogoProps {
 }
 
 const sizes = {
-  sm: { img: "w-6 h-6", text: "text-[15px]" },
-  md: { img: "w-8 h-8", text: "text-[18px]" },
-  lg: { img: "w-10 h-10", text: "text-[22px]" },
+  sm: { img: "h-7 w-auto", text: "text-[15px]" },
+  md: { img: "h-9 w-auto", text: "text-[18px]" },
+  lg: { img: "h-11 w-auto", text: "text-[22px]" },
 };
 
 const BrandLogo = ({ size = "md", className = "" }: BrandLogoProps) => {
   const s = sizes[size];
   return (
     <div className={`flex items-center gap-2 ${className}`}>
-      <img src={logoIcon} alt="SimulaPool" className={`${s.img} rounded-lg`} />
+      <img src={logoIcon} alt="SimulaPool" className={s.img} />
       <span className={`${s.text} font-bold tracking-[-0.01em] text-foreground`}>
         SimulaPool
       </span>
