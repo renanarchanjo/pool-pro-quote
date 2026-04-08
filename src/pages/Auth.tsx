@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
-import logoHorizontal from "@/assets/simulapool-horizontal-sm.png";
+import BrandLogo from "@/components/BrandLogo";
 import { useForceLightTheme } from "@/hooks/useForceLightTheme";
 
 const formatCNPJ = (value: string) => {
@@ -263,7 +263,7 @@ const Auth = () => {
         <Card className="w-full max-w-md p-8 shadow-pool border-border/50">
           <div className="text-center mb-6">
             <div className="flex justify-center mb-6">
-              <img src={logoHorizontal} alt="SIMULAPOOL" className="h-16 object-contain" />
+              <BrandLogo size="lg" />
             </div>
             <div className="mx-auto w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mb-4">
               <Mail className="h-8 w-8 text-primary" />
@@ -338,7 +338,7 @@ const Auth = () => {
       <Card className="w-full max-w-md p-8 shadow-pool border-border/50">
         <div className="text-center mb-8">
           <div className="flex justify-center mb-6">
-            <img src={logoHorizontal} alt="SIMULAPOOL" className="h-16 object-contain" />
+            <BrandLogo size="lg" />
           </div>
           <h1 className="text-3xl font-display font-bold mb-2">Área do Lojista</h1>
           <p className="text-muted-foreground">Crie sua loja agora</p>

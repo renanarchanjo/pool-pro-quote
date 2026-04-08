@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import { toast } from "sonner";
-import logoHorizontal from "@/assets/simulapool-horizontal-sm.png";
+import BrandLogo from "@/components/BrandLogo";
 import { useForceLightTheme } from "@/hooks/useForceLightTheme";
 
 const LoginMatriz = () => {
@@ -88,7 +88,7 @@ const LoginMatriz = () => {
     <div className="min-h-screen flex items-center justify-center bg-gradient-hero p-4">
       <Card className="w-full max-w-md p-8 shadow-xl border-0 bg-white/95 backdrop-blur-md">
         <div className="flex flex-col items-center mb-8">
-          <img src={logoHorizontal} alt="SIMULAPOOL" className="h-24 object-contain mb-4" />
+          <BrandLogo size="lg" className="mb-4" />
           <h1 className="text-xl font-bold text-primary font-display">Painel Matriz</h1>
           <p className="text-sm text-muted-foreground mt-1">Acesso restrito</p>
         </div>

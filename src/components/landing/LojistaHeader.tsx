@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import logoHorizontal from "@/assets/simulapool-horizontal-sm.png";
+import BrandLogo from "@/components/BrandLogo";
 
 const navLinks = [
   { label: "Planos", to: "/lojista" },
@@ -31,7 +31,7 @@ const LojistaHeader = () => {
             className="transition-all duration-500 ease-out"
             style={{ opacity: entered ? 1 : 0, transform: entered ? 'translateX(0)' : 'translateX(-40px)' }}
           >
-            <img src={logoHorizontal} alt="SIMULAPOOL" className="h-16 md:h-16 object-contain" />
+            <BrandLogo size="lg" />
           </Link>
 
           <div
