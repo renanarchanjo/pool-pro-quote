@@ -9,7 +9,6 @@ import {
   Clock,
   Shield,
   Zap,
-  Star,
 } from "lucide-react";
 import LojistaHeader from "@/components/landing/LojistaHeader";
 import SiteFooter from "@/components/landing/SiteFooter";
@@ -345,72 +344,7 @@ const Lojista = () => {
         </div>
       </section>
 
-      {/* ─── Social proof ─── */}
-      <section className="py-16 md:py-20 px-4 bg-background">
-        <div className="max-w-[800px] mx-auto">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, amount: 0.5 }}
-            transition={{ duration: 0.5 }}
-            className="text-center mb-10"
-          >
-            <p className="text-[11px] font-semibold uppercase tracking-[0.1em] text-muted-foreground mb-3">
-              DEPOIMENTOS
-            </p>
-            <h2 className="text-[22px] md:text-[28px] font-bold text-foreground tracking-[-0.02em]">
-              Quem usa, recomenda
-            </h2>
-          </motion.div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-            {[
-              {
-                quote:
-                  "Antes eu demorava 30 minutos pra fazer um orçamento. Hoje o cliente faz sozinho e eu já recebo pronto.",
-                name: "Carlos M.",
-                role: "Lojista em Londrina/PR",
-              },
-              {
-                quote:
-                  "Meus vendedores ficaram mais produtivos. O painel mostra tudo: quem tá vendendo, quem precisa de ajuda.",
-                name: "Ana Paula S.",
-                role: "Dona de loja em Campinas/SP",
-              },
-            ].map((t, i) => (
-              <motion.div
-                key={t.name}
-                variants={fadeUp}
-                initial="hidden"
-                whileInView="visible"
-                viewport={{ once: true, amount: 0.3 }}
-                custom={i}
-                className="bg-background border border-border rounded-2xl p-7 transition-all duration-300 hover:border-primary/20"
-              >
-                <div className="flex gap-0.5 mb-4">
-                  {Array.from({ length: 5 }).map((_, j) => (
-                    <Star
-                      key={j}
-                      className="w-4 h-4 fill-amber-400 text-amber-400"
-                    />
-                  ))}
-                </div>
-                <p className="text-[14px] text-foreground leading-relaxed mb-4 italic">
-                  "{t.quote}"
-                </p>
-                <div>
-                  <p className="text-[14px] font-semibold text-foreground">
-                    {t.name}
-                  </p>
-                  <p className="text-[12px] text-muted-foreground">
-                    {t.role}
-                  </p>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
 
       {/* ─── Pricing ─── */}
       <section className="px-4 bg-background">
