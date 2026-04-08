@@ -26,7 +26,7 @@ const steps = [
   },
 ];
 
-const ease = [0.22, 1, 0.36, 1] as const;
+const ease: [number, number, number, number] = [0.22, 1, 0.36, 1];
 const cardVariant = {
   hidden: { opacity: 0, y: 28 },
   visible: (i: number) => ({
@@ -45,7 +45,7 @@ const HowItWorks = ({ onSimulate }: HowItWorksProps) => {
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, amount: 0.5 }}
-          transition={{ duration: 0.5, ease: ease as unknown as number[] }}
+          transition={{ duration: 0.5, ease }}
           className="text-center mb-12 md:mb-16"
         >
           <p className="text-[11px] font-semibold uppercase tracking-[0.1em] text-muted-foreground mb-3">
