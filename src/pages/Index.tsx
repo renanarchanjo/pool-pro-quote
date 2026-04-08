@@ -29,39 +29,43 @@ const Index = () => {
       <SiteHeader onSimulate={() => setShowSimulator(true)} />
 
       {/* Hero */}
-      <section className="flex-1 flex items-center justify-center px-4 py-20 md:py-32">
+      <section className="flex-1 flex items-center justify-center px-4 py-12 md:py-32">
         <div className="max-w-[600px] mx-auto text-center">
-          {/* Eyebrow */}
-          <span className="inline-flex items-center bg-[#E0F2FE] text-[#0369A1] text-xs font-semibold px-3 py-1 rounded-md mb-8">
+          <span className="inline-flex items-center bg-[#E0F2FE] text-[#0369A1] text-xs font-semibold px-3 py-1 rounded-md mb-6 md:mb-8">
             Orçamento em menos de 1 minuto
           </span>
 
-          <h1 className="text-[28px] md:text-[44px] md:leading-[1.12] font-semibold text-[#0D0D0D] tracking-[-0.02em] mb-5">
+          <h1 className="text-[28px] leading-[1.2] md:text-[44px] md:leading-[1.12] font-semibold text-[#0D0D0D] tracking-[-0.02em] mb-4 md:mb-5">
             Simule sua piscina de fibra e feche mais vendas.
           </h1>
 
-          <p className="text-[15px] md:text-base text-[#6B7280] max-w-[480px] mx-auto mb-10 leading-relaxed">
+          <p className="text-[15px] md:text-base text-[#6B7280] max-w-[480px] mx-auto mb-8 md:mb-10 leading-relaxed">
             Escolha o modelo, configure os opcionais e envie um orçamento completo para o cliente na hora.
           </p>
 
           <button
             onClick={() => setShowSimulator(true)}
-            className="inline-flex items-center justify-center h-11 px-7 text-[15px] font-semibold rounded-lg bg-primary hover:bg-[#0284C7] text-white transition-all duration-150 mb-8"
+            className="w-full md:w-auto inline-flex items-center justify-center h-11 px-7 text-[15px] font-semibold rounded-lg bg-primary hover:bg-[#0284C7] text-white transition-all duration-150 mb-6 md:mb-8"
           >
             Simular Minha Piscina
             <ChevronRight className="ml-1.5 w-4 h-4" />
           </button>
 
-          <p className="text-[13px] text-[#9CA3AF]">
-            ✓ 100% gratuito · ✓ Sem cadastro · ✓ Resultado imediato
-          </p>
+          {/* Trust chips — column on mobile, row on desktop */}
+          <div className="flex flex-col md:flex-row items-center justify-center gap-1 md:gap-0 text-[13px] text-[#9CA3AF]">
+            <span>✓ 100% gratuito</span>
+            <span className="hidden md:inline mx-2">·</span>
+            <span>✓ Sem cadastro</span>
+            <span className="hidden md:inline mx-2">·</span>
+            <span>✓ Resultado imediato</span>
+          </div>
         </div>
       </section>
 
       {/* Features */}
-      <section id="features" className="bg-[#F8F9FA] py-20 px-4">
+      <section id="features" className="bg-[#F8F9FA] py-12 md:py-20 px-4">
         <div className="max-w-[960px] mx-auto">
-          <div className="text-center mb-10">
+          <div className="text-center mb-8 md:mb-10">
             <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[#9CA3AF] mb-3">
               POR QUE SIMULAPOOL
             </p>
@@ -70,7 +74,7 @@ const Index = () => {
             </h2>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-5">
             {[
               {
                 icon: Layers,

@@ -21,6 +21,7 @@ import InvoiceHistory from "@/components/admin/InvoiceHistory";
 import StorePartnersManager from "@/components/admin/StorePartnersManager";
 import { useStoreData } from "@/hooks/useStoreData";
 import PendingLeadsAlert from "@/components/admin/PendingLeadsAlert";
+import MobileBottomNav from "@/components/admin/MobileBottomNav";
 
 const PAGE_TITLES: Record<string, string> = {
   "": "Dashboard",
@@ -73,7 +74,7 @@ const Admin = () => {
     };
 
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#FFFFFF]">
+      <div className="min-h-screen flex items-center justify-center bg-[#FFFFFF] px-4">
         <div className="text-center max-w-md">
           <p className="text-base font-semibold text-[#0D0D0D] mb-2">Nenhuma loja vinculada</p>
           <p className="text-sm text-[#6B7280] mb-6">Faça login com uma conta que possua uma loja cadastrada.</p>
@@ -91,17 +92,21 @@ const Admin = () => {
   return (
     <SidebarProvider>
       <div className="min-h-screen flex w-full bg-[#F8F9FA] overflow-x-hidden">
-        <AdminSidebar />
+        {/* Desktop sidebar — hidden on mobile */}
+        <div className="hidden md:block">
+          <AdminSidebar />
+        </div>
+
         <div className="flex-1 flex flex-col min-w-0">
           {/* App Header — 56px */}
           <header className="flex items-center border-b border-[#E5E7EB] bg-[#FFFFFF] px-4 h-14 pt-[env(safe-area-inset-top,0px)]">
-            <SidebarTrigger className="h-9 w-9 [&>svg]:!w-5 [&>svg]:!h-5 text-[#6B7280] hover:text-[#0D0D0D] shrink-0 rounded-lg transition-all duration-150" />
-            <div className="ml-3 flex-1 min-w-0">
-              <h1 className="text-[18px] font-semibold text-[#0D0D0D] truncate">{pageTitle}</h1>
+            <SidebarTrigger className="hidden md:flex h-9 w-9 [&>svg]:!w-5 [&>svg]:!h-5 text-[#6B7280] hover:text-[#0D0D0D] shrink-0 rounded-lg transition-all duration-150" />
+            <div className="md:ml-3 flex-1 min-w-0">
+              <h1 className="text-[16px] md:text-[18px] font-semibold text-[#0D0D0D] truncate">{pageTitle}</h1>
             </div>
           </header>
 
-          <main className="flex-1 p-4 md:p-6 overflow-x-hidden overflow-y-auto safe-area-bottom">
+          <main className="flex-1 p-4 md:p-6 overflow-x-hidden overflow-y-auto pb-20 md:pb-6">
             <PendingLeadsAlert />
             <Routes>
               <Route index element={<AdminDashboard />} />
@@ -130,6 +135,9 @@ const Admin = () => {
             </Routes>
           </main>
         </div>
+
+        {/* Mobile bottom nav */}
+        <MobileBottomNav />
       </div>
     </SidebarProvider>
   );
