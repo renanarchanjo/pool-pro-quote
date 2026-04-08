@@ -44,7 +44,7 @@ const Index = () => {
         className="hero-gradient relative overflow-hidden"
         style={{
           background:
-            "linear-gradient(180deg, #0A1628 0%, #0D1F3C 40%, #0A2744 65%, #E8F4FD 90%, #FFFFFF 100%)",
+            "linear-gradient(180deg, #0A1628 0%, #0D1F3C 55%, #0A2744 75%, #E8F4FD 92%, #FFFFFF 100%)",
         }}
       >
         <SiteHeader onSimulate={() => setShowSimulator(true)} />
