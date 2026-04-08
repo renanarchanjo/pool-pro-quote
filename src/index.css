@@ -267,6 +267,12 @@
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
 }
 
+/* Marquee animation */
+@keyframes marquee {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
 /* Respect reduced motion */
 @media (prefers-reduced-motion: reduce) {
   * {

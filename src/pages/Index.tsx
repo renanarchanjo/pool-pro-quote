@@ -2,6 +2,7 @@ import { lazy, Suspense, useState } from "react";
 import { ChevronRight, Layers, Briefcase, TrendingUp, Loader2 } from "lucide-react";
 import SiteHeader from "@/components/landing/SiteHeader";
 import SiteFooter from "@/components/landing/SiteFooter";
+import PartnersMarquee from "@/components/landing/PartnersMarquee";
 import { useForceLightTheme } from "@/hooks/useForceLightTheme";
 
 const PoolSimulator = lazy(() => import("@/components/simulator/PoolSimulator"));
@@ -107,6 +108,7 @@ const Index = () => {
         </div>
       </section>
 
+      <PartnersMarquee />
       <SiteFooter />
     </div>
   );
