@@ -40,6 +40,13 @@ const DATE_PRESETS = [
   { label: "Mês passado", value: "lastMonth", getRange: () => ({ from: startOfMonth(subMonths(new Date(), 1)), to: endOfMonth(subMonths(new Date(), 1)) }) },
 ];
 
+const formatDaysStyled = (days: number): { text: string; color: string } => {
+  if (days === 0) return { text: "Hoje", color: "#16A34A" };
+  if (days < 10) return { text: `${days}d`, color: "#6B7280" };
+  if (days < 20) return { text: `${days}d`, color: "#D97706" };
+  return { text: `${days}d`, color: "#DC2626" };
+};
+
 const DashboardPipeline = ({ proposals, onUpdateStatus, onViewProposal, onExportPDF }: Props) => {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
@@ -87,27 +94,30 @@ const DashboardPipeline = ({ proposals, onUpdateStatus, onViewProposal, onExport
 
   return (
     <div className="space-y-3">
-      {/* Header */}
+      {/* Section label */}
       <div className="flex items-center justify-between">
-        <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[#9CA3AF]">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.06em] text-[#9CA3AF]">
           Propostas
         </p>
-        <span className="text-xs text-[#9CA3AF]">
+        <span className="text-[12px] text-[#9CA3AF]">
           {filtered.length} de {proposals.length}
         </span>
       </div>
 
-      {/* Filters */}
+      {/* Filters row */}
       <div className="flex flex-col sm:flex-row gap-2">
+        {/* Search */}
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#9CA3AF]" />
-          <Input
-            className="pl-9 h-9 text-[13px] bg-[#FFFFFF] border-[#E5E7EB] rounded-lg"
+          <input
+            className="w-full h-9 pl-9 pr-3 text-[13px] text-[#0D0D0D] placeholder:text-[#9CA3AF] bg-[#FFFFFF] border border-[#E5E7EB] rounded-lg outline-none transition-all duration-150 focus:border-[#0EA5E9] focus:shadow-[0_0_0_3px_rgba(14,165,233,0.15)]"
             placeholder="Buscar por nome, cidade ou modelo..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
         </div>
+
+        {/* Filter selects */}
         <div className="flex gap-2">
           <Select value={statusFilter} onValueChange={setStatusFilter}>
             <SelectTrigger className="w-[130px] h-8 text-[13px] bg-[#F8F9FA] border-[#E5E7EB] rounded-md text-[#6B7280]">
@@ -120,6 +130,7 @@ const DashboardPipeline = ({ proposals, onUpdateStatus, onViewProposal, onExport
               ))}
             </SelectContent>
           </Select>
+
           <Select value={sortMode} onValueChange={(v) => setSortMode(v as SortMode)}>
             <SelectTrigger className="w-[140px] h-8 text-[13px] bg-[#F8F9FA] border-[#E5E7EB] rounded-md text-[#6B7280]">
               <div className="flex items-center gap-1.5">
@@ -137,14 +148,14 @@ const DashboardPipeline = ({ proposals, onUpdateStatus, onViewProposal, onExport
 
           <Popover open={datePopoverOpen} onOpenChange={setDatePopoverOpen}>
             <PopoverTrigger asChild>
-              <Button variant="outline" className="h-8 text-[13px] bg-[#F8F9FA] border-[#E5E7EB] rounded-md gap-1.5 font-normal text-[#6B7280]">
+              <button className="inline-flex items-center gap-1.5 h-8 px-3 text-[13px] bg-[#F8F9FA] border border-[#E5E7EB] rounded-md text-[#6B7280] transition-all duration-150 hover:bg-[#F1F3F5]">
                 <CalendarIcon className="w-3.5 h-3.5 text-[#9CA3AF]" />
                 <span className="truncate max-w-[120px]">{getDateLabel()}</span>
                 {(dateFrom || dateTo) && (
                   <X className="w-3 h-3 ml-auto text-[#9CA3AF] hover:text-[#0D0D0D] shrink-0"
                     onClick={(e) => { e.stopPropagation(); setDateFrom(undefined); setDateTo(undefined); setDatePreset("all"); }} />
                 )}
-              </Button>
+              </button>
             </PopoverTrigger>
             <PopoverContent className="w-auto p-0" align="end" sideOffset={8}>
               <div className="flex flex-col sm:flex-row">
@@ -180,40 +191,41 @@ const DashboardPipeline = ({ proposals, onUpdateStatus, onViewProposal, onExport
         </div>
       </div>
 
-      {/* Table */}
+      {/* Table container — no outer border, rounded wrapper */}
       <div className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-xl overflow-hidden">
         {filtered.length === 0 ? (
           <div className="p-12 text-center">
             <FileText className="w-8 h-8 text-[#9CA3AF] mx-auto mb-2" strokeWidth={1.5} />
-            <p className="text-sm text-[#6B7280]">Nenhuma proposta encontrada</p>
+            <p className="text-[13px] text-[#6B7280]">Nenhuma proposta encontrada</p>
           </div>
         ) : (
           <>
-            {/* Mobile */}
+            {/* ── Mobile cards ── */}
             <div className="block md:hidden divide-y divide-[#F3F4F6]">
               {filtered.map((p) => {
                 const sc = STATUS_CONFIG[p.status] || STATUS_CONFIG.nova;
                 const days = daysSince(p.created_at);
+                const ds = formatDaysStyled(days);
                 return (
                   <div key={p.id} className="px-4 py-3 space-y-2">
                     <div className="flex items-start justify-between gap-2">
                       <div className="min-w-0 flex-1">
-                        <p className="text-sm font-medium text-[#0D0D0D] truncate">{p.customer_name}</p>
-                        <p className="text-xs text-[#9CA3AF] truncate">
+                        <p className="text-[14px] font-medium text-[#0D0D0D] truncate">{p.customer_name}</p>
+                        <p className="text-[12px] text-[#9CA3AF] truncate">
                           {p.pool_models?.name || "—"} · {p.customer_city}
                         </p>
-                        <p className="text-xs text-[#9CA3AF]">
-                          {new Date(p.created_at).toLocaleDateString("pt-BR")} · {formatDays(days)}
+                        <p className="text-[12px] text-[#9CA3AF]">
+                          {new Date(p.created_at).toLocaleDateString("pt-BR")} · <span style={{ color: ds.color }}>{ds.text}</span>
                         </p>
                       </div>
-                      <span className="font-semibold text-sm text-[#0D0D0D] whitespace-nowrap">
+                      <span className="text-[14px] font-semibold text-[#0D0D0D] whitespace-nowrap tabular-nums">
                         {formatCurrency(p.total_price)}
                       </span>
                     </div>
                     <div className="flex items-center justify-between gap-2">
                       <Select value={p.status} onValueChange={(v) => onUpdateStatus(p.id, v as ProposalStatus)}>
                         <SelectTrigger
-                          className="w-[120px] h-7 text-xs font-semibold border-0 rounded-md"
+                          className="w-auto h-7 text-[12px] font-semibold border-0 rounded-md px-2.5 cursor-pointer"
                           style={{ backgroundColor: sc.badgeBg, color: sc.badgeText }}
                         >
                           <SelectValue />
@@ -224,13 +236,19 @@ const DashboardPipeline = ({ proposals, onUpdateStatus, onViewProposal, onExport
                           ))}
                         </SelectContent>
                       </Select>
-                      <div className="flex gap-1">
-                        <Button size="sm" variant="outline" className="h-7 w-7 p-0 rounded-md border-[#E5E7EB]" onClick={() => onViewProposal(p)}>
+                      <div className="flex gap-1.5">
+                        <button
+                          className="inline-flex items-center gap-1 h-8 px-3 text-[13px] text-[#6B7280] bg-[#F8F9FA] border border-[#E5E7EB] rounded-md transition-all duration-150 hover:bg-[#F1F3F5]"
+                          onClick={() => onViewProposal(p)}
+                        >
                           <Eye className="w-3.5 h-3.5" />
-                        </Button>
-                        <Button size="sm" variant="outline" className="h-7 w-7 p-0 rounded-md border-[#E5E7EB]" onClick={() => onExportPDF(p)}>
+                        </button>
+                        <button
+                          className="inline-flex items-center gap-1 h-8 px-3 text-[13px] text-[#6B7280] bg-[#F8F9FA] border border-[#E5E7EB] rounded-md transition-all duration-150 hover:bg-[#F1F3F5]"
+                          onClick={() => onExportPDF(p)}
+                        >
                           <Download className="w-3.5 h-3.5" />
-                        </Button>
+                        </button>
                       </div>
                     </div>
                   </div>
@@ -238,41 +256,54 @@ const DashboardPipeline = ({ proposals, onUpdateStatus, onViewProposal, onExport
               })}
             </div>
 
-            {/* Desktop */}
+            {/* ── Desktop table ── */}
             <div className="hidden md:block overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow className="bg-[#F8F9FA] border-b border-[#E5E7EB] hover:bg-[#F8F9FA]">
-                    <TableHead className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[#9CA3AF] h-10">Cliente</TableHead>
-                    <TableHead className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[#9CA3AF] h-10">Modelo</TableHead>
-                    <TableHead className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[#9CA3AF] h-10 text-right">Valor</TableHead>
-                    <TableHead className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[#9CA3AF] h-10">Status</TableHead>
-                    <TableHead className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[#9CA3AF] h-10">Data</TableHead>
-                    <TableHead className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[#9CA3AF] h-10">Dias</TableHead>
-                    <TableHead className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[#9CA3AF] h-10"></TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
+              <table className="w-full text-left">
+                <thead>
+                  <tr className="bg-[#F8F9FA] border-b border-[#E5E7EB]">
+                    <th className="text-[11px] font-semibold uppercase tracking-[0.06em] text-[#9CA3AF] h-10 px-4">Cliente</th>
+                    <th className="text-[11px] font-semibold uppercase tracking-[0.06em] text-[#9CA3AF] h-10 px-4">Modelo</th>
+                    <th className="text-[11px] font-semibold uppercase tracking-[0.06em] text-[#9CA3AF] h-10 px-4 text-right">Valor</th>
+                    <th className="text-[11px] font-semibold uppercase tracking-[0.06em] text-[#9CA3AF] h-10 px-4">Status</th>
+                    <th className="text-[11px] font-semibold uppercase tracking-[0.06em] text-[#9CA3AF] h-10 px-4">Data</th>
+                    <th className="text-[11px] font-semibold uppercase tracking-[0.06em] text-[#9CA3AF] h-10 px-4">Dias</th>
+                    <th className="text-[11px] font-semibold uppercase tracking-[0.06em] text-[#9CA3AF] h-10 px-4"></th>
+                  </tr>
+                </thead>
+                <tbody>
                   {filtered.map((p) => {
                     const sc = STATUS_CONFIG[p.status] || STATUS_CONFIG.nova;
                     const days = daysSince(p.created_at);
-                    const daysColor = days > 20 ? "#DC2626" : days > 10 ? "#D97706" : undefined;
+                    const ds = formatDaysStyled(days);
+                    const modelName = p.pool_models?.name;
+                    const hasModel = modelName && modelName !== "N/A" && modelName !== "null";
+
                     return (
-                      <TableRow key={p.id} className="h-[52px] border-b border-[#F3F4F6] hover:bg-[#FAFAFA] transition-all duration-150">
-                        <TableCell>
+                      <tr key={p.id} className="h-[52px] border-b border-[#F3F4F6] transition-all duration-150 hover:bg-[#FAFAFA]">
+                        {/* Cliente */}
+                        <td className="px-4">
                           <p className="text-[14px] font-medium text-[#0D0D0D]">{p.customer_name}</p>
                           <p className="text-[12px] text-[#9CA3AF]">{p.customer_city}</p>
-                        </TableCell>
-                        <TableCell className="text-[14px] text-[#0D0D0D]">
-                          {p.pool_models?.name || <span className="text-[#D1D5DB]">—</span>}
-                        </TableCell>
-                        <TableCell className="text-[14px] font-semibold text-[#0D0D0D] text-right tabular-nums">
+                        </td>
+
+                        {/* Modelo */}
+                        <td className="px-4 text-[14px]">
+                          {hasModel
+                            ? <span className="text-[#0D0D0D]">{modelName}</span>
+                            : <span className="text-[#D1D5DB]">—</span>
+                          }
+                        </td>
+
+                        {/* Valor */}
+                        <td className="px-4 text-[14px] font-semibold text-[#0D0D0D] text-right tabular-nums">
                           {formatCurrency(p.total_price)}
-                        </TableCell>
-                        <TableCell>
+                        </td>
+
+                        {/* Status badge-select */}
+                        <td className="px-4">
                           <Select value={p.status} onValueChange={(v) => onUpdateStatus(p.id, v as ProposalStatus)}>
                             <SelectTrigger
-                              className="w-[140px] h-7 text-[12px] font-semibold border-0 rounded-md cursor-pointer"
+                              className="w-auto h-auto py-1 px-2.5 text-[12px] font-semibold border-0 rounded-md cursor-pointer inline-flex"
                               style={{ backgroundColor: sc.badgeBg, color: sc.badgeText }}
                             >
                               <SelectValue />
@@ -283,43 +314,42 @@ const DashboardPipeline = ({ proposals, onUpdateStatus, onViewProposal, onExport
                               ))}
                             </SelectContent>
                           </Select>
-                        </TableCell>
-                        <TableCell className="text-[14px] text-[#6B7280] whitespace-nowrap">
+                        </td>
+
+                        {/* Data */}
+                        <td className="px-4 text-[14px] text-[#6B7280] whitespace-nowrap">
                           {new Date(p.created_at).toLocaleDateString("pt-BR")}
-                        </TableCell>
-                        <TableCell>
-                          <span
-                            className="text-[14px] font-medium"
-                            style={{ color: daysColor || "#6B7280" }}
-                          >
-                            {formatDays(days)}
+                        </td>
+
+                        {/* Dias */}
+                        <td className="px-4">
+                          <span className="text-[14px] font-medium" style={{ color: ds.color }}>
+                            {ds.text}
                           </span>
-                        </TableCell>
-                        <TableCell>
+                        </td>
+
+                        {/* Ações */}
+                        <td className="px-4">
                           <div className="flex gap-1.5">
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              className="h-8 text-[13px] gap-1.5 rounded-md bg-[#F8F9FA] border-[#E5E7EB] text-[#6B7280] hover:bg-[#F1F3F5] transition-all duration-150"
+                            <button
+                              className="inline-flex items-center gap-1.5 h-8 px-3 text-[13px] text-[#6B7280] bg-[#F8F9FA] border border-[#E5E7EB] rounded-md transition-all duration-150 hover:bg-[#F1F3F5]"
                               onClick={() => onViewProposal(p)}
                             >
                               <Eye className="w-3.5 h-3.5" /> Ver
-                            </Button>
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              className="h-8 text-[13px] gap-1.5 rounded-md bg-[#F8F9FA] border-[#E5E7EB] text-[#6B7280] hover:bg-[#F1F3F5] transition-all duration-150"
+                            </button>
+                            <button
+                              className="inline-flex items-center gap-1.5 h-8 px-3 text-[13px] text-[#6B7280] bg-[#F8F9FA] border border-[#E5E7EB] rounded-md transition-all duration-150 hover:bg-[#F1F3F5]"
                               onClick={() => onExportPDF(p)}
                             >
                               <Download className="w-3.5 h-3.5" /> PDF
-                            </Button>
+                            </button>
                           </div>
-                        </TableCell>
-                      </TableRow>
+                        </td>
+                      </tr>
                     );
                   })}
-                </TableBody>
-              </Table>
+                </tbody>
+              </table>
             </div>
           </>
         )}
