@@ -172,14 +172,15 @@ const Parceiros = () => {
           {/* Metrics */}
           <motion.div
             variants={fadeUp} initial="hidden" animate="visible" custom={5}
-            className="flex items-center justify-center mt-14"
+            className="flex items-center justify-center mt-14 bg-white/[0.07] backdrop-blur-sm rounded-2xl px-8 py-5 mx-auto w-fit"
+            style={{ border: "1px solid rgba(255,255,255,0.08)" }}
           >
             {METRICS.map((m, i) => (
               <div key={m.label} className="flex items-center">
-                {i > 0 && <div className="w-px h-10 mx-5 md:mx-7" style={{ background: "rgba(255,255,255,0.1)" }} />}
+                {i > 0 && <div className="w-px h-10 mx-5 md:mx-7" style={{ background: "rgba(255,255,255,0.15)" }} />}
                 <div className="text-center">
-                  <p className="text-[22px] md:text-[26px] font-bold text-white">{m.value}</p>
-                  <p className="text-[11px] md:text-[12px] mt-0.5" style={{ color: "rgba(255,255,255,0.4)" }}>{m.label}</p>
+                  <p className="text-[22px] md:text-[28px] font-bold text-white">{m.value}</p>
+                  <p className="text-[11px] md:text-[12px] mt-1 font-medium tracking-wide" style={{ color: "rgba(255,255,255,0.55)" }}>{m.label}</p>
                 </div>
               </div>
             ))}
