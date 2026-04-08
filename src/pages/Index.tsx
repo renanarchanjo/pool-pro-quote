@@ -1,5 +1,5 @@
 import { lazy, Suspense, useState } from "react";
-import { ChevronRight, Loader2 } from "lucide-react";
+import { ChevronRight, Loader2, Check } from "lucide-react";
 import SiteHeader from "@/components/landing/SiteHeader";
 import SiteFooter from "@/components/landing/SiteFooter";
 import PartnersMarquee from "@/components/landing/PartnersMarquee";
@@ -30,34 +30,119 @@ const Index = () => {
       <SiteHeader onSimulate={() => setShowSimulator(true)} />
 
       {/* Hero */}
-      <section className="flex-1 flex items-center justify-center px-4 py-12 md:py-32">
-        <div className="max-w-[600px] mx-auto text-center">
-          <span className="inline-flex items-center bg-[#E0F2FE] text-[#0369A1] text-xs font-semibold px-3 py-1 rounded-md mb-6 md:mb-8">
+      <section className="relative flex-1 flex items-center justify-center px-4 py-12 md:py-32 overflow-hidden">
+        {/* Background grid + blobs — hidden on mobile */}
+        <div
+          className="hidden md:block absolute inset-0 pointer-events-none"
+          style={{
+            backgroundImage:
+              "linear-gradient(rgba(14,165,233,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(14,165,233,0.04) 1px, transparent 1px)",
+            backgroundSize: "40px 40px",
+          }}
+        />
+        <div
+          className="hidden md:block absolute pointer-events-none rounded-full"
+          style={{
+            width: 480,
+            height: 480,
+            top: -100,
+            left: -100,
+            background: "radial-gradient(circle, rgba(14,165,233,0.06) 0%, transparent 70%)",
+          }}
+        />
+        <div
+          className="hidden md:block absolute pointer-events-none rounded-full"
+          style={{
+            width: 420,
+            height: 420,
+            bottom: 0,
+            right: -80,
+            background: "radial-gradient(circle, rgba(56,189,248,0.07) 0%, transparent 70%)",
+          }}
+        />
+
+        <div className="relative max-w-[600px] mx-auto text-center z-10">
+          {/* Eyebrow chip */}
+          <span
+            className="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1 rounded-md mb-6 md:mb-8"
+            style={{
+              background: "#E0F2FE",
+              border: "1px solid #7DD3FC",
+              color: "#0369A1",
+            }}
+          >
+            <span style={{ color: "#0EA5E9" }}>✦</span>
             Mais de 200 modelos de piscinas de fibra
           </span>
 
           <h1 className="text-[28px] leading-[1.2] md:text-[44px] md:leading-[1.12] font-semibold text-[#0D0D0D] tracking-[-0.02em] mb-4 md:mb-5">
-            Descubra o preço da sua piscina em menos de 1 minuto
+            Descubra o{" "}
+            <span style={{ color: "#0EA5E9" }}>preço</span>{" "}
+            da sua piscina em menos de 1 minuto
           </h1>
 
           <p className="text-[15px] md:text-base text-[#6B7280] max-w-[480px] mx-auto mb-8 md:mb-10 leading-relaxed">
             Escolha o tamanho, os opcionais e receba seu orçamento completo na hora — sem precisar falar com vendedor.
           </p>
 
+          {/* CTA with shimmer */}
           <button
             onClick={() => setShowSimulator(true)}
-            className="w-full md:w-auto inline-flex items-center justify-center h-11 px-7 text-[15px] font-semibold rounded-lg bg-primary hover:bg-[#0284C7] text-white transition-all duration-150 mb-6 md:mb-8"
+            className="group w-full md:w-auto inline-flex items-center justify-center h-11 px-7 text-[15px] font-semibold rounded-lg text-white transition-all duration-200 mb-6 md:mb-8"
+            style={{ backgroundColor: "#0EA5E9" }}
+            onMouseEnter={(e) => {
+              const el = e.currentTarget;
+              el.style.backgroundImage = "linear-gradient(90deg, #0EA5E9 0%, #38BDF8 50%, #0EA5E9 100%)";
+              el.style.backgroundSize = "200% auto";
+              el.style.animation = "shimmer 1.5s linear infinite";
+              el.style.backgroundColor = "#0284C7";
+            }}
+            onMouseLeave={(e) => {
+              const el = e.currentTarget;
+              el.style.backgroundImage = "none";
+              el.style.animation = "none";
+              el.style.backgroundColor = "#0EA5E9";
+            }}
           >
             Simular Minha Piscina
             <ChevronRight className="ml-1.5 w-4 h-4" />
           </button>
 
-          <div className="flex flex-col md:flex-row items-center justify-center gap-1 md:gap-0 text-[13px] text-[#9CA3AF]">
-            <span>✓ Grátis</span>
-            <span className="hidden md:inline mx-2">·</span>
-            <span>✓ Sem cadastro</span>
-            <span className="hidden md:inline mx-2">·</span>
-            <span>✓ Resultado na hora</span>
+          {/* Trust pills */}
+          <div className="flex flex-col md:flex-row items-center justify-center gap-2 md:gap-3 mb-10 md:mb-12">
+            {["Grátis", "Sem cadastro", "Resultado na hora"].map((label) => (
+              <span
+                key={label}
+                className="inline-flex items-center gap-1.5 text-[13px] font-medium rounded-full"
+                style={{
+                  background: "#E0F2FE",
+                  border: "1px solid #7DD3FC",
+                  color: "#0369A1",
+                  padding: "6px 14px",
+                }}
+              >
+                <Check className="w-3.5 h-3.5" style={{ color: "#0EA5E9" }} />
+                {label}
+              </span>
+            ))}
+          </div>
+
+          {/* Social proof metrics */}
+          <div className="flex items-center justify-center gap-0">
+            <div className="text-center px-5">
+              <p className="text-[22px] font-bold text-[#0D0D0D]">4.800+</p>
+              <p className="text-[12px] text-[#6B7280]">orçamentos gerados</p>
+            </div>
+            <div className="w-px h-10" style={{ background: "#E5E7EB" }} />
+            <div className="text-center px-5">
+              <p className="text-[22px] font-bold text-[#0D0D0D]">200+</p>
+              <p className="text-[12px] text-[#6B7280]">modelos disponíveis</p>
+            </div>
+            <div className="w-px h-10" style={{ background: "#E5E7EB" }} />
+            <div className="text-center px-5">
+              <p className="text-[22px] font-bold" style={{ color: "#0EA5E9" }}>&lt; 1 min</p>
+              <p className="text-[12px] text-[#6B7280]">para seu orçamento</p>
+            </div>
           </div>
         </div>
       </section>
