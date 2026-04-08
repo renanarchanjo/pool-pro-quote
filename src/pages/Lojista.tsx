@@ -347,9 +347,9 @@ const Lojista = () => {
 
 
       {/* ─── Pricing ─── */}
-      <section className="px-4 bg-background">
+      <section id="planos" className="px-4 bg-background scroll-mt-20">
         <div className="container mx-auto">
-          <PricingSection />
+          <PricingSection hideLeadPlans hideFinalCta />
         </div>
       </section>
 

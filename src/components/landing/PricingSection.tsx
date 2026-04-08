@@ -75,7 +75,7 @@ const highlightedSlug = "avancado";
 const formatCurrency = (value: number) =>
   value.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
-const PricingSection = () => {
+const PricingSection = ({ hideLeadPlans = false, hideFinalCta = false }: { hideLeadPlans?: boolean; hideFinalCta?: boolean }) => {
   const [plans, setPlans] = useState<SubPlan[]>([]);
   const [leadPlans, setLeadPlans] = useState<LeadPlan[]>([]);
   const [extraProposalCost, setExtraProposalCost] = useState("0,50");
@@ -296,7 +296,7 @@ const PricingSection = () => {
       </p>
 
       {/* Lead Plans Section */}
-      {leadPlans.length > 0 && (
+      {!hideLeadPlans && leadPlans.length > 0 && (
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-12">
             <Badge variant="secondary" className="mb-4 bg-orange-100 text-orange-700 border-orange-200 px-4 py-1.5 text-sm font-semibold">
