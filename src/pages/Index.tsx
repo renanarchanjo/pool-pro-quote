@@ -1,5 +1,5 @@
 import { lazy, Suspense, useState } from "react";
-import { ChevronRight, Loader2, Check, ArrowRight } from "lucide-react";
+import { Loader2, ArrowRight } from "lucide-react";
 import { motion } from "framer-motion";
 import SiteHeader from "@/components/landing/SiteHeader";
 import SiteFooter from "@/components/landing/SiteFooter";
@@ -90,10 +90,10 @@ const Index = () => {
           {/* Subheadline */}
           <motion.p
             variants={fadeUp} initial="hidden" animate="visible" custom={2}
-            className="text-[15px] md:text-[18px] max-w-[500px] mx-auto mb-10 md:mb-12 leading-relaxed"
+            className="text-[15px] md:text-[18px] max-w-[480px] mx-auto mb-10 md:mb-12 leading-relaxed"
             style={{ color: "rgba(255,255,255,0.6)" }}
           >
-            Escolha o tamanho, os opcionais e receba seu orçamento completo na hora — sem precisar falar com vendedor.
+            Escolha o modelo, personalize do seu jeito e veja o valor na hora — sem precisar falar com vendedor.
           </motion.p>
 
           {/* CTA — heavy, prominent */}
@@ -119,38 +119,14 @@ const Index = () => {
             </button>
           </motion.div>
 
-
-
-
-          {/* Social proof metrics */}
-          <motion.div
-            variants={fadeUp} initial="hidden" animate="visible" custom={5}
-            className="flex items-center justify-center mt-14 bg-white/[0.07] backdrop-blur-sm rounded-2xl px-8 py-5 mx-auto w-fit"
-            style={{ border: "1px solid rgba(255,255,255,0.08)" }}
+          {/* Trust line */}
+          <motion.p
+            variants={fadeUp} initial="hidden" animate="visible" custom={4}
+            className="mt-5 text-[13px] md:text-[14px] font-medium tracking-wide"
+            style={{ color: "rgba(255,255,255,0.4)" }}
           >
-            {[
-              { value: "4.800+", label: "orçamentos gerados", highlight: false },
-              { value: "200+", label: "modelos disponíveis", highlight: false },
-              { value: "< 1 min", label: "para seu orçamento", highlight: true },
-            ].map((metric, i) => (
-              <div key={metric.label} className="flex items-center">
-                {i > 0 && (
-                  <div className="w-px h-10 mx-5 md:mx-7" style={{ background: "rgba(255,255,255,0.15)" }} />
-                )}
-                <div className="text-center">
-                  <p
-                    className="text-[22px] md:text-[28px] font-bold"
-                    style={{ color: metric.highlight ? "#38BDF8" : "#FFFFFF" }}
-                  >
-                    {metric.value}
-                  </p>
-                  <p className="text-[11px] md:text-[12px] mt-1 font-medium tracking-wide" style={{ color: "rgba(255,255,255,0.55)" }}>
-                    {metric.label}
-                  </p>
-                </div>
-              </div>
-            ))}
-          </motion.div>
+            Sem compromisso · Resultado na hora · 100% online
+          </motion.p>
         </div>
       </div>
 
