@@ -22,14 +22,14 @@ const SiteHeader = ({ onSimulate }: SiteHeaderProps) => {
           {/* Desktop nav */}
           <div className="hidden md:flex items-center gap-6">
             <Link
-              to="/lojista"
+              to="/parceiros"
               className={`text-[13px] transition-all duration-150 ${
-                location.pathname === "/lojista"
+                location.pathname === "/parceiros"
                   ? "text-[#0D0D0D] font-medium"
                   : "text-[#6B7280] hover:text-[#0D0D0D]"
               }`}
             >
-              Para Lojistas
+              Parceiros
             </Link>
             <button
               onClick={onSimulate}
