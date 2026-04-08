@@ -74,11 +74,6 @@ const STEPS = [
   },
   {
     step: "03",
-    title: "Compartilhe o simulador",
-    desc: "Envie o link para seus clientes via WhatsApp, Instagram ou site. Eles simulam, você recebe o lead.",
-  },
-  {
-    step: "04",
     title: "Feche mais vendas",
     desc: "Acompanhe propostas, negocie pelo painel e converta mais com dados reais do seu funil.",
   },
