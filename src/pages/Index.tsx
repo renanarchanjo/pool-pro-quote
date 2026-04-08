@@ -30,13 +30,18 @@ const Index = () => {
       <SiteHeader onSimulate={() => setShowSimulator(true)} />
 
       {/* Hero */}
-      <section className="relative flex-1 flex items-center justify-center px-4 py-12 md:py-32 overflow-hidden">
+      <section
+        className="relative flex-1 flex items-center justify-center px-4 py-12 md:py-32 overflow-hidden"
+        style={{
+          background: 'linear-gradient(180deg, #0F172A 0%, #0F172A 30%, #0C2340 55%, #F8FBFF 85%, #FFFFFF 100%)',
+        }}
+      >
         {/* Background grid + blobs — hidden on mobile */}
         <div
           className="hidden md:block absolute inset-0 pointer-events-none"
           style={{
             backgroundImage:
-              "linear-gradient(rgba(14,165,233,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(14,165,233,0.04) 1px, transparent 1px)",
+              "linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px)",
             backgroundSize: "40px 40px",
           }}
         />
@@ -47,7 +52,7 @@ const Index = () => {
             height: 480,
             top: -100,
             left: -100,
-            background: "radial-gradient(circle, rgba(14,165,233,0.06) 0%, transparent 70%)",
+            background: "radial-gradient(circle, rgba(14,165,233,0.12) 0%, transparent 70%)",
           }}
         />
         <div
@@ -57,7 +62,7 @@ const Index = () => {
             height: 420,
             bottom: 0,
             right: -80,
-            background: "radial-gradient(circle, rgba(56,189,248,0.07) 0%, transparent 70%)",
+            background: "radial-gradient(circle, rgba(56,189,248,0.08) 0%, transparent 70%)",
           }}
         />
 
@@ -66,22 +71,22 @@ const Index = () => {
           <span
             className="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1 rounded-md mb-6 md:mb-8"
             style={{
-              background: "#E0F2FE",
-              border: "1px solid #7DD3FC",
-              color: "#0369A1",
+              background: "rgba(14,165,233,0.15)",
+              border: "1px solid rgba(56,189,248,0.4)",
+              color: "#7DD3FC",
             }}
           >
-            <span style={{ color: "#0EA5E9" }}>✦</span>
+            <span style={{ color: "#38BDF8" }}>✦</span>
             Mais de 200 modelos de piscinas de fibra
           </span>
 
-          <h1 className="text-[28px] leading-[1.2] md:text-[44px] md:leading-[1.12] font-semibold text-[#0D0D0D] tracking-[-0.02em] mb-4 md:mb-5">
+          <h1 className="text-[28px] leading-[1.2] md:text-[44px] md:leading-[1.12] font-semibold text-white tracking-[-0.02em] mb-4 md:mb-5">
             Descubra o{" "}
-            <span style={{ color: "#0EA5E9" }}>preço</span>{" "}
+            <span style={{ color: "#38BDF8" }}>preço</span>{" "}
             da sua piscina em menos de 1 minuto
           </h1>
 
-          <p className="text-[15px] md:text-base text-[#6B7280] max-w-[480px] mx-auto mb-8 md:mb-10 leading-relaxed">
+          <p className="text-[15px] md:text-base max-w-[480px] mx-auto mb-8 md:mb-10 leading-relaxed" style={{ color: 'rgba(255,255,255,0.65)' }}>
             Escolha o tamanho, os opcionais e receba seu orçamento completo na hora — sem precisar falar com vendedor.
           </p>
 
@@ -115,13 +120,13 @@ const Index = () => {
                 key={label}
                 className="inline-flex items-center gap-1.5 text-[13px] font-medium rounded-full"
                 style={{
-                  background: "#E0F2FE",
-                  border: "1px solid #7DD3FC",
-                  color: "#0369A1",
+                  background: "rgba(14,165,233,0.1)",
+                  border: "1px solid rgba(56,189,248,0.25)",
+                  color: "rgba(255,255,255,0.8)",
                   padding: "6px 14px",
                 }}
               >
-                <Check className="w-3.5 h-3.5" style={{ color: "#0EA5E9" }} />
+                <Check className="w-3.5 h-3.5" style={{ color: "#38BDF8" }} />
                 {label}
               </span>
             ))}
@@ -130,18 +135,18 @@ const Index = () => {
           {/* Social proof metrics */}
           <div className="flex items-center justify-center gap-0">
             <div className="text-center px-5">
-              <p className="text-[22px] font-bold text-[#0D0D0D]">4.800+</p>
-              <p className="text-[12px] text-[#6B7280]">orçamentos gerados</p>
+              <p className="text-[22px] font-bold text-white">4.800+</p>
+              <p className="text-[12px]" style={{ color: 'rgba(255,255,255,0.5)' }}>orçamentos gerados</p>
             </div>
-            <div className="w-px h-10" style={{ background: "#E5E7EB" }} />
+            <div className="w-px h-10" style={{ background: 'rgba(255,255,255,0.1)' }} />
             <div className="text-center px-5">
-              <p className="text-[22px] font-bold text-[#0D0D0D]">200+</p>
-              <p className="text-[12px] text-[#6B7280]">modelos disponíveis</p>
+              <p className="text-[22px] font-bold text-white">200+</p>
+              <p className="text-[12px]" style={{ color: 'rgba(255,255,255,0.5)' }}>modelos disponíveis</p>
             </div>
-            <div className="w-px h-10" style={{ background: "#E5E7EB" }} />
+            <div className="w-px h-10" style={{ background: 'rgba(255,255,255,0.1)' }} />
             <div className="text-center px-5">
-              <p className="text-[22px] font-bold" style={{ color: "#0EA5E9" }}>&lt; 1 min</p>
-              <p className="text-[12px] text-[#6B7280]">para seu orçamento</p>
+              <p className="text-[22px] font-bold" style={{ color: "#38BDF8" }}>&lt; 1 min</p>
+              <p className="text-[12px]" style={{ color: 'rgba(255,255,255,0.5)' }}>para seu orçamento</p>
             </div>
           </div>
         </div>
