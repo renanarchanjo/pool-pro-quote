@@ -212,16 +212,16 @@ const AdminDashboard = () => {
   }
 
   return (
-    <div className="space-y-3 md:space-y-6">
+    <div className="space-y-4 md:space-y-6">
       {/* Header */}
-      <div className="space-y-2">
-        <p className="text-sm md:text-base text-muted-foreground truncate">
-          Olá, <span className="font-bold text-foreground">{profile?.full_name || "Lojista"}</span>
+      <div className="space-y-3">
+        <p className="text-sm text-muted-foreground">
+          Olá, <span className="font-medium text-foreground">{profile?.full_name || "Lojista"}</span>
         </p>
-        <div className="flex items-center gap-1.5 flex-wrap">
+        <div className="flex items-center gap-2 flex-wrap">
           {isOwner && teamMembers.length > 1 && (
             <Select value={filterMember} onValueChange={setFilterMember}>
-              <SelectTrigger className="h-8 w-[120px] sm:w-[150px] text-xs">
+              <SelectTrigger className="h-8 w-[140px] text-[13px] bg-secondary border-border rounded-md">
                 <SelectValue placeholder="Membro" />
               </SelectTrigger>
               <SelectContent>
@@ -233,7 +233,7 @@ const AdminDashboard = () => {
             </Select>
           )}
           <Select value={pdfDatePreset} onValueChange={applyPdfPreset}>
-            <SelectTrigger className="h-8 w-[110px] sm:w-[130px] text-xs">
+            <SelectTrigger className="h-8 w-[130px] text-[13px] bg-secondary border-border rounded-md">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -245,8 +245,8 @@ const AdminDashboard = () => {
           </Select>
           <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
             <PopoverTrigger asChild>
-              <Button variant="outline" size="sm" className="h-8 text-xs gap-1">
-                <CalendarIcon className="w-3 h-3" />
+              <Button variant="outline" size="sm" className="h-8 text-[13px] gap-1.5 bg-secondary border-border rounded-md font-normal">
+                <CalendarIcon className="w-3.5 h-3.5" />
                 {pdfDateLabel}
               </Button>
             </PopoverTrigger>
@@ -265,8 +265,8 @@ const AdminDashboard = () => {
               />
             </PopoverContent>
           </Popover>
-          <Button onClick={handleExportPDF} variant="outline" size="sm" className="h-8 shrink-0 text-xs">
-            <Download className="w-3.5 h-3.5 mr-1" />
+          <Button onClick={handleExportPDF} variant="outline" size="sm" className="h-8 shrink-0 text-[13px] bg-secondary border-border rounded-md gap-1.5">
+            <Download className="w-3.5 h-3.5" />
             PDF
           </Button>
         </div>
@@ -283,7 +283,7 @@ const AdminDashboard = () => {
       </div>
 
       {/* On-screen interactive dashboard */}
-      <div className="space-y-3 md:space-y-6">
+      <div className="space-y-4 md:space-y-6">
         {/* (A) KPIs */}
         <div style={{ pageBreakInside: "avoid" }}>
           <DashboardKPIs proposals={filteredProposals} role={role} commissionPercent={commissionPercent} />

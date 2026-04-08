@@ -15,8 +15,7 @@ export default {
     extend: {
       fontFamily: {
         'sans': ['Inter', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'sans-serif'],
-        'display': ['Montserrat', 'sans-serif'],
-        'montserrat': ['Montserrat', 'sans-serif'],
+        'display': ['Inter', 'sans-serif'],
         'inter': ['Inter', 'sans-serif'],
       },
       colors: {
@@ -68,9 +67,6 @@ export default {
           medium: "hsl(var(--pool-medium))",
           deep: "hsl(var(--pool-deep))",
         },
-        cyan: {
-          bright: "hsl(var(--cyan-bright))",
-        },
       },
       borderRadius: {
         lg: "var(--radius)",
@@ -79,58 +75,22 @@ export default {
       },
       keyframes: {
         "accordion-down": {
-          from: {
-            height: "0",
-          },
-          to: {
-            height: "var(--radix-accordion-content-height)",
-          },
+          from: { height: "0" },
+          to: { height: "var(--radix-accordion-content-height)" },
         },
         "accordion-up": {
-          from: {
-            height: "var(--radix-accordion-content-height)",
-          },
-          to: {
-            height: "0",
-          },
+          from: { height: "var(--radix-accordion-content-height)" },
+          to: { height: "0" },
         },
         "fade-in": {
-          from: {
-            opacity: "0",
-            transform: "translateY(10px)",
-          },
-          to: {
-            opacity: "1",
-            transform: "translateY(0)",
-          },
-        },
-        "slide-in": {
-          from: {
-            transform: "translateX(-100%)",
-          },
-          to: {
-            transform: "translateX(0)",
-          },
-        },
-        "hero-word": {
-          "0%": {
-            opacity: "0",
-            transform: "translateY(30px) scale(0.95)",
-            filter: "blur(4px)",
-          },
-          "100%": {
-            opacity: "1",
-            transform: "translateY(0) scale(1)",
-            filter: "blur(0px)",
-          },
+          from: { opacity: "0", transform: "translateY(10px)" },
+          to: { opacity: "1", transform: "translateY(0)" },
         },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
         "fade-in": "fade-in 0.5s ease-out",
-        "slide-in": "slide-in 0.3s ease-out",
-        "hero-word": "hero-word 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards",
       },
     },
   },

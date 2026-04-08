@@ -1,6 +1,6 @@
 import { useNavigate, useLocation } from "react-router-dom";
 import ThemeToggle from "@/components/ThemeToggle";
-import { 
+import {
   LayoutDashboard, FilePlus, Tag, Box, Package, User, Users, LogOut, UsersRound, CreditCard, Receipt, TrendingUp, DollarSign, Handshake, FolderTree
 } from "lucide-react";
 import {
@@ -16,16 +16,14 @@ import {
   SidebarHeader,
   useSidebar,
 } from "@/components/ui/sidebar";
-import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useStoreData } from "@/hooks/useStoreData";
-import simulapoolIcon from "@/assets/simulapool-icon.png";
 
 const AdminSidebar = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { role } = useStoreData();
+  const { role, profile } = useStoreData();
   const { setOpenMobile, isMobile, state } = useSidebar();
   const collapsed = state === "collapsed";
 
@@ -47,6 +45,14 @@ const AdminSidebar = () => {
     navigate("/");
   };
 
+  // Get initials for avatar
+  const initials = (profile?.full_name || "L")
+    .split(" ")
+    .map((w: string) => w[0])
+    .slice(0, 2)
+    .join("")
+    .toUpperCase();
+
   const mainItems = [
     { title: "Dashboard", url: "/admin", icon: LayoutDashboard },
     { title: "Gerar Nova Proposta", url: "/admin/gerar-proposta", icon: FilePlus },
@@ -57,7 +63,7 @@ const AdminSidebar = () => {
     { title: "Marcas Parceiras", url: "/admin/parceiros", icon: Handshake },
     { title: "Marcas", url: "/admin/marcas", icon: Tag },
     { title: "Categorias de Marcas", url: "/admin/categorias", icon: FolderTree },
-    { title: "Modelos e Opcionais Dimensionados", url: "/admin/modelos", icon: Box },
+    { title: "Modelos e Opcionais", url: "/admin/modelos", icon: Box },
     { title: "Opcionais", url: "/admin/opcionais", icon: Package },
   ] : [];
 
@@ -77,22 +83,33 @@ const AdminSidebar = () => {
     if (items.length === 0) return null;
     return (
       <SidebarGroup>
-        {!collapsed && <SidebarGroupLabel>{label}</SidebarGroupLabel>}
+        {!collapsed && (
+          <SidebarGroupLabel className="text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground px-3 mb-1">
+            {label}
+          </SidebarGroupLabel>
+        )}
         <SidebarGroupContent>
           <SidebarMenu>
-            {items.map((item) => (
-              <SidebarMenuItem key={item.title}>
-                <SidebarMenuButton
-                  onClick={() => handleNav(item.url)}
-                  isActive={isActive(item.url)}
-                  tooltip={item.title}
-                  className="cursor-pointer h-11 md:h-9 text-base md:text-sm"
-                >
-                  <item.icon className="h-5 w-5 md:h-4 md:w-4 shrink-0" />
-                  {!collapsed && <span>{item.title}</span>}
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            ))}
+            {items.map((item) => {
+              const active = isActive(item.url);
+              return (
+                <SidebarMenuItem key={item.title}>
+                  <SidebarMenuButton
+                    onClick={() => handleNav(item.url)}
+                    isActive={active}
+                    tooltip={item.title}
+                    className={`cursor-pointer h-9 text-[13px] rounded-lg transition-all duration-150 ${
+                      active
+                        ? "bg-card border border-border font-semibold text-foreground"
+                        : "text-muted-foreground hover:bg-accent font-normal"
+                    }`}
+                  >
+                    <item.icon className={`h-4 w-4 shrink-0 ${active ? "text-primary" : "text-muted-foreground"}`} strokeWidth={1.5} />
+                    {!collapsed && <span>{item.title}</span>}
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              );
+            })}
           </SidebarMenu>
         </SidebarGroupContent>
       </SidebarGroup>
@@ -101,37 +118,38 @@ const AdminSidebar = () => {
 
   return (
     <Sidebar collapsible="icon">
-      <SidebarHeader className="border-b border-border/50 pt-12 md:pt-4 pb-3 flex items-center">
-        <div className="flex items-center gap-3 px-3 w-full">
-          <img src={simulapoolIcon} alt="SimulaPool" className="h-20 w-20 md:h-16 md:w-16 object-contain rounded-xl shrink-0" />
+      <SidebarHeader className="border-b border-border p-4">
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 rounded-full bg-[#E0F2FE] flex items-center justify-center shrink-0">
+            <span className="text-xs font-semibold text-[#0369A1]">{initials}</span>
+          </div>
           {!collapsed && (
-            <div className="flex flex-col">
-              <span className="text-base font-bold text-primary leading-tight">Simula Pool</span>
-              <span className="text-[10px] text-muted-foreground font-medium tracking-wide">Painel do Lojista</span>
+            <div className="flex flex-col min-w-0">
+              <span className="text-[13px] font-semibold text-foreground truncate">{profile?.full_name || "Lojista"}</span>
+              <span className="text-xs text-muted-foreground">Painel do Lojista</span>
             </div>
           )}
         </div>
       </SidebarHeader>
 
-      <SidebarContent>
-        {renderGroup("PAINEL COMERCIAL", mainItems)}
-        {renderGroup("CADASTRO", catalogItems)}
-        {renderGroup("CONTA", accountItems)}
+      <SidebarContent className="px-2">
+        {renderGroup("Painel Comercial", mainItems)}
+        {renderGroup("Cadastro", catalogItems)}
+        {renderGroup("Conta", accountItems)}
       </SidebarContent>
 
-      <SidebarFooter className="p-3 safe-area-bottom space-y-2 border-t border-border/50 shrink-0">
-        <div className="flex items-center justify-between">
+      <SidebarFooter className="p-3 border-t border-border shrink-0 safe-area-bottom">
+        <div className="flex items-center justify-between mb-2">
           {!collapsed && <span className="text-xs text-muted-foreground">Tema</span>}
           <ThemeToggle />
         </div>
-        <Button
-          variant="outline"
+        <button
           onClick={handleLogout}
-          className="w-full h-11 md:h-9 text-destructive border-destructive/30 hover:bg-destructive/10 text-base md:text-sm"
+          className="flex items-center gap-2 w-full text-[13px] text-muted-foreground hover:text-destructive px-2 py-2 rounded-lg transition-colors duration-150"
         >
-          <LogOut className="h-5 w-5 md:h-4 md:w-4 shrink-0" />
-          {!collapsed && <span className="ml-2">Sair</span>}
-        </Button>
+          <LogOut className="h-4 w-4 shrink-0" strokeWidth={1.5} />
+          {!collapsed && <span>Sair</span>}
+        </button>
       </SidebarFooter>
     </Sidebar>
   );
