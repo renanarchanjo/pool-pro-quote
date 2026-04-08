@@ -104,7 +104,7 @@ const DashboardPipeline = ({ proposals, onUpdateStatus, onViewProposal, onExport
       <div className="relative">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
         <input
-          className="w-full h-10 md:h-9 pl-9 pr-3 text-[13px] text-foreground placeholder:text-muted-foreground bg-background border border-border rounded-lg outline-none transition-all duration-150 focus:border-primary focus:ring-[3px] focus:ring-primary/15"
+          className="w-full h-10 md:h-9 pl-9 pr-3 text-[13px] text-foreground placeholder:text-muted-foreground bg-input border border-border rounded-lg outline-none transition-all duration-150 focus:border-primary focus:ring-[3px] focus:ring-primary/15"
           placeholder="Buscar por nome, cidade ou modelo..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
@@ -114,7 +114,7 @@ const DashboardPipeline = ({ proposals, onUpdateStatus, onViewProposal, onExport
       {/* Filter row — horizontal scroll on mobile */}
       <div className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1 scrollbar-none">
         <Select value={statusFilter} onValueChange={setStatusFilter}>
-          <SelectTrigger className="w-auto min-w-[100px] h-8 text-[13px] bg-secondary border-border rounded-md text-muted-foreground whitespace-nowrap shrink-0">
+          <SelectTrigger className="w-auto min-w-[100px] h-8 text-[13px] bg-input border-border rounded-md text-foreground whitespace-nowrap shrink-0">
             <SelectValue placeholder="Status" />
           </SelectTrigger>
           <SelectContent>
