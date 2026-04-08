@@ -16,7 +16,7 @@ import ModelSelection from "./ModelSelection";
 import OptionalsSelection from "./OptionalsSelection";
 import CustomerForm from "./CustomerForm";
 import ProposalView from "./ProposalView";
-import logoIcon from "@/assets/logo-icon.png";
+import BrandLogo from "@/components/BrandLogo";
 
 interface PoolModel {
   id: string;
@@ -350,7 +350,7 @@ const PoolSimulator = ({ onBack }: PoolSimulatorProps) => {
               <ArrowLeft className="w-4 h-4 mr-2" />
               Voltar
             </Button>
-            <img src={logoHorizontal} alt="SIMULAPOOL" className="h-8 object-contain" />
+            <BrandLogo size="sm" />
           </div>
           {step > 0 && step < 4 && (
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
