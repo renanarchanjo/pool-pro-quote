@@ -3,7 +3,7 @@ import { useNavigate, useLocation, Routes, Route } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { SidebarProvider } from "@/components/ui/sidebar";
 import AdminSidebar from "@/components/admin/AdminSidebar";
 import AdminDashboard from "@/components/admin/AdminDashboard";
 import BrandCategoryManager from "@/components/admin/BrandCategoryManager";
@@ -61,8 +61,8 @@ const Admin = () => {
 
   if (authLoading || storeLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#FFFFFF]">
-        <Loader2 className="w-6 h-6 animate-spin text-[#9CA3AF]" />
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
       </div>
     );
   }
@@ -74,10 +74,10 @@ const Admin = () => {
     };
 
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#FFFFFF] px-4">
+      <div className="min-h-screen flex items-center justify-center bg-background px-4">
         <div className="text-center max-w-md">
-          <p className="text-base font-semibold text-[#0D0D0D] mb-2">Nenhuma loja vinculada</p>
-          <p className="text-sm text-[#6B7280] mb-6">Faça login com uma conta que possua uma loja cadastrada.</p>
+          <p className="text-base font-semibold text-foreground mb-2">Nenhuma loja vinculada</p>
+          <p className="text-sm text-muted-foreground mb-6">Faça login com uma conta que possua uma loja cadastrada.</p>
           <div className="flex gap-3 justify-center">
             <Button variant="outline" onClick={() => navigate("/")}>Voltar ao Início</Button>
             <Button onClick={handleLogoutAndRetry}>Trocar de Conta</Button>
@@ -91,7 +91,7 @@ const Admin = () => {
 
   return (
     <SidebarProvider>
-      <div className="min-h-screen flex w-full bg-[#F8F9FA] overflow-x-hidden">
+      <div className="min-h-screen flex w-full bg-secondary overflow-x-hidden">
         {/* Desktop sidebar — hidden on mobile */}
         <div className="hidden md:block">
           <AdminSidebar />
@@ -99,10 +99,9 @@ const Admin = () => {
 
         <div className="flex-1 flex flex-col min-w-0">
           {/* App Header — 56px */}
-          <header className="flex items-center border-b border-[#E5E7EB] bg-[#FFFFFF] px-4 h-14 pt-[env(safe-area-inset-top,0px)]">
-            <SidebarTrigger className="hidden md:flex h-9 w-9 [&>svg]:!w-5 [&>svg]:!h-5 text-[#6B7280] hover:text-[#0D0D0D] shrink-0 rounded-lg transition-all duration-150" />
-            <div className="md:ml-3 flex-1 min-w-0">
-              <h1 className="text-[16px] md:text-[18px] font-semibold text-[#0D0D0D] truncate">{pageTitle}</h1>
+          <header className="flex items-center border-b border-border bg-background px-4 h-14 pt-[env(safe-area-inset-top,0px)]">
+            <div className="flex-1 min-w-0">
+              <h1 className="text-[16px] md:text-[18px] font-semibold text-foreground truncate">{pageTitle}</h1>
             </div>
           </header>
 
