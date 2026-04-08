@@ -93,7 +93,7 @@ const HowItWorks = ({ onSimulate }: HowItWorksProps) => {
           initial={{ opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, amount: 0.5 }}
-          transition={{ duration: 0.5, delay: 0.4, ease: ease as unknown as number[] }}
+          transition={{ duration: 0.5, delay: 0.4, ease }}
           className="text-center mt-10 md:mt-14"
         >
           <button
