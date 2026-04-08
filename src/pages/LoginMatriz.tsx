@@ -5,10 +5,15 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card } from "@/components/ui/card";
 import { toast } from "sonner";
 import BrandLogo from "@/components/BrandLogo";
 import { useForceLightTheme } from "@/hooks/useForceLightTheme";
+
+const heroGradient =
+  "linear-gradient(180deg, #0A1628 0%, #0C1A33 30%, #0D1F3C 50%, #0F2847 65%, #1A3A5C 78%, #3D6B8D 86%, #7AADCB 91%, #C5E2F0 95%, #FFFFFF 100%)";
+
+const cardClass =
+  "w-full max-w-md p-8 rounded-2xl border border-white/10 bg-white/[0.07] backdrop-blur-xl shadow-[0_8px_32px_rgba(0,0,0,0.25)]";
 
 const LoginMatriz = () => {
   useForceLightTheme();
@@ -56,7 +61,6 @@ const LoginMatriz = () => {
       return;
     }
 
-    // Verify super_admin role
     const { data: roleData } = await supabase
       .from("user_roles")
       .select("role")
@@ -78,24 +82,24 @@ const LoginMatriz = () => {
 
   if (checkingSession) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-hero">
-        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      <div className="min-h-screen flex items-center justify-center" style={{ background: heroGradient }}>
+        <Loader2 className="w-8 h-8 animate-spin text-white/60" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-hero p-4">
-      <Card className="w-full max-w-md p-8 shadow-xl border-0 bg-white/95 backdrop-blur-md">
+    <div className="min-h-screen flex items-center justify-center p-4" style={{ background: heroGradient }}>
+      <div className={cardClass}>
         <div className="flex flex-col items-center mb-8">
-          <BrandLogo size="lg" className="mb-4" />
-          <h1 className="text-xl font-bold text-primary font-display">Painel Matriz</h1>
-          <p className="text-sm text-muted-foreground mt-1">Acesso restrito</p>
+          <BrandLogo size="lg" className="mb-4 [&_span]:text-white" />
+          <h1 className="text-xl font-bold text-white font-display">Painel Matriz</h1>
+          <p className="text-sm text-white/50 mt-1">Acesso restrito</p>
         </div>
 
         <form onSubmit={handleLogin} className="space-y-4">
           <div>
-            <Label htmlFor="email">E-mail</Label>
+            <Label htmlFor="email" className="text-white/70">E-mail</Label>
             <Input
               id="email"
               type="email"
@@ -103,10 +107,11 @@ const LoginMatriz = () => {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               autoComplete="email"
+              className="bg-white/10 border-white/20 text-white placeholder:text-white/30 focus:border-[#38BDF8]/50"
             />
           </div>
           <div>
-            <Label htmlFor="password">Senha</Label>
+            <Label htmlFor="password" className="text-white/70">Senha</Label>
             <div className="relative">
               <Input
                 id="password"
@@ -115,22 +120,23 @@ const LoginMatriz = () => {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 autoComplete="current-password"
+                className="bg-white/10 border-white/20 text-white placeholder:text-white/30 focus:border-[#38BDF8]/50"
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-white/40 hover:text-white/70"
               >
                 {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
               </button>
             </div>
           </div>
-          <Button type="submit" className="w-full gradient-primary text-white font-semibold" disabled={loading}>
+          <Button type="submit" className="w-full bg-white text-[#0A1628] font-semibold hover:bg-white/90" disabled={loading}>
             {loading ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
             Acessar Matriz
           </Button>
         </form>
-      </Card>
+      </div>
     </div>
   );
 };

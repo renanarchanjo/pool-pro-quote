@@ -5,12 +5,17 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card } from "@/components/ui/card";
 import { toast } from "sonner";
 import BrandLogo from "@/components/BrandLogo";
 import { useForceLightTheme } from "@/hooks/useForceLightTheme";
 
 type View = "login" | "forgot" | "forgot-sent";
+
+const heroGradient =
+  "linear-gradient(180deg, #0A1628 0%, #0C1A33 30%, #0D1F3C 50%, #0F2847 65%, #1A3A5C 78%, #3D6B8D 86%, #7AADCB 91%, #C5E2F0 95%, #FFFFFF 100%)";
+
+const cardClass =
+  "w-full max-w-md p-8 rounded-2xl border border-white/10 bg-white/[0.07] backdrop-blur-xl shadow-[0_8px_32px_rgba(0,0,0,0.25)]";
 
 const Login = () => {
   useForceLightTheme();
@@ -67,8 +72,8 @@ const Login = () => {
 
   if (checkingSession) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-hero">
-        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      <div className="min-h-screen flex items-center justify-center" style={{ background: heroGradient }}>
+        <Loader2 className="w-8 h-8 animate-spin text-white/60" />
       </div>
     );
   }
@@ -76,29 +81,28 @@ const Login = () => {
   // Forgot password - email sent confirmation
   if (view === "forgot-sent") {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-hero p-4">
-        <Card className="w-full max-w-md p-8 shadow-xl border-0 bg-white/95 backdrop-blur-md">
+      <div className="min-h-screen flex items-center justify-center p-4" style={{ background: heroGradient }}>
+        <div className={cardClass}>
           <div className="flex flex-col items-center mb-6">
-            <BrandLogo size="lg" className="mb-4" />
-            <div className="mx-auto w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mb-4">
-              <Mail className="h-8 w-8 text-primary" />
+            <BrandLogo size="lg" className="mb-4 [&_span]:text-white" />
+            <div className="mx-auto w-16 h-16 rounded-full bg-white/10 flex items-center justify-center mb-4">
+              <Mail className="h-8 w-8 text-[#38BDF8]" />
             </div>
-            <h1 className="text-xl font-bold text-primary font-display">E-mail enviado!</h1>
-            <p className="text-sm text-muted-foreground mt-2 text-center">
+            <h1 className="text-xl font-bold text-white font-display">E-mail enviado!</h1>
+            <p className="text-sm text-white/50 mt-2 text-center">
               Enviamos um link de redefinição de senha para:
             </p>
-            <p className="font-semibold text-foreground mt-1">{resetEmail}</p>
+            <p className="font-semibold text-white mt-1">{resetEmail}</p>
           </div>
 
-          <div className="space-y-3 text-sm text-muted-foreground bg-muted/50 rounded-lg p-4 mb-6">
-            <p>📧 Verifique sua <strong>caixa de entrada</strong> e <strong>spam</strong></p>
+          <div className="space-y-3 text-sm text-white/60 bg-white/5 rounded-lg p-4 mb-6">
+            <p>📧 Verifique sua <strong className="text-white/80">caixa de entrada</strong> e <strong className="text-white/80">spam</strong></p>
             <p>⏳ O e-mail pode levar até 2 minutos para chegar</p>
             <p>🔗 Clique no link para criar uma nova senha</p>
           </div>
 
           <Button
-            className="w-full"
-            variant="outline"
+            className="w-full bg-white/10 border border-white/20 text-white hover:bg-white/20"
             onClick={() => {
               setView("login");
               setResetEmail("");
@@ -107,7 +111,7 @@ const Login = () => {
             <ArrowLeft className="w-4 h-4 mr-2" />
             Voltar ao login
           </Button>
-        </Card>
+        </div>
       </div>
     );
   }
@@ -115,19 +119,19 @@ const Login = () => {
   // Forgot password form
   if (view === "forgot") {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-hero p-4">
-        <Card className="w-full max-w-md p-8 shadow-xl border-0 bg-white/95 backdrop-blur-md">
+      <div className="min-h-screen flex items-center justify-center p-4" style={{ background: heroGradient }}>
+        <div className={cardClass}>
           <div className="flex flex-col items-center mb-8">
-            <BrandLogo size="lg" className="mb-4" />
-            <h1 className="text-xl font-bold text-primary font-display">Esqueci minha senha</h1>
-            <p className="text-sm text-muted-foreground mt-1 text-center">
+            <BrandLogo size="lg" className="mb-4 [&_span]:text-white" />
+            <h1 className="text-xl font-bold text-white font-display">Esqueci minha senha</h1>
+            <p className="text-sm text-white/50 mt-1 text-center">
               Informe o e-mail cadastrado e enviaremos um link para redefinir sua senha.
             </p>
           </div>
 
           <form onSubmit={handleForgotPassword} className="space-y-4">
             <div>
-              <Label htmlFor="resetEmail">E-mail</Label>
+              <Label htmlFor="resetEmail" className="text-white/70">E-mail</Label>
               <Input
                 id="resetEmail"
                 type="email"
@@ -136,9 +140,10 @@ const Login = () => {
                 onChange={(e) => setResetEmail(e.target.value)}
                 autoComplete="email"
                 autoFocus
+                className="bg-white/10 border-white/20 text-white placeholder:text-white/30 focus:border-[#38BDF8]/50"
               />
             </div>
-            <Button type="submit" className="w-full gradient-primary text-white font-semibold" disabled={loading}>
+            <Button type="submit" className="w-full bg-white text-[#0A1628] font-semibold hover:bg-white/90" disabled={loading}>
               {loading ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
               Enviar link de recuperação
             </Button>
@@ -146,8 +151,7 @@ const Login = () => {
 
           <div className="mt-6">
             <Button
-              variant="outline"
-              className="w-full"
+              className="w-full bg-white/10 border border-white/20 text-white hover:bg-white/20"
               onClick={() => {
                 setView("login");
                 setResetEmail("");
@@ -157,24 +161,24 @@ const Login = () => {
               Voltar ao login
             </Button>
           </div>
-        </Card>
+        </div>
       </div>
     );
   }
 
   // Login form
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-hero p-4">
-      <Card className="w-full max-w-md p-8 shadow-xl border-0 bg-white/95 backdrop-blur-md">
+    <div className="min-h-screen flex items-center justify-center p-4" style={{ background: heroGradient }}>
+      <div className={cardClass}>
         <div className="flex flex-col items-center mb-8">
-          <BrandLogo size="lg" className="mb-4" />
-          <h1 className="text-xl font-bold text-primary font-display">Meu Acesso</h1>
-          <p className="text-sm text-muted-foreground mt-1">Somente para usuários cadastrados</p>
+          <BrandLogo size="lg" className="mb-4 [&_span]:text-white" />
+          <h1 className="text-xl font-bold text-white font-display">Meu Acesso</h1>
+          <p className="text-sm text-white/50 mt-1">Somente para usuários cadastrados</p>
         </div>
 
         <form onSubmit={handleLogin} className="space-y-4">
           <div>
-            <Label htmlFor="email">E-mail</Label>
+            <Label htmlFor="email" className="text-white/70">E-mail</Label>
             <Input
               id="email"
               type="email"
@@ -182,10 +186,11 @@ const Login = () => {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               autoComplete="email"
+              className="bg-white/10 border-white/20 text-white placeholder:text-white/30 focus:border-[#38BDF8]/50"
             />
           </div>
           <div>
-            <Label htmlFor="password">Senha</Label>
+            <Label htmlFor="password" className="text-white/70">Senha</Label>
             <div className="relative">
               <Input
                 id="password"
@@ -194,11 +199,12 @@ const Login = () => {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 autoComplete="current-password"
+                className="bg-white/10 border-white/20 text-white placeholder:text-white/30 focus:border-[#38BDF8]/50"
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-white/40 hover:text-white/70"
               >
                 {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
               </button>
@@ -209,13 +215,13 @@ const Login = () => {
             <button
               type="button"
               onClick={() => setView("forgot")}
-              className="text-sm text-primary hover:underline font-medium"
+              className="text-sm text-[#38BDF8] hover:underline font-medium"
             >
               Esqueci minha senha
             </button>
           </div>
 
-          <Button type="submit" className="w-full gradient-primary text-white font-semibold" disabled={loading}>
+          <Button type="submit" className="w-full bg-white text-[#0A1628] font-semibold hover:bg-white/90" disabled={loading}>
             {loading ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
             Entrar
           </Button>
@@ -225,22 +231,21 @@ const Login = () => {
           <button
             type="button"
             onClick={() => navigate("/auth")}
-            className="text-sm text-primary hover:underline font-medium"
+            className="text-sm text-[#38BDF8] hover:underline font-medium"
           >
             Não tem cadastro? Cadastre-se grátis
           </button>
         </div>
 
-        <div className="mt-4 pt-4 border-t">
+        <div className="mt-4 pt-4 border-t border-white/10">
           <Button
-            variant="outline"
-            className="w-full"
+            className="w-full bg-white/10 border border-white/20 text-white hover:bg-white/20"
             onClick={() => navigate("/")}
           >
             Voltar ao Início
           </Button>
         </div>
-      </Card>
+      </div>
     </div>
   );
 };
