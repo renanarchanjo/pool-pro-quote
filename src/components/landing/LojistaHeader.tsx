@@ -16,6 +16,15 @@ const LojistaHeader = () => {
 
           {/* Desktop */}
           <div className="hidden md:flex items-center gap-9">
+            <a
+              href="#planos"
+              className="text-[15px] font-medium transition-colors duration-200"
+              style={{ color: 'rgba(255,255,255,0.65)' }}
+              onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.color = '#FFFFFF'; }}
+              onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.color = 'rgba(255,255,255,0.65)'; }}
+            >
+              Planos e Preços
+            </a>
             <Link
               to="/login"
               className="h-10 px-5 text-[14px] font-semibold rounded-lg text-white transition-all duration-150 inline-flex items-center gap-2"

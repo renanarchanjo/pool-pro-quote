@@ -75,7 +75,7 @@ const highlightedSlug = "avancado";
 const formatCurrency = (value: number) =>
   value.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
-const PricingSection = () => {
+const PricingSection = ({ hideLeadPlans = false, hideFinalCta = false }: { hideLeadPlans?: boolean; hideFinalCta?: boolean }) => {
   const [plans, setPlans] = useState<SubPlan[]>([]);
   const [leadPlans, setLeadPlans] = useState<LeadPlan[]>([]);
   const [extraProposalCost, setExtraProposalCost] = useState("0,50");
@@ -296,7 +296,7 @@ const PricingSection = () => {
       </p>
 
       {/* Lead Plans Section */}
-      {leadPlans.length > 0 && (
+      {!hideLeadPlans && leadPlans.length > 0 && (
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-12">
             <Badge variant="secondary" className="mb-4 bg-orange-100 text-orange-700 border-orange-200 px-4 py-1.5 text-sm font-semibold">
@@ -357,35 +357,37 @@ const PricingSection = () => {
       )}
 
       {/* CTA Final */}
-      <div className="max-w-3xl mx-auto mt-20 text-center">
-        <Card className="p-8 md:p-12 border-primary/20 bg-gradient-to-br from-primary/5 via-background to-cyan-500/5">
-          <Shield className="w-10 h-10 text-primary mx-auto mb-4" />
-          <h3 className="text-2xl md:text-3xl font-display font-extrabold mb-3">
-            Ainda tem dúvidas?
-          </h3>
-          <p className="text-muted-foreground mb-6 max-w-md mx-auto">
-            Fale com nossa equipe e descubra o plano ideal para o seu negócio. Sem compromisso.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-3 justify-center">
-            <a
-              href="https://wa.me/5543999913065?text=Ol%C3%A1%2C%20quero%20saber%20mais%20sobre%20os%20planos%20do%20SimulaPool!"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <Button size="lg" className="gradient-primary text-white font-display font-semibold shadow-pool w-full sm:w-auto">
-                <MessageSquare className="w-5 h-5 mr-2" />
-                Falar no WhatsApp
-              </Button>
-            </a>
-            <Link to="/">
-              <Button size="lg" variant="outline" className="font-display font-semibold w-full sm:w-auto">
-                Testar grátis
-                <ArrowRight className="w-4 h-4 ml-2" />
-              </Button>
-            </Link>
-          </div>
-        </Card>
-      </div>
+      {!hideFinalCta && (
+        <div className="max-w-3xl mx-auto mt-20 text-center">
+          <Card className="p-8 md:p-12 border-primary/20 bg-gradient-to-br from-primary/5 via-background to-cyan-500/5">
+            <Shield className="w-10 h-10 text-primary mx-auto mb-4" />
+            <h3 className="text-2xl md:text-3xl font-display font-extrabold mb-3">
+              Ainda tem dúvidas?
+            </h3>
+            <p className="text-muted-foreground mb-6 max-w-md mx-auto">
+              Fale com nossa equipe e descubra o plano ideal para o seu negócio. Sem compromisso.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-3 justify-center">
+              <a
+                href="https://wa.me/5543999913065?text=Ol%C3%A1%2C%20quero%20saber%20mais%20sobre%20os%20planos%20do%20SimulaPool!"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <Button size="lg" className="gradient-primary text-white font-display font-semibold shadow-pool w-full sm:w-auto">
+                  <MessageSquare className="w-5 h-5 mr-2" />
+                  Falar no WhatsApp
+                </Button>
+              </a>
+              <Link to="/">
+                <Button size="lg" variant="outline" className="font-display font-semibold w-full sm:w-auto">
+                  Testar grátis
+                  <ArrowRight className="w-4 h-4 ml-2" />
+                </Button>
+              </Link>
+            </div>
+          </Card>
+        </div>
+      )}
     </section>
   );
 };
