@@ -1,5 +1,5 @@
 import { lazy, Suspense, useState } from "react";
-import { ChevronRight, ShieldCheck, MapPin, Clock, Loader2 } from "lucide-react";
+import { ChevronRight, Loader2 } from "lucide-react";
 import SiteHeader from "@/components/landing/SiteHeader";
 import SiteFooter from "@/components/landing/SiteFooter";
 import PartnersMarquee from "@/components/landing/PartnersMarquee";
@@ -107,50 +107,6 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Objeções */}
-      <section className="bg-[#F8F9FA] py-12 md:py-20 px-4">
-        <div className="max-w-[960px] mx-auto">
-          <div className="text-center mb-8 md:mb-12">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[#9CA3AF] mb-3">
-              TIRE SUAS DÚVIDAS
-            </p>
-            <h2 className="text-[22px] md:text-[28px] font-semibold text-[#0D0D0D]">
-              Tudo que você precisa saber antes de comprar
-            </h2>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-5">
-            {[
-              {
-                icon: ShieldCheck,
-                title: "O orçamento é confiável?",
-                description: "Sim. Os preços são fornecidos diretamente pelos lojistas parceiros da sua região, com valores reais e atualizados.",
-              },
-              {
-                icon: MapPin,
-                title: "Tem lojista na minha cidade?",
-                description: "Trabalhamos com revendedores em todo o Brasil. Após a simulação, você é conectado ao lojista mais próximo de você.",
-              },
-              {
-                icon: Clock,
-                title: "Quanto tempo leva a instalação?",
-                description: "A instalação de uma piscina de fibra é muito mais rápida que alvenaria — em média de 1 a 3 dias dependendo do modelo.",
-              },
-            ].map((card) => (
-              <div
-                key={card.title}
-                className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-xl p-6"
-              >
-                <div className="w-9 h-9 rounded-lg bg-[#E0F2FE] flex items-center justify-center mb-4">
-                  <card.icon className="w-[18px] h-[18px] text-[#0369A1]" strokeWidth={1.5} />
-                </div>
-                <h3 className="text-[15px] font-semibold text-[#0D0D0D] mb-2">{card.title}</h3>
-                <p className="text-[13px] text-[#6B7280] leading-relaxed">{card.description}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
 
       <PartnersMarquee />
 
