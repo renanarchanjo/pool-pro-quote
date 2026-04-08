@@ -1,6 +1,5 @@
 import { lazy, Suspense, useState } from "react";
 import { ChevronRight, Layers, Briefcase, TrendingUp, Loader2 } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import SiteHeader from "@/components/landing/SiteHeader";
 import SiteFooter from "@/components/landing/SiteFooter";
 import { useForceLightTheme } from "@/hooks/useForceLightTheme";
@@ -8,7 +7,7 @@ import { useForceLightTheme } from "@/hooks/useForceLightTheme";
 const PoolSimulator = lazy(() => import("@/components/simulator/PoolSimulator"));
 
 const SimulatorLoader = () => (
-  <div className="min-h-screen flex items-center justify-center bg-background">
+  <div className="min-h-screen flex items-center justify-center bg-[#FFFFFF]">
     <Loader2 className="w-8 h-8 animate-spin text-primary" />
   </div>
 );
@@ -26,65 +25,52 @@ const Index = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
+    <div className="min-h-screen bg-[#FFFFFF] flex flex-col">
       <SiteHeader onSimulate={() => setShowSimulator(true)} />
 
       {/* Hero */}
-      <section className="flex-1 flex items-center justify-center px-4 py-16 md:py-24">
-        <div className="max-w-[640px] mx-auto text-center">
+      <section className="flex-1 flex items-center justify-center px-4 py-20 md:py-32">
+        <div className="max-w-[600px] mx-auto text-center">
           {/* Eyebrow */}
-          <span className="inline-block bg-[#E0F2FE] text-[#0369A1] text-xs font-semibold px-3 py-1 rounded-md mb-6">
+          <span className="inline-flex items-center bg-[#E0F2FE] text-[#0369A1] text-xs font-semibold px-3 py-1 rounded-md mb-8">
             Orçamento em menos de 1 minuto
           </span>
 
-          <h1 className="text-3xl md:text-[44px] md:leading-[1.15] font-semibold text-foreground tracking-tight mb-4">
+          <h1 className="text-[28px] md:text-[44px] md:leading-[1.12] font-semibold text-[#0D0D0D] tracking-[-0.02em] mb-5">
             Simule sua piscina de fibra e feche mais vendas.
           </h1>
 
-          <p className="text-base md:text-[16px] text-muted-foreground max-w-[520px] mx-auto mb-8 leading-relaxed">
+          <p className="text-[15px] md:text-base text-[#6B7280] max-w-[480px] mx-auto mb-10 leading-relaxed">
             Escolha o modelo, configure os opcionais e envie um orçamento completo para o cliente na hora.
           </p>
 
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-6">
-            <Button
-              onClick={() => setShowSimulator(true)}
-              className="h-11 px-7 text-[15px] font-semibold rounded-lg bg-primary hover:bg-[#0284C7] text-white transition-all duration-150"
-            >
-              Simular Minha Piscina
-              <ChevronRight className="ml-1.5 w-4 h-4" />
-            </Button>
-            <button
-              onClick={() => {
-                const el = document.getElementById("features");
-                el?.scrollIntoView({ behavior: "smooth" });
-              }}
-              className="text-sm text-muted-foreground hover:text-foreground transition-colors duration-150"
-            >
-              Ver como funciona
-            </button>
-          </div>
+          <button
+            onClick={() => setShowSimulator(true)}
+            className="inline-flex items-center justify-center h-11 px-7 text-[15px] font-semibold rounded-lg bg-primary hover:bg-[#0284C7] text-white transition-all duration-150 mb-8"
+          >
+            Simular Minha Piscina
+            <ChevronRight className="ml-1.5 w-4 h-4" />
+          </button>
 
-          <div className="flex items-center justify-center gap-4 text-[13px] text-muted-foreground">
-            <span>✓ 100% gratuito</span>
-            <span>✓ Sem cadastro obrigatório</span>
-            <span>✓ Resultado imediato</span>
-          </div>
+          <p className="text-[13px] text-[#9CA3AF]">
+            ✓ 100% gratuito · ✓ Sem cadastro · ✓ Resultado imediato
+          </p>
         </div>
       </section>
 
       {/* Features */}
-      <section id="features" className="bg-secondary py-20 px-4">
-        <div className="max-w-5xl mx-auto">
-          <div className="text-center mb-12">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground mb-3">
+      <section id="features" className="bg-[#F8F9FA] py-20 px-4">
+        <div className="max-w-[960px] mx-auto">
+          <div className="text-center mb-10">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[#9CA3AF] mb-3">
               POR QUE SIMULAPOOL
             </p>
-            <h2 className="text-2xl md:text-[28px] font-semibold text-foreground">
-              Tudo que um lojista precisa para vender piscinas
+            <h2 className="text-[22px] md:text-[28px] font-semibold text-[#0D0D0D]">
+              Tudo que um lojista precisa para vender mais
             </h2>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
             {[
               {
                 icon: Layers,
@@ -104,13 +90,13 @@ const Index = () => {
             ].map((card) => (
               <div
                 key={card.title}
-                className="bg-card border border-border rounded-xl p-6"
+                className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-xl p-6"
               >
                 <div className="w-9 h-9 rounded-lg bg-[#E0F2FE] flex items-center justify-center mb-4">
-                  <card.icon className="w-5 h-5 text-primary" strokeWidth={1.5} />
+                  <card.icon className="w-[18px] h-[18px] text-primary" strokeWidth={1.5} />
                 </div>
-                <h3 className="text-[15px] font-semibold text-foreground mb-2">{card.title}</h3>
-                <p className="text-sm text-muted-foreground leading-relaxed">{card.description}</p>
+                <h3 className="text-[15px] font-semibold text-[#0D0D0D] mb-2">{card.title}</h3>
+                <p className="text-[13px] text-[#6B7280] leading-relaxed">{card.description}</p>
               </div>
             ))}
           </div>
