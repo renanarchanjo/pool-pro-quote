@@ -131,7 +131,7 @@ const Index = () => {
           {/* Social proof metrics — cleaner spacing */}
           <motion.div
             variants={fadeUp} initial="hidden" animate="visible" custom={5}
-            className="flex items-center justify-center"
+            className="flex items-center justify-center mt-14"
           >
             {[
               { value: "4.800+", label: "orçamentos gerados", highlight: false },
