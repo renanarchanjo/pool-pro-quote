@@ -52,6 +52,7 @@ const WHATSAPP_NUMBER = "5543999913065";
 const WHATSAPP_MESSAGE = encodeURIComponent(
   "Olá! Tenho interesse em ser parceiro SIMULAPOOL. Gostaria de saber mais sobre os planos de parceria."
 );
+const WHATSAPP_URL = `https://wa.me/${WHATSAPP_NUMBER}?text=${WHATSAPP_MESSAGE}`;
 
 const Parceiros = () => {
   useForceLightTheme();
@@ -75,13 +76,6 @@ const Parceiros = () => {
     };
     fetchPartners();
   }, []);
-
-  const handleCTA = () => {
-    window.open(
-      `https://wa.me/${WHATSAPP_NUMBER}?text=${WHATSAPP_MESSAGE}`,
-      "_blank"
-    );
-  };
 
   const slideStyle = (visible: boolean, fromRight = false, delay = 0) => ({
     opacity: visible ? 1 : 0,
@@ -125,11 +119,13 @@ const Parceiros = () => {
             <div className="flex flex-col sm:flex-row gap-4 justify-center" style={slideStyle(heroVisible, true, 300)}>
               <Button
                 size="lg"
-                onClick={handleCTA}
+                asChild
                 className="gradient-primary text-white font-display font-bold text-lg px-8 py-6 shadow-pool"
               >
-                <MessageCircle className="w-5 h-5 mr-2" />
-                Quero ser parceiro
+                <a href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer">
+                  <MessageCircle className="w-5 h-5 mr-2" />
+                  Quero ser parceiro
+                </a>
               </Button>
               <Button
                 size="lg"
@@ -252,19 +248,21 @@ const Parceiros = () => {
             <div className="flex flex-col sm:flex-row gap-4 justify-center" style={slideStyle(ctaVisible, true, 150)}>
               <Button
                 size="lg"
-                onClick={handleCTA}
+                asChild
                 className="gradient-primary text-white font-display font-bold text-lg px-10 py-6 shadow-pool"
               >
-                <MessageCircle className="w-5 h-5 mr-2" />
-                Conversar pelo WhatsApp
+                <a href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer">
+                  <MessageCircle className="w-5 h-5 mr-2" />
+                  Conversar pelo WhatsApp
+                </a>
               </Button>
               <Button
                 size="lg"
                 variant="outline"
-                onClick={() => (window.location.href = "mailto:simulapool@gmail.com")}
+                asChild
                 className="font-display font-semibold text-lg px-10 py-6"
               >
-                Enviar e-mail
+                <a href="mailto:simulapool@gmail.com">Enviar e-mail</a>
               </Button>
             </div>
           </Card>
