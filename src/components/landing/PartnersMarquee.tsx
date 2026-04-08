@@ -26,9 +26,10 @@ const PartnersMarquee = () => {
 
   if (partners.length === 0) return null;
 
-  // Ensure minimum items for smooth loop
-  let items = [...partners, ...partners];
-  if (partners.length < 6) items = [...partners, ...partners, ...partners];
+  // Multiply until at least 12 items, then duplicate for seamless loop
+  const base = [...partners];
+  while (base.length < 12) base.push(...partners);
+  const track = [...base, ...base];
 
   return (
     <section className="bg-[#FFFFFF] py-16 md:py-20">
@@ -51,28 +52,25 @@ const PartnersMarquee = () => {
           style={{ background: "linear-gradient(to left, #FFFFFF, transparent)" }} />
 
         <div
-          className="flex gap-4 md:gap-5 w-max group-hover:[animation-play-state:paused]"
-          style={{ animation: "marquee 28s linear infinite" }}
+          className="flex gap-4 group-hover:[animation-play-state:paused]"
+          style={{
+            width: `${track.length * 136}px`,
+            animation: "marquee 30s linear infinite",
+          }}
         >
-          {items.map((p, i) => (
+          {track.map((p, i) => (
             <div
               key={`${p.id}-${i}`}
-              className="w-[100px] h-[100px] md:w-[120px] md:h-[120px] flex flex-col items-center justify-center gap-2.5 bg-[#F8F9FA] border border-[#E5E7EB] rounded-2xl shrink-0"
+              className="w-[120px] h-[120px] flex flex-col items-center justify-center gap-2.5 bg-[#F8F9FA] border border-[#E5E7EB] rounded-2xl shrink-0"
             >
               {p.logo_url ? (
-                <img
-                  src={p.logo_url}
-                  alt={p.name}
-                  className="w-10 h-10 md:w-12 md:h-12 object-contain"
-                />
+                <img src={p.logo_url} alt={p.name} className="w-12 h-12 object-contain" />
               ) : (
-                <div className="w-10 h-10 md:w-12 md:h-12 rounded-lg bg-[#E0F2FE] flex items-center justify-center">
-                  <span className="text-[14px] md:text-[16px] font-semibold text-[#0369A1]">
-                    {getInitials(p.name)}
-                  </span>
+                <div className="w-12 h-12 rounded-lg bg-[#E0F2FE] flex items-center justify-center">
+                  <span className="text-[16px] font-semibold text-[#0369A1]">{getInitials(p.name)}</span>
                 </div>
               )}
-              <span className="text-[12px] font-medium text-[#6B7280] text-center leading-tight px-1 truncate max-w-full">
+              <span className="text-[12px] font-medium text-[#6B7280] text-center leading-tight px-1 truncate max-w-[110px]">
                 {p.name}
               </span>
             </div>
