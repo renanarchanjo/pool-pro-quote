@@ -67,14 +67,12 @@ const AdminDashboard = () => {
       : format(pdfDateRange.from, "dd/MM/yyyy", { locale: ptBR })
     : "Período";
 
-  // Filter by member (owner filter or seller isolation)
   const memberFilteredProposals = proposals.filter(p => {
     if (isOwner) {
       if (filterMember === "all") return true;
       const dist = leadDistributions.find(d => d.proposal_id === p.id && d.status === "accepted");
       return dist?.accepted_by === filterMember || (p as any).created_by === filterMember;
     }
-    // Seller: only see own proposals
     const dist = leadDistributions.find(d => d.proposal_id === p.id && d.status === "accepted");
     return dist?.accepted_by === profile?.id || (p as any).created_by === profile?.id;
   });
@@ -91,7 +89,6 @@ const AdminDashboard = () => {
     if (store) loadData();
   }, [store]);
 
-  // Polling: auto-reload dashboard data periodically
   useEffect(() => {
     if (!store) return;
     const interval = setInterval(() => loadData(), 30000);
@@ -119,7 +116,6 @@ const AdminDashboard = () => {
 
       if (proposalsRes.error) throw proposalsRes.error;
 
-      // Resolve any proposals that stored optionals as plain UUID arrays
       const rawProposals = (proposalsRes.data as any) || [];
       const needsResolve = rawProposals.filter((p: any) =>
         Array.isArray(p.selected_optionals) &&
@@ -147,7 +143,6 @@ const AdminDashboard = () => {
       setLeadDistributions(distRes.data || []);
       setTeamMembers(teamRes.data || []);
 
-      // Fetch commission for current user (seller view)
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
         const { data: commData } = await supabase
@@ -170,7 +165,6 @@ const AdminDashboard = () => {
       const { error } = await supabase.from("proposals").update({ status: newStatus }).eq("id", id);
       if (error) throw error;
 
-      // Log status change as a note
       const { data: { user } } = await supabase.auth.getUser();
       if (user && store) {
         const oldProposal = proposals.find(p => p.id === id);
@@ -206,22 +200,22 @@ const AdminDashboard = () => {
   if (loading) {
     return (
       <div className="flex justify-center p-8">
-        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+        <Loader2 className="w-8 h-8 animate-spin text-[#0EA5E9]" />
       </div>
     );
   }
 
   return (
     <div className="space-y-4 md:space-y-6">
-      {/* Header */}
+      {/* Header with filters */}
       <div className="space-y-3">
-        <p className="text-sm text-muted-foreground">
-          Olá, <span className="font-medium text-foreground">{profile?.full_name || "Lojista"}</span>
+        <p className="text-sm text-[#6B7280]">
+          Olá, <span className="font-medium text-[#0D0D0D]">{profile?.full_name || "Lojista"}</span>
         </p>
         <div className="flex items-center gap-2 flex-wrap">
           {isOwner && teamMembers.length > 1 && (
             <Select value={filterMember} onValueChange={setFilterMember}>
-              <SelectTrigger className="h-8 w-[140px] text-[13px] bg-secondary border-border rounded-md">
+              <SelectTrigger className="h-8 w-[140px] text-[13px] bg-[#F8F9FA] border-[#E5E7EB] rounded-md">
                 <SelectValue placeholder="Membro" />
               </SelectTrigger>
               <SelectContent>
@@ -233,7 +227,7 @@ const AdminDashboard = () => {
             </Select>
           )}
           <Select value={pdfDatePreset} onValueChange={applyPdfPreset}>
-            <SelectTrigger className="h-8 w-[130px] text-[13px] bg-secondary border-border rounded-md">
+            <SelectTrigger className="h-8 w-[130px] text-[13px] bg-[#F8F9FA] border-[#E5E7EB] rounded-md">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -245,7 +239,7 @@ const AdminDashboard = () => {
           </Select>
           <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
             <PopoverTrigger asChild>
-              <Button variant="outline" size="sm" className="h-8 text-[13px] gap-1.5 bg-secondary border-border rounded-md font-normal">
+              <Button variant="outline" size="sm" className="h-8 text-[13px] gap-1.5 bg-[#F8F9FA] border-[#E5E7EB] rounded-md font-normal text-[#6B7280]">
                 <CalendarIcon className="w-3.5 h-3.5" />
                 {pdfDateLabel}
               </Button>
@@ -265,7 +259,7 @@ const AdminDashboard = () => {
               />
             </PopoverContent>
           </Popover>
-          <Button onClick={handleExportPDF} variant="outline" size="sm" className="h-8 shrink-0 text-[13px] bg-secondary border-border rounded-md gap-1.5">
+          <Button onClick={handleExportPDF} variant="outline" size="sm" className="h-8 shrink-0 text-[13px] bg-[#F8F9FA] border-[#E5E7EB] rounded-md gap-1.5 text-[#6B7280]">
             <Download className="w-3.5 h-3.5" />
             PDF
           </Button>
@@ -284,18 +278,15 @@ const AdminDashboard = () => {
 
       {/* On-screen interactive dashboard */}
       <div className="space-y-4 md:space-y-6">
-        {/* (A) KPIs */}
         <div style={{ pageBreakInside: "avoid" }}>
           <DashboardKPIs proposals={filteredProposals} role={role} commissionPercent={commissionPercent} />
         </div>
 
-        {/* (B) Funnel + (D) Alerts */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-2 md:gap-4" style={{ pageBreakInside: "avoid" }}>
           <DashboardFunnel proposals={filteredProposals} />
           <DashboardAlerts proposals={filteredProposals} onSelectProposal={setViewingProposal} />
         </div>
 
-        {/* (C) Pipeline */}
         <DashboardPipeline
           proposals={filteredProposals}
           onUpdateStatus={updateStatus}

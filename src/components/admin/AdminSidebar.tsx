@@ -45,7 +45,6 @@ const AdminSidebar = () => {
     navigate("/");
   };
 
-  // Get initials for avatar
   const initials = (profile?.full_name || "L")
     .split(" ")
     .map((w: string) => w[0])
@@ -84,7 +83,7 @@ const AdminSidebar = () => {
     return (
       <SidebarGroup>
         {!collapsed && (
-          <SidebarGroupLabel className="text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground px-3 mb-1">
+          <SidebarGroupLabel className="text-[10px] font-semibold uppercase tracking-[0.08em] text-[#9CA3AF] px-3 mt-4 mb-1">
             {label}
           </SidebarGroupLabel>
         )}
@@ -100,11 +99,11 @@ const AdminSidebar = () => {
                     tooltip={item.title}
                     className={`cursor-pointer h-9 text-[13px] rounded-lg transition-all duration-150 ${
                       active
-                        ? "bg-card border border-border font-semibold text-foreground"
-                        : "text-muted-foreground hover:bg-accent font-normal"
+                        ? "bg-[#FFFFFF] border border-[#E5E7EB] font-semibold text-[#0D0D0D]"
+                        : "text-[#6B7280] hover:bg-[#F1F3F5] font-normal border border-transparent"
                     }`}
                   >
-                    <item.icon className={`h-4 w-4 shrink-0 ${active ? "text-primary" : "text-muted-foreground"}`} strokeWidth={1.5} />
+                    <item.icon className={`h-4 w-4 shrink-0 ${active ? "text-[#0EA5E9]" : "text-[#9CA3AF]"}`} strokeWidth={1.5} />
                     {!collapsed && <span>{item.title}</span>}
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -117,16 +116,16 @@ const AdminSidebar = () => {
   };
 
   return (
-    <Sidebar collapsible="icon">
-      <SidebarHeader className="border-b border-border p-4">
+    <Sidebar collapsible="icon" className="!bg-[#F8F9FA] !border-r !border-[#E5E7EB]">
+      <SidebarHeader className="border-b border-[#E5E7EB] p-4">
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 rounded-full bg-[#E0F2FE] flex items-center justify-center shrink-0">
-            <span className="text-xs font-semibold text-[#0369A1]">{initials}</span>
+            <span className="text-[13px] font-semibold text-[#0369A1]">{initials}</span>
           </div>
           {!collapsed && (
             <div className="flex flex-col min-w-0">
-              <span className="text-[13px] font-semibold text-foreground truncate">{profile?.full_name || "Lojista"}</span>
-              <span className="text-xs text-muted-foreground">Painel do Lojista</span>
+              <span className="text-[13px] font-semibold text-[#0D0D0D] truncate">{profile?.full_name || "Lojista"}</span>
+              <span className="text-xs text-[#9CA3AF]">Painel do Lojista</span>
             </div>
           )}
         </div>
@@ -138,14 +137,14 @@ const AdminSidebar = () => {
         {renderGroup("Conta", accountItems)}
       </SidebarContent>
 
-      <SidebarFooter className="p-3 border-t border-border shrink-0 safe-area-bottom">
+      <SidebarFooter className="p-3 border-t border-[#E5E7EB] shrink-0 safe-area-bottom">
         <div className="flex items-center justify-between mb-2">
-          {!collapsed && <span className="text-xs text-muted-foreground">Tema</span>}
+          {!collapsed && <span className="text-xs text-[#9CA3AF]">Tema</span>}
           <ThemeToggle />
         </div>
         <button
           onClick={handleLogout}
-          className="flex items-center gap-2 w-full text-[13px] text-muted-foreground hover:text-destructive px-2 py-2 rounded-lg transition-colors duration-150"
+          className="flex items-center gap-2 w-full text-[13px] text-[#6B7280] hover:text-[#DC2626] px-2 py-2 rounded-lg transition-all duration-150"
         >
           <LogOut className="h-4 w-4 shrink-0" strokeWidth={1.5} />
           {!collapsed && <span>Sair</span>}
