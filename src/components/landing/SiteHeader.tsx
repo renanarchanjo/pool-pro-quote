@@ -22,7 +22,7 @@ const SiteHeader = ({ onSimulate }: SiteHeaderProps) => {
           {/* Desktop nav */}
           <div className="hidden md:flex items-center gap-9">
             {/* Sistema online dot */}
-            <span className="flex items-center gap-2 text-[12px] font-medium" style={{ color: 'rgba(255,255,255,0.6)' }}>
+            <span className="flex items-center gap-2 text-[12px] font-medium" style={{ color: 'rgba(255,255,255,0.55)' }}>
               <span className="relative flex h-2 w-2">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75" style={{ backgroundColor: '#38BDF8' }} />
                 <span className="relative inline-flex rounded-full h-2 w-2" style={{ backgroundColor: '#38BDF8' }} />
@@ -33,22 +33,22 @@ const SiteHeader = ({ onSimulate }: SiteHeaderProps) => {
               to="/parceiros"
               className="text-[15px] font-medium transition-colors duration-200"
               style={{
-                color: location.pathname === "/parceiros" ? '#FFFFFF' : 'rgba(255,255,255,0.7)',
+                color: location.pathname === "/parceiros" ? '#FFFFFF' : 'rgba(255,255,255,0.65)',
               }}
               onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.color = '#FFFFFF'; }}
               onMouseLeave={(e) => {
                 (e.currentTarget as HTMLElement).style.color =
-                  location.pathname === "/parceiros" ? '#FFFFFF' : 'rgba(255,255,255,0.7)';
+                  location.pathname === "/parceiros" ? '#FFFFFF' : 'rgba(255,255,255,0.65)';
               }}
             >
               Parceiros
             </Link>
             <button
               onClick={onSimulate}
-              className="h-10 px-6 text-[15px] font-semibold rounded-lg text-white transition-all duration-150"
-              style={{ backgroundColor: '#0EA5E9' }}
-              onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.backgroundColor = '#0284C7'; }}
-              onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.backgroundColor = '#0EA5E9'; }}
+              className="h-10 px-5 text-[14px] font-semibold rounded-lg text-white transition-all duration-150"
+              style={{ background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.2)' }}
+              onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.2)'; }}
+              onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.12)'; }}
             >
               Ver Preços →
             </button>
@@ -59,7 +59,7 @@ const SiteHeader = ({ onSimulate }: SiteHeaderProps) => {
             <button
               onClick={onSimulate}
               className="h-9 px-4 text-[13px] font-medium rounded-lg text-white transition-all duration-150"
-              style={{ backgroundColor: '#0EA5E9' }}
+              style={{ background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.2)' }}
             >
               Ver Preços →
             </button>
