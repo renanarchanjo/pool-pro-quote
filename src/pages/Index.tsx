@@ -1,5 +1,5 @@
 import { lazy, Suspense, useState } from "react";
-import { ChevronRight, Layers, Briefcase, TrendingUp, Loader2 } from "lucide-react";
+import { ChevronRight, ShieldCheck, MapPin, Clock, Loader2 } from "lucide-react";
 import SiteHeader from "@/components/landing/SiteHeader";
 import SiteFooter from "@/components/landing/SiteFooter";
 import PartnersMarquee from "@/components/landing/PartnersMarquee";
@@ -33,15 +33,15 @@ const Index = () => {
       <section className="flex-1 flex items-center justify-center px-4 py-12 md:py-32">
         <div className="max-w-[600px] mx-auto text-center">
           <span className="inline-flex items-center bg-[#E0F2FE] text-[#0369A1] text-xs font-semibold px-3 py-1 rounded-md mb-6 md:mb-8">
-            Orçamento em menos de 1 minuto
+            Mais de 200 modelos de piscinas de fibra
           </span>
 
           <h1 className="text-[28px] leading-[1.2] md:text-[44px] md:leading-[1.12] font-semibold text-[#0D0D0D] tracking-[-0.02em] mb-4 md:mb-5">
-            Simule sua piscina de fibra e feche mais vendas.
+            Descubra o preço da sua piscina em menos de 1 minuto
           </h1>
 
           <p className="text-[15px] md:text-base text-[#6B7280] max-w-[480px] mx-auto mb-8 md:mb-10 leading-relaxed">
-            Escolha o modelo, configure os opcionais e envie um orçamento completo para o cliente na hora.
+            Escolha o tamanho, os opcionais e receba seu orçamento completo na hora — sem precisar falar com vendedor.
           </p>
 
           <button
@@ -52,45 +52,89 @@ const Index = () => {
             <ChevronRight className="ml-1.5 w-4 h-4" />
           </button>
 
-          {/* Trust chips — column on mobile, row on desktop */}
           <div className="flex flex-col md:flex-row items-center justify-center gap-1 md:gap-0 text-[13px] text-[#9CA3AF]">
-            <span>✓ 100% gratuito</span>
+            <span>✓ Grátis</span>
             <span className="hidden md:inline mx-2">·</span>
             <span>✓ Sem cadastro</span>
             <span className="hidden md:inline mx-2">·</span>
-            <span>✓ Resultado imediato</span>
+            <span>✓ Resultado na hora</span>
           </div>
         </div>
       </section>
 
-      {/* Features */}
-      <section id="features" className="bg-[#F8F9FA] py-12 md:py-20 px-4">
+      {/* Como Funciona */}
+      <section className="bg-[#FFFFFF] py-12 md:py-20 px-4">
         <div className="max-w-[960px] mx-auto">
-          <div className="text-center mb-8 md:mb-10">
+          <div className="text-center mb-8 md:mb-12">
             <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[#9CA3AF] mb-3">
-              POR QUE SIMULAPOOL
+              COMO FUNCIONA
             </p>
             <h2 className="text-[22px] md:text-[28px] font-semibold text-[#0D0D0D]">
-              Tudo que um lojista precisa para vender mais
+              Do sonho ao orçamento em 3 passos
             </h2>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-5">
             {[
               {
-                icon: Layers,
-                title: "Opcionais Flexíveis",
-                description: "Configure qualquer combinação de modelos e acessórios em segundos.",
+                step: "1",
+                title: "Escolha o modelo",
+                description: "Navegue por modelos de piscinas de fibra por tamanho, formato e estilo. Tem opção pra todo espaço e orçamento.",
               },
               {
-                icon: Briefcase,
-                title: "Pensado para Lojistas",
-                description: "Painel comercial completo para acompanhar propostas e negociações.",
+                step: "2",
+                title: "Monte do seu jeito",
+                description: "Adicione escada, iluminação, aquecimento e outros opcionais. O preço atualiza em tempo real conforme você personaliza.",
               },
               {
-                icon: TrendingUp,
-                title: "Mais Conversão",
-                description: "Propostas em PDF prontas para enviar e fechar negócio na hora.",
+                step: "3",
+                title: "Receba seu orçamento",
+                description: "Seu orçamento detalhado fica pronto na hora, com todos os itens selecionados. Salve em PDF ou compartilhe direto pelo WhatsApp.",
+              },
+            ].map((card) => (
+              <div
+                key={card.step}
+                className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-xl p-6"
+              >
+                <div className="w-10 h-10 rounded-lg bg-[#E0F2FE] flex items-center justify-center mb-4">
+                  <span className="text-[18px] font-bold text-[#0369A1]">{card.step}</span>
+                </div>
+                <h3 className="text-[15px] font-semibold text-[#0D0D0D] mb-2">{card.title}</h3>
+                <p className="text-[13px] text-[#6B7280] leading-relaxed">{card.description}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Objeções */}
+      <section className="bg-[#F8F9FA] py-12 md:py-20 px-4">
+        <div className="max-w-[960px] mx-auto">
+          <div className="text-center mb-8 md:mb-12">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[#9CA3AF] mb-3">
+              TIRE SUAS DÚVIDAS
+            </p>
+            <h2 className="text-[22px] md:text-[28px] font-semibold text-[#0D0D0D]">
+              Tudo que você precisa saber antes de comprar
+            </h2>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-5">
+            {[
+              {
+                icon: ShieldCheck,
+                title: "O orçamento é confiável?",
+                description: "Sim. Os preços são fornecidos diretamente pelos lojistas parceiros da sua região, com valores reais e atualizados.",
+              },
+              {
+                icon: MapPin,
+                title: "Tem lojista na minha cidade?",
+                description: "Trabalhamos com revendedores em todo o Brasil. Após a simulação, você é conectado ao lojista mais próximo de você.",
+              },
+              {
+                icon: Clock,
+                title: "Quanto tempo leva a instalação?",
+                description: "A instalação de uma piscina de fibra é muito mais rápida que alvenaria — em média de 1 a 3 dias dependendo do modelo.",
               },
             ].map((card) => (
               <div
@@ -98,7 +142,7 @@ const Index = () => {
                 className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-xl p-6"
               >
                 <div className="w-9 h-9 rounded-lg bg-[#E0F2FE] flex items-center justify-center mb-4">
-                  <card.icon className="w-[18px] h-[18px] text-primary" strokeWidth={1.5} />
+                  <card.icon className="w-[18px] h-[18px] text-[#0369A1]" strokeWidth={1.5} />
                 </div>
                 <h3 className="text-[15px] font-semibold text-[#0D0D0D] mb-2">{card.title}</h3>
                 <p className="text-[13px] text-[#6B7280] leading-relaxed">{card.description}</p>
@@ -109,6 +153,31 @@ const Index = () => {
       </section>
 
       <PartnersMarquee />
+
+      {/* CTA Final */}
+      <section className="bg-[#0EA5E9] py-14 md:py-20 px-4">
+        <div className="max-w-[520px] mx-auto text-center">
+          <h2 className="text-[22px] md:text-[28px] font-semibold text-white mb-3 md:mb-4">
+            Sua piscina pode estar pronta antes do verão
+          </h2>
+          <p className="text-[15px] text-white/80 mb-8 md:mb-10 leading-relaxed">
+            Simule agora, sem compromisso. É grátis e leva menos de 1 minuto.
+          </p>
+
+          <button
+            onClick={() => setShowSimulator(true)}
+            className="w-full md:w-auto inline-flex items-center justify-center h-11 px-7 text-[15px] font-semibold rounded-lg bg-white text-[#0EA5E9] hover:bg-white/90 transition-all duration-150 mb-5"
+          >
+            Simular Minha Piscina
+            <ChevronRight className="ml-1.5 w-4 h-4" />
+          </button>
+
+          <p className="text-[13px] text-white/70">
+            Sem cadastro · Sem compromisso · 100% gratuito
+          </p>
+        </div>
+      </section>
+
       <SiteFooter />
     </div>
   );
