@@ -214,17 +214,17 @@ const TeamManager = () => {
         return;
       }
 
-      const { error } = await supabase
-        .from("profiles")
-        .update({ store_id: null })
-        .eq("id", memberId);
+      const { error } = await supabase.rpc("remove_team_member", {
+        _member_id: memberId,
+      });
 
       if (error) throw error;
 
       toast.success("Membro removido da equipe");
       loadMembers();
-    } catch (error) {
-      toast.error("Erro ao remover membro");
+    } catch (error: any) {
+      console.error("Error removing member:", error);
+      toast.error(error.message || "Erro ao remover membro");
     }
   };
 
