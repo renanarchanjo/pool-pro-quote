@@ -1,5 +1,5 @@
 import { lazy, Suspense, useState } from "react";
-import { ChevronRight, Loader2 } from "lucide-react";
+import { ChevronRight, Check, Sparkles, Loader2 } from "lucide-react";
 import SiteHeader from "@/components/landing/SiteHeader";
 import SiteFooter from "@/components/landing/SiteFooter";
 import PartnersMarquee from "@/components/landing/PartnersMarquee";
@@ -30,34 +30,96 @@ const Index = () => {
       <SiteHeader onSimulate={() => setShowSimulator(true)} />
 
       {/* Hero */}
-      <section className="flex-1 flex items-center justify-center px-4 py-12 md:py-32">
-        <div className="max-w-[600px] mx-auto text-center">
-          <span className="inline-flex items-center bg-[#E0F2FE] text-[#0369A1] text-xs font-semibold px-3 py-1 rounded-md mb-6 md:mb-8">
+      <section className="flex-1 flex items-center justify-center px-4 py-12 md:py-28 relative overflow-hidden">
+        {/* Tech grid background — desktop only */}
+        <div
+          className="hidden md:block absolute inset-0 pointer-events-none"
+          style={{
+            backgroundImage:
+              "linear-gradient(rgba(14,165,233,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(14,165,233,0.04) 1px, transparent 1px)",
+            backgroundSize: "40px 40px",
+          }}
+        />
+        {/* Blob 1 — blue */}
+        <div
+          className="hidden md:block absolute top-[-100px] left-[-100px] w-[400px] h-[400px] rounded-full pointer-events-none"
+          style={{
+            background: "radial-gradient(circle, rgba(14,165,233,0.06) 0%, transparent 70%)",
+          }}
+        />
+        {/* Blob 2 — green */}
+        <div
+          className="hidden md:block absolute bottom-0 right-[-80px] w-[300px] h-[300px] rounded-full pointer-events-none"
+          style={{
+            background: "radial-gradient(circle, rgba(34,197,94,0.07) 0%, transparent 70%)",
+          }}
+        />
+
+        <div className="max-w-[600px] mx-auto text-center relative z-10">
+          {/* Eyebrow chip — green */}
+          <span className="inline-flex items-center gap-1.5 bg-[#F0FDF4] border border-[#86EFAC] text-[#166534] text-xs font-semibold px-3 py-1 rounded-md mb-6 md:mb-8 transition-all duration-200">
+            <Sparkles className="w-4 h-4 text-[#16A34A]" />
             Mais de 200 modelos de piscinas de fibra
           </span>
 
           <h1 className="text-[28px] leading-[1.2] md:text-[44px] md:leading-[1.12] font-semibold text-[#0D0D0D] tracking-[-0.02em] mb-4 md:mb-5">
-            Descubra o preço da sua piscina em menos de 1 minuto
+            Descubra o <span className="text-[#16A34A]">preço</span> da sua piscina em menos de 1 minuto
           </h1>
 
           <p className="text-[15px] md:text-base text-[#6B7280] max-w-[480px] mx-auto mb-8 md:mb-10 leading-relaxed">
             Escolha o tamanho, os opcionais e receba seu orçamento completo na hora — sem precisar falar com vendedor.
           </p>
 
+          {/* CTA Button — green with shimmer */}
           <button
             onClick={() => setShowSimulator(true)}
-            className="w-full md:w-auto inline-flex items-center justify-center h-11 px-7 text-[15px] font-semibold rounded-lg bg-primary hover:bg-[#0284C7] text-white transition-all duration-150 mb-6 md:mb-8"
+            className="group w-full md:w-auto inline-flex items-center justify-center h-12 px-8 text-[15px] font-semibold rounded-lg bg-[#16A34A] hover:bg-[#15803D] text-white transition-all duration-200 mb-6 md:mb-8 relative overflow-hidden"
           >
-            Simular Minha Piscina
-            <ChevronRight className="ml-1.5 w-4 h-4" />
+            <span className="relative z-10 inline-flex items-center">
+              Simular Minha Piscina
+              <ChevronRight className="ml-1.5 w-4 h-4" />
+            </span>
+            {/* Shimmer overlay on hover */}
+            <span
+              className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+              style={{
+                backgroundImage: "linear-gradient(90deg, #16A34A 0%, #22C55E 50%, #16A34A 100%)",
+                backgroundSize: "200% auto",
+                animation: "shimmer 1.5s linear infinite",
+              }}
+            />
           </button>
 
-          <div className="flex flex-col md:flex-row items-center justify-center gap-1 md:gap-0 text-[13px] text-[#9CA3AF]">
-            <span>✓ Grátis</span>
-            <span className="hidden md:inline mx-2">·</span>
-            <span>✓ Sem cadastro</span>
-            <span className="hidden md:inline mx-2">·</span>
-            <span>✓ Resultado na hora</span>
+          {/* Trust badges — green pills */}
+          <div className="flex flex-wrap items-center justify-center gap-2.5 mb-8">
+            {["Grátis", "Sem cadastro", "Resultado na hora"].map((text) => (
+              <span
+                key={text}
+                className="inline-flex items-center gap-1.5 bg-[#F0FDF4] border border-[#86EFAC] rounded-full px-3.5 py-1.5 text-[13px] font-medium text-[#166534] transition-all duration-200"
+              >
+                <Check className="w-3 h-3 text-[#16A34A]" />
+                {text}
+              </span>
+            ))}
+          </div>
+
+          {/* Social proof metrics */}
+          <div className="max-w-[300px] mx-auto mb-0">
+            <div className="h-px bg-[#E5E7EB] mb-5" />
+            <div className="flex items-center justify-center gap-8 md:gap-10">
+              <div className="text-center">
+                <p className="text-[22px] font-bold text-[#0D0D0D] leading-tight">4.800+</p>
+                <p className="text-[12px] text-[#6B7280]">orçamentos gerados</p>
+              </div>
+              <div className="text-center">
+                <p className="text-[22px] font-bold text-[#0D0D0D] leading-tight">200+</p>
+                <p className="text-[12px] text-[#6B7280]">modelos disponíveis</p>
+              </div>
+              <div className="text-center">
+                <p className="text-[22px] font-bold text-[#16A34A] leading-tight">&lt; 1 min</p>
+                <p className="text-[12px] text-[#6B7280]">para seu orçamento</p>
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -106,7 +168,6 @@ const Index = () => {
           </div>
         </div>
       </section>
-
 
       <PartnersMarquee />
 
