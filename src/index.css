@@ -132,6 +132,24 @@
 }
 
 @layer utilities {
+  /* Legacy compat classes — minimal fallbacks */
+  .gradient-hero { background: hsl(var(--background)); }
+  .bg-gradient-hero { background: hsl(var(--background)); }
+  .gradient-primary { background: hsl(var(--primary)); }
+  .gradient-pool { background: hsl(var(--primary)); }
+  .gradient-tech { background: hsl(var(--primary)); }
+  .text-gradient { color: hsl(var(--primary)); }
+  .shadow-card { box-shadow: none; }
+  .shadow-elegant { box-shadow: none; }
+  .shadow-pool { box-shadow: none; }
+  .shadow-glow { box-shadow: none; }
+  .hover-lift { transition: all 0.15s ease; }
+  .hover-lift:hover { transform: translateY(-2px); }
+  .bg-water-pattern { background: hsl(var(--background)); }
+  .animate-wave { }
+  .animate-wave-delayed { }
+  .animate-ripple { }
+
   /* Estilos de Impressão para PDF */
   @media print {
     @page {
