@@ -147,8 +147,7 @@ const Index = () => {
 
           <button
             onClick={() => setShowSimulator(true)}
-            className="group w-full md:w-auto inline-flex items-center justify-center h-12 px-8 text-[15px] font-semibold rounded-xl bg-primary text-primary-foreground transition-all duration-300 hover:scale-[1.03] active:scale-[0.98] mb-6"
-            style={{ boxShadow: "0 4px 20px rgba(14,165,233,0.3)" }}
+            className="group w-full md:w-auto inline-flex items-center justify-center h-12 px-8 text-[15px] font-semibold rounded-xl bg-primary text-primary-foreground transition-all duration-300 hover:scale-[1.03] active:scale-[0.98] mb-6 animate-cta-pulse"
           >
             Simular Minha Piscina
             <ArrowRight className="ml-2 w-4 h-4 transition-transform group-hover:translate-x-0.5" />
