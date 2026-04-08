@@ -1,5 +1,6 @@
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import logoIcon from "@/assets/logo-icon.png";
+import { ArrowLeft } from "lucide-react";
 
 interface SiteHeaderProps {
   onSimulate?: () => void;
@@ -7,6 +8,16 @@ interface SiteHeaderProps {
 
 const SiteHeader = ({ onSimulate }: SiteHeaderProps) => {
   const location = useLocation();
+  const navigate = useNavigate();
+  const isHome = location.pathname === "/";
+
+  const handleCtaClick = () => {
+    if (isHome && onSimulate) {
+      onSimulate();
+    } else {
+      navigate("/");
+    }
+  };
 
   return (
     <>
@@ -21,39 +32,44 @@ const SiteHeader = ({ onSimulate }: SiteHeaderProps) => {
 
           {/* Desktop nav */}
           <div className="hidden md:flex items-center gap-9">
-            <Link
-              to="/parceiros"
-              className="text-[15px] font-medium transition-colors duration-200"
-              style={{
-                color: location.pathname === "/parceiros" ? '#FFFFFF' : 'rgba(255,255,255,0.65)',
-              }}
-              onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.color = '#FFFFFF'; }}
-              onMouseLeave={(e) => {
-                (e.currentTarget as HTMLElement).style.color =
-                  location.pathname === "/parceiros" ? '#FFFFFF' : 'rgba(255,255,255,0.65)';
-              }}
-            >
-              Parceiros
-            </Link>
+            {isHome && (
+              <Link
+                to="/parceiros"
+                className="text-[15px] font-medium transition-colors duration-200"
+                style={{ color: 'rgba(255,255,255,0.65)' }}
+                onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.color = '#FFFFFF'; }}
+                onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.color = 'rgba(255,255,255,0.65)'; }}
+              >
+                Parceiros
+              </Link>
+            )}
             <button
-              onClick={onSimulate}
-              className="h-10 px-5 text-[14px] font-semibold rounded-lg text-white transition-all duration-150"
+              onClick={handleCtaClick}
+              className="h-10 px-5 text-[14px] font-semibold rounded-lg text-white transition-all duration-150 inline-flex items-center gap-2"
               style={{ background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.2)' }}
               onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.2)'; }}
               onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.12)'; }}
             >
-              Ver Preços →
+              {isHome ? (
+                <>Ver Preços →</>
+              ) : (
+                <><ArrowLeft className="w-4 h-4" /> Voltar</>
+              )}
             </button>
           </div>
 
-          {/* Mobile: CTA button always visible */}
+          {/* Mobile */}
           <div className="flex md:hidden items-center gap-2">
             <button
-              onClick={onSimulate}
-              className="h-9 px-4 text-[13px] font-medium rounded-lg text-white transition-all duration-150"
+              onClick={handleCtaClick}
+              className="h-9 px-4 text-[13px] font-medium rounded-lg text-white transition-all duration-150 inline-flex items-center gap-1.5"
               style={{ background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.2)' }}
             >
-              Ver Preços →
+              {isHome ? (
+                <>Ver Preços →</>
+              ) : (
+                <><ArrowLeft className="w-3.5 h-3.5" /> Voltar</>
+              )}
             </button>
           </div>
         </div>
