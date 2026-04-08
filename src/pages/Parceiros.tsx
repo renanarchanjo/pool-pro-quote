@@ -140,18 +140,10 @@ const Parceiros = () => {
               href={WHATSAPP_URL}
               target="_blank"
               rel="noopener noreferrer"
-              className="group w-full md:w-auto inline-flex items-center justify-center h-[52px] px-10 text-[16px] font-semibold rounded-xl text-white transition-all duration-300 hover:scale-[1.03] active:scale-[0.98]"
+              className="group w-full md:w-auto inline-flex items-center justify-center h-[52px] px-10 text-[16px] font-semibold rounded-xl transition-all duration-300 hover:scale-[1.03] active:scale-[0.98] animate-cta-pulse"
               style={{
-                backgroundColor: "#0EA5E9",
-                boxShadow: "0 0 40px rgba(14,165,233,0.4), 0 4px 16px rgba(14,165,233,0.25)",
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = "#0284C7";
-                e.currentTarget.style.boxShadow = "0 0 56px rgba(14,165,233,0.5), 0 8px 24px rgba(14,165,233,0.3)";
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.backgroundColor = "#0EA5E9";
-                e.currentTarget.style.boxShadow = "0 0 40px rgba(14,165,233,0.4), 0 4px 16px rgba(14,165,233,0.25)";
+                backgroundColor: "#FFFFFF",
+                color: "#0A1628",
               }}
             >
               Quero posicionar minha marca
