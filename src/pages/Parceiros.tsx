@@ -107,14 +107,13 @@ const Parceiros = () => {
 
         <div className="relative z-10 max-w-[740px] mx-auto text-center px-5 md:px-4 pt-12 pb-24 md:pt-24 md:pb-36">
           {/* Eyebrow */}
-          <motion.span
+          <motion.p
             variants={fadeUp} initial="hidden" animate="visible" custom={0}
-            className="inline-flex items-center gap-1.5 text-[12px] font-semibold px-3.5 py-1.5 rounded-md mb-8 md:mb-10"
-            style={{ background: "rgba(56,189,248,0.12)", border: "1px solid rgba(56,189,248,0.3)", color: "#7DD3FC" }}
+            className="text-[12px] md:text-[13px] font-medium tracking-[0.08em] uppercase mb-5 md:mb-6"
+            style={{ color: "rgba(125,211,252,0.55)" }}
           >
-            <span style={{ color: "#38BDF8" }}>✦</span>
             Para Fabricantes e Marcas
-          </motion.span>
+          </motion.p>
 
           {/* Headline */}
           <motion.h1
