@@ -21,15 +21,6 @@ const SiteHeader = ({ onSimulate }: SiteHeaderProps) => {
 
           {/* Desktop nav */}
           <div className="hidden md:flex items-center gap-6">
-            {/* Status dot */}
-            <span className="inline-flex items-center gap-1.5">
-              <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75" style={{ backgroundColor: "#38BDF8" }} />
-                <span className="relative inline-flex rounded-full h-2 w-2" style={{ backgroundColor: "#38BDF8" }} />
-              </span>
-              <span className="text-[12px] font-medium" style={{ color: "#0EA5E9" }}>Sistema online</span>
-            </span>
-
             <Link
               to="/lojista"
               className={`text-[13px] transition-all duration-150 ${
