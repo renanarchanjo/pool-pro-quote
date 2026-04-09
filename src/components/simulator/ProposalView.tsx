@@ -384,9 +384,9 @@ const ProposalView = ({
               </div>
             </div>
 
-            {/* Banner lateral no final da página 1 */}
+            {/* Banner parceiro — hidden on mobile, visible on sm+ and PDF */}
             {banner1Urls.length > 0 && (
-              <div style={{ display: "flex", justifyContent: "center", gap: "12px", flexWrap: "wrap", marginBottom: "8px" }}>
+              <div className="hidden sm:flex" style={{ justifyContent: "center", gap: "12px", flexWrap: "wrap", marginBottom: "8px" }}>
                 {banner1Urls.map((b, i) => (
                   <img
                     key={i}
