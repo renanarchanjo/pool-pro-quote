@@ -297,9 +297,6 @@ const TeamPerformance = () => {
                             <span className="text-[11px] font-semibold text-muted-foreground">#{rank}</span>
                           )}
                         </div>
-                        <p className="text-[13px] text-muted-foreground">
-                          {m.leadsAccepted} leads aceitos · {m.closed} fechados · {m.lost} perdidos
-                        </p>
                       </div>
                     </div>
                     <div className="text-right shrink-0">
