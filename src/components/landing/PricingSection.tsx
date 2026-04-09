@@ -270,7 +270,7 @@ const PricingSection = ({
                     onMouseEnter={(e) => {
                       const t = e.currentTarget;
                       if (isHero) {
-                        t.style.transform = "scale(1.06) translateY(-8px)";
+                        t.style.transform = "translateY(-8px)";
                         t.style.boxShadow = "0 32px 100px -16px hsla(199,89%,48%,0.35), 0 0 0 1px hsla(199,89%,48%,0.12)";
                       } else {
                         t.style.transform = "translateY(-6px)";
