@@ -82,12 +82,15 @@ const exportSectionedPDF = async ({
 
   for (let index = 0; index < sections.length; index += 1) {
     const section = sections[index];
+    section.getBoundingClientRect();
     const canvas = await html2canvas(section, {
       scale: 2,
       useCORS: true,
       backgroundColor: "#ffffff",
       logging: false,
       windowWidth: section.scrollWidth,
+      scrollX: 0,
+      scrollY: -window.scrollY,
     });
 
     const imgWidthMm = contentWidth;
