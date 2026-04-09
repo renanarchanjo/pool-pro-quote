@@ -393,32 +393,33 @@ const MatrizPlans = () => {
             <DialogDescription>Altere os valores e limites do plano</DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
-            <div className="space-y-2">
-              <Label>Nome do Plano</Label>
+            <div className="space-y-1.5">
+              <Label className="text-[12px] text-muted-foreground">Nome do Plano</Label>
               <Input value={editForm.name} onChange={e => setEditForm(prev => ({ ...prev, name: e.target.value }))} />
             </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label>Preço Mensal (R$)</Label>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1.5">
+                <Label className="text-[12px] text-muted-foreground">Preço Mensal (R$)</Label>
                 <Input type="number" step="0.01" value={editForm.price_monthly} onChange={e => setEditForm(prev => ({ ...prev, price_monthly: e.target.value }))} />
               </div>
-              <div className="space-y-2">
-                <Label>Limite de Orçamentos/mês</Label>
+              <div className="space-y-1.5">
+                <Label className="text-[12px] text-muted-foreground">Limite Orçamentos/mês</Label>
                 <Input type="number" value={editForm.max_proposals_per_month} onChange={e => setEditForm(prev => ({ ...prev, max_proposals_per_month: e.target.value }))} />
               </div>
-              <div className="space-y-2">
-                <Label>Limite de Usuários</Label>
+            </div>
+            <div className="grid grid-cols-2 gap-3 items-end">
+              <div className="space-y-1.5">
+                <Label className="text-[12px] text-muted-foreground">Limite de Usuários</Label>
                 <Input type="number" value={editForm.max_users} onChange={e => setEditForm(prev => ({ ...prev, max_users: e.target.value }))} />
               </div>
-              <div className="flex items-center gap-3 pt-6">
+              <div className="flex items-center gap-2.5 h-9">
                 <Switch checked={editForm.active} onCheckedChange={v => setEditForm(prev => ({ ...prev, active: v }))} />
-                <Label>Plano ativo</Label>
+                <Label className="text-[13px]">Plano ativo</Label>
               </div>
             </div>
           </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setEditingPlan(null)}>Cancelar</Button>
-            <Button onClick={handleSavePlan} disabled={saving}>
+          <DialogFooter className="sm:justify-stretch">
+            <Button onClick={handleSavePlan} disabled={saving} className="w-full">
               {saving ? <Loader2 className="w-4 h-4 animate-spin mr-1" /> : <Save className="w-4 h-4 mr-1" />}
               Salvar
             </Button>
