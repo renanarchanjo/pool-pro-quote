@@ -409,7 +409,7 @@ const MatrizInadimplencia = () => {
           </p>
         </div>
       </div>
-    </div>
+    </>
   );
 };
 
