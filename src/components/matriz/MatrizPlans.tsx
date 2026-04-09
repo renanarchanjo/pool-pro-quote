@@ -288,7 +288,12 @@ const MatrizPlans = () => {
               <div key={lp.id} className={`p-4 rounded-lg border transition-all ${lp.active ? "border-primary/30 bg-primary/5" : "border-border/50 bg-muted/30 opacity-60"}`}>
                 <div className="flex items-center justify-between mb-3">
                   <span className="text-sm font-semibold">{lp.name}</span>
-                  <Switch checked={lp.active} onCheckedChange={() => handleToggleLeadPlan(lp)} />
+                  <div className="flex items-center gap-1">
+                    <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => openEditLeadPlan(lp)}>
+                      <Pencil className="w-3.5 h-3.5" />
+                    </Button>
+                    <Switch checked={lp.active} onCheckedChange={() => handleToggleLeadPlan(lp)} />
+                  </div>
                 </div>
                 <p className="text-2xl font-bold">{formatCurrency(lp.price_monthly)}</p>
                 <p className="text-xs text-muted-foreground mt-0.5">por mês</p>
