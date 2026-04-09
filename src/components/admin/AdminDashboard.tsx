@@ -35,6 +35,8 @@ const AdminDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [viewingProposal, setViewingProposal] = useState<Proposal | null>(null);
   const reportRef = useRef<HTMLDivElement>(null);
+  const proposalPdfRef = useRef<HTMLDivElement>(null);
+  const [previewZoomed, setPreviewZoomed] = useState(false);
   const [teamMembers, setTeamMembers] = useState<{ id: string; full_name: string | null }[]>([]);
   const [filterMember, setFilterMember] = useState<string>("all");
   const [leadDistributions, setLeadDistributions] = useState<{ proposal_id: string; accepted_by: string | null; status: string }[]>([]);
