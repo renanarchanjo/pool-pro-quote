@@ -87,7 +87,11 @@ const MatrizLeads = () => {
     ]);
     if (leadsRes.data) setLeads(leadsRes.data as Lead[]);
     if (distRes.data) setDistributions(distRes.data);
-    if (storesRes.data) setStores(storesRes.data);
+    if (storesRes.error) console.error("[MatrizLeads] stores error:", storesRes.error);
+    if (storesRes.data) {
+      console.log("[MatrizLeads] stores loaded:", storesRes.data.length);
+      setStores(storesRes.data);
+    }
     setLoading(false);
   };
 
@@ -601,8 +605,8 @@ const MatrizLeads = () => {
       )}
 
       {/* Distribute Dialog */}
-      <Dialog open={showDistributeDialog} onOpenChange={setShowDistributeDialog}>
-        <DialogContent className="max-w-sm">
+      <Dialog open={showDistributeDialog} onOpenChange={setShowDistributeDialog} modal>
+        <DialogContent className="max-w-sm overflow-visible">
           <DialogHeader>
             <DialogTitle className="text-base">Distribuir Leads</DialogTitle>
             <DialogDescription className="text-xs">
@@ -613,9 +617,9 @@ const MatrizLeads = () => {
           <div className="space-y-3">
             <Select value={targetStoreId} onValueChange={setTargetStoreId}>
               <SelectTrigger className="h-9 text-sm"><SelectValue placeholder="Selecione o lojista" /></SelectTrigger>
-              <SelectContent>
+              <SelectContent position="popper" className="max-h-[250px] z-[9999]" sideOffset={4}>
                 {availableStores.length === 0 ? (
-                  <SelectItem value="_none" disabled>Nenhum lojista com plano ativo</SelectItem>
+                  <SelectItem value="_none" disabled>Nenhum lojista cadastrado</SelectItem>
                 ) : (
                   availableStores.map(s => (
                     <SelectItem key={s.id} value={s.id}>{s.name} {s.city ? `— ${s.city}/${s.state}` : ""}{s.lead_plan_active ? "" : " (plano inativo)"}</SelectItem>
