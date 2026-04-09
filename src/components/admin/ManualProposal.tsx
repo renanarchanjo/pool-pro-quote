@@ -415,7 +415,7 @@ const ManualProposal = () => {
     </div>
   );
 
-  const renderOptionalCard = (opt: Optional, isEnabled: boolean, isSelected: boolean) => (
+  const renderOptionalCard = (opt: Optional, isEnabled: boolean, isSelected: boolean, showToggle = true) => (
     <div
       key={opt.id}
       onClick={() => isEnabled && toggleOptional(opt.id)}
@@ -427,16 +427,18 @@ const ManualProposal = () => {
           : "border-border hover:border-primary/40 cursor-pointer"
       }`}
     >
-      <button
-        type="button"
-        onClick={(e) => { e.stopPropagation(); toggleEnabled(opt.id); }}
-        className="absolute top-2 right-2 p-1 rounded hover:bg-muted transition-colors z-10"
-        title={isEnabled ? "Desativar opcional" : "Ativar opcional"}
-      >
-        {isEnabled ? <Eye className="w-3.5 h-3.5 text-primary" /> : <EyeOff className="w-3.5 h-3.5 text-muted-foreground" />}
-      </button>
+      {showToggle && (
+        <button
+          type="button"
+          onClick={(e) => { e.stopPropagation(); toggleEnabled(opt.id); }}
+          className="absolute top-2 right-2 p-1 rounded hover:bg-muted transition-colors z-10"
+          title={isEnabled ? "Desativar opcional" : "Ativar opcional"}
+        >
+          {isEnabled ? <Eye className="w-3.5 h-3.5 text-primary" /> : <EyeOff className="w-3.5 h-3.5 text-muted-foreground" />}
+        </button>
+      )}
       <Checkbox checked={isSelected} className="pointer-events-none mt-0.5" disabled={!isEnabled} />
-      <div className="flex-1 min-w-0 pr-5">
+      <div className={`flex-1 min-w-0 ${showToggle ? "pr-5" : ""}`}>
         <p className="text-sm font-medium leading-tight">{opt.name}</p>
         <p className="text-xs text-primary font-semibold mt-1">
           + R$ {opt.price.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
@@ -445,24 +447,28 @@ const ManualProposal = () => {
     </div>
   );
 
-  const renderOptionalsContent = () => (
+  const renderOptionalsContent = (showToggle = true) => (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h3 className="text-base font-semibold">Opcionais</h3>
-        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-          <span>{allEnabled ? "Desativar todos" : "Ativar todos"}</span>
-          <Switch
-            checked={allEnabled}
-            onCheckedChange={(checked) => {
-              setEnabledOptionalIds(checked ? optionals.map((o) => o.id) : []);
-              if (!checked) setSelectedOptionalIds([]);
-            }}
-          />
-        </div>
-      </div>
-      <p className="text-xs text-muted-foreground -mt-4">
-        Use o <Eye className="w-3 h-3 inline" /> para ativar/desativar opcionais visíveis na proposta
-      </p>
+      {showToggle && (
+        <>
+          <div className="flex items-center justify-between">
+            <h3 className="text-base font-semibold">Opcionais</h3>
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <span>{allEnabled ? "Desativar todos" : "Ativar todos"}</span>
+              <Switch
+                checked={allEnabled}
+                onCheckedChange={(checked) => {
+                  setEnabledOptionalIds(checked ? optionals.map((o) => o.id) : []);
+                  if (!checked) setSelectedOptionalIds([]);
+                }}
+              />
+            </div>
+          </div>
+          <p className="text-xs text-muted-foreground -mt-4">
+            Use o <Eye className="w-3 h-3 inline" /> para ativar/desativar opcionais visíveis na proposta
+          </p>
+        </>
+      )}
 
       {optionals.length === 0 ? (
         <p className="text-muted-foreground text-sm">Nenhum opcional cadastrado.</p>
@@ -476,7 +482,7 @@ const ManualProposal = () => {
                 <h4 className="text-sm font-bold text-foreground mb-1">{group.name}</h4>
                 {group.description && <p className="text-xs text-muted-foreground mb-2">{group.description}</p>}
                 <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                  {groupOpts.map((opt) => renderOptionalCard(opt, enabledOptionalIds.includes(opt.id), selectedOptionalIds.includes(opt.id)))}
+                  {groupOpts.map((opt) => renderOptionalCard(opt, enabledOptionalIds.includes(opt.id), selectedOptionalIds.includes(opt.id), showToggle))}
                 </div>
               </div>
             );
@@ -486,7 +492,7 @@ const ManualProposal = () => {
               <h4 className="text-sm font-bold text-foreground mb-2">Outros</h4>
               <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
                 {optionals.filter((o) => !o.group_id || !optionalGroups.some((g) => g.id === o.group_id)).sort((a, b) => a.price - b.price).map((opt) =>
-                  renderOptionalCard(opt, enabledOptionalIds.includes(opt.id), selectedOptionalIds.includes(opt.id))
+                  renderOptionalCard(opt, enabledOptionalIds.includes(opt.id), selectedOptionalIds.includes(opt.id), showToggle)
                 )}
               </div>
             </div>
@@ -635,7 +641,7 @@ const ManualProposal = () => {
         {/* Step content */}
         {mobileStep === 0 && renderCustomerFields()}
         {mobileStep === 1 && renderModelFields()}
-        {mobileStep === 2 && renderOptionalsContent()}
+        {mobileStep === 2 && renderOptionalsContent(false)}
         {mobileStep === 3 && renderSummaryStep()}
 
         {/* Navigation buttons */}
