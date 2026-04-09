@@ -402,6 +402,46 @@ const MatrizPlans = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      {/* Edit Lead Plan Dialog */}
+      <Dialog open={!!editingLeadPlan} onOpenChange={() => setEditingLeadPlan(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Editar Plano de Leads: {editingLeadPlan?.name}</DialogTitle>
+            <DialogDescription>Altere os valores e limites do plano de distribuição</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label>Nome do Plano</Label>
+              <Input value={leadForm.name} onChange={e => setLeadForm(prev => ({ ...prev, name: e.target.value }))} />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label>Preço Mensal (R$)</Label>
+                <Input type="number" step="0.01" value={leadForm.price_monthly} onChange={e => setLeadForm(prev => ({ ...prev, price_monthly: e.target.value }))} />
+              </div>
+              <div className="space-y-2">
+                <Label>Limite de Leads/mês</Label>
+                <Input type="number" value={leadForm.lead_limit} onChange={e => setLeadForm(prev => ({ ...prev, lead_limit: e.target.value }))} />
+              </div>
+              <div className="space-y-2">
+                <Label>Preço Excedente (R$)</Label>
+                <Input type="number" step="0.01" value={leadForm.excess_price} onChange={e => setLeadForm(prev => ({ ...prev, excess_price: e.target.value }))} />
+              </div>
+              <div className="flex items-center gap-3 pt-6">
+                <Switch checked={leadForm.active} onCheckedChange={v => setLeadForm(prev => ({ ...prev, active: v }))} />
+                <Label>Plano ativo</Label>
+              </div>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setEditingLeadPlan(null)}>Cancelar</Button>
+            <Button onClick={handleSaveLeadPlan} disabled={saving}>
+              {saving ? <Loader2 className="w-4 h-4 animate-spin mr-1" /> : <Save className="w-4 h-4 mr-1" />}
+              Salvar
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
