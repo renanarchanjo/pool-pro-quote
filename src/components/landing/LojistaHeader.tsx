@@ -31,12 +31,20 @@ const LojistaHeader = () => {
               Planos e Preços
             </Link>
 
-            {/* Planos e Preços — pill CTA */}
+            {/* Planos e Preços — mobile only text link */}
             <Link
               to="/lojista/planos"
-              className="h-9 md:h-10 px-4 md:px-5 text-[13px] md:text-[14px] font-medium rounded-full text-white/80 hover:text-white transition-all duration-200 inline-flex items-center gap-2 border border-white/15 hover:border-white/30 hover:bg-white/[0.06]"
+              className="text-[13px] font-medium text-white/60 hover:text-white transition-colors duration-200 sm:hidden"
             >
               Planos e Preços
+            </Link>
+
+            {/* Minha Conta — desktop pill */}
+            <Link
+              to="/login"
+              className="h-9 md:h-10 px-4 md:px-5 text-[13px] md:text-[14px] font-medium rounded-full text-white/80 hover:text-white transition-all duration-200 hidden sm:inline-flex items-center gap-2 border border-white/15 hover:border-white/30 hover:bg-white/[0.06]"
+            >
+              <User className="w-3.5 h-3.5" /> Minha Conta
             </Link>
           </div>
         </div>
