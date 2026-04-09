@@ -9,7 +9,7 @@ const LojistaHeader = () => {
 
       <nav className="sticky top-0 z-50 h-14 md:h-[68px] bg-transparent">
         <div className="container mx-auto px-5 md:px-12 h-full flex items-center justify-between">
-          <Link to="/lojista" className="flex items-center gap-2.5">
+          <Link to="/lojista" className="flex items-center gap-1.5">
             <img src={logoIcon} alt="SimulaPool" className="h-11 w-auto" />
             <span className="text-[22px] font-bold text-white tracking-[-0.01em] hidden sm:inline">SimulaPool</span>
           </Link>
