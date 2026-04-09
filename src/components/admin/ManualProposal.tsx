@@ -226,13 +226,15 @@ const ManualProposal = () => {
         ...selectedModelOptsList.map((o: any) => ({ id: o.id, name: o.name, price: o.price })),
       ];
 
+      const { sanitizeText, sanitizePhone, sanitizeCurrency } = await import("@/lib/sanitize");
+
       const { error } = await supabase.from("proposals").insert({
-        customer_name: customerName,
-        customer_city: `${customerCity} / ${customerUf}`,
-        customer_whatsapp: customerWhatsapp,
+        customer_name: sanitizeText(customerName, 200),
+        customer_city: sanitizeText(`${customerCity} / ${customerUf}`, 200),
+        customer_whatsapp: sanitizePhone(customerWhatsapp),
         model_id: selectedModel.id,
         selected_optionals: allSelectedOpts as any,
-        total_price: totalPrice,
+        total_price: sanitizeCurrency(totalPrice),
         store_id: profile.store_id,
         created_by: profile.id,
       });
