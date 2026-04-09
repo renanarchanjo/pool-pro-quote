@@ -1,5 +1,6 @@
 import { useNavigate, useLocation } from "react-router-dom";
 import ThemeToggle from "@/components/ThemeToggle";
+import BrandLogo from "@/components/BrandLogo";
 import {
   LayoutGrid, FilePlus, Layers, Boxes, Package, UserCircle, Users, LogOut, UsersRound, CreditCard, Receipt, TrendingUp, DollarSign, Handshake, FolderTree
 } from "lucide-react";
@@ -100,8 +101,13 @@ const AdminSidebarContent = ({ onNavigate, isMobile = false }: AdminSidebarConte
 
   return (
     <div className="flex flex-col h-full">
+      {/* Brand Logo */}
+      <div className="px-4 pt-4 pb-2 shrink-0 flex justify-center">
+        <BrandLogo size="sm" />
+      </div>
+
       {/* Header */}
-      <div className="border-b border-border p-4 shrink-0">
+      <div className="border-b border-border px-4 pb-3 shrink-0">
         <div className="flex items-center gap-3 justify-end">
           <div className="flex flex-col min-w-0 items-end">
             <span className="text-[13px] font-semibold text-foreground truncate">{profile?.full_name || "Lojista"}</span>
