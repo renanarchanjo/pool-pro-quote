@@ -37,7 +37,6 @@ const MatrizSidebar = () => {
   const gestaoItems = [
     { title: "Dashboard Financeiro", url: "/matriz", icon: TrendingUp },
     { title: "Lojistas Ativos", url: "/matriz/lojistas", icon: Users },
-    { title: "Pagamentos", url: "/matriz/pagamentos", icon: CreditCard },
     { title: "Inadimplência", url: "/matriz/inadimplencia", icon: AlertTriangle },
   ];
 
