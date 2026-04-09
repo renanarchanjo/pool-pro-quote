@@ -1,5 +1,3 @@
-import { supabase } from "@/integrations/supabase/client";
-
 const waitForImageLoad = async (image: HTMLImageElement) => {
   if (image.complete && image.naturalWidth > 0) {
     return;
@@ -29,6 +27,19 @@ interface PreparedImageSnapshot {
   originalCrossOrigin: string | null;
   objectUrl: string;
 }
+
+const shouldProxyImageForPdf = (source: string) => {
+  if (!source || source.startsWith("data:") || source.startsWith("blob:")) {
+    return false;
+  }
+
+  try {
+    const url = new URL(source, window.location.origin);
+    return url.origin !== window.location.origin && ["http:", "https:"].includes(url.protocol);
+  } catch {
+    return false;
+  }
+};
 
 const buildFetchSources = (source: string) => {
   const encodedSource = encodeURIComponent(source);
@@ -81,8 +92,11 @@ export const inlineImagesForPdf = async (root: HTMLElement): Promise<() => void>
     images.map(async (image) => {
       const source = image.currentSrc || image.getAttribute("src") || image.src;
 
-      if (!source || source.startsWith("data:") || source.startsWith("blob:")) {
+      if (!shouldProxyImageForPdf(source)) {
         await waitForImageLoad(image);
+        if (typeof image.decode === "function") {
+          await image.decode().catch(() => undefined);
+        }
         return;
       }
 
