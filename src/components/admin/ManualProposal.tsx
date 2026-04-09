@@ -410,7 +410,7 @@ const ManualProposal = () => {
           <SelectContent>
             {filteredModels.map((m) => (
               <SelectItem key={m.id} value={m.id}>
-                {m.name} — R$ {m.base_price.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                {m.name}
               </SelectItem>
             ))}
           </SelectContent>
@@ -422,7 +422,7 @@ const ManualProposal = () => {
             <p>{selectedModel.length}m × {selectedModel.width}m{selectedModel.depth ? ` × ${selectedModel.depth}m` : ""}</p>
           )}
           <p className="font-semibold text-foreground">
-            Base: R$ {selectedModel.base_price.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+            Base: R$ {(selectedModel.base_price + includedItemsTotal).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
           </p>
         </div>
       )}
@@ -574,7 +574,7 @@ const ManualProposal = () => {
             {selectedModel.length && selectedModel.width && (
               <p className="text-sm text-muted-foreground">{selectedModel.length}m × {selectedModel.width}m{selectedModel.depth ? ` × ${selectedModel.depth}m` : ""}</p>
             )}
-            <p className="text-sm text-muted-foreground">Base: R$ {selectedModel.base_price.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</p>
+            <p className="text-sm text-muted-foreground">Base: R$ {(selectedModel.base_price + includedItemsTotal).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</p>
           </>
         ) : (
           <p className="text-muted-foreground">Nenhum modelo selecionado</p>
