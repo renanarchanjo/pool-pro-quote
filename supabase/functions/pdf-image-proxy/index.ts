@@ -1,10 +1,22 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 
+const ALLOWED_ORIGIN = Deno.env.get("ALLOWED_ORIGIN") ?? "https://simulapool.lovable.app";
+
 const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
+  "Access-Control-Allow-Origin": ALLOWED_ORIGIN,
+  "Access-Control-Allow-Headers":
+    "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
   "Access-Control-Expose-Headers": "Content-Type, Cache-Control",
 };
+
+const BLOCKED_HOSTS = [
+  "localhost",
+  "127.0.0.1",
+  "0.0.0.0",
+  "169.254.169.254",
+  "metadata.google.internal",
+  "::1",
+];
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -30,10 +42,30 @@ serve(async (req) => {
       });
     }
 
+    // Block internal/private hosts (SSRF protection)
+    if (
+      BLOCKED_HOSTS.some(
+        (h) => parsed.hostname === h || parsed.hostname.endsWith(".internal") || parsed.hostname.endsWith(".local")
+      )
+    ) {
+      return new Response(JSON.stringify({ error: "URL não permitida" }), {
+        status: 403,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    // Only allow Supabase Storage domains
+    if (!parsed.hostname.endsWith(".supabase.co") && !parsed.hostname.endsWith(".supabase.in")) {
+      return new Response(JSON.stringify({ error: "Domínio não permitido" }), {
+        status: 403,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
     const upstream = await fetch(parsed.toString(), {
       headers: {
         "User-Agent": "Lovable PDF Image Proxy",
-        "Accept": "image/*,*/*;q=0.8",
+        Accept: "image/*,*/*;q=0.8",
       },
     });
 
@@ -60,7 +92,7 @@ serve(async (req) => {
         ...corsHeaders,
         "Content-Type": contentType,
         "Cache-Control": "public, max-age=3600",
-        "Vary": "Origin",
+        Vary: "Origin",
       },
     });
   } catch (error) {
