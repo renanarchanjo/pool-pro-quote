@@ -236,7 +236,7 @@ const PricingSection = ({
                 >
                   {/* Hero badge */}
                   {isHero && (
-                    <div className="absolute -top-4 left-1/2 -translate-x-1/2 z-20">
+                    <div className="absolute -top-7 left-1/2 -translate-x-1/2 z-20">
                       <span
                         className="inline-flex items-center gap-2 text-[10px] font-extrabold uppercase tracking-[0.16em] px-5 py-1.5 rounded-full"
                         style={{
