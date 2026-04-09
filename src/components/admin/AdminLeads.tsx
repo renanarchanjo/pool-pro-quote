@@ -968,6 +968,10 @@ const AdminLeads = () => {
                   storeName={store?.name}
                   storeCity={store?.city}
                   storeState={store?.state}
+                  brandLogoUrl={viewingProposal.pool_models?.categories?.brands?.logo_url}
+                  brandName={viewingProposal.pool_models?.categories?.brands?.name}
+                  brandPartnerId={viewingProposal.pool_models?.categories?.brands?.partner_id}
+                  partners={partners}
                 />
               </div>
             </div>
