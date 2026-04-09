@@ -51,7 +51,7 @@ const BENEFITS = [
   },
 ];
 
-const WHATSAPP_NUMBER = "5543999913065";
+const WHATSAPP_NUMBER = import.meta.env.VITE_WHATSAPP_CONTACT || "5543999913065";
 const WHATSAPP_MESSAGE = encodeURIComponent(
   "Olá! Quero posicionar minha marca no SimulaPool. Podem me explicar como funciona a parceria?"
 );
