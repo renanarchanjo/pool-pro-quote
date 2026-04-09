@@ -324,9 +324,9 @@ const MatrizLeads = () => {
             <RefreshCw className="w-3.5 h-3.5 md:mr-1" />
             <span className="hidden md:inline">Atualizar</span>
           </Button>
-          <Button variant="outline" size="sm" onClick={handleExportCSV} className="h-8 w-8 md:w-auto p-0 md:px-3">
+          <Button variant="outline" size="sm" onClick={handleExportXlsx} className="h-8 w-8 md:w-auto p-0 md:px-3">
             <Download className="w-3.5 h-3.5 md:mr-1" />
-            <span className="hidden md:inline">CSV</span>
+            <span className="hidden md:inline">Exportar</span>
           </Button>
         </div>
       </div>
