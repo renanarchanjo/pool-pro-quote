@@ -841,7 +841,7 @@ const AdminLeads = () => {
                             )}
                           </TableCell>
                           {isOwner && (
-                            <TableCell>
+                            <TableCell onClick={(e) => e.stopPropagation()}>
                               {lead.assigned_to_profile?.full_name ? (
                                 <Badge variant="secondary" className="text-[10px]">
                                   {lead.assigned_to_profile.full_name}
