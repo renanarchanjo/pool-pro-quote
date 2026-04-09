@@ -12,6 +12,7 @@ import MatrizLeads from "@/components/matriz/MatrizLeads";
 import MatrizPlans from "@/components/matriz/MatrizPlans";
 import MatrizMapPage from "@/components/matriz/MatrizMapPage";
 import MatrizReports from "@/components/matriz/MatrizReports";
+import MatrizInadimplencia from "@/components/matriz/MatrizInadimplencia";
 
 const Matriz = () => {
   const [loading, setLoading] = useState(true);
@@ -59,6 +60,7 @@ const Matriz = () => {
               <Route path="leads" element={<MatrizLeads />} />
               <Route path="planos" element={<MatrizPlans />} />
               <Route path="mapa" element={<MatrizMapPage />} />
+              <Route path="inadimplencia" element={<MatrizInadimplencia />} />
               <Route path="relatorios" element={<MatrizReports />} />
             </Routes>
           </main>
