@@ -1,237 +1,249 @@
-/**
- * PDF Image Utilities
- *
- * Converts all <img> elements inside a root element to inline base64 data URIs
- * so that html2canvas / jsPDF can render them without CORS issues.
- */
-
-// ─── helpers ───────────────────────────────────────────────────────────
-
-const toBase64 = async (url: string): Promise<string> => {
-  const response = await fetch(url, {
-    mode: "cors",
-    credentials: "omit",
-    cache: "force-cache",
-  });
-
-  if (!response.ok) throw new Error(`HTTP ${response.status}`);
-
-  const blob = await response.blob();
-  if (!blob.type.startsWith("image/")) throw new Error("Not an image");
-
-  return new Promise<string>((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onloadend = () => resolve(reader.result as string);
-    reader.onerror = reject;
-    reader.readAsDataURL(blob);
-  });
-};
-
-const toBase64ViaProxy = async (url: string): Promise<string> => {
-  const proxyUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/pdf-image-proxy?url=${encodeURIComponent(url)}`;
-
-  const response = await fetch(proxyUrl, {
-    mode: "cors",
-    credentials: "omit",
-    cache: "force-cache",
-    headers: {
-      apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
-      Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
-    },
-  });
-
-  if (!response.ok) throw new Error(`Proxy HTTP ${response.status}`);
-
-  const blob = await response.blob();
-  if (!blob.type.startsWith("image/")) throw new Error("Proxy returned non-image");
-
-  return new Promise<string>((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onloadend = () => resolve(reader.result as string);
-    reader.onerror = reject;
-    reader.readAsDataURL(blob);
-  });
-};
-
 const toBase64ViaCanvas = async (url: string): Promise<string> => {
-  const absoluteUrl = new URL(url, window.location.origin).toString();
 
-  const image = await new Promise<HTMLImageElement>((resolve, reject) => {
+  return new Promise((resolve, reject) => {
+
     const img = new Image();
+
     img.crossOrigin = "anonymous";
-    img.decoding = "async";
-    img.onload = () => resolve(img);
-    img.onerror = () => reject(new Error("Image load failed"));
-    img.src = absoluteUrl;
+
+    img.onload = () => {
+
+      try {
+
+        const canvas = document.createElement("canvas");
+
+        canvas.width = img.naturalWidth || img.width;
+
+        canvas.height = img.naturalHeight || img.height;
+
+        const ctx = canvas.getContext("2d");
+
+        if (!ctx) return reject(new Error("no ctx"));
+
+        ctx.drawImage(img, 0, 0);
+
+        resolve(canvas.toDataURL("image/png"));
+
+      } catch (e) {
+
+        reject(e);
+
+      }
+
+    };
+
+    img.onerror = () => reject(new Error("load failed"));
+
+    img.src = url + (url.includes("?") ? "&" : "?") + "_pdf=" + Date.now();
+
   });
 
-  try {
-    await image.decode();
-  } catch {
-    // ignore decode errors — image may still be drawable
-  }
-
-  const width = image.naturalWidth || image.width;
-  const height = image.naturalHeight || image.height;
-
-  if (!width || !height) {
-    throw new Error("Image has no dimensions");
-  }
-
-  const canvas = document.createElement("canvas");
-  canvas.width = width;
-  canvas.height = height;
-
-  const context = canvas.getContext("2d");
-  if (!context) {
-    throw new Error("Canvas context unavailable");
-  }
-
-  context.drawImage(image, 0, 0, width, height);
-  return canvas.toDataURL("image/png");
 };
 
-/** Check if a URL is same-origin or relative (local asset) — these don't need the proxy */
-const isSameOriginOrRelative = (url: string): boolean => {
-  try {
-    const parsed = new URL(url, window.location.origin);
-    return parsed.origin === window.location.origin;
-  } catch {
-    // If URL parsing fails it's likely a relative path
-    return true;
-  }
+const toBase64ViaFetch = async (url: string): Promise<string> => {
+
+  const res = await fetch(url, {
+
+    mode: "cors",
+
+    credentials: "omit",
+
+    cache: "no-cache",
+
+  });
+
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+  const blob = await res.blob();
+
+  return new Promise((resolve, reject) => {
+
+    const reader = new FileReader();
+
+    reader.onloadend = () => resolve(reader.result as string);
+
+    reader.onerror = reject;
+
+    reader.readAsDataURL(blob);
+
+  });
+
 };
 
-/** Try direct fetch first, then proxy, then return transparent fallback */
+const FALLBACK = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=";
+
 export const toBase64Safe = async (url: string): Promise<string> => {
-  // Transparent 1×1 PNG fallback
-  const FALLBACK = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=";
 
   if (!url) return FALLBACK;
+
   if (url.startsWith("data:") || url.startsWith("blob:")) return url;
 
-  const isLocal = isSameOriginOrRelative(url);
+  // Tenta fetch direto primeiro
 
   try {
-    return await toBase64(url);
+
+    return await toBase64ViaFetch(url);
+
   } catch {
-    // Only try the proxy for cross-origin URLs — local assets should never go through it
-    if (isLocal) {
-      try {
-        return await toBase64ViaCanvas(url);
-      } catch {
-        console.warn("[PDF] Local image failed direct fetch/canvas, using fallback:", url);
-        return FALLBACK;
-      }
-    }
-    try {
-      return await toBase64ViaProxy(url);
-    } catch {
-      console.warn("[PDF] Imagem não carregou, usando fallback:", url);
-      return FALLBACK;
-    }
+
+    // Silencioso
+
   }
+
+  // Tenta via canvas
+
+  try {
+
+    return await toBase64ViaCanvas(url);
+
+  } catch {
+
+    // Silencioso
+
+  }
+
+  // Tenta adicionar o storage do Supabase como URL pública direta
+
+  try {
+
+    const publicUrl = url.includes("supabase") 
+
+      ? url.replace("/storage/v1/object/", "/storage/v1/object/public/")
+
+      : url;
+
+    return await toBase64ViaFetch(publicUrl);
+
+  } catch {
+
+    // Silencioso
+
+  }
+
+  console.warn("[PDF] Imagem não carregou:", url);
+
+  return FALLBACK;
+
 };
 
-const waitForImageReady = async (image: HTMLImageElement): Promise<void> => {
-  if (image.complete && image.naturalWidth > 0) {
-    try {
-      await image.decode();
-    } catch {
-      // ignore decode errors — image is still usable
-    }
-    return;
-  }
+const waitForImageReady = async (img: HTMLImageElement): Promise<void> => {
+
+  if (img.complete && img.naturalWidth > 0) return;
 
   await new Promise<void>((resolve) => {
-    const finish = () => resolve();
-    image.addEventListener("load", finish, { once: true });
-    image.addEventListener("error", finish, { once: true });
+
+    img.addEventListener("load", () => resolve(), { once: true });
+
+    img.addEventListener("error", () => resolve(), { once: true });
+
   });
 
-  try {
-    await image.decode();
-  } catch {
-    // ignore decode errors — image is still usable
-  }
 };
 
-// ─── snapshot type ─────────────────────────────────────────────────────
-
 interface ImageSnapshot {
+
   image: HTMLImageElement;
+
   originalSrc: string | null;
+
   originalSrcset: string | null;
+
   originalLoading: string | null;
+
   originalCrossOrigin: string | null;
+
 }
 
-// ─── main API ──────────────────────────────────────────────────────────
-
-/**
- * Scans all `<img>` inside `root`, converts remote sources to base64 data URIs,
- * waits for every image to decode, then returns a restore function.
- */
 export const inlineImagesForPdf = async (root: HTMLElement): Promise<() => void> => {
+
   const images = Array.from(root.querySelectorAll("img"));
+
   const snapshots: ImageSnapshot[] = [];
 
   await Promise.all(
-    images.map(async (image) => {
-      const source = image.currentSrc || image.getAttribute("src") || image.src;
 
-      // Skip images that are already inline
-      if (!source || source.startsWith("data:") || source.startsWith("blob:")) {
-        return;
-      }
+    images.map(async (img) => {
 
-      // Save original attributes
+      // Pega o src mais confiável — getAttribute é mais estável que currentSrc
+
+      const src =
+
+        img.getAttribute("src") ||
+
+        img.currentSrc ||
+
+        img.src;
+
+      if (!src || src.startsWith("data:") || src.startsWith("blob:")) return;
+
       snapshots.push({
-        image,
-        originalSrc: image.getAttribute("src"),
-        originalSrcset: image.getAttribute("srcset"),
-        originalLoading: image.getAttribute("loading"),
-        originalCrossOrigin: image.getAttribute("crossorigin"),
+
+        image: img,
+
+        originalSrc: img.getAttribute("src"),
+
+        originalSrcset: img.getAttribute("srcset"),
+
+        originalLoading: img.getAttribute("loading"),
+
+        originalCrossOrigin: img.getAttribute("crossorigin"),
+
       });
 
-      // Convert to base64
-      const base64 = await toBase64Safe(source);
+      const base64 = await toBase64Safe(src);
 
-      image.removeAttribute("srcset");
-      image.setAttribute("loading", "eager");
-      image.removeAttribute("crossorigin");
-      image.src = base64;
+      // Aplica base64 e espera o browser renderizar
 
-      await waitForImageReady(image);
+      img.removeAttribute("srcset");
+
+      img.removeAttribute("crossorigin");
+
+      img.setAttribute("loading", "eager");
+
+      img.src = base64;
+
+      await waitForImageReady(img);
+
+      // Força repaint
+
+      img.style.visibility = "visible";
+
+      img.style.display = img.style.display || "inline";
+
     }),
+
   );
 
-  // Return restore function
+  // Aguarda todos os repaints
+
+  await new Promise((r) => requestAnimationFrame(r));
+
+  await new Promise((r) => requestAnimationFrame(r));
+
+  await new Promise((r) => setTimeout(r, 500));
+
   return () => {
+
     snapshots.forEach(({ image, originalSrc, originalSrcset, originalLoading, originalCrossOrigin }) => {
-      if (originalSrc === null) {
-        image.removeAttribute("src");
-      } else {
-        image.setAttribute("src", originalSrc);
-      }
 
-      if (originalSrcset === null) {
-        image.removeAttribute("srcset");
-      } else {
-        image.setAttribute("srcset", originalSrcset);
-      }
+      if (originalSrc === null) image.removeAttribute("src");
 
-      if (originalLoading === null) {
-        image.removeAttribute("loading");
-      } else {
-        image.setAttribute("loading", originalLoading);
-      }
+      else image.setAttribute("src", originalSrc);
 
-      if (originalCrossOrigin === null) {
-        image.removeAttribute("crossorigin");
-      } else {
-        image.setAttribute("crossorigin", originalCrossOrigin);
-      }
+      if (originalSrcset === null) image.removeAttribute("srcset");
+
+      else image.setAttribute("srcset", originalSrcset);
+
+      if (originalLoading === null) image.removeAttribute("loading");
+
+      else image.setAttribute("loading", originalLoading);
+
+      if (originalCrossOrigin === null) image.removeAttribute("crossorigin");
+
+      else image.setAttribute("crossorigin", originalCrossOrigin);
+
     });
+
   };
+
 };
