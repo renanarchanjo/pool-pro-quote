@@ -497,38 +497,66 @@ const AdminLeads = () => {
   }
 
   return (
-    <div className="space-y-4 md:space-y-6">
-      <h1 className="text-xl md:text-2xl font-bold">
-        {isOwner ? "Gestão de Leads" : "Meus Leads"}
-      </h1>
+    <div className="space-y-3 md:space-y-6">
+      {/* Header */}
+      <div className="flex items-center justify-between gap-2">
+        <div className="min-w-0">
+          <h1 className="text-[15px] md:text-[18px] font-semibold text-foreground leading-tight">
+            {isOwner ? "Gestão de Leads" : "Meus Leads"}
+          </h1>
+          <p className="text-[11px] md:text-[13px] text-muted-foreground hidden md:block">Controle de leads recebidos</p>
+        </div>
+        <div className="flex gap-1.5 md:gap-2 shrink-0">
+          <Button variant="outline" size="sm" onClick={loadData} className="h-8 w-8 md:w-auto p-0 md:px-3">
+            <RefreshCw className="w-3.5 h-3.5 md:mr-1" />
+            <span className="hidden md:inline">Atualizar</span>
+          </Button>
+          <Button variant="outline" size="sm" onClick={handleExportXlsx} className="h-8 w-8 md:w-auto p-0 md:px-3">
+            <Download className="w-3.5 h-3.5 md:mr-1" />
+            <span className="hidden md:inline">Exportar</span>
+          </Button>
+        </div>
+      </div>
 
       {/* KPIs */}
-      <div className="grid grid-cols-2 gap-2 md:gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-4">
         <Card>
-          <CardContent className="pt-3 pb-2 md:pt-4 md:pb-3 px-3 md:px-6">
-            <p className="text-[11px] md:text-xs text-muted-foreground mb-0.5">Leads Recebidos</p>
-            <p className="text-xl md:text-2xl font-bold">{allVisibleLeads.length}</p>
-            <p className="text-[10px] md:text-xs text-muted-foreground">{pendingLeads.length} pendentes</p>
+          <CardContent className="pt-2.5 pb-2 md:pt-4 md:pb-3 px-2.5 md:px-4">
+            <div className="flex items-center gap-1 text-muted-foreground text-[10px] md:text-xs font-medium mb-0.5">
+              <Users className="w-3 h-3 md:w-3.5 md:h-3.5" />
+              <span>Recebidos</span>
+            </div>
+            <p className="text-lg md:text-2xl font-bold leading-tight">{filteredLeads.length}</p>
+            <p className="text-[10px] text-muted-foreground">{pendingLeads.length} pendentes</p>
           </CardContent>
         </Card>
         <Card>
-          <CardContent className="pt-3 pb-2 md:pt-4 md:pb-3 px-3 md:px-6">
-            <p className="text-[11px] md:text-xs text-muted-foreground mb-0.5">Aceitos este mês</p>
-            <p className="text-xl md:text-2xl font-bold">{consumed} <span className="text-xs md:text-sm text-muted-foreground font-normal">/ {limit}</span></p>
+          <CardContent className="pt-2.5 pb-2 md:pt-4 md:pb-3 px-2.5 md:px-4">
+            <div className="flex items-center gap-1 text-emerald-600 text-[10px] md:text-xs font-medium mb-0.5">
+              <CheckCircle className="w-3 h-3 md:w-3.5 md:h-3.5" />
+              <span>Aceitos/mês</span>
+            </div>
+            <p className="text-lg md:text-2xl font-bold text-emerald-600 leading-tight">{consumed} <span className="text-xs text-muted-foreground font-normal">/ {limit}</span></p>
           </CardContent>
         </Card>
         {isOwner && (
           <>
             <Card className={excess > 0 ? "border-amber-500/50" : ""}>
-              <CardContent className="pt-3 pb-2 md:pt-4 md:pb-3 px-3 md:px-6">
-                <p className="text-[11px] md:text-xs text-muted-foreground mb-0.5">Excedentes</p>
-                <p className={`text-xl md:text-2xl font-bold ${excess > 0 ? "text-amber-600" : ""}`}>{excess}</p>
+              <CardContent className="pt-2.5 pb-2 md:pt-4 md:pb-3 px-2.5 md:px-4">
+                <div className="flex items-center gap-1 text-amber-600 text-[10px] md:text-xs font-medium mb-0.5">
+                  <AlertTriangle className="w-3 h-3 md:w-3.5 md:h-3.5" />
+                  <span>Excedentes</span>
+                </div>
+                <p className={`text-lg md:text-2xl font-bold leading-tight ${excess > 0 ? "text-amber-600" : ""}`}>{excess}</p>
               </CardContent>
             </Card>
             <Card>
-              <CardContent className="pt-3 pb-2 md:pt-4 md:pb-3 px-3 md:px-6">
-                <p className="text-[11px] md:text-xs text-muted-foreground mb-0.5">Custo Adicional</p>
-                <p className={`text-xl md:text-2xl font-bold ${excess > 0 ? "text-red-600" : ""}`}>{formatCurrency(excess * excessPrice)}</p>
+              <CardContent className="pt-2.5 pb-2 md:pt-4 md:pb-3 px-2.5 md:px-4">
+                <div className="flex items-center gap-1 text-red-600 text-[10px] md:text-xs font-medium mb-0.5">
+                  <CreditCard className="w-3 h-3 md:w-3.5 md:h-3.5" />
+                  <span>Custo Extra</span>
+                </div>
+                <p className={`text-lg md:text-2xl font-bold leading-tight ${excess > 0 ? "text-red-600" : ""}`}>{formatCurrency(excess * excessPrice)}</p>
               </CardContent>
             </Card>
           </>
@@ -536,41 +564,79 @@ const AdminLeads = () => {
       </div>
 
       {isOwner && excess > 0 && (
-        <div className="flex items-center gap-2 bg-amber-500/10 border border-amber-500/20 text-amber-700 rounded-lg p-3 text-sm">
+        <div className="flex items-center gap-2 bg-amber-500/10 border border-amber-500/20 text-amber-700 rounded-lg p-2.5 text-xs md:text-sm">
           <AlertTriangle className="w-4 h-4 flex-shrink-0" />
-          Você atingiu seu limite mensal de {limit} leads. Leads adicionais serão cobrados a {formatCurrency(excessPrice)} por lead na fatura mensal.
+          Limite de {limit} leads atingido. Adicionais: {formatCurrency(excessPrice)}/lead.
         </div>
       )}
 
-      {/* Info for sellers */}
       {!isOwner && (
-        <div className="flex items-center gap-2 bg-primary/5 border border-primary/20 text-primary rounded-lg p-3 text-sm">
+        <div className="flex items-center gap-2 bg-primary/5 border border-primary/20 text-primary rounded-lg p-2.5 text-xs md:text-sm">
           <Users className="w-4 h-4 flex-shrink-0" />
           Você visualiza apenas os leads atribuídos a você ou que você aceitou.
         </div>
       )}
+
+      {/* Tabs */}
+      <Tabs value={activeTab} onValueChange={v => { setActiveTab(v); setSelectedIds(new Set()); }}>
+        <TabsList className="w-full md:w-auto">
+          <TabsTrigger value="pendentes" className="flex-1 md:flex-none text-xs md:text-sm">Pend. ({pendingLeads.length})</TabsTrigger>
+          <TabsTrigger value="aceitos" className="flex-1 md:flex-none text-xs md:text-sm">Aceitos ({acceptedLeads.length})</TabsTrigger>
+          <TabsTrigger value="recusados" className="flex-1 md:flex-none text-xs md:text-sm">Recus. ({rejectedLeads.length})</TabsTrigger>
+          <TabsTrigger value="todos" className="flex-1 md:flex-none text-xs md:text-sm">Todos ({filteredLeads.length})</TabsTrigger>
+        </TabsList>
+      </Tabs>
+
+      {/* Search & Filters */}
+      <div className="space-y-2">
+        <div className="relative">
+          <Search className="absolute left-2.5 top-2 h-4 w-4 text-muted-foreground" />
+          <Input placeholder="Buscar nome, cidade, telefone..." value={search} onChange={e => setSearch(e.target.value)} className="pl-8 h-8 text-sm" />
+        </div>
+        <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
+          <Select value={filterCity} onValueChange={setFilterCity}>
+            <SelectTrigger className="h-8 text-xs min-w-[110px] w-auto shrink-0"><SelectValue placeholder="Cidade" /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todas cidades</SelectItem>
+              {uniqueCities.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}
+            </SelectContent>
+          </Select>
+          <Select value={filterPeriod} onValueChange={setFilterPeriod}>
+            <SelectTrigger className="h-8 text-xs min-w-[100px] w-auto shrink-0"><SelectValue placeholder="Período" /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todo período</SelectItem>
+              <SelectItem value="7d">7 dias</SelectItem>
+              <SelectItem value="30d">30 dias</SelectItem>
+              <SelectItem value="90d">90 dias</SelectItem>
+            </SelectContent>
+          </Select>
+          {isOwner && teamMembers.length > 1 && (
+            <Select value={filterUser} onValueChange={setFilterUser}>
+              <SelectTrigger className="h-8 text-xs min-w-[120px] w-auto shrink-0">
+                <Users className="w-3 h-3 mr-1 text-muted-foreground" />
+                <SelectValue placeholder="Equipe" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Toda equipe</SelectItem>
+                {teamMembers.map(m => (
+                  <SelectItem key={m.id} value={m.id}>{m.full_name || "Sem nome"}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
+        </div>
+      </div>
 
       {/* Bulk Actions Bar */}
       {selectedIds.size > 0 && (
         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-3 bg-primary/5 border border-primary/20 rounded-lg p-3 animate-fade-in">
           <span className="text-sm font-medium">{selectedIds.size} lead(s) selecionado(s)</span>
           <div className="flex gap-2 sm:ml-auto w-full sm:w-auto">
-            <Button
-              size="sm"
-              className="h-8 text-xs bg-emerald-600 hover:bg-emerald-700 text-white"
-              onClick={handleBulkAccept}
-              disabled={bulkProcessing}
-            >
+            <Button size="sm" className="h-8 text-xs bg-emerald-600 hover:bg-emerald-700 text-white" onClick={handleBulkAccept} disabled={bulkProcessing}>
               {bulkProcessing ? <Loader2 className="w-3 h-3 animate-spin mr-1" /> : <CheckCheck className="w-3.5 h-3.5 mr-1" />}
               Aceitar Selecionados
             </Button>
-            <Button
-              size="sm"
-              variant="outline"
-              className="h-8 text-xs border-red-500/30 text-red-600 hover:bg-red-50"
-              onClick={handleBulkReject}
-              disabled={bulkProcessing}
-            >
+            <Button size="sm" variant="outline" className="h-8 text-xs border-red-500/30 text-red-600 hover:bg-red-50" onClick={handleBulkReject} disabled={bulkProcessing}>
               <XCircle className="w-3.5 h-3.5 mr-1" />
               Recusar Selecionados
             </Button>
