@@ -304,14 +304,14 @@ const MatrizDashboard = () => {
               <AreaChart data={metrics.monthlyActive} margin={{ top: 8, right: 8, left: -16, bottom: 0 }}>
                 <defs>
                   <linearGradient id="areaGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity={0.12} />
-                    <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity={0} />
+                    <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity={0.25} />
+                    <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity={0.02} />
                   </linearGradient>
                 </defs>
                 <XAxis dataKey="month" tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }} axisLine={false} tickLine={false} interval="preserveStartEnd" tickMargin={6} />
                 <YAxis tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }} axisLine={false} tickLine={false} width={32} allowDecimals={false} />
                 <Tooltip contentStyle={tooltipStyle} />
-                <Area type="monotone" dataKey="count" stroke="hsl(var(--primary))" strokeWidth={1.5} fill="url(#areaGrad)" name="Lojistas" dot={false} />
+                <Area type="monotone" dataKey="count" stroke="hsl(var(--primary))" strokeWidth={2} fill="url(#areaGrad)" name="Lojistas" dot={false} />
               </AreaChart>
             </ResponsiveContainer>
           )}
@@ -326,7 +326,7 @@ const MatrizDashboard = () => {
                 <Tooltip contentStyle={tooltipStyle} />
                 <Bar dataKey="count" name="Simulações" radius={[3, 3, 0, 0]} maxBarSize={12}>
                   {metrics.dailySims.map((entry, idx) => (
-                    <Cell key={idx} fill={entry.isToday ? "hsl(var(--foreground))" : "hsl(var(--primary))"} fillOpacity={entry.isToday ? 1 : 0.6} />
+                    <Cell key={idx} fill={entry.isToday ? "hsl(var(--foreground))" : "hsl(var(--primary))"} fillOpacity={entry.isToday ? 1 : 0.85} />
                   ))}
                 </Bar>
               </BarChart>
@@ -443,9 +443,9 @@ const tooltipStyle = {
   borderRadius: 10,
   border: "1px solid hsl(var(--border))",
   fontSize: 11,
-  background: "hsl(var(--card))",
-  color: "hsl(var(--foreground))",
-  boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
+  background: "hsl(var(--popover))",
+  color: "hsl(var(--popover-foreground))",
+  boxShadow: "0 4px 16px rgba(0,0,0,0.25)",
   padding: "6px 10px",
 };
 
