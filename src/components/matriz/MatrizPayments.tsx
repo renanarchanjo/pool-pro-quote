@@ -72,10 +72,10 @@ const MatrizPayments = () => {
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6 p-4 md:p-8">
       <div>
-        <h1 className="text-2xl font-display font-bold">Cobranças e Pagamentos</h1>
-        <p className="text-muted-foreground">Visão geral dos planos, custos adicionais e histórico de pagamentos</p>
+        <h1 className="text-[18px] font-semibold text-foreground">Cobranças e Pagamentos</h1>
+        <p className="text-[13px] text-muted-foreground">Visão geral dos planos, custos adicionais e histórico de pagamentos</p>
       </div>
 
       {/* Planos Recorrentes */}

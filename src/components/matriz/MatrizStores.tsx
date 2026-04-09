@@ -196,10 +196,10 @@ const MatrizStores = () => {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 p-4 md:p-8">
       <div>
-        <h1 className="text-2xl font-display font-bold">Lojas Cadastradas</h1>
-        <p className="text-muted-foreground">{stores.length} lojas no total</p>
+        <h1 className="text-[18px] font-semibold text-foreground">Lojas Cadastradas</h1>
+        <p className="text-[13px] text-muted-foreground">{stores.length} lojas no total</p>
       </div>
 
       <div className="flex gap-3">

@@ -176,10 +176,10 @@ const MatrizPlans = () => {
   if (loading) return <div className="flex items-center justify-center py-20"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 p-4 md:p-8">
       <div>
-        <h1 className="text-2xl font-bold">Gestão de Planos</h1>
-        <p className="text-sm text-muted-foreground">Gerencie planos, preços, limites e custos adicionais</p>
+        <h1 className="text-[18px] font-semibold text-foreground">Gestão de Planos</h1>
+        <p className="text-[13px] text-muted-foreground">Gerencie planos, preços, limites e custos adicionais</p>
       </div>
 
       {/* Plans Table */}

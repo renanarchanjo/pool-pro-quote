@@ -291,12 +291,12 @@ const MatrizLeads = () => {
   if (loading) return <div className="flex items-center justify-center py-20"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 p-4 md:p-8">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold">Gestão de Leads</h1>
-          <p className="text-sm text-muted-foreground">Distribuição e controle centralizado</p>
+          <h1 className="text-[18px] font-semibold text-foreground">Gestão de Leads</h1>
+          <p className="text-[13px] text-muted-foreground">Distribuição e controle centralizado</p>
         </div>
         <div className="flex gap-2">
           {selectedLeads.size > 0 && activeTab === "pendentes" && (
