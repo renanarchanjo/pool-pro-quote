@@ -18,7 +18,7 @@ import { exportPDF } from "@/lib/exportPDF";
 const fmt = (v: number) => new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(v ?? 0);
 const pct = (v: number) => (v ?? 0).toFixed(1) + "%";
 const MONTHS_PT = ["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"];
-const LIM_ID = "5e8165c0-64b6-4d06-b274-8eeb261a79c4";
+
 
 interface StoreRow {
   id: string; name: string; city: string | null; state: string | null;
@@ -41,9 +41,9 @@ const MatrizReports = () => {
         supabase.from("proposals").select("id, store_id, total_price, created_at, status"),
         supabase.from("payment_history").select("id, store_id, amount, status, payment_date"),
       ]);
-      setStores(((s.data as any) || []).filter((x: any) => x.id !== LIM_ID));
-      setProposals((p.data || []).filter((x: any) => x.store_id !== LIM_ID));
-      setPayments((pay.data || []).filter((x: any) => x.store_id !== LIM_ID));
+      setStores((s.data as any) || []);
+      setProposals(p.data || []);
+      setPayments(pay.data || []);
       setLoading(false);
     };
     load();

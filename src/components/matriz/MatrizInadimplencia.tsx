@@ -5,7 +5,7 @@ import { AlertTriangle, CheckCircle2, Store, Search, Calendar, DollarSign, Trend
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
-const LIM_ID = "5e8165c0-64b6-4d06-b274-8eeb261a79c4";
+
 
 const fmt = (v: number) =>
   new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(v);
@@ -58,7 +58,7 @@ const MatrizInadimplencia = () => {
           .order("payment_date", { ascending: false })
           .limit(500),
       ]);
-      setStores(((storesRes.data as any) || []).filter((s: StoreRow) => s.id !== LIM_ID));
+      setStores((storesRes.data as any) || []);
       setPayments((paymentsRes.data as any) || []);
       setLoading(false);
     };

@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/select";
 import BrazilMap from "./BrazilMap";
 
-const LIM_ID = "5e8165c0-64b6-4d06-b274-8eeb261a79c4";
+
 
 interface StoreRow {
   id: string; name: string; city: string | null; state: string | null;
@@ -28,7 +28,7 @@ const MatrizMapPage = () => {
         .from("stores")
         .select("id, name, city, state, plan_status, created_at, subscription_plans(name, slug)")
         .order("created_at", { ascending: false });
-      setStores(((data as any) || []).filter((s: StoreRow) => s.id !== LIM_ID));
+      setStores(((data as any) || []));
       setLoading(false);
     };
     load();
