@@ -664,14 +664,19 @@ const AdminLeads = () => {
                   const p = lead.proposals;
                   const isPending = lead.status === "pending";
                   return (
-                    <div key={lead.id} className="p-3 space-y-2">
+                    <div
+                      key={lead.id}
+                      onClick={() => isPending && toggleSelect(lead.id)}
+                      className={`p-3 space-y-2 transition-colors ${isPending ? "cursor-pointer active:scale-[0.98]" : ""} ${selectedIds.has(lead.id) ? "bg-primary/5" : ""}`}
+                    >
                       <div className="flex items-start justify-between gap-2">
                         <div className="flex items-start gap-2 min-w-0 flex-1">
                           {isPending && (
                             <Checkbox
                               checked={selectedIds.has(lead.id)}
                               onCheckedChange={() => toggleSelect(lead.id)}
-                              className="mt-0.5"
+                              onClick={(e) => e.stopPropagation()}
+                              className="mt-0.5 pointer-events-none"
                             />
                           )}
                           <div className="min-w-0 flex-1">
@@ -701,7 +706,7 @@ const AdminLeads = () => {
                         </div>
                       </div>
 
-                      <div className="flex items-center justify-between gap-2">
+                      <div className="flex items-center justify-between gap-2" onClick={(e) => e.stopPropagation()}>
                         <span className="text-[11px] text-muted-foreground">
                           {format(new Date(lead.created_at), "dd/MM/yy HH:mm", { locale: ptBR })}
                         </span>
@@ -792,13 +797,19 @@ const AdminLeads = () => {
                       const p = lead.proposals;
                       const isPending = lead.status === "pending";
                       return (
-                        <TableRow key={lead.id} className={selectedIds.has(lead.id) ? "bg-primary/5" : ""}>
+                        <TableRow
+                          key={lead.id}
+                          onClick={() => isPending && toggleSelect(lead.id)}
+                          className={`${selectedIds.has(lead.id) ? "bg-primary/5" : ""} ${isPending ? "cursor-pointer" : ""}`}
+                        >
                           {pendingLeads.length > 0 && (
                             <TableCell>
                               {isPending ? (
                                 <Checkbox
                                   checked={selectedIds.has(lead.id)}
                                   onCheckedChange={() => toggleSelect(lead.id)}
+                                  onClick={(e) => e.stopPropagation()}
+                                  className="pointer-events-none"
                                 />
                               ) : <span className="w-4" />}
                             </TableCell>
@@ -849,7 +860,7 @@ const AdminLeads = () => {
                               )}
                             </TableCell>
                           )}
-                          <TableCell className="text-right">
+                          <TableCell className="text-right" onClick={(e) => e.stopPropagation()}>
                             {isPending ? (
                               <div className="flex items-center justify-end gap-1">
                                 <Button size="sm" className="h-7 text-xs bg-emerald-600 hover:bg-emerald-700 text-white" onClick={() => handleAccept(lead.id)} disabled={accepting === lead.id || bulkProcessing}>
