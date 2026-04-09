@@ -128,7 +128,7 @@ const AdminSidebar = () => {
 
       <SidebarContent className="px-2">
         {renderGroup("Painel Comercial", mainItems)}
-        {renderGroup("Cadastro", catalogItems)}
+        {!isMobile && renderGroup("Cadastro", catalogItems)}
         {renderGroup("Conta", accountItems)}
       </SidebarContent>
 
