@@ -239,14 +239,14 @@ const MatrizDashboard = () => {
 
   if (loading || !metrics) {
     return (
-      <div className="space-y-6 p-4 md:p-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {Array.from({ length: 8 }).map((_, i) => <Skeleton key={i} className="h-[120px] rounded-xl" />)}
+      <div className="space-y-4 md:space-y-6">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6">
+          {Array.from({ length: 8 }).map((_, i) => <Skeleton key={i} className="h-[80px] md:h-[120px] rounded-xl" />)}
         </div>
-        <Skeleton className="h-[200px] rounded-xl" />
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <Skeleton className="h-[320px] rounded-xl" />
-          <Skeleton className="h-[320px] rounded-xl" />
+        <Skeleton className="h-[180px] md:h-[200px] rounded-xl" />
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
+          <Skeleton className="h-[240px] md:h-[320px] rounded-xl" />
+          <Skeleton className="h-[240px] md:h-[320px] rounded-xl" />
         </div>
       </div>
     );
