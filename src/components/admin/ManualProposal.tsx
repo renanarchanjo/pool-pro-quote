@@ -214,6 +214,11 @@ const ManualProposal = () => {
       return;
     }
 
+    if (!profile?.store_id) {
+      toast.error("Não foi possível identificar a loja. Faça login novamente.");
+      return;
+    }
+
     setSubmitting(true);
     try {
       const allSelectedOpts = [
@@ -228,8 +233,8 @@ const ManualProposal = () => {
         model_id: selectedModel.id,
         selected_optionals: allSelectedOpts as any,
         total_price: totalPrice,
-        store_id: profile!.store_id!,
-        created_by: profile!.id,
+        store_id: profile.store_id,
+        created_by: profile.id,
       });
       if (error) throw error;
       toast.success("Proposta gerada com sucesso!");
