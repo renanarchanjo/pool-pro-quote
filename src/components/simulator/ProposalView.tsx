@@ -309,8 +309,7 @@ const ProposalView = ({
             </div>
 
             {/* ===== CLIENTE ===== */}
-            <div style={sectionStyle}>
-              <div style={sectionHeaderStyle}>Cliente</div>
+            <div data-pdf-section style={sectionStyle}>
               <div style={{ ...sectionBodyStyle, padding: "12px 16px" }}>
                 <div style={{ display: "flex", flexWrap: "wrap", gap: "8px 24px", fontSize: "13px" }}>
                   <div><span style={{ fontWeight: 700, color: "#374151" }}>Nome: </span><span style={{ color: "#111827" }}>{customerData.name}</span></div>
