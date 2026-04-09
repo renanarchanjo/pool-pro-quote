@@ -217,9 +217,11 @@ const OptionalsSelection = ({ optionals, modelOptionals = [], selectedOptionals:
                             {optional.description && (
                               <p className="text-[13px] text-muted-foreground mt-1 leading-relaxed">{optional.description}</p>
                             )}
-                            <p className="font-bold text-primary text-[15px] mt-2">
-                              {hidePricing ? <BlurredPrice value={optional.price} prefix="+ R$" /> : `+ R$ ${optional.price.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`}
-                            </p>
+                            {!hidePricing && (
+                              <p className="font-bold text-primary text-[15px] mt-2">
+                                {`+ R$ ${optional.price.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`}
+                              </p>
+                            )}
                           </div>
                         </div>
                         {optional.warning_note && isSelected && (
@@ -258,9 +260,11 @@ const OptionalsSelection = ({ optionals, modelOptionals = [], selectedOptionals:
                             {optional.description && (
                               <p className="text-[13px] text-muted-foreground mt-1 leading-relaxed">{optional.description}</p>
                             )}
-                            <p className="font-bold text-primary text-[15px] mt-2">
-                              {hidePricing ? <BlurredPrice value={optional.price} prefix="+ R$" /> : `+ R$ ${optional.price.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`}
-                            </p>
+                            {!hidePricing && (
+                              <p className="font-bold text-primary text-[15px] mt-2">
+                                {`+ R$ ${optional.price.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`}
+                              </p>
+                            )}
                           </div>
                         </div>
                         {optional.warning_note && isSelected && (
@@ -307,9 +311,11 @@ const OptionalsSelection = ({ optionals, modelOptionals = [], selectedOptionals:
                       {mOpt.description && (
                         <p className="text-[13px] text-muted-foreground mt-1 leading-relaxed">{mOpt.description}</p>
                       )}
-                      <p className="font-bold text-primary text-[15px] mt-2">
-                        {hidePricing ? <BlurredPrice value={mOpt.price} prefix="+ R$" /> : `+ R$ ${mOpt.price.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`}
-                      </p>
+                      {!hidePricing && (
+                        <p className="font-bold text-primary text-[15px] mt-2">
+                          {`+ R$ ${mOpt.price.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`}
+                        </p>
+                      )}
                     </div>
                   </div>
                 );
