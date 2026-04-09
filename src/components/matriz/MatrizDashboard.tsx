@@ -1,4 +1,5 @@
 import { useEffect, useState, useMemo, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
@@ -15,6 +16,7 @@ import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
 import BrazilMap from "./BrazilMap";
+import { toast } from "sonner";
 
 /* ─── helpers ─── */
 const fmt = (v: number) =>
@@ -55,9 +57,36 @@ interface DashboardData {
 
 /* ─── component ─── */
 const MatrizDashboard = () => {
+  const navigate = useNavigate();
   const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
   const [period, setPeriod] = useState("month");
+
+  const handleViewStore = (storeId: string) => {
+    navigate(`/matriz/lojas`);
+  };
+
+  const handleContact = async (storeId: string) => {
+    const { data: owner } = await supabase
+      .from("profiles")
+      .select("full_name, id")
+      .eq("store_id", storeId)
+      .limit(1)
+      .maybeSingle();
+    if (!owner) {
+      toast.error("Nenhum proprietário encontrado para esta loja");
+      return;
+    }
+    const { data: authUser } = await supabase.rpc("has_role", { _user_id: owner.id, _role: "owner" });
+    // Fetch email via edge or just open mailto with store info
+    // For now, copy store info and show toast
+    const store = data?.stores.find(s => s.id === storeId);
+    if (store) {
+      const info = `${store.name} — ${store.city || ""}/${store.state || ""}`;
+      await navigator.clipboard.writeText(info);
+      toast.success(`Informações copiadas: ${info}`, { description: "Proprietário: " + (owner.full_name || "—") });
+    }
+  };
 
   const loadAll = useCallback(async () => {
     const [storesRes, proposalsRes, paymentsRes] = await Promise.all([
@@ -386,8 +415,8 @@ const MatrizDashboard = () => {
                     <td className="px-4"><span className={`inline-flex text-[11px] font-medium px-2 py-0.5 rounded-full ${statusStyle.bg} ${statusStyle.text}`}>{statusStyle.label}</span></td>
                     <td className="px-4">
                       <div className="flex gap-2">
-                        <Button variant="ghost" size="sm" className="h-7 text-[11px] gap-1"><Eye className="w-3 h-3" /> Ver</Button>
-                        <Button variant="ghost" size="sm" className="h-7 text-[11px] gap-1"><Phone className="w-3 h-3" /> Contato</Button>
+                        <Button variant="ghost" size="sm" className="h-7 text-[11px] gap-1" onClick={() => handleViewStore(s.id)}><Eye className="w-3 h-3" /> Ver</Button>
+                        <Button variant="ghost" size="sm" className="h-7 text-[11px] gap-1" onClick={() => handleContact(s.id)}><Phone className="w-3 h-3" /> Contato</Button>
                       </div>
                     </td>
                   </tr>
