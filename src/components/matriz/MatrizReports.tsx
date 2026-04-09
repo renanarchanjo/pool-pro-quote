@@ -175,9 +175,12 @@ const MatrizReports = () => {
               <SelectItem value="stores">Lojistas</SelectItem>
             </SelectContent>
           </Select>
-          <Button variant="outline" size="sm" className="h-9 text-[13px] rounded-lg gap-2" onClick={handleExportPDF}>
-            <FileDown className="w-4 h-4" /> Exportar PDF
-          </Button>
+          <button className="inline-flex items-center gap-2 h-9 pl-4 pr-3 text-[13px] font-semibold text-white bg-[#2d2d2d] rounded-full transition-all duration-150 hover:bg-[#1a1a1a] active:scale-95" onClick={handleExportPDF}>
+            PDF
+            <span className="flex items-center justify-center w-7 h-7 rounded-full bg-[#dc2626]">
+              <FileDown className="w-3.5 h-3.5 text-white" />
+            </span>
+          </button>
         </div>
       </div>
 

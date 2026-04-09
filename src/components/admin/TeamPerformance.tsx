@@ -278,9 +278,12 @@ const TeamPerformance = () => {
               </SelectContent>
             </Select>
           )}
-          <Button variant="outline" size="sm" className="h-8 text-xs gap-1" onClick={handleExportPDF} disabled={filteredMetrics.length === 0}>
-            <FileDown className="w-3 h-3" />
+          <button className="inline-flex items-center gap-2 h-8 pl-3 pr-2 text-[12px] font-semibold text-white bg-[#2d2d2d] rounded-full transition-all duration-150 hover:bg-[#1a1a1a] active:scale-95" onClick={handleExportPDF} disabled={filteredMetrics.length === 0}>
             PDF
+            <span className="flex items-center justify-center w-6 h-6 rounded-full bg-[#dc2626]">
+              <FileDown className="w-3 h-3 text-white" />
+            </span>
+          </button>
           </Button>
           <Select value={datePreset} onValueChange={applyPreset}>
             <SelectTrigger className="h-8 w-[140px] text-xs">

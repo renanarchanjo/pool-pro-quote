@@ -246,10 +246,13 @@ const DashboardPipeline = ({ proposals, onUpdateStatus, onViewProposal, onExport
                           <Eye className="w-3.5 h-3.5" /> Ver
                         </button>
                         <button
-                          className="inline-flex items-center gap-1 h-7 px-2.5 text-[12px] text-muted-foreground bg-secondary border border-border rounded-md transition-all duration-150 active:bg-accent min-h-0"
+                          className="inline-flex items-center gap-1 h-7 pl-2 pr-1.5 text-[11px] font-semibold text-white bg-[#2d2d2d] rounded-full transition-all duration-150 active:scale-95"
                           onClick={() => onExportPDF(p)}
                         >
-                          <Download className="w-3.5 h-3.5" /> PDF
+                          PDF
+                          <span className="flex items-center justify-center w-5 h-5 rounded-full bg-[#dc2626]">
+                            <Download className="w-2.5 h-2.5 text-white" />
+                          </span>
                         </button>
                       </div>
                     </div>
@@ -323,10 +326,13 @@ const DashboardPipeline = ({ proposals, onUpdateStatus, onViewProposal, onExport
                                 <Eye className="w-3.5 h-3.5" /> Ver
                               </button>
                               <button
-                                className="inline-flex items-center gap-1.5 h-8 px-3 text-[13px] text-muted-foreground bg-secondary border border-border rounded-md transition-all duration-150 hover:bg-accent"
+                                className="inline-flex items-center gap-1.5 h-8 pl-3 pr-2 text-[12px] font-semibold text-white bg-[#2d2d2d] rounded-full transition-all duration-150 hover:bg-[#1a1a1a] active:scale-95"
                                 onClick={() => onExportPDF(p)}
                               >
-                                <Download className="w-3.5 h-3.5" /> PDF
+                                PDF
+                                <span className="flex items-center justify-center w-6 h-6 rounded-full bg-[#dc2626]">
+                                  <Download className="w-3 h-3 text-white" />
+                                </span>
                               </button>
                             </div>
                           </td>

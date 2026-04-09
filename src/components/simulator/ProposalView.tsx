@@ -241,9 +241,16 @@ const ProposalView = ({
             <ArrowLeft className="w-4 h-4 mr-1 sm:mr-2" /> Voltar
           </Button>
           <div className="flex gap-2">
-            <Button variant="outline" size="sm" onClick={handleDownloadPDF}>
-              <FileDown className="w-4 h-4 mr-1 sm:mr-2" /> <span className="hidden sm:inline">Baixar</span> PDF
-            </Button>
+            <button
+              onClick={handleDownloadPDF}
+              className="inline-flex items-center gap-2 h-9 pl-4 pr-3 text-[13px] font-semibold text-white bg-[#2d2d2d] rounded-full transition-all duration-150 hover:bg-[#1a1a1a] active:scale-95"
+            >
+              PDF
+              <span className="flex items-center justify-center w-7 h-7 rounded-full bg-[#dc2626]">
+                <FileDown className="w-3.5 h-3.5 text-white" />
+              </span>
+            </button>
+          </div>
           </div>
         </div>
       </nav>

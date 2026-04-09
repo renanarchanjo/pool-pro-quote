@@ -137,14 +137,16 @@ const InvoiceHistory = () => {
                         </Button>
                       )}
                       {inv.invoice_pdf && (
-                        <Button
-                          variant="outline"
-                          size="sm"
+                        <button
                           onClick={() => { window.location.href = inv.invoice_pdf!; }}
                           title="Baixar PDF"
+                          className="inline-flex items-center gap-1.5 h-8 pl-3 pr-2 text-[12px] font-semibold text-white bg-[#2d2d2d] rounded-full transition-all duration-150 hover:bg-[#1a1a1a] active:scale-95"
                         >
-                          <Download className="w-4 h-4" />
-                        </Button>
+                          PDF
+                          <span className="flex items-center justify-center w-6 h-6 rounded-full bg-[#dc2626]">
+                            <Download className="w-3 h-3 text-white" />
+                          </span>
+                        </button>
                       )}
                     </div>
                   </div>
