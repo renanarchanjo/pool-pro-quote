@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate, Routes, Route } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2, PanelLeftClose, PanelLeft } from "lucide-react";
+import { Loader2, PanelLeftClose, PanelLeft, Menu } from "lucide-react";
 import { SidebarProvider, useSidebar } from "@/components/ui/sidebar";
 import MatrizSidebar from "@/components/matriz/MatrizSidebar";
 import MatrizDashboard from "@/components/matriz/MatrizDashboard";
@@ -72,7 +72,7 @@ const Matriz = () => {
 };
 
 const MatrizTopBar = () => {
-  const { toggleSidebar, open } = useSidebar();
+  const { toggleSidebar, open, isMobile } = useSidebar();
   return (
     <header className="h-11 flex items-center border-b border-border px-3 shrink-0">
       <button
@@ -80,7 +80,13 @@ const MatrizTopBar = () => {
         className="p-1.5 rounded-md hover:bg-accent text-muted-foreground hover:text-foreground transition-colors"
         title={open ? "Fechar sidebar" : "Abrir sidebar"}
       >
-        {open ? <PanelLeftClose className="h-4 w-4" /> : <PanelLeft className="h-4 w-4" />}
+        {isMobile ? (
+          <Menu className="h-5 w-5" />
+        ) : open ? (
+          <PanelLeftClose className="h-4 w-4" />
+        ) : (
+          <PanelLeft className="h-4 w-4" />
+        )}
       </button>
     </header>
   );
