@@ -25,6 +25,8 @@ interface PreparedImageSnapshot {
   image: HTMLImageElement;
   originalSrc: string | null;
   originalSrcset: string | null;
+  originalLoading: string | null;
+  originalCrossOrigin: string | null;
   objectUrl: string;
 }
 
@@ -32,7 +34,7 @@ const buildFetchSources = (source: string) => {
   const encodedSource = encodeURIComponent(source);
   const proxyUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/pdf-image-proxy?url=${encodedSource}`;
 
-  return [source, proxyUrl];
+  return [proxyUrl, source];
 };
 
 const fetchImageBlob = async (source: string) => {
@@ -91,14 +93,20 @@ export const inlineImagesForPdf = async (root: HTMLElement): Promise<() => void>
           image,
           originalSrc: image.getAttribute("src"),
           originalSrcset: image.getAttribute("srcset"),
+          originalLoading: image.getAttribute("loading"),
+          originalCrossOrigin: image.getAttribute("crossorigin"),
           objectUrl,
         });
 
+        image.setAttribute("loading", "eager");
         image.setAttribute("crossorigin", "anonymous");
         image.removeAttribute("srcset");
         image.src = objectUrl;
 
         await waitForImageLoad(image);
+        if (typeof image.decode === "function") {
+          await image.decode().catch(() => undefined);
+        }
       } catch (error) {
         console.warn("Não foi possível preparar imagem para PDF:", source, error);
         await waitForImageLoad(image);
@@ -107,7 +115,7 @@ export const inlineImagesForPdf = async (root: HTMLElement): Promise<() => void>
   );
 
   return () => {
-    snapshots.forEach(({ image, originalSrc, originalSrcset, objectUrl }) => {
+    snapshots.forEach(({ image, originalSrc, originalSrcset, originalLoading, originalCrossOrigin, objectUrl }) => {
       if (originalSrc === null) {
         image.removeAttribute("src");
       } else {
@@ -118,6 +126,18 @@ export const inlineImagesForPdf = async (root: HTMLElement): Promise<() => void>
         image.removeAttribute("srcset");
       } else {
         image.setAttribute("srcset", originalSrcset);
+      }
+
+      if (originalLoading === null) {
+        image.removeAttribute("loading");
+      } else {
+        image.setAttribute("loading", originalLoading);
+      }
+
+      if (originalCrossOrigin === null) {
+        image.removeAttribute("crossorigin");
+      } else {
+        image.setAttribute("crossorigin", originalCrossOrigin);
       }
 
       URL.revokeObjectURL(objectUrl);

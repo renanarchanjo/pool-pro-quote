@@ -271,7 +271,11 @@ const MatrizLeads = () => {
 
   const uniqueCities = [...new Set(leads.map(l => l.customer_city))].sort();
   const selectedCities = [...new Set(Array.from(selectedLeads).map(id => leads.find(l => l.id === id)?.customer_city).filter(Boolean))];
-  const activeStores = stores.filter(s => s.lead_plan_active !== false);
+  const availableStores = [...stores].sort((a, b) => {
+    const activeDiff = Number(Boolean(b.lead_plan_active)) - Number(Boolean(a.lead_plan_active));
+    if (activeDiff !== 0) return activeDiff;
+    return a.name.localeCompare(b.name, "pt-BR");
+  });
   const receitaPotencial = filtered.reduce((sum, l) => sum + l.total_price, 0);
   const formatCurrency = (v: number) => v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 
@@ -610,11 +614,11 @@ const MatrizLeads = () => {
             <Select value={targetStoreId} onValueChange={setTargetStoreId}>
               <SelectTrigger className="h-9 text-sm"><SelectValue placeholder="Selecione o lojista" /></SelectTrigger>
               <SelectContent>
-                {activeStores.length === 0 ? (
+                {availableStores.length === 0 ? (
                   <SelectItem value="_none" disabled>Nenhum lojista com plano ativo</SelectItem>
                 ) : (
-                  activeStores.map(s => (
-                    <SelectItem key={s.id} value={s.id}>{s.name} {s.city ? `— ${s.city}/${s.state}` : ""}</SelectItem>
+                  availableStores.map(s => (
+                    <SelectItem key={s.id} value={s.id}>{s.name} {s.city ? `— ${s.city}/${s.state}` : ""}{s.lead_plan_active ? "" : " (plano inativo)"}</SelectItem>
                   ))
                 )}
               </SelectContent>

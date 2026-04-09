@@ -38,9 +38,10 @@ interface OptionalsSelectionProps {
   onBack: () => void;
   model: any;
   includedItemsTotal?: number;
+  hidePricing?: boolean;
 }
 
-const OptionalsSelection = ({ optionals, modelOptionals = [], selectedOptionals: initialSelected, onConfirm, onBack, model, includedItemsTotal = 0 }: OptionalsSelectionProps) => {
+const OptionalsSelection = ({ optionals, modelOptionals = [], selectedOptionals: initialSelected, onConfirm, onBack, model, includedItemsTotal = 0, hidePricing = false }: OptionalsSelectionProps) => {
   const [selected, setSelected] = useState<Record<string, string[]>>({});
   const [selectedModelOpts, setSelectedModelOpts] = useState<string[]>([]);
   const [groups, setGroups] = useState<OptionalGroup[]>([]);
@@ -216,7 +217,7 @@ const OptionalsSelection = ({ optionals, modelOptionals = [], selectedOptionals:
                               <p className="text-[13px] text-muted-foreground mt-1 leading-relaxed">{optional.description}</p>
                             )}
                             <p className="font-bold text-primary text-[15px] mt-2">
-                              + R$ {optional.price.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                              {hidePricing ? "Valor liberado na proposta" : `+ R$ ${optional.price.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`}
                             </p>
                           </div>
                         </div>
@@ -257,7 +258,7 @@ const OptionalsSelection = ({ optionals, modelOptionals = [], selectedOptionals:
                               <p className="text-[13px] text-muted-foreground mt-1 leading-relaxed">{optional.description}</p>
                             )}
                             <p className="font-bold text-primary text-[15px] mt-2">
-                              + R$ {optional.price.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                              {hidePricing ? "Valor liberado na proposta" : `+ R$ ${optional.price.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`}
                             </p>
                           </div>
                         </div>
@@ -306,7 +307,7 @@ const OptionalsSelection = ({ optionals, modelOptionals = [], selectedOptionals:
                         <p className="text-[13px] text-muted-foreground mt-1 leading-relaxed">{mOpt.description}</p>
                       )}
                       <p className="font-bold text-primary text-[15px] mt-2">
-                        + R$ {mOpt.price.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                        {hidePricing ? "Valor liberado na proposta" : `+ R$ ${mOpt.price.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`}
                       </p>
                     </div>
                   </div>
@@ -322,7 +323,7 @@ const OptionalsSelection = ({ optionals, modelOptionals = [], selectedOptionals:
           <div className="min-w-0">
             <p className="text-xs md:text-sm text-muted-foreground">Total do Orçamento</p>
             <p className="text-xl md:text-3xl font-display font-bold text-primary truncate">
-              R$ {calculateTotal().toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+              {hidePricing ? "Valor liberado após envio" : `R$ ${calculateTotal().toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`}
             </p>
           </div>
           <Button className="gradient-primary text-white px-5 md:px-8 shrink-0" size="lg" onClick={handleContinue}>
