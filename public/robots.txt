@@ -12,3 +12,10 @@ Allow: /
 
 User-agent: *
 Allow: /
+Disallow: /admin/
+Disallow: /matriz/
+Disallow: /login
+Disallow: /loginmatriz
+Disallow: /reset-password
+
+Sitemap: https://simulapool.lovable.app/sitemap.xml
