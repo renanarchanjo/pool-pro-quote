@@ -334,32 +334,49 @@ const ProposalView = ({
               </div>
             </div>
 
-            {/* ===== ITENS INCLUSOS ===== */}
+            {/* ===== ITENS INCLUSOS + BANNER ===== */}
             {model.included_items.length > 0 && (
-              <div style={sectionStyle}>
-                <div style={sectionHeaderStyle}>Itens Inclusos</div>
-                <div style={{ ...sectionBodyStyle, padding: "12px 16px" }}>
-                  {materiais.length > 0 && (
-                    <div style={{ marginBottom: maoDeObra.length > 0 ? "10px" : 0 }}>
-                      <p style={{ fontSize: "10px", fontWeight: 700, color: "#0284c7", textTransform: "uppercase", margin: "0 0 4px", letterSpacing: "0.5px" }}>Equipamentos e Produtos</p>
-                      <ul style={{ margin: 0, paddingLeft: "16px", fontSize: "12px", lineHeight: "1.7" }}>
-                        {materiais.map((item, i) => (
-                          <li key={`m-${i}`} style={{ color: "#374151" }}>{item}</li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
-                  {maoDeObra.length > 0 && (
-                    <div>
-                      <p style={{ fontSize: "10px", fontWeight: 700, color: "#d97706", textTransform: "uppercase", margin: "0 0 4px", letterSpacing: "0.5px" }}>Mão de Obra</p>
-                      <ul style={{ margin: 0, paddingLeft: "16px", fontSize: "12px", lineHeight: "1.7" }}>
-                        {maoDeObra.map((item, i) => (
-                          <li key={`mo-${i}`} style={{ color: "#374151" }}>{item}</li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
+              <div style={{ display: "flex", gap: "16px", marginBottom: "16px" }}>
+                <div style={{ ...sectionStyle, flex: 1, marginBottom: 0 }}>
+                  <div style={sectionHeaderStyle}>Itens Inclusos</div>
+                  <div style={{ ...sectionBodyStyle, padding: "12px 16px" }}>
+                    {materiais.length > 0 && (
+                      <div style={{ marginBottom: maoDeObra.length > 0 ? "10px" : 0 }}>
+                        <p style={{ fontSize: "10px", fontWeight: 700, color: "#0284c7", textTransform: "uppercase", margin: "0 0 4px", letterSpacing: "0.5px" }}>Equipamentos e Produtos</p>
+                        <ul style={{ margin: 0, paddingLeft: "16px", fontSize: "12px", lineHeight: "1.7" }}>
+                          {materiais.map((item, i) => (
+                            <li key={`m-${i}`} style={{ color: "#374151" }}>{item}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                    {maoDeObra.length > 0 && (
+                      <div>
+                        <p style={{ fontSize: "10px", fontWeight: 700, color: "#d97706", textTransform: "uppercase", margin: "0 0 4px", letterSpacing: "0.5px" }}>Mão de Obra</p>
+                        <ul style={{ margin: 0, paddingLeft: "16px", fontSize: "12px", lineHeight: "1.7" }}>
+                          {maoDeObra.map((item, i) => (
+                            <li key={`mo-${i}`} style={{ color: "#374151" }}>{item}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                  </div>
                 </div>
+
+                {/* Banner parceiro ao lado dos itens inclusos */}
+                {banner1Urls.length > 0 && (
+                  <div className="hidden sm:flex" style={{ width: "220px", flexShrink: 0, flexDirection: "column", justifyContent: "center", alignItems: "center", gap: "8px" }}>
+                    {banner1Urls.map((b, i) => (
+                      <img
+                        key={i}
+                        src={b.url}
+                        alt={`Banner ${b.name}`}
+                        style={{ width: "100%", height: "auto", borderRadius: "8px", objectFit: "contain" }}
+                        crossOrigin="anonymous"
+                      />
+                    ))}
+                  </div>
+                )}
               </div>
             )}
 
@@ -383,21 +400,6 @@ const ProposalView = ({
                 )}
               </div>
             </div>
-
-            {/* Banner parceiro — hidden on mobile, visible on sm+ and PDF */}
-            {banner1Urls.length > 0 && (
-              <div className="hidden sm:flex" style={{ justifyContent: "center", gap: "12px", flexWrap: "wrap", marginBottom: "8px" }}>
-                {banner1Urls.map((b, i) => (
-                  <img
-                    key={i}
-                    src={b.url}
-                    alt={`Banner ${b.name}`}
-                    style={{ maxWidth: "200px", height: "auto", borderRadius: "8px", objectFit: "contain" }}
-                    crossOrigin="anonymous"
-                  />
-                ))}
-              </div>
-            )}
           </div>
 
           <div data-pdf-page>
