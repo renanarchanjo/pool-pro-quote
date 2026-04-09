@@ -290,197 +290,288 @@ const MatrizLeads = () => {
   };
 
   if (loading) return (
-    <div className="space-y-6 p-4 md:p-8">
-      <Skeleton className="h-8 w-64 rounded-lg" />
-      <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-        {Array.from({ length: 5 }).map((_, i) => <Skeleton key={i} className="h-[80px] rounded-xl" />)}
+    <div className="space-y-4 md:space-y-6">
+      <Skeleton className="h-6 w-40 rounded-lg" />
+      <div className="grid grid-cols-3 md:grid-cols-5 gap-2 md:gap-4">
+        {Array.from({ length: 5 }).map((_, i) => <Skeleton key={i} className="h-[60px] md:h-[80px] rounded-xl" />)}
       </div>
-      <Skeleton className="h-[400px] rounded-xl" />
+      <Skeleton className="h-[300px] rounded-xl" />
     </div>
   );
 
   return (
-    <div className="space-y-6 p-4 md:p-8">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-[18px] font-semibold text-foreground">Gestão de Leads</h1>
-          <p className="text-[13px] text-muted-foreground">Distribuição e controle centralizado</p>
+    <div className="space-y-3 md:space-y-6">
+      {/* Header — compact on mobile */}
+      <div className="flex items-center justify-between gap-2">
+        <div className="min-w-0">
+          <h1 className="text-[15px] md:text-[18px] font-semibold text-foreground leading-tight">Gestão de Leads</h1>
+          <p className="text-[11px] md:text-[13px] text-muted-foreground hidden md:block">Distribuição e controle centralizado</p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-1.5 md:gap-2 shrink-0">
           {selectedLeads.size > 0 && activeTab === "pendentes" && (
-            <Button size="sm" onClick={() => setShowDistributeDialog(true)} className="bg-emerald-600 hover:bg-emerald-700 text-white">
-              <Send className="w-4 h-4 mr-1" /> Distribuir ({selectedLeads.size})
+            <Button size="sm" onClick={() => setShowDistributeDialog(true)} className="bg-emerald-600 hover:bg-emerald-700 text-white h-8 text-xs px-2.5 md:px-3">
+              <Send className="w-3.5 h-3.5 mr-1" /> <span className="hidden md:inline">Distribuir </span>({selectedLeads.size})
             </Button>
           )}
-          <Button variant="outline" size="sm" onClick={loadData}><RefreshCw className="w-4 h-4 mr-1" /> Atualizar</Button>
-          <Button variant="outline" size="sm" onClick={handleExportCSV}><Download className="w-4 h-4 mr-1" /> CSV</Button>
+          <Button variant="outline" size="sm" onClick={loadData} className="h-8 w-8 md:w-auto p-0 md:px-3">
+            <RefreshCw className="w-3.5 h-3.5 md:mr-1" />
+            <span className="hidden md:inline">Atualizar</span>
+          </Button>
+          <Button variant="outline" size="sm" onClick={handleExportCSV} className="h-8 w-8 md:w-auto p-0 md:px-3">
+            <Download className="w-3.5 h-3.5 md:mr-1" />
+            <span className="hidden md:inline">CSV</span>
+          </Button>
         </div>
       </div>
 
-      {/* KPIs */}
-      <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-        <Card><CardContent className="pt-4 pb-3">
-          <div className="flex items-center gap-2 text-muted-foreground text-xs font-medium mb-1"><Users className="w-3.5 h-3.5" /> Total Captado</div>
-          <p className="text-2xl font-bold">{filtered.length}</p>
-        </CardContent></Card>
-        <Card><CardContent className="pt-4 pb-3">
-          <div className="flex items-center gap-2 text-cyan-600 text-xs font-medium mb-1"><CheckCircle2 className="w-3.5 h-3.5" /> Aceitos</div>
-          <p className="text-2xl font-bold text-cyan-600">{aceitosCount}</p>
-        </CardContent></Card>
-        <Card><CardContent className="pt-4 pb-3">
-          <div className="flex items-center gap-2 text-amber-600 text-xs font-medium mb-1"><Send className="w-3.5 h-3.5" /> Pendentes</div>
-          <p className="text-2xl font-bold text-amber-600">{pendentesCount}</p>
-        </CardContent></Card>
-        <Card><CardContent className="pt-4 pb-3">
-          <div className="flex items-center gap-2 text-blue-600 text-xs font-medium mb-1"><TrendingUp className="w-3.5 h-3.5" /> Distribuídos</div>
-          <p className="text-2xl font-bold text-blue-600">{distribuidosCount}</p>
-        </CardContent></Card>
-        <Card><CardContent className="pt-4 pb-3">
-          <div className="flex items-center gap-2 text-emerald-600 text-xs font-medium mb-1"><DollarSign className="w-3.5 h-3.5" /> Receita Potencial</div>
-          <p className="text-2xl font-bold text-emerald-600">{formatCurrency(receitaPotencial)}</p>
-        </CardContent></Card>
+      {/* KPIs — 3 cols on mobile, tighter */}
+      <div className="grid grid-cols-3 md:grid-cols-5 gap-2 md:gap-4">
+        {[
+          { label: "Captados", value: filtered.length, icon: Users, color: "text-muted-foreground" },
+          { label: "Aceitos", value: aceitosCount, icon: CheckCircle2, color: "text-cyan-600" },
+          { label: "Pendentes", value: pendentesCount, icon: Send, color: "text-amber-600" },
+          { label: "Distribuídos", value: distribuidosCount, icon: TrendingUp, color: "text-blue-600" },
+          { label: "Receita", value: formatCurrency(receitaPotencial), icon: DollarSign, color: "text-emerald-600", isLast: true },
+        ].map((kpi, i) => (
+          <Card key={i} className={kpi.isLast ? "col-span-3 md:col-span-1" : ""}>
+            <CardContent className="pt-2.5 pb-2 md:pt-4 md:pb-3 px-2.5 md:px-4">
+              <div className={`flex items-center gap-1 ${kpi.color} text-[10px] md:text-xs font-medium mb-0.5 md:mb-1`}>
+                <kpi.icon className="w-3 h-3 md:w-3.5 md:h-3.5" />
+                <span className="truncate">{kpi.label}</span>
+              </div>
+              <p className={`text-lg md:text-2xl font-bold ${kpi.color} leading-tight`}>
+                {typeof kpi.value === "number" ? kpi.value : kpi.value}
+              </p>
+            </CardContent>
+          </Card>
+        ))}
       </div>
 
-      {/* Tabs + Filters */}
-      <div className="space-y-3">
-        <Tabs value={activeTab} onValueChange={v => { setActiveTab(v); setSelectedLeads(new Set()); }}>
-          <TabsList>
-            <TabsTrigger value="pendentes">Pendentes ({pendentesCount})</TabsTrigger>
-            <TabsTrigger value="distribuidos">Distribuídos ({distribuidosCount})</TabsTrigger>
-            <TabsTrigger value="todos">Todos ({filtered.length})</TabsTrigger>
-          </TabsList>
-        </Tabs>
-        <Card><CardContent className="pt-4 pb-3">
-          <div className="flex flex-wrap items-center gap-3">
-            <div className="flex items-center gap-1.5 text-sm text-muted-foreground"><Filter className="w-4 h-4" /> Filtros:</div>
-            <div className="relative flex-1 min-w-[200px]">
-              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-              <Input placeholder="Buscar nome, cidade, telefone..." value={search} onChange={e => setSearch(e.target.value)} className="pl-8 h-9" />
-            </div>
-            <Select value={filterCity} onValueChange={setFilterCity}>
-              <SelectTrigger className="w-[180px] h-9"><SelectValue placeholder="Cidade" /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Todas cidades</SelectItem>
-                {uniqueCities.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}
-              </SelectContent>
-            </Select>
-            <Select value={filterStore} onValueChange={setFilterStore}>
-              <SelectTrigger className="w-[180px] h-9"><SelectValue placeholder="Loja" /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Todas lojas</SelectItem>
-                {stores.map(s => <SelectItem key={s.id} value={s.name}>{s.name}</SelectItem>)}
-              </SelectContent>
-            </Select>
-            <Select value={filterStatus} onValueChange={setFilterStatus}>
-              <SelectTrigger className="w-[140px] h-9"><SelectValue placeholder="Status" /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Todos</SelectItem>
-                {Object.entries(statusConfig).map(([k, v]) => <SelectItem key={k} value={k}>{v.label}</SelectItem>)}
-              </SelectContent>
-            </Select>
-            <Select value={filterPeriod} onValueChange={setFilterPeriod}>
-              <SelectTrigger className="w-[140px] h-9"><SelectValue placeholder="Período" /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Todo período</SelectItem>
-                <SelectItem value="7d">7 dias</SelectItem>
-                <SelectItem value="30d">30 dias</SelectItem>
-                <SelectItem value="90d">90 dias</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-        </CardContent></Card>
+      {/* Tabs */}
+      <Tabs value={activeTab} onValueChange={v => { setActiveTab(v); setSelectedLeads(new Set()); }}>
+        <TabsList className="w-full md:w-auto">
+          <TabsTrigger value="pendentes" className="flex-1 md:flex-none text-xs md:text-sm">Pend. ({pendentesCount})</TabsTrigger>
+          <TabsTrigger value="distribuidos" className="flex-1 md:flex-none text-xs md:text-sm">Distrib. ({distribuidosCount})</TabsTrigger>
+          <TabsTrigger value="todos" className="flex-1 md:flex-none text-xs md:text-sm">Todos ({filtered.length})</TabsTrigger>
+        </TabsList>
+      </Tabs>
+
+      {/* Filters — stacked on mobile */}
+      <div className="space-y-2">
+        <div className="relative">
+          <Search className="absolute left-2.5 top-2 h-4 w-4 text-muted-foreground" />
+          <Input placeholder="Buscar nome, cidade, telefone..." value={search} onChange={e => setSearch(e.target.value)} className="pl-8 h-8 text-sm" />
+        </div>
+        <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
+          <Select value={filterCity} onValueChange={setFilterCity}>
+            <SelectTrigger className="h-8 text-xs min-w-[110px] w-auto shrink-0"><SelectValue placeholder="Cidade" /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todas cidades</SelectItem>
+              {uniqueCities.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}
+            </SelectContent>
+          </Select>
+          <Select value={filterStore} onValueChange={setFilterStore}>
+            <SelectTrigger className="h-8 text-xs min-w-[110px] w-auto shrink-0"><SelectValue placeholder="Loja" /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todas lojas</SelectItem>
+              {stores.map(s => <SelectItem key={s.id} value={s.name}>{s.name}</SelectItem>)}
+            </SelectContent>
+          </Select>
+          <Select value={filterStatus} onValueChange={setFilterStatus}>
+            <SelectTrigger className="h-8 text-xs min-w-[100px] w-auto shrink-0"><SelectValue placeholder="Status" /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todos</SelectItem>
+              {Object.entries(statusConfig).map(([k, v]) => <SelectItem key={k} value={k}>{v.label}</SelectItem>)}
+            </SelectContent>
+          </Select>
+          <Select value={filterPeriod} onValueChange={setFilterPeriod}>
+            <SelectTrigger className="h-8 text-xs min-w-[100px] w-auto shrink-0"><SelectValue placeholder="Período" /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todo período</SelectItem>
+              <SelectItem value="7d">7 dias</SelectItem>
+              <SelectItem value="30d">30 dias</SelectItem>
+              <SelectItem value="90d">90 dias</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
       </div>
 
-      {/* Table */}
-      <Card>
-        <CardHeader className="pb-2"><CardTitle className="text-base">Leads ({tabFiltered.length})</CardTitle></CardHeader>
-        <CardContent className="p-0">
-          {tabFiltered.length === 0 ? (
-            <div className="text-center py-12 text-muted-foreground"><Users className="w-10 h-10 mx-auto mb-2 opacity-40" /><p>Nenhum lead encontrado</p></div>
-          ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  {activeTab === "pendentes" && (
-                    <TableHead className="w-10">
-                      <Checkbox
-                        checked={tabFiltered.length > 0 && tabFiltered.every(l => selectedLeads.has(l.id))}
-                        onCheckedChange={() => toggleSelectAll(tabFiltered.map(l => l.id))}
-                      />
-                    </TableHead>
-                  )}
-                  <TableHead>Cliente</TableHead>
-                  <TableHead>Cidade</TableHead>
-                  <TableHead>Piscina</TableHead>
-                  <TableHead>Valor</TableHead>
-                  <TableHead>Status</TableHead>
-                  {activeTab !== "pendentes" && <TableHead>Distribuição</TableHead>}
-                  <TableHead>Data</TableHead>
-                  <TableHead className="text-right">Ações</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {tabFiltered.map(lead => {
-                  const dist = distributionMap.get(lead.id);
-                  const expired = expiredDistributions.get(lead.id);
-                  return (
-                    <TableRow key={lead.id} className={selectedLeads.has(lead.id) ? "bg-primary/5" : ""}>
+      {/* Leads List — cards on mobile, table on desktop */}
+      {tabFiltered.length === 0 ? (
+        <div className="text-center py-10 text-muted-foreground">
+          <Users className="w-8 h-8 mx-auto mb-2 opacity-40" />
+          <p className="text-sm">Nenhum lead encontrado</p>
+        </div>
+      ) : (
+        <>
+          {/* Mobile: card list */}
+          <div className="md:hidden space-y-2">
+            {activeTab === "pendentes" && tabFiltered.length > 0 && (
+              <button
+                onClick={() => toggleSelectAll(tabFiltered.map(l => l.id))}
+                className="text-xs text-primary font-medium px-1 py-1"
+              >
+                {tabFiltered.every(l => selectedLeads.has(l.id)) ? "Desmarcar todos" : "Selecionar todos"}
+              </button>
+            )}
+            {tabFiltered.map(lead => {
+              const dist = distributionMap.get(lead.id);
+              const expired = expiredDistributions.get(lead.id);
+              const isSelected = selectedLeads.has(lead.id);
+              return (
+                <Card
+                  key={lead.id}
+                  className={`transition-colors ${isSelected ? "ring-1 ring-primary/40 bg-primary/5" : ""}`}
+                >
+                  <CardContent className="p-3">
+                    <div className="flex items-start gap-2">
                       {activeTab === "pendentes" && (
-                        <TableCell><Checkbox checked={selectedLeads.has(lead.id)} onCheckedChange={() => toggleSelect(lead.id)} /></TableCell>
+                        <Checkbox
+                          checked={isSelected}
+                          onCheckedChange={() => toggleSelect(lead.id)}
+                          className="mt-0.5 shrink-0"
+                        />
                       )}
-                      <TableCell>
-                        <div>
-                          <span className="font-medium">{lead.customer_name}</span>
-                          {expired && expired.length > 0 && (
-                            <div className="flex items-center gap-1 mt-1">
-                              <Badge variant="outline" className="bg-orange-500/10 text-orange-600 border-orange-500/20 text-[10px] px-1.5 py-0">
-                                ↩ Retornou {expired.length}x
-                              </Badge>
-                              <span className="text-[10px] text-muted-foreground">
-                                últ: {expired[expired.length - 1].stores?.name}
-                              </span>
-                            </div>
-                          )}
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center justify-between gap-2 mb-1">
+                          <span className="text-sm font-semibold text-foreground truncate">{lead.customer_name}</span>
+                          <Badge variant="outline" className={`${statusConfig[lead.status].color} text-[10px] px-1.5 py-0 shrink-0`}>
+                            {statusConfig[lead.status].label}
+                          </Badge>
                         </div>
-                      </TableCell>
-                      <TableCell className="text-sm text-muted-foreground">{lead.customer_city}</TableCell>
-                      <TableCell className="text-sm">{lead.pool_models?.name || "-"}</TableCell>
-                      <TableCell className="text-sm font-medium">{formatCurrency(lead.total_price)}</TableCell>
-                      <TableCell><Badge variant="outline" className={statusConfig[lead.status].color}>{statusConfig[lead.status].label}</Badge></TableCell>
-                      {activeTab !== "pendentes" && (
+
+                        <div className="flex items-center gap-3 text-[11px] text-muted-foreground mb-1.5">
+                          <span className="flex items-center gap-0.5"><MapPin className="w-3 h-3" />{lead.customer_city}</span>
+                          <span>{lead.created_at ? format(new Date(lead.created_at), "dd/MM HH:mm") : "-"}</span>
+                        </div>
+
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <span className="text-xs text-muted-foreground truncate">{lead.pool_models?.name || "-"}</span>
+                            <span className="text-xs font-semibold text-emerald-600">{formatCurrency(lead.total_price)}</span>
+                          </div>
+                          <div className="flex items-center gap-0.5">
+                            <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleViewLead(lead)}>
+                              <Eye className="w-3.5 h-3.5" />
+                            </Button>
+                            <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleCopyPhone(lead)}>
+                              <Copy className="w-3.5 h-3.5 text-muted-foreground" />
+                            </Button>
+                            <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => setDeletingLead(lead)}>
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </Button>
+                          </div>
+                        </div>
+
+                        {dist && (
+                          <div className="mt-1.5 flex items-center gap-1.5">
+                            <span className="text-[10px] text-muted-foreground">→ {dist.stores?.name}</span>
+                            <Badge variant="outline" className={`text-[9px] px-1 py-0 ${dist.status === "accepted" ? "bg-emerald-500/10 text-emerald-600 border-emerald-500/20" : "bg-amber-500/10 text-amber-600 border-amber-500/20"}`}>
+                              {dist.status === "accepted" ? "Aceito" : "Aguardando"}
+                            </Badge>
+                          </div>
+                        )}
+
+                        {expired && expired.length > 0 && (
+                          <Badge variant="outline" className="bg-orange-500/10 text-orange-600 border-orange-500/20 text-[9px] px-1 py-0 mt-1">
+                            ↩ Retornou {expired.length}x
+                          </Badge>
+                        )}
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              );
+            })}
+          </div>
+
+          {/* Desktop: table */}
+          <Card className="hidden md:block">
+            <CardHeader className="pb-2"><CardTitle className="text-base">Leads ({tabFiltered.length})</CardTitle></CardHeader>
+            <CardContent className="p-0">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    {activeTab === "pendentes" && (
+                      <TableHead className="w-10">
+                        <Checkbox
+                          checked={tabFiltered.length > 0 && tabFiltered.every(l => selectedLeads.has(l.id))}
+                          onCheckedChange={() => toggleSelectAll(tabFiltered.map(l => l.id))}
+                        />
+                      </TableHead>
+                    )}
+                    <TableHead>Cliente</TableHead>
+                    <TableHead>Cidade</TableHead>
+                    <TableHead>Piscina</TableHead>
+                    <TableHead>Valor</TableHead>
+                    <TableHead>Status</TableHead>
+                    {activeTab !== "pendentes" && <TableHead>Distribuição</TableHead>}
+                    <TableHead>Data</TableHead>
+                    <TableHead className="text-right">Ações</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {tabFiltered.map(lead => {
+                    const dist = distributionMap.get(lead.id);
+                    const expired = expiredDistributions.get(lead.id);
+                    return (
+                      <TableRow key={lead.id} className={selectedLeads.has(lead.id) ? "bg-primary/5" : ""}>
+                        {activeTab === "pendentes" && (
+                          <TableCell><Checkbox checked={selectedLeads.has(lead.id)} onCheckedChange={() => toggleSelect(lead.id)} /></TableCell>
+                        )}
                         <TableCell>
-                          {dist ? (
-                            <div className="text-xs space-y-1">
-                              <p className="font-medium">{dist.stores?.name}</p>
-                              <Badge variant="outline" className={dist.status === "accepted" ? "bg-emerald-500/10 text-emerald-600 border-emerald-500/20" : "bg-amber-500/10 text-amber-600 border-amber-500/20"}>
-                                {dist.status === "accepted" ? "Aceito" : "Aguardando"}
-                              </Badge>
-                              {expired && expired.length > 0 && (
-                                <p className="text-[10px] text-muted-foreground mt-1">
-                                  Histórico: {expired.map(e => e.stores?.name).join(" → ")} → {dist.stores?.name}
-                                </p>
-                              )}
-                            </div>
-                          ) : <span className="text-xs text-muted-foreground">—</span>}
+                          <div>
+                            <span className="font-medium">{lead.customer_name}</span>
+                            {expired && expired.length > 0 && (
+                              <div className="flex items-center gap-1 mt-1">
+                                <Badge variant="outline" className="bg-orange-500/10 text-orange-600 border-orange-500/20 text-[10px] px-1.5 py-0">
+                                  ↩ Retornou {expired.length}x
+                                </Badge>
+                                <span className="text-[10px] text-muted-foreground">
+                                  últ: {expired[expired.length - 1].stores?.name}
+                                </span>
+                              </div>
+                            )}
+                          </div>
                         </TableCell>
-                      )}
-                      <TableCell className="text-sm text-muted-foreground">{lead.created_at ? format(new Date(lead.created_at), "dd/MM/yy HH:mm", { locale: ptBR }) : "-"}</TableCell>
-                      <TableCell className="text-right">
-                        <div className="flex items-center justify-end gap-1">
-                          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleViewLead(lead)}><Eye className="w-4 h-4" /></Button>
-                          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleCopyPhone(lead)}><Copy className="w-4 h-4 text-muted-foreground" /></Button>
-                          <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => setDeletingLead(lead)}><Trash2 className="w-4 h-4" /></Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  );
-                })}
-              </TableBody>
-            </Table>
-          )}
-        </CardContent>
-      </Card>
+                        <TableCell className="text-sm text-muted-foreground">{lead.customer_city}</TableCell>
+                        <TableCell className="text-sm">{lead.pool_models?.name || "-"}</TableCell>
+                        <TableCell className="text-sm font-medium">{formatCurrency(lead.total_price)}</TableCell>
+                        <TableCell><Badge variant="outline" className={statusConfig[lead.status].color}>{statusConfig[lead.status].label}</Badge></TableCell>
+                        {activeTab !== "pendentes" && (
+                          <TableCell>
+                            {dist ? (
+                              <div className="text-xs space-y-1">
+                                <p className="font-medium">{dist.stores?.name}</p>
+                                <Badge variant="outline" className={dist.status === "accepted" ? "bg-emerald-500/10 text-emerald-600 border-emerald-500/20" : "bg-amber-500/10 text-amber-600 border-amber-500/20"}>
+                                  {dist.status === "accepted" ? "Aceito" : "Aguardando"}
+                                </Badge>
+                                {expired && expired.length > 0 && (
+                                  <p className="text-[10px] text-muted-foreground mt-1">
+                                    Histórico: {expired.map(e => e.stores?.name).join(" → ")} → {dist.stores?.name}
+                                  </p>
+                                )}
+                              </div>
+                            ) : <span className="text-xs text-muted-foreground">—</span>}
+                          </TableCell>
+                        )}
+                        <TableCell className="text-sm text-muted-foreground">{lead.created_at ? format(new Date(lead.created_at), "dd/MM/yy HH:mm", { locale: ptBR }) : "-"}</TableCell>
+                        <TableCell className="text-right">
+                          <div className="flex items-center justify-end gap-1">
+                            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleViewLead(lead)}><Eye className="w-4 h-4" /></Button>
+                            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleCopyPhone(lead)}><Copy className="w-4 h-4 text-muted-foreground" /></Button>
+                            <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => setDeletingLead(lead)}><Trash2 className="w-4 h-4" /></Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
+                </TableBody>
+              </Table>
+            </CardContent>
+          </Card>
+        </>
+      )}
 
       {/* Distribute Dialog */}
       <Dialog open={showDistributeDialog} onOpenChange={setShowDistributeDialog}>
@@ -489,7 +580,7 @@ const MatrizLeads = () => {
             <DialogTitle>Distribuir Leads</DialogTitle>
             <DialogDescription>
               Enviar {selectedLeads.size} lead(s) para um lojista parceiro.
-              {selectedCities.length > 0 && <span className="block mt-1 text-xs font-medium">Cidades dos leads: {selectedCities.join(", ")}</span>}
+              {selectedCities.length > 0 && <span className="block mt-1 text-xs font-medium">Cidades: {selectedCities.join(", ")}</span>}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
@@ -531,12 +622,12 @@ const MatrizLeads = () => {
           {viewingLead && (
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-3">
-                <div><p className="text-xs text-muted-foreground">Nome</p><p className="font-medium">{viewingLead.customer_name}</p></div>
-                <div><p className="text-xs text-muted-foreground">WhatsApp</p><p className="font-medium">{viewingLead.customer_whatsapp}</p></div>
-                <div><p className="text-xs text-muted-foreground">Cidade</p><p className="font-medium flex items-center gap-1"><MapPin className="w-3 h-3" />{viewingLead.customer_city}</p></div>
-                <div><p className="text-xs text-muted-foreground">Piscina</p><p className="font-medium">{viewingLead.pool_models?.name || "-"}</p></div>
-                <div><p className="text-xs text-muted-foreground">Valor</p><p className="font-medium text-emerald-600">{formatCurrency(viewingLead.total_price)}</p></div>
-                <div><p className="text-xs text-muted-foreground">Data</p><p className="font-medium flex items-center gap-1"><Calendar className="w-3 h-3" />{viewingLead.created_at ? format(new Date(viewingLead.created_at), "dd/MM/yyyy HH:mm", { locale: ptBR }) : "-"}</p></div>
+                <div><p className="text-xs text-muted-foreground">Nome</p><p className="font-medium text-sm">{viewingLead.customer_name}</p></div>
+                <div><p className="text-xs text-muted-foreground">WhatsApp</p><p className="font-medium text-sm">{viewingLead.customer_whatsapp}</p></div>
+                <div><p className="text-xs text-muted-foreground">Cidade</p><p className="font-medium text-sm flex items-center gap-1"><MapPin className="w-3 h-3" />{viewingLead.customer_city}</p></div>
+                <div><p className="text-xs text-muted-foreground">Piscina</p><p className="font-medium text-sm">{viewingLead.pool_models?.name || "-"}</p></div>
+                <div><p className="text-xs text-muted-foreground">Valor</p><p className="font-medium text-sm text-emerald-600">{formatCurrency(viewingLead.total_price)}</p></div>
+                <div><p className="text-xs text-muted-foreground">Data</p><p className="font-medium text-sm flex items-center gap-1"><Calendar className="w-3 h-3" />{viewingLead.created_at ? format(new Date(viewingLead.created_at), "dd/MM/yyyy HH:mm", { locale: ptBR }) : "-"}</p></div>
               </div>
 
               {(() => {
@@ -573,7 +664,7 @@ const MatrizLeads = () => {
               </div>
 
               <DialogFooter>
-                <Button variant="outline" onClick={() => handleCopyPhone(viewingLead)}><Copy className="w-4 h-4 mr-1" /> Copiar Número</Button>
+                <Button variant="outline" size="sm" onClick={() => handleCopyPhone(viewingLead)}><Copy className="w-4 h-4 mr-1" /> Copiar Número</Button>
               </DialogFooter>
             </div>
           )}
@@ -597,13 +688,13 @@ const MatrizLeads = () => {
       {/* Success Dialog */}
       <Dialog open={showSuccessDialog} onOpenChange={setShowSuccessDialog}>
         <DialogContent className="max-w-sm text-center">
-          <div className="flex flex-col items-center gap-4 py-4">
-            <div className="w-16 h-16 rounded-full bg-emerald-100 flex items-center justify-center">
-              <CheckCircle2 className="w-10 h-10 text-emerald-600" />
+          <div className="flex flex-col items-center gap-3 py-3">
+            <div className="w-14 h-14 rounded-full bg-emerald-100 flex items-center justify-center">
+              <CheckCircle2 className="w-8 h-8 text-emerald-600" />
             </div>
             <DialogHeader className="text-center">
-              <DialogTitle className="text-xl">Leads Distribuídos!</DialogTitle>
-              <DialogDescription className="text-base mt-2">
+              <DialogTitle className="text-lg">Leads Distribuídos!</DialogTitle>
+              <DialogDescription className="text-sm mt-1">
                 {successInfo && (
                   <>
                     <span className="font-semibold text-foreground">{successInfo.count} lead{successInfo.count > 1 ? "s" : ""}</span>
@@ -613,11 +704,11 @@ const MatrizLeads = () => {
                 )}
               </DialogDescription>
             </DialogHeader>
-            <div className="flex items-center gap-2 text-sm text-muted-foreground bg-muted/50 rounded-lg px-4 py-2">
-              <Bell className="w-4 h-4 text-primary" />
+            <div className="flex items-center gap-2 text-xs text-muted-foreground bg-muted/50 rounded-lg px-3 py-2">
+              <Bell className="w-3.5 h-3.5 text-primary" />
               <span>Notificação push enviada ao lojista</span>
             </div>
-            <Button onClick={() => setShowSuccessDialog(false)} className="w-full mt-2">
+            <Button onClick={() => setShowSuccessDialog(false)} className="w-full mt-1" size="sm">
               Fechar
             </Button>
           </div>
