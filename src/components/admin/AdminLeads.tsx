@@ -581,7 +581,7 @@ const AdminLeads = () => {
       {/* Table */}
       <Card>
         <CardHeader className="pb-2 px-3 md:px-6 flex flex-row items-center justify-between gap-2">
-          <CardTitle className="text-sm md:text-base">Leads Recebidos ({validLeads.length})</CardTitle>
+          <CardTitle className="text-sm md:text-base">Leads Recebidos ({tabLeads.length})</CardTitle>
           {isOwner && teamMembers.length > 1 && (
             <Select value={filterUser} onValueChange={setFilterUser}>
               <SelectTrigger className="w-[180px] h-8 text-xs">
@@ -600,7 +600,7 @@ const AdminLeads = () => {
           )}
         </CardHeader>
         <CardContent className="p-0">
-          {validLeads.length === 0 ? (
+          {tabLeads.length === 0 ? (
             <div className="text-center py-12 text-muted-foreground">
               <Package className="w-10 h-10 mx-auto mb-2 opacity-40" />
               <p>{isOwner ? "Nenhum lead recebido ainda" : "Nenhum lead atribuído a você"}</p>
@@ -610,7 +610,7 @@ const AdminLeads = () => {
             <>
               {/* Mobile Card View */}
               <div className="block md:hidden divide-y divide-border">
-                {validLeads.map(lead => {
+                {tabLeads.map(lead => {
                   const p = lead.proposals;
                   const isPending = lead.status === "pending";
                   return (
@@ -738,7 +738,7 @@ const AdminLeads = () => {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {validLeads.map(lead => {
+                    {tabLeads.map(lead => {
                       const p = lead.proposals;
                       const isPending = lead.status === "pending";
                       return (
