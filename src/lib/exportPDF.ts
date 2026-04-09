@@ -2,6 +2,7 @@ import html2canvas from "html2canvas";
 import html2pdf from "html2pdf.js";
 import { jsPDF } from "jspdf";
 import { toast } from "sonner";
+import { inlineImagesForPdf } from "@/lib/pdfImageUtils";
 
 interface ExportPDFOptions {
   element: HTMLElement;
@@ -17,6 +18,14 @@ interface ElementSnapshot {
   cssText: string;
   className: string;
   ariaHidden: string | null;
+}
+
+interface AncestorSnapshot {
+  el: HTMLElement;
+  transform: string;
+  width: string;
+  marginLeft: string;
+  minHeight: string;
 }
 
 const A4_SIZES = {
@@ -56,6 +65,40 @@ const restorePreparedElement = (element: HTMLElement, snapshot: ElementSnapshot)
   } else {
     element.setAttribute("aria-hidden", snapshot.ariaHidden);
   }
+};
+
+const resetAncestorTransforms = (element: HTMLElement): AncestorSnapshot[] => {
+  const ancestorResets: AncestorSnapshot[] = [];
+  let ancestor = element.parentElement;
+
+  while (ancestor) {
+    const computed = getComputedStyle(ancestor);
+    if (computed.transform !== "none") {
+      ancestorResets.push({
+        el: ancestor,
+        transform: ancestor.style.transform,
+        width: ancestor.style.width,
+        marginLeft: ancestor.style.marginLeft,
+        minHeight: ancestor.style.minHeight,
+      });
+      ancestor.style.transform = "none";
+      ancestor.style.width = "100%";
+      ancestor.style.marginLeft = "0";
+      ancestor.style.minHeight = "auto";
+    }
+    ancestor = ancestor.parentElement;
+  }
+
+  return ancestorResets;
+};
+
+const restoreAncestorTransforms = (ancestorResets: AncestorSnapshot[]) => {
+  ancestorResets.forEach(({ el, transform, width, marginLeft, minHeight }) => {
+    el.style.transform = transform;
+    el.style.width = width;
+    el.style.marginLeft = marginLeft;
+    el.style.minHeight = minHeight;
+  });
 };
 
 const exportSectionedPDF = async ({
@@ -149,8 +192,8 @@ const exportSectionedPDF = async ({
 };
 
 /**
- * Standardized PDF export with consistent quality, background, 
- * page-break avoidance, and style restoration on error.
+ * Standardized PDF export with consistent quality, background,
+ * cross-origin image preparation, page-break avoidance, and style restoration on error.
  */
 export const exportPDF = async ({
   element,
@@ -160,53 +203,46 @@ export const exportPDF = async ({
   sectionSelector,
 }: ExportPDFOptions): Promise<void> => {
   const width = captureWidth || (orientation === "landscape" ? 1100 : 800);
-
   const preparedSnapshot = prepareElementForCapture(element);
+  const ancestorResets = resetAncestorTransforms(element);
 
-  // Show hidden PDF headers, hide interactive elements
   const pdfHeaders = element.querySelectorAll<HTMLElement>("[data-pdf-header]");
+  const pdfOnlyEls = element.querySelectorAll<HTMLElement>("[data-pdf-only]");
   const interactiveEls = element.querySelectorAll<HTMLElement>("button, [data-no-pdf], select");
   const hiddenOriginals: { el: HTMLElement; display: string }[] = [];
+  let restoreImages = () => {};
 
   try {
     toast.info("Gerando PDF...", { duration: 3000 });
-
-    // Aguarda imagens/fontes em mobile antes da captura
-    const images = Array.from(element.querySelectorAll("img"));
-    await Promise.all(
-      images.map(
-        (img) =>
-          new Promise<void>((resolve) => {
-            if (img.complete) return resolve();
-            img.onload = () => resolve();
-            img.onerror = () => resolve();
-          }),
-      ),
-    );
 
     if (typeof document !== "undefined" && "fonts" in document) {
       await (document as Document & { fonts?: { ready?: Promise<unknown> } }).fonts?.ready;
     }
 
-    // Show PDF-only headers
     pdfHeaders.forEach((el) => {
       hiddenOriginals.push({ el, display: el.style.display });
       el.style.display = "block";
     });
 
-    // Hide interactive elements
+    pdfOnlyEls.forEach((el) => {
+      hiddenOriginals.push({ el, display: el.style.display });
+      el.style.display = el.dataset.pdfOnlyDisplay || "flex";
+    });
+
     interactiveEls.forEach((el) => {
       hiddenOriginals.push({ el, display: el.style.display });
       el.style.display = "none";
     });
 
-    // Force print-friendly styles
     element.style.width = `${width}px`;
     element.style.maxWidth = `${width}px`;
     element.style.padding = "24px";
     element.style.background = "#ffffff";
     element.getBoundingClientRect();
-    await new Promise((r) => setTimeout(r, 300));
+
+    restoreImages = await inlineImagesForPdf(element);
+
+    await new Promise((r) => setTimeout(r, 350));
 
     if (sectionSelector) {
       await exportSectionedPDF({ element, filename, orientation, sectionSelector });
@@ -238,10 +274,11 @@ export const exportPDF = async ({
     console.error("Erro ao gerar PDF:", error);
     toast.error("Erro ao gerar PDF. Tente novamente.");
   } finally {
+    restoreImages();
     restorePreparedElement(element, preparedSnapshot);
-    // Restore hidden/shown elements
     hiddenOriginals.forEach(({ el, display }) => {
       el.style.display = display;
     });
+    restoreAncestorTransforms(ancestorResets);
   }
 };
