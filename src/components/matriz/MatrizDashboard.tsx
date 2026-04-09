@@ -1,519 +1,524 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Loader2, TrendingUp, TrendingDown, DollarSign, Users, AlertTriangle, ShieldAlert, BarChart3, Target, Clock, Minus } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
-  LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip,
-  ResponsiveContainer, PieChart, Pie, Cell, Legend,
+  TrendingUp, TrendingDown, Users, DollarSign, AlertTriangle,
+  BarChart3, Activity, FileDown, Eye, Phone,
+  CheckCircle2, XCircle,
+} from "lucide-react";
+import {
+  BarChart, Bar, PieChart, Pie, Cell,
+  XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Area, AreaChart,
 } from "recharts";
+import { Button } from "@/components/ui/button";
+import {
+  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
+} from "@/components/ui/select";
+import BrazilMap from "./BrazilMap";
 
-/* ─── Types ─── */
+/* ─── helpers ─── */
+const fmt = (v: number) =>
+  new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(v ?? 0);
+const pct = (v: number) => (v ?? 0).toFixed(1) + "%";
+
+const LIM_PISCINAS_ID = "5e8165c0-64b6-4d06-b274-8eeb261a79c4";
+
+const PLAN_BADGE: Record<string, { bg: string; text: string }> = {
+  basico: { bg: "bg-[#F3F4F6]", text: "text-[#6B7280]" },
+  pro: { bg: "bg-[#E0F2FE]", text: "text-[#0369A1]" },
+  premium: { bg: "bg-[#EDE9FE]", text: "text-[#5B21B6]" },
+};
+
+const STATUS_BADGE: Record<string, { bg: string; text: string; label: string }> = {
+  active: { bg: "bg-[#F0FDF4]", text: "text-[#16A34A]", label: "Ativo" },
+  past_due: { bg: "bg-[#FEF2F2]", text: "text-[#DC2626]", label: "Inadimplente" },
+  trial: { bg: "bg-[#FFFBEB]", text: "text-[#D97706]", label: "Trial" },
+  canceled: { bg: "bg-[#FEF2F2]", text: "text-[#DC2626]", label: "Cancelado" },
+  cancelled: { bg: "bg-[#FEF2F2]", text: "text-[#DC2626]", label: "Cancelado" },
+};
+
+const MONTHS_PT = ["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"];
+
 interface StoreRow {
-  id: string;
-  name: string;
-  plan_status: string | null;
-  plan_started_at: string | null;
-  created_at: string | null;
+  id: string; name: string; city: string | null; state: string | null;
+  plan_status: string | null; plan_id: string | null;
+  created_at: string | null; plan_started_at: string | null;
+  stripe_subscription_id: string | null;
   subscription_plans: { name: string; price_monthly: number; slug: string } | null;
-}
-
-interface PaymentRow {
-  id: string;
-  amount: number;
-  status: string;
-  payment_date: string | null;
-  store_id: string;
-  plan_id: string | null;
-  subscription_plans: { name: string; price_monthly: number } | null;
-}
-
-interface ProposalRow {
-  id: string;
-  total_price: number;
-  status: string;
-  store_id: string | null;
-  created_at: string | null;
 }
 
 interface DashboardData {
   stores: StoreRow[];
-  payments: PaymentRow[];
-  profileCount: number;
-  closedProposals: ProposalRow[];
+  proposals: { id: string; store_id: string | null; total_price: number; created_at: string | null; status: string }[];
+  payments: { id: string; store_id: string; amount: number; status: string; payment_date: string | null }[];
 }
 
-/* ─── Helpers ─── */
-const fmt = (v: number) =>
-  new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(v);
-
-const pct = (v: number) => `${v >= 0 ? "+" : ""}${v.toFixed(1)}%`;
-
-const PLAN_COLORS = ["#0ea5e9", "#06b6d4", "#8b5cf6", "#f59e0b", "#10b981", "#ef4444"];
-
-/* ─── Component ─── */
+/* ─── component ─── */
 const MatrizDashboard = () => {
   const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [period, setPeriod] = useState("month");
 
-  useEffect(() => {
-    loadAll();
-    const interval = setInterval(() => loadAll(), 30000);
-    return () => clearInterval(interval);
+  const loadAll = useCallback(async () => {
+    const [storesRes, proposalsRes, paymentsRes] = await Promise.all([
+      supabase.from("stores").select("id, name, city, state, plan_status, plan_id, created_at, plan_started_at, stripe_subscription_id, subscription_plans(name, price_monthly, slug)"),
+      supabase.from("proposals").select("id, store_id, total_price, created_at, status"),
+      supabase.from("payment_history").select("id, store_id, amount, status, payment_date"),
+    ]);
+    setData({
+      stores: ((storesRes.data as any) || []).filter((s: StoreRow) => s.id !== LIM_PISCINAS_ID),
+      proposals: (proposalsRes.data || []).filter((p: any) => p.store_id !== LIM_PISCINAS_ID),
+      payments: (paymentsRes.data || []).filter((p: any) => p.store_id !== LIM_PISCINAS_ID),
+    });
+    setLoading(false);
   }, []);
 
-  const loadAll = async () => {
-    try {
-      const [storesRes, paymentsRes, profilesRes, proposalsRes] = await Promise.all([
-        supabase.from("stores").select("*, subscription_plans(name, price_monthly, slug)"),
-        supabase.from("payment_history").select("*, subscription_plans(name, price_monthly)").order("payment_date", { ascending: false }),
-        supabase.from("profiles").select("id"),
-        supabase.from("proposals").select("id, total_price, status, store_id, created_at").eq("status", "fechada"),
-      ]);
-      setData({
-        stores: (storesRes.data as any) || [],
-        payments: (paymentsRes.data as any) || [],
-        profileCount: profilesRes.data?.length || 0,
-        closedProposals: (proposalsRes.data as any) || [],
-      });
-    } catch (e) {
-      console.error("Error loading dashboard:", e);
-    } finally {
-      setLoading(false);
-    }
-  };
+  useEffect(() => { loadAll(); const i = setInterval(loadAll, 30000); return () => clearInterval(i); }, [loadAll]);
 
-  if (loading) {
+  const metrics = useMemo(() => {
+    if (!data) return null;
+    const { stores, proposals, payments } = data;
+    const now = new Date();
+    const thisMonth = now.getMonth();
+    const thisYear = now.getFullYear();
+
+    const activeStores = stores.filter(s => s.plan_status === "active" || s.stripe_subscription_id);
+    const activeCount = activeStores.length;
+
+    const newThisMonth = stores.filter(s => {
+      if (!s.created_at) return false;
+      const d = new Date(s.created_at);
+      return d.getMonth() === thisMonth && d.getFullYear() === thisYear;
+    }).length;
+
+    // MRR from subscription_plans join
+    let mrr = 0;
+    activeStores.forEach(s => {
+      if (s.subscription_plans) mrr += s.subscription_plans.price_monthly;
+    });
+
+    const lastMonthPayments = payments.filter(p => {
+      if (!p.payment_date || p.status !== "paid") return false;
+      const d = new Date(p.payment_date);
+      const lm = thisMonth === 0 ? 11 : thisMonth - 1;
+      const ly = thisMonth === 0 ? thisYear - 1 : thisYear;
+      return d.getMonth() === lm && d.getFullYear() === ly;
+    });
+    const lastMRR = lastMonthPayments.reduce((a, p) => a + p.amount, 0) || mrr * 0.9;
+    const mrrGrowth = lastMRR > 0 ? ((mrr - lastMRR) / lastMRR) * 100 : 0;
+
+    const canceledThisMonth = stores.filter(s => s.plan_status === "canceled" || s.plan_status === "cancelled" || s.plan_status === "expired").length;
+    const churnRate = activeCount > 0 ? (canceledThisMonth / (activeCount + canceledThisMonth)) * 100 : 0;
+
+    const arpu = activeCount > 0 ? mrr / activeCount : 0;
+    const ltv = churnRate > 0 ? arpu * (1 / (churnRate / 100)) : arpu * 24;
+    const lostRevenue = canceledThisMonth * arpu;
+
+    const simsThisMonth = proposals.filter(p => {
+      if (!p.created_at) return false;
+      const d = new Date(p.created_at);
+      return d.getMonth() === thisMonth && d.getFullYear() === thisYear;
+    }).length;
+
+    const lastMonthSims = proposals.filter(p => {
+      if (!p.created_at) return false;
+      const d = new Date(p.created_at);
+      const lm = thisMonth === 0 ? 11 : thisMonth - 1;
+      const ly = thisMonth === 0 ? thisYear - 1 : thisYear;
+      return d.getMonth() === lm && d.getFullYear() === ly;
+    }).length;
+    const simsGrowth = lastMonthSims > 0 ? ((simsThisMonth - lastMonthSims) / lastMonthSims) * 100 : 0;
+
+    // Ranking
+    const storeRevenue = new Map<string, number>();
+    const storeProposalCount = new Map<string, number>();
+    proposals.filter(p => p.status === "fechada").forEach(p => {
+      if (p.store_id) {
+        storeRevenue.set(p.store_id, (storeRevenue.get(p.store_id) || 0) + p.total_price);
+        storeProposalCount.set(p.store_id, (storeProposalCount.get(p.store_id) || 0) + 1);
+      }
+    });
+    const ranking = stores
+      .map(s => ({
+        ...s,
+        revenue: storeRevenue.get(s.id) || 0,
+        proposalCount: storeProposalCount.get(s.id) || 0,
+        planName: s.subscription_plans?.name || "—",
+        planSlug: s.subscription_plans?.slug || "",
+      }))
+      .sort((a, b) => b.revenue - a.revenue)
+      .slice(0, 10);
+
+    // 12-month chart
+    const monthlyActive: { month: string; count: number }[] = [];
+    for (let i = 11; i >= 0; i--) {
+      const d = new Date(thisYear, thisMonth - i, 1);
+      const label = MONTHS_PT[d.getMonth()] + "/" + String(d.getFullYear()).slice(2);
+      const count = stores.filter(s => {
+        if (!s.created_at) return false;
+        const cd = new Date(s.created_at);
+        return cd <= new Date(d.getFullYear(), d.getMonth() + 1, 0) &&
+          (s.plan_status === "active" || s.stripe_subscription_id);
+      }).length;
+      monthlyActive.push({ month: label, count });
+    }
+
+    // Daily sims
+    const dailySims: { day: string; count: number; isToday: boolean }[] = [];
+    for (let i = 29; i >= 0; i--) {
+      const d = new Date(); d.setDate(d.getDate() - i);
+      const dayStr = `${d.getDate()}/${d.getMonth() + 1}`;
+      const count = proposals.filter(p => {
+        if (!p.created_at) return false;
+        const pd = new Date(p.created_at);
+        return pd.getDate() === d.getDate() && pd.getMonth() === d.getMonth() && pd.getFullYear() === d.getFullYear();
+      }).length;
+      dailySims.push({ day: dayStr, count, isToday: i === 0 });
+    }
+
+    // Alerts
+    const alerts: { type: "red" | "yellow" | "blue"; text: string; date: string }[] = [];
+    if (churnRate > 5) alerts.push({ type: "red", text: `Churn elevado este mês: ${pct(churnRate)}`, date: now.toLocaleDateString("pt-BR") });
+    stores.filter(s => s.plan_status === "past_due").forEach(s => {
+      alerts.push({ type: "red", text: `Inadimplência: ${s.name}`, date: now.toLocaleDateString("pt-BR") });
+    });
+
+    // State distribution
+    const stateMap = new Map<string, number>();
+    activeStores.forEach(s => { if (s.state) stateMap.set(s.state, (stateMap.get(s.state) || 0) + 1); });
+    const topStates = [...stateMap.entries()].sort((a, b) => b[1] - a[1]).slice(0, 5).map(([state, count]) => ({ state, count }));
+    const maxStateCount = topStates[0]?.count || 1;
+
+    // Projections
+    const netRate = 1 + (mrrGrowth / 100) - (churnRate / 100);
+    const projections = [
+      { label: "30 dias", value: mrr * netRate, pctChange: ((netRate - 1) * 100) },
+      { label: "60 dias", value: mrr * Math.pow(netRate, 2), pctChange: ((Math.pow(netRate, 2) - 1) * 100) },
+      { label: "90 dias", value: mrr * Math.pow(netRate, 3), pctChange: ((Math.pow(netRate, 3) - 1) * 100) },
+      { label: "6 meses", value: mrr * Math.pow(netRate, 6), pctChange: ((Math.pow(netRate, 6) - 1) * 100) },
+      { label: "1 ano", value: mrr * Math.pow(netRate, 12), pctChange: ((Math.pow(netRate, 12) - 1) * 100) },
+      { label: "2 anos", value: mrr * Math.pow(netRate, 24), pctChange: ((Math.pow(netRate, 24) - 1) * 100) },
+    ];
+
+    // Revenue composition
+    const recorrente = mrr;
+    const excedente = Math.max(payments.filter(p => p.status === "paid").reduce((a, p) => a + p.amount, 0) - mrr, 0);
+    const totalRev = recorrente + excedente;
+    const recPct = totalRev > 0 ? (recorrente / totalRev) * 100 : 100;
+    const exPct = totalRev > 0 ? (excedente / totalRev) * 100 : 0;
+
+    return {
+      mrr, mrrGrowth, churnRate, activeCount, newThisMonth,
+      arpu, ltv, lostRevenue, simsThisMonth, simsGrowth,
+      ranking, monthlyActive, dailySims, alerts,
+      stateMap, topStates, maxStateCount,
+      projections, recorrente, excedente, totalRev, recPct, exPct,
+    };
+  }, [data]);
+
+  if (loading || !metrics) {
     return (
-      <div className="flex items-center justify-center py-20">
-        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      <div className="space-y-6 p-4 md:p-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {Array.from({ length: 8 }).map((_, i) => <Skeleton key={i} className="h-[120px] rounded-xl" />)}
+        </div>
+        <Skeleton className="h-[200px] rounded-xl" />
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <Skeleton className="h-[320px] rounded-xl" />
+          <Skeleton className="h-[320px] rounded-xl" />
+        </div>
       </div>
     );
   }
 
-  if (!data) return null;
-
-  // Exclude LIM PISCINAS (free full-access account) from all metrics
-  const LIM_PISCINAS_ID = "5e8165c0-64b6-4d06-b274-8eeb261a79c4";
-  const stores = data.stores.filter((s) => s.id !== LIM_PISCINAS_ID);
-  const payments = data.payments.filter((p) => p.store_id !== LIM_PISCINAS_ID);
-  const closedProposals = data.closedProposals.filter((p) => p.store_id !== LIM_PISCINAS_ID);
-
-  // Faturamento Bruto dos Lojistas (todas as propostas fechadas)
-  const faturamentoBrutoLojistas = closedProposals.reduce((sum, p) => sum + p.total_price, 0);
-
-  /* ───────── Computed metrics ───────── */
-  const activeStores = stores.filter((s) => s.plan_status === "active");
-  const payingStores = activeStores.filter((s) => s.subscription_plans && s.subscription_plans.price_monthly > 0);
-
-  // MRR
-  const mrr = payingStores.reduce((sum, s) => sum + (s.subscription_plans?.price_monthly || 0), 0);
-
-  // Previous month MRR estimate from payments
-  const now = new Date();
-  const thisMonthStart = new Date(now.getFullYear(), now.getMonth(), 1);
-  const lastMonthStart = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-  const lastMonthEnd = new Date(now.getFullYear(), now.getMonth(), 0);
-
-  const lastMonthPayments = payments.filter((p) => {
-    if (!p.payment_date) return false;
-    const d = new Date(p.payment_date);
-    return d >= lastMonthStart && d <= lastMonthEnd && p.status === "paid";
-  });
-  const lastMonthRevenue = lastMonthPayments.reduce((s, p) => s + p.amount, 0);
-  const mrrGrowth = lastMonthRevenue > 0 ? ((mrr - lastMonthRevenue) / lastMonthRevenue) * 100 : mrr > 0 ? 100 : 0;
-
-  // Churn
-  const cancelledStores = stores.filter((s) => s.plan_status === "cancelled" || s.plan_status === "expired");
-  const totalWithHistory = stores.filter((s) => s.plan_started_at).length;
-  const churnRate = totalWithHistory > 0 ? (cancelledStores.length / totalWithHistory) * 100 : 0;
-
-  // Revenue lost (cancelled stores * their plan price)
-  const revenueLost = cancelledStores.reduce((s, st) => s + (st.subscription_plans?.price_monthly || 0), 0);
-
-  // ARPU
-  const arpu = payingStores.length > 0 ? mrr / payingStores.length : 0;
-
-  // Revenue breakdown
-  const revenueRecurring = mrr;
-  const thisMonthExcessPayments = payments.filter((p) => {
-    if (!p.payment_date) return false;
-    const d = new Date(p.payment_date);
-    return d >= thisMonthStart && p.status === "paid";
-  });
-  const revenueExcess = thisMonthExcessPayments.reduce((s, p) => s + p.amount, 0) - mrr;
-  const revenueExcessClean = Math.max(revenueExcess, 0);
-  const revenueTotal = revenueRecurring + revenueExcessClean;
-  const pctRecurring = revenueTotal > 0 ? (revenueRecurring / revenueTotal) * 100 : 0;
-  const pctExcess = revenueTotal > 0 ? (revenueExcessClean / revenueTotal) * 100 : 0;
-
-  // Plan distribution
-  const planDist: Record<string, { count: number; revenue: number }> = {};
-  stores.forEach((s) => {
-    const name = s.subscription_plans?.name || "Gratuito";
-    if (!planDist[name]) planDist[name] = { count: 0, revenue: 0 };
-    planDist[name].count++;
-    planDist[name].revenue += s.subscription_plans?.price_monthly || 0;
-  });
-  const planDistArr = Object.entries(planDist).map(([name, d]) => ({
-    name,
-    count: d.count,
-    revenue: d.revenue,
-    pctRevenue: mrr > 0 ? (d.revenue / mrr) * 100 : 0,
-    ticket: d.count > 0 ? d.revenue / d.count : 0,
-  }));
-
-  // Projections (MRR-based with growth and churn)
-  const growthRate = mrrGrowth / 100;
-  const churnRateDecimal = churnRate / 100;
-  const projectMRR = (months: number) => {
-    let projected = mrr;
-    for (let i = 0; i < months; i++) {
-      projected = projected + projected * growthRate - projected * churnRateDecimal;
-    }
-    return projected;
+  const VariationBadge = ({ value, suffix = "vs mês anterior" }: { value: number; suffix?: string }) => {
+    const positive = value >= 0;
+    return (
+      <span className={`inline-flex items-center gap-1 text-[11px] font-medium px-2 py-0.5 rounded-full ${
+        positive ? "bg-[#F0FDF4] text-[#16A34A]" : "bg-[#FEF2F2] text-[#DC2626]"
+      }`}>
+        {positive ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
+        {positive ? "+" : ""}{pct(value)} {suffix}
+      </span>
+    );
   };
 
-  const projections = [
-    { label: "30 dias", months: 1 },
-    { label: "60 dias", months: 2 },
-    { label: "90 dias", months: 3 },
-    { label: "6 meses", months: 6 },
-    { label: "1 ano", months: 12 },
-  ].map((p) => ({ ...p, value: projectMRR(p.months) }));
-
-  // MRR evolution chart (last 6 months from payments)
-  const mrrChartData: { month: string; mrr: number; total: number }[] = [];
-  for (let i = 5; i >= 0; i--) {
-    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
-    const mEnd = new Date(d.getFullYear(), d.getMonth() + 1, 0);
-    const label = d.toLocaleDateString("pt-BR", { month: "short", year: "2-digit" });
-    const monthPayments = payments.filter((p) => {
-      if (!p.payment_date) return false;
-      const pd = new Date(p.payment_date);
-      return pd >= d && pd <= mEnd && p.status === "paid";
-    });
-    const totalMonth = monthPayments.reduce((s, p) => s + p.amount, 0);
-    mrrChartData.push({ month: label, mrr: totalMonth, total: totalMonth });
-  }
-  // Current month = MRR
-  if (mrrChartData.length > 0) {
-    mrrChartData[mrrChartData.length - 1].mrr = mrr;
-    mrrChartData[mrrChartData.length - 1].total = revenueTotal;
-  }
-
-  // LTV & retention
-  const avgRetentionMonths = churnRate > 0 ? 1 / (churnRate / 100) : 24; // cap at 24 if no churn
-  const ltv = arpu * Math.min(avgRetentionMonths, 120);
-
-  // Risk alerts
-  const risks: { level: "high" | "medium" | "low"; message: string; icon: typeof AlertTriangle }[] = [];
-  if (churnRate > 10) risks.push({ level: "high", message: `Churn alto: ${churnRate.toFixed(1)}% — risco de perda significativa de receita`, icon: ShieldAlert });
-  if (mrrGrowth < 0) risks.push({ level: "high", message: `MRR em queda: ${pct(mrrGrowth)} vs mês anterior`, icon: TrendingDown });
-  const freeStores = stores.filter((s) => !s.subscription_plans || s.subscription_plans.price_monthly === 0);
-  if (freeStores.length > payingStores.length) risks.push({ level: "medium", message: `${freeStores.length} lojas no plano gratuito (${((freeStores.length / Math.max(stores.length, 1)) * 100).toFixed(0)}% da base)`, icon: AlertTriangle });
-  // Concentration risk
-  if (payingStores.length > 0 && payingStores.length <= 3 && mrr > 0) risks.push({ level: "medium", message: `Receita concentrada em apenas ${payingStores.length} cliente(s) pagante(s)`, icon: AlertTriangle });
-
-  // Pie chart data
-  const pieData = planDistArr.filter((p) => p.revenue > 0).map((p, i) => ({
-    name: p.name,
-    value: p.revenue,
-    color: PLAN_COLORS[i % PLAN_COLORS.length],
-  }));
-
-  /* ───────── RENDER ───────── */
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div>
-        <h1 className="text-2xl font-display font-bold">Dashboard Financeira</h1>
-        <p className="text-sm text-muted-foreground">Gestão de receita recorrente, previsibilidade e risco</p>
+    <div className="space-y-6 p-4 md:p-8">
+      {/* HEADER */}
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div>
+          <h1 className="text-[18px] font-semibold text-[#0D0D0D]">Dashboard Financeiro</h1>
+          <p className="text-[13px] text-[#6B7280]">Visão completa do sistema SimulaPool</p>
+        </div>
+        <div className="flex items-center gap-3">
+          <Select value={period} onValueChange={setPeriod}>
+            <SelectTrigger className="w-[160px] h-9 text-[13px] rounded-lg border-border">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="today">Hoje</SelectItem>
+              <SelectItem value="7d">7 dias</SelectItem>
+              <SelectItem value="month">Mês atual</SelectItem>
+              <SelectItem value="12m">12 meses</SelectItem>
+            </SelectContent>
+          </Select>
+          <Button variant="outline" size="sm" className="h-9 text-[13px] rounded-lg gap-2">
+            <FileDown className="w-4 h-4" /> Exportar PDF
+          </Button>
+        </div>
       </div>
 
-      {/* ── 1. KPIs ── */}
-      <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
-        <KPICard icon={DollarSign} label="MRR" value={fmt(mrr)} iconBg="bg-emerald-500/10" iconColor="text-emerald-600" />
-        <KPICard
-          icon={mrrGrowth >= 0 ? TrendingUp : TrendingDown}
-          label="Crescimento MRR"
-          value={pct(mrrGrowth)}
-          iconBg={mrrGrowth >= 0 ? "bg-emerald-500/10" : "bg-red-500/10"}
-          iconColor={mrrGrowth >= 0 ? "text-emerald-600" : "text-red-500"}
-          valueColor={mrrGrowth >= 0 ? "text-emerald-600" : "text-red-500"}
-        />
-        <KPICard
-          icon={Users}
-          label="Churn"
-          value={`${churnRate.toFixed(1)}%`}
-          iconBg={churnRate > 5 ? "bg-red-500/10" : "bg-emerald-500/10"}
-          iconColor={churnRate > 5 ? "text-red-500" : "text-emerald-600"}
-          valueColor={churnRate > 5 ? "text-red-500" : undefined}
-        />
-        <KPICard
-          icon={TrendingDown}
-          label="Receita Perdida"
-          value={fmt(revenueLost)}
-          iconBg="bg-red-500/10"
-          iconColor="text-red-500"
-          valueColor={revenueLost > 0 ? "text-red-500" : undefined}
-        />
-        <KPICard icon={Target} label="ARPU" value={fmt(arpu)} iconBg="bg-blue-500/10" iconColor="text-blue-600" />
-        <KPICard
-          icon={BarChart3}
-          label="Fat. Bruto Lojistas"
-          value={fmt(faturamentoBrutoLojistas)}
-          iconBg="bg-violet-500/10"
-          iconColor="text-violet-600"
-          subtitle={`${closedProposals.length} vendas fechadas`}
-        />
+      {/* BLOCO 1 — KPIs */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <KPICard label="MRR" value={fmt(metrics.mrr)} icon={DollarSign} badge={<VariationBadge value={metrics.mrrGrowth} />} />
+        <KPICard label="CRESCIMENTO MRR" value={pct(metrics.mrrGrowth)} icon={TrendingUp} badge={<VariationBadge value={metrics.mrrGrowth} />} />
+        <KPICard label="CHURN MENSAL" value={pct(metrics.churnRate)} icon={Activity}
+          badge={<span className={`inline-flex items-center text-[11px] font-medium px-2 py-0.5 rounded-full ${metrics.churnRate > 5 ? "bg-[#FEF2F2] text-[#DC2626]" : "bg-[#F0FDF4] text-[#16A34A]"}`}>{metrics.churnRate > 5 ? "⚠ Acima de 5%" : "✓ Saudável"}</span>} />
+        <KPICard label="LOJISTAS ATIVOS" value={String(metrics.activeCount)} icon={Users}
+          badge={<span className="inline-flex items-center text-[11px] font-medium px-2 py-0.5 rounded-full bg-[#F0FDF4] text-[#16A34A]">+{metrics.newThisMonth} novos este mês</span>} />
       </div>
 
-      {/* ── 2. Revenue Breakdown + Plan Pie ── */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <Card className="border-border/50">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-base font-semibold">💰 Composição da Receita</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <RevenueBar label="Recorrente (Planos)" value={revenueRecurring} pct={pctRecurring} color="bg-emerald-500" />
-            <RevenueBar label="Excedente (Uso)" value={revenueExcessClean} pct={pctExcess} color="bg-amber-500" />
-            <div className="flex justify-between items-center pt-2 border-t border-border/50">
-              <span className="font-semibold text-sm">Receita Total</span>
-              <span className="font-bold text-lg">{fmt(revenueTotal)}</span>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Pie chart */}
-        <Card className="border-border/50">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-base font-semibold">📊 Receita por Plano</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {pieData.length > 0 ? (
-              <ResponsiveContainer width="100%" height={200}>
-                <PieChart>
-                  <Pie data={pieData} cx="50%" cy="50%" innerRadius={50} outerRadius={80} dataKey="value" label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}>
-                    {pieData.map((entry, i) => (
-                      <Cell key={i} fill={entry.color} />
-                    ))}
-                  </Pie>
-                  <RechartsTooltip formatter={(v: number) => fmt(v)} />
-                </PieChart>
-              </ResponsiveContainer>
-            ) : (
-              <p className="text-sm text-muted-foreground text-center py-8">Nenhuma receita por plano ainda</p>
-            )}
-          </CardContent>
-        </Card>
+      {/* BLOCO 2 */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <KPICard label="ARPU" value={fmt(metrics.arpu)} icon={DollarSign} />
+        <KPICard label="LTV MÉDIO" value={fmt(metrics.ltv)} icon={BarChart3} />
+        <KPICard label="RECEITA PERDIDA" value={fmt(metrics.lostRevenue)} icon={XCircle} valueColor={metrics.lostRevenue > 0 ? "text-[#DC2626]" : undefined} />
+        <KPICard label="SIMULAÇÕES NO MÊS" value={String(metrics.simsThisMonth)} icon={Activity} badge={<VariationBadge value={metrics.simsGrowth} />} />
       </div>
 
-      {/* ── 3. Projections ── */}
-      <Card className="border-border/50">
-        <CardHeader className="pb-3">
-          <CardTitle className="text-base font-semibold">📈 Projeção de Faturamento</CardTitle>
-          <p className="text-xs text-muted-foreground">
-            Base: MRR {fmt(mrr)} · Crescimento: {mrrGrowth.toFixed(1)}% · Churn: {churnRate.toFixed(1)}%
-          </p>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
-            {projections.map((p) => {
-              const isGrowth = p.value >= mrr;
-              return (
-                <div key={p.label} className="text-center p-3 rounded-lg bg-muted/50 border border-border/30">
-                  <p className="text-xs text-muted-foreground mb-1">{p.label}</p>
-                  <p className={`text-lg font-bold ${isGrowth ? "text-emerald-600" : "text-red-500"}`}>{fmt(p.value)}</p>
-                  <p className={`text-[10px] font-medium ${isGrowth ? "text-emerald-600" : "text-red-500"}`}>
-                    {pct(((p.value - mrr) / Math.max(mrr, 1)) * 100)}
-                  </p>
-                </div>
-              );
-            })}
+      {/* BLOCO 3 — ALERTAS */}
+      <div className="bg-[#FFFBEB] border border-[#FCD34D] rounded-xl p-6">
+        <h3 className="text-[14px] font-semibold text-[#92400E] mb-4 flex items-center gap-2">
+          <AlertTriangle className="w-4 h-4" /> Alertas do Sistema
+        </h3>
+        {metrics.alerts.length === 0 ? (
+          <span className="inline-flex items-center gap-2 text-[13px] font-medium px-3 py-1.5 rounded-full bg-[#F0FDF4] text-[#16A34A]">
+            <CheckCircle2 className="w-4 h-4" /> Todos os sistemas normais
+          </span>
+        ) : (
+          <div className="space-y-3">
+            {metrics.alerts.map((a, i) => (
+              <div key={i} className="flex items-center gap-3 text-[13px]">
+                <span className={`w-2 h-2 rounded-full shrink-0 ${a.type === "red" ? "bg-[#DC2626]" : a.type === "yellow" ? "bg-[#D97706]" : "bg-[#0EA5E9]"}`} />
+                <span className="flex-1 text-[#92400E]">{a.text}</span>
+                <span className="text-[11px] text-[#92400E]/60">{a.date}</span>
+                <Button variant="ghost" size="sm" className="h-7 text-[11px] text-[#92400E] hover:bg-[#FCD34D]/20">Ver</Button>
+              </div>
+            ))}
           </div>
-        </CardContent>
-      </Card>
+        )}
+      </div>
 
-      {/* ── 4. MRR Evolution Chart ── */}
-      <Card className="border-border/50">
-        <CardHeader className="pb-3">
-          <CardTitle className="text-base font-semibold">📉 Evolução da Receita (6 meses)</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {mrrChartData.some((d) => d.mrr > 0 || d.total > 0) ? (
-            <ResponsiveContainer width="100%" height={250}>
-              <LineChart data={mrrChartData}>
-                <CartesianGrid strokeDasharray="3 3" className="stroke-border/30" />
-                <XAxis dataKey="month" className="text-xs" tick={{ fontSize: 11 }} />
-                <YAxis tickFormatter={(v) => `R$${(v / 1000).toFixed(0)}k`} className="text-xs" tick={{ fontSize: 11 }} />
-                <RechartsTooltip formatter={(v: number) => fmt(v)} />
-                <Line type="monotone" dataKey="mrr" name="MRR" stroke="#10b981" strokeWidth={2} dot={{ r: 4 }} />
-                <Line type="monotone" dataKey="total" name="Receita Total" stroke="#0ea5e9" strokeWidth={2} dot={{ r: 4 }} strokeDasharray="5 5" />
-                <Legend />
-              </LineChart>
+      {/* BLOCO 4 — GRÁFICOS */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="bg-white border border-[#E5E7EB] rounded-xl p-6">
+          <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[#9CA3AF]">CRESCIMENTO</span>
+          <h3 className="text-[15px] font-semibold text-[#0D0D0D] mt-1 mb-4">Crescimento de Lojistas Ativos</h3>
+          {metrics.monthlyActive.every(m => m.count === 0) ? <EmptyChart /> : (
+            <ResponsiveContainer width="100%" height={260}>
+              <AreaChart data={metrics.monthlyActive}>
+                <defs>
+                  <linearGradient id="areaFill" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#0EA5E9" stopOpacity={0.08} />
+                    <stop offset="100%" stopColor="#0EA5E9" stopOpacity={0} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" stroke="#F3F4F6" />
+                <XAxis dataKey="month" tick={{ fontSize: 11, fill: "#9CA3AF" }} axisLine={false} tickLine={false} />
+                <YAxis tick={{ fontSize: 11, fill: "#9CA3AF" }} axisLine={false} tickLine={false} />
+                <Tooltip contentStyle={{ borderRadius: 8, border: "1px solid #E5E7EB", fontSize: 12 }} />
+                <Area type="monotone" dataKey="count" stroke="#0EA5E9" strokeWidth={2} fill="url(#areaFill)" name="Lojistas" />
+              </AreaChart>
             </ResponsiveContainer>
-          ) : (
-            <p className="text-sm text-muted-foreground text-center py-8">Dados insuficientes para o gráfico</p>
           )}
-        </CardContent>
-      </Card>
+        </div>
 
-      {/* ── 5. Plan Distribution Table ── */}
-      <Card className="border-border/50">
-        <CardHeader className="pb-3">
-          <CardTitle className="text-base font-semibold">🏷️ Distribuição por Plano</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b border-border/50 text-left">
-                  <th className="pb-2 font-medium text-muted-foreground">Plano</th>
-                  <th className="pb-2 font-medium text-muted-foreground text-center">Clientes</th>
-                  <th className="pb-2 font-medium text-muted-foreground text-right">Receita/mês</th>
-                  <th className="pb-2 font-medium text-muted-foreground text-right">% Faturamento</th>
-                  <th className="pb-2 font-medium text-muted-foreground text-right">Ticket Médio</th>
-                </tr>
-              </thead>
-              <tbody>
-                {planDistArr.map((plan, i) => (
-                  <tr key={plan.name} className="border-b border-border/20">
-                    <td className="py-2.5">
-                      <div className="flex items-center gap-2">
-                        <div className="w-3 h-3 rounded-full" style={{ background: PLAN_COLORS[i % PLAN_COLORS.length] }} />
-                        <span className="font-medium">{plan.name}</span>
+        <div className="bg-white border border-[#E5E7EB] rounded-xl p-6">
+          <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[#9CA3AF]">ATIVIDADE</span>
+          <h3 className="text-[15px] font-semibold text-[#0D0D0D] mt-1 mb-4">Simulações por Dia</h3>
+          {metrics.dailySims.every(d => d.count === 0) ? <EmptyChart /> : (
+            <ResponsiveContainer width="100%" height={260}>
+              <BarChart data={metrics.dailySims}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#F3F4F6" />
+                <XAxis dataKey="day" tick={{ fontSize: 10, fill: "#9CA3AF" }} axisLine={false} tickLine={false} interval={4} />
+                <YAxis tick={{ fontSize: 11, fill: "#9CA3AF" }} axisLine={false} tickLine={false} />
+                <Tooltip contentStyle={{ borderRadius: 8, border: "1px solid #E5E7EB", fontSize: 12 }} />
+                <Bar dataKey="count" name="Simulações" radius={[4, 4, 0, 0]}>
+                  {metrics.dailySims.map((entry, idx) => (
+                    <Cell key={idx} fill={entry.isToday ? "#0284C7" : "#0EA5E9"} />
+                  ))}
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
+          )}
+        </div>
+      </div>
+
+      {/* BLOCO 5 — RANKING */}
+      <div className="bg-white border border-[#E5E7EB] rounded-xl p-6">
+        <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[#9CA3AF]">TOP LOJISTAS POR FATURAMENTO</span>
+        <h3 className="text-[15px] font-semibold text-[#0D0D0D] mt-1 mb-4">Ranking do mês</h3>
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead>
+              <tr className="bg-[#F8F9FA]">
+                {["#", "Loja", "Plano", "Propostas", "Faturamento", "Status", "Ações"].map(h => (
+                  <th key={h} className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[#9CA3AF] px-4 py-3 text-left first:rounded-tl-lg last:rounded-tr-lg">{h}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {metrics.ranking.map((s, i) => {
+                const medal = i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : String(i + 1);
+                const planStyle = PLAN_BADGE[s.planSlug] || PLAN_BADGE.basico;
+                const statusKey = s.plan_status || "active";
+                const statusStyle = STATUS_BADGE[statusKey] || STATUS_BADGE.active;
+                return (
+                  <tr key={s.id} className="border-b border-[#F3F4F6] hover:bg-[#FAFAFA] h-[52px]">
+                    <td className="px-4 text-[14px]">{medal}</td>
+                    <td className="px-4">
+                      <div className="text-[14px] font-medium text-[#0D0D0D]">{s.name}</div>
+                      <div className="text-[12px] text-[#9CA3AF]">{s.city || "—"}</div>
+                    </td>
+                    <td className="px-4"><span className={`inline-flex text-[11px] font-medium px-2 py-0.5 rounded-full ${planStyle.bg} ${planStyle.text}`}>{s.planName}</span></td>
+                    <td className="px-4 text-[14px] text-[#0D0D0D]">{s.proposalCount}</td>
+                    <td className="px-4 text-[14px] font-semibold text-[#0D0D0D]">{fmt(s.revenue)}</td>
+                    <td className="px-4"><span className={`inline-flex text-[11px] font-medium px-2 py-0.5 rounded-full ${statusStyle.bg} ${statusStyle.text}`}>{statusStyle.label}</span></td>
+                    <td className="px-4">
+                      <div className="flex gap-2">
+                        <Button variant="ghost" size="sm" className="h-7 text-[11px] gap-1"><Eye className="w-3 h-3" /> Ver</Button>
+                        <Button variant="ghost" size="sm" className="h-7 text-[11px] gap-1"><Phone className="w-3 h-3" /> Contato</Button>
                       </div>
                     </td>
-                    <td className="py-2.5 text-center">{plan.count}</td>
-                    <td className="py-2.5 text-right font-semibold">{fmt(plan.revenue)}</td>
-                    <td className="py-2.5 text-right">{plan.pctRevenue.toFixed(1)}%</td>
-                    <td className="py-2.5 text-right">{fmt(plan.ticket)}</td>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* ── 6. Advanced Metrics ── */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-        <Card className="border-border/50">
-          <CardContent className="p-4 text-center">
-            <div className="flex items-center justify-center gap-2 mb-1">
-              <BarChart3 className="w-4 h-4 text-violet-500" />
-              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">LTV</p>
-            </div>
-            <p className="text-2xl font-bold">{fmt(ltv)}</p>
-            <p className="text-[11px] text-muted-foreground">Lifetime Value estimado</p>
-          </CardContent>
-        </Card>
-        <Card className="border-border/50">
-          <CardContent className="p-4 text-center">
-            <div className="flex items-center justify-center gap-2 mb-1">
-              <Clock className="w-4 h-4 text-cyan-500" />
-              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Retenção Média</p>
-            </div>
-            <p className="text-2xl font-bold">{Math.min(avgRetentionMonths, 24).toFixed(1)} meses</p>
-            <p className="text-[11px] text-muted-foreground">Tempo médio de permanência</p>
-          </CardContent>
-        </Card>
-        <Card className="border-border/50">
-          <CardContent className="p-4 text-center">
-            <div className="flex items-center justify-center gap-2 mb-1">
-              <Users className="w-4 h-4 text-primary" />
-              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Clientes Ativos</p>
-            </div>
-            <p className="text-2xl font-bold">{payingStores.length}</p>
-            <p className="text-[11px] text-muted-foreground">de {stores.length} cadastrados</p>
-          </CardContent>
-        </Card>
+                );
+              })}
+              {metrics.ranking.length === 0 && (
+                <tr><td colSpan={7} className="text-center py-8 text-[13px] text-[#9CA3AF]">Nenhum lojista encontrado</td></tr>
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
 
-      {/* ── 7. Risk Alerts ── */}
-      {risks.length > 0 && (
-        <Card className="border-border/50">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-base font-semibold">🚨 Alertas de Risco</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-2">
-            {risks.map((r, i) => {
-              const colors = {
-                high: "bg-red-500/10 border-red-500/30 text-red-700",
-                medium: "bg-amber-500/10 border-amber-500/30 text-amber-700",
-                low: "bg-blue-500/10 border-blue-500/30 text-blue-700",
-              };
-              const badgeColors = {
-                high: "destructive" as const,
-                medium: "secondary" as const,
-                low: "outline" as const,
-              };
-              const Icon = r.icon;
-              return (
-                <div key={i} className={`flex items-center gap-3 p-3 rounded-lg border ${colors[r.level]}`}>
-                  <Icon className="w-5 h-5 shrink-0" />
-                  <span className="text-sm flex-1">{r.message}</span>
-                  <Badge variant={badgeColors[r.level]} className="shrink-0 text-[10px]">
-                    {r.level === "high" ? "CRÍTICO" : r.level === "medium" ? "ATENÇÃO" : "INFO"}
-                  </Badge>
+      {/* BLOCO 6 — MAPA */}
+      <div className="bg-white border border-[#E5E7EB] rounded-xl p-6">
+        <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[#9CA3AF]">DISTRIBUIÇÃO GEOGRÁFICA</span>
+        <h3 className="text-[15px] font-semibold text-[#0D0D0D] mt-1 mb-4">Lojistas por estado</h3>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="lg:col-span-2">
+            <BrazilMap stateData={Object.fromEntries(metrics.stateMap)} />
+            <div className="flex items-center gap-4 mt-4 text-[11px] text-[#9CA3AF]">
+              {[{ label: "1", color: "#E0F2FE" }, { label: "2–5", color: "#7DD3FC" }, { label: "6–10", color: "#0EA5E9" }, { label: "10+", color: "#0284C7" }].map(l => (
+                <div key={l.label} className="flex items-center gap-1.5"><div className="w-3 h-3 rounded-sm" style={{ backgroundColor: l.color }} /><span>{l.label}</span></div>
+              ))}
+              <div className="flex items-center gap-1.5"><div className="w-3 h-3 rounded-sm bg-[#F3F4F6]" /><span>Sem lojistas</span></div>
+            </div>
+          </div>
+          <div className="space-y-3">
+            <h4 className="text-[13px] font-semibold text-[#0D0D0D]">Top 5 Estados</h4>
+            {metrics.topStates.map(ts => (
+              <div key={ts.state}>
+                <div className="flex justify-between text-[14px] mb-1">
+                  <span className="font-medium text-[#0D0D0D]">{ts.state}</span>
+                  <span className="font-semibold text-primary">{ts.count}</span>
                 </div>
-              );
-            })}
-          </CardContent>
-        </Card>
-      )}
+                <div className="w-full h-2 bg-[#F3F4F6] rounded-full overflow-hidden">
+                  <div className="h-full bg-primary rounded-full transition-all" style={{ width: `${(ts.count / metrics.maxStateCount) * 100}%` }} />
+                </div>
+              </div>
+            ))}
+            {metrics.topStates.length === 0 && <p className="text-[13px] text-[#9CA3AF]">Nenhum dado</p>}
+          </div>
+        </div>
+      </div>
 
-      {risks.length === 0 && (
-        <Card className="border-border/50 border-emerald-500/30 bg-emerald-500/5">
-          <CardContent className="p-4 flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-emerald-500/10">
-              <TrendingUp className="w-5 h-5 text-emerald-600" />
+      {/* BLOCO 7 — PROJEÇÃO */}
+      <div className="bg-white border border-[#E5E7EB] rounded-xl p-6">
+        <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[#9CA3AF]">PROJEÇÃO DE FATURAMENTO</span>
+        <p className="text-[12px] text-[#6B7280] mt-1 mb-4">Base: MRR {fmt(metrics.mrr)} · Crescimento: {pct(metrics.mrrGrowth)} · Churn: {pct(metrics.churnRate)}</p>
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+          {metrics.projections.map(p => (
+            <div key={p.label} className="text-center">
+              <div className="text-[12px] font-medium text-[#6B7280]">{p.label}</div>
+              <div className="text-[20px] font-bold text-[#0D0D0D] mt-1">{fmt(p.value)}</div>
+              <VariationBadge value={p.pctChange} suffix="" />
             </div>
-            <div>
-              <p className="font-semibold text-sm text-emerald-700">Tudo certo!</p>
-              <p className="text-xs text-muted-foreground">Nenhum alerta de risco identificado no momento.</p>
+          ))}
+        </div>
+      </div>
+
+      {/* BLOCO 8 — COMPOSIÇÃO */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="bg-white border border-[#E5E7EB] rounded-xl p-6">
+          <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[#9CA3AF]">COMPOSIÇÃO DA RECEITA</span>
+          <div className="mt-4 space-y-4">
+            <RevenueRow label="Recorrente (Planos)" value={metrics.recorrente} pctVal={metrics.recPct} color="#0EA5E9" />
+            <RevenueRow label="Excedente (Uso)" value={metrics.excedente} pctVal={metrics.exPct} color="#22C55E" />
+            <div className="border-t border-[#E5E7EB] pt-3 flex justify-between items-center">
+              <span className="text-[14px] font-semibold text-[#0D0D0D]">Receita Total</span>
+              <span className="text-[16px] font-bold text-[#0D0D0D]">{fmt(metrics.totalRev)}</span>
             </div>
-          </CardContent>
-        </Card>
-      )}
+          </div>
+        </div>
+        <div className="bg-white border border-[#E5E7EB] rounded-xl p-6 flex flex-col items-center justify-center">
+          <ResponsiveContainer width="100%" height={220}>
+            <PieChart>
+              <Pie data={[{ name: "Recorrente", value: metrics.recorrente || 0.01 }, { name: "Excedente", value: metrics.excedente || 0.01 }]}
+                cx="50%" cy="50%" innerRadius={60} outerRadius={90} dataKey="value" paddingAngle={2}>
+                <Cell fill="#0EA5E9" /><Cell fill="#22C55E" />
+              </Pie>
+              <Tooltip formatter={(v: number) => fmt(v)} contentStyle={{ borderRadius: 8, border: "1px solid #E5E7EB", fontSize: 12 }} />
+            </PieChart>
+          </ResponsiveContainer>
+          <div className="flex gap-6 text-[12px]">
+            <div className="flex items-center gap-2"><div className="w-3 h-3 rounded-sm bg-[#0EA5E9]" /> Recorrente</div>
+            <div className="flex items-center gap-2"><div className="w-3 h-3 rounded-sm bg-[#22C55E]" /> Excedente</div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };
 
-/* ─── Sub-components ─── */
-
-function KPICard({ icon: Icon, label, value, iconBg, iconColor, valueColor, subtitle }: {
-  icon: any; label: string; value: string; iconBg: string; iconColor: string; valueColor?: string; subtitle?: string;
+/* ─── sub-components ─── */
+function KPICard({ label, value, icon: Icon, badge, valueColor }: {
+  label: string; value: string; icon: any; badge?: React.ReactNode; valueColor?: string;
 }) {
   return (
-    <Card className="border-border/50">
-      <CardContent className="p-4">
-        <div className="flex items-start justify-between gap-2">
-          <div className="min-w-0 flex-1">
-            <p className="text-[10px] sm:text-[11px] font-medium text-muted-foreground uppercase tracking-wider leading-tight">{label}</p>
-            <p className={`text-lg sm:text-2xl font-bold mt-1 truncate ${valueColor || ""}`}>{value}</p>
-            {subtitle && <p className="text-[10px] text-muted-foreground mt-0.5">{subtitle}</p>}
-          </div>
-          <div className={`hidden sm:flex h-9 w-9 rounded-lg ${iconBg} items-center justify-center shrink-0`}>
-            <Icon className={`h-4 w-4 ${iconColor}`} />
-          </div>
+    <div className="bg-white border border-[#E5E7EB] rounded-xl p-5">
+      <div className="flex items-center gap-2 mb-3">
+        <div className="w-8 h-8 rounded-lg bg-[#F0F9FF] flex items-center justify-center">
+          <Icon className="w-4 h-4 text-primary" strokeWidth={1.5} />
         </div>
-      </CardContent>
-    </Card>
+        <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[#9CA3AF]">{label}</span>
+      </div>
+      <div className={`text-[24px] font-bold ${valueColor || "text-[#0D0D0D]"}`}>{value}</div>
+      {badge && <div className="mt-2">{badge}</div>}
+    </div>
   );
 }
 
-function RevenueBar({ label, value, pct: pctVal, color }: { label: string; value: number; pct: number; color: string }) {
+function RevenueRow({ label, value, pctVal, color }: { label: string; value: number; pctVal: number; color: string }) {
   return (
-    <div className="space-y-1">
-      <div className="flex justify-between text-sm">
-        <span className="text-muted-foreground">{label}</span>
-        <span className="font-semibold">{fmt(value)} <span className="text-xs text-muted-foreground">({pctVal.toFixed(0)}%)</span></span>
+    <div>
+      <div className="flex justify-between text-[13px] mb-1">
+        <span className="text-[#6B7280]">{label}</span>
+        <span className="font-semibold text-[#0D0D0D]">{fmt(value)} <span className="text-[#9CA3AF] font-normal">({pct(pctVal)})</span></span>
       </div>
-      <div className="h-2 rounded-full bg-muted">
-        <div className={`h-full rounded-full ${color} transition-all`} style={{ width: `${Math.max(pctVal, 1)}%` }} />
+      <div className="w-full h-2 bg-[#F3F4F6] rounded-full overflow-hidden">
+        <div className="h-full rounded-full transition-all" style={{ width: `${pctVal}%`, backgroundColor: color }} />
       </div>
+    </div>
+  );
+}
+
+function EmptyChart() {
+  return (
+    <div className="flex flex-col items-center justify-center h-[260px] text-[#9CA3AF]">
+      <BarChart3 className="w-10 h-10 mb-2 opacity-30" />
+      <span className="text-[13px]">Nenhum dado ainda</span>
     </div>
   );
 }
