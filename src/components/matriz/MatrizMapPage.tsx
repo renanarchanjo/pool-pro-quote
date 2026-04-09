@@ -110,13 +110,7 @@ const MatrizMapPage = () => {
         <div className="lg:col-span-2 bg-card border border-border rounded-xl p-6">
           <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">DISTRIBUIÇÃO GEOGRÁFICA</span>
           <h3 className="text-[15px] font-semibold text-foreground mt-1 mb-4">Lojistas por estado</h3>
-          <BrazilMap stateData={Object.fromEntries(stateMap)} />
-          <div className="flex items-center gap-4 mt-4 text-[11px] text-muted-foreground flex-wrap">
-            {[{ label: "1", color: "#E0F2FE" }, { label: "2–5", color: "#7DD3FC" }, { label: "6–10", color: "#0EA5E9" }, { label: "10+", color: "#0284C7" }].map(l => (
-              <div key={l.label} className="flex items-center gap-1.5"><div className="w-3 h-3 rounded-sm" style={{ backgroundColor: l.color }} /><span>{l.label}</span></div>
-            ))}
-            <div className="flex items-center gap-1.5"><div className="w-3 h-3 rounded-sm bg-muted" /><span>Sem lojistas</span></div>
-          </div>
+          <BrazilMap stateData={Object.fromEntries(stateMap)} stores={stores.map(s => ({ id: s.id, name: s.name, city: s.city, state: s.state }))} />
         </div>
 
         <div className="bg-card border border-border rounded-xl p-6">
