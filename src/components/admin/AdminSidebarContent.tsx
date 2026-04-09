@@ -57,7 +57,7 @@ const AdminSidebarContent = ({ onNavigate, isMobile = false }: AdminSidebarConte
   ] : [];
 
   const accountItems = [
-    { title: "Minha Conta", url: "/admin/perfil", icon: User },
+    { title: "Minha Conta", url: "/admin/perfil", icon: UserCircle },
     ...(!isOwner ? [
       { title: "Performance", url: "/admin/performance", icon: TrendingUp },
       { title: "Comissão", url: "/admin/comissao", icon: DollarSign },
