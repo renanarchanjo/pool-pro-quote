@@ -102,13 +102,13 @@ const AdminSidebarContent = ({ onNavigate, isMobile = false }: AdminSidebarConte
     <div className="flex flex-col h-full">
       {/* Header */}
       <div className="border-b border-border p-4 shrink-0">
-        <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
-            <span className="text-[13px] font-semibold text-primary">{initials}</span>
-          </div>
-          <div className="flex flex-col min-w-0">
+        <div className="flex items-center gap-3 justify-end">
+          <div className="flex flex-col min-w-0 items-end">
             <span className="text-[13px] font-semibold text-foreground truncate">{profile?.full_name || "Lojista"}</span>
             <span className="text-xs text-muted-foreground">Painel do Lojista</span>
+          </div>
+          <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+            <span className="text-[13px] font-semibold text-primary">{initials}</span>
           </div>
         </div>
       </div>
