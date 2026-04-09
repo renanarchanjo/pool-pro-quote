@@ -683,7 +683,6 @@ const AdminLeads = () => {
                               </p>
                             )}
                           </div>
-                        </div>
                         <div className="text-right shrink-0">
                           <p className="font-bold text-sm text-primary">{formatCurrency(p.total_price)}</p>
                           <Badge variant="outline" className={`text-[10px] mt-0.5 ${statusClass(lead.status)}`}>
