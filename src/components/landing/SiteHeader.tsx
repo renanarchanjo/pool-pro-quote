@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import logoIcon from "@/assets/logo-icon-v2.png";
+import logoIcon from "@/assets/logo-icon-v3.png";
 import { ArrowLeft, Menu, X } from "lucide-react";
 
 interface SiteHeaderProps {

@@ -1,4 +1,4 @@
-import logoIcon from "@/assets/logo-icon-v2.webp";
+import logoIcon from "@/assets/logo-icon-v3.png";
 
 interface BrandLogoProps {
   size?: "sm" | "md" | "lg";
