@@ -1,29 +1,35 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import logoIcon from "@/assets/logo-icon-v3.webp";
-import { User } from "lucide-react";
+import { User, ChevronRight } from "lucide-react";
 
 const LojistaHeader = () => {
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
   return (
     <>
       <div className="h-0 w-full md:hidden" style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }} />
 
-      <nav className="sticky top-0 z-50 h-14 md:h-[68px] bg-transparent">
+      <nav className="sticky top-0 z-50 h-16 md:h-20 bg-transparent">
         <div className="container mx-auto px-5 md:px-12 h-full flex items-center justify-between">
-          <Link to="/lojista" className="flex items-center gap-1.5">
-            <img src={logoIcon} alt="SimulaPool" className="h-10 md:h-14 w-auto" />
+          <Link to="/lojista" className="flex items-center gap-2">
+            <img src={logoIcon} alt="SimulaPool" className="h-11 md:h-16 w-auto" />
             <div className="flex flex-col">
-              <span className="text-[20px] md:text-[26px] font-bold text-white tracking-[-0.01em] leading-tight">
-                <span>Simula</span><span className="bg-gradient-to-r from-sky-400 via-cyan-400 to-blue-500 bg-clip-text text-transparent drop-shadow-sm">Pool</span>
+              <span className="text-[22px] md:text-[30px] font-bold text-white tracking-[-0.01em] leading-tight">
+                <span>Simula</span>
+                <span className="bg-gradient-to-r from-sky-400 via-cyan-400 to-blue-500 bg-clip-text text-transparent drop-shadow-sm">Pool</span>
               </span>
-              <span className="text-[8px] md:text-[9px] font-medium tracking-[0.08em] uppercase text-white/50 leading-tight">Orçamentos em Minutos!</span>
+              <span className="text-[8px] md:text-[10px] font-medium tracking-[0.08em] uppercase text-white/50 leading-tight">
+                Orçamentos em Minutos!
+              </span>
             </div>
           </Link>
 
-          <div className="flex items-center gap-6 md:gap-8">
-            {/* Planos e Preços — text link */}
+          {/* Desktop nav */}
+          <div className="hidden md:flex items-center gap-8">
             <Link
               to="/lojista/planos"
-              className="text-[14px] font-medium transition-colors duration-200 hidden sm:inline-flex"
+              className="text-[16px] font-medium transition-colors duration-200"
               style={{ color: 'rgba(255,255,255,0.6)' }}
               onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.color = '#FFFFFF'; }}
               onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.color = 'rgba(255,255,255,0.6)'; }}
@@ -31,24 +37,58 @@ const LojistaHeader = () => {
               Planos e Preços
             </Link>
 
-            {/* Planos e Preços — mobile only text link */}
+            <Link
+              to="/login"
+              className="h-11 px-5 text-[15px] font-medium rounded-full text-white/80 hover:text-white transition-all duration-200 inline-flex items-center gap-2 border border-white/15 hover:border-white/30 hover:bg-white/[0.06]"
+            >
+              <User className="w-4 h-4" /> Minha Conta
+            </Link>
+          </div>
+
+          {/* Mobile — "Menu >" text button */}
+          <button
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            className="flex md:hidden items-center gap-0.5 text-white font-bold text-[18px] tracking-tight"
+          >
+            Menu
+            <ChevronRight className={`w-5 h-5 transition-transform duration-200 ${mobileMenuOpen ? 'rotate-90' : ''}`} />
+          </button>
+        </div>
+      </nav>
+
+      {/* Mobile menu */}
+      {mobileMenuOpen && (
+        <>
+          <div
+            className="md:hidden fixed inset-0 z-40"
+            onClick={() => setMobileMenuOpen(false)}
+          />
+          <div
+            className="md:hidden absolute top-16 right-5 z-50 w-52 rounded-xl py-3 flex flex-col"
+            style={{
+              background: 'rgba(10,22,40,0.95)',
+              backdropFilter: 'blur(16px)',
+              border: '1px solid rgba(255,255,255,0.08)',
+              boxShadow: '0 8px 32px rgba(0,0,0,0.3)',
+            }}
+          >
             <Link
               to="/lojista/planos"
-              className="text-[13px] font-medium text-white/60 hover:text-white transition-colors duration-200 sm:hidden inline-flex items-center"
+              onClick={() => setMobileMenuOpen(false)}
+              className="text-[15px] font-semibold text-white/70 hover:text-white px-5 py-3 transition-colors"
             >
               Planos e Preços
             </Link>
-
-            {/* Minha Conta — desktop pill */}
             <Link
               to="/login"
-              className="h-9 md:h-10 px-4 md:px-5 text-[13px] md:text-[14px] font-medium rounded-full text-white/80 hover:text-white transition-all duration-200 hidden sm:inline-flex items-center gap-2 border border-white/15 hover:border-white/30 hover:bg-white/[0.06]"
+              onClick={() => setMobileMenuOpen(false)}
+              className="text-[15px] font-semibold text-white/70 hover:text-white px-5 py-3 transition-colors flex items-center gap-2"
             >
-              <User className="w-3.5 h-3.5" /> Minha Conta
+              <User className="w-4 h-4" /> Minha Conta
             </Link>
           </div>
-        </div>
-      </nav>
+        </>
+      )}
     </>
   );
 };
