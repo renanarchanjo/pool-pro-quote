@@ -309,8 +309,8 @@ const MatrizLeads = () => {
         </div>
         <div className="flex gap-1.5 md:gap-2 shrink-0">
           {selectedLeads.size > 0 && activeTab === "pendentes" && (
-            <Button size="sm" onClick={() => setShowDistributeDialog(true)} className="bg-emerald-600 hover:bg-emerald-700 text-white h-8 text-xs px-2.5 md:px-3">
-              <Send className="w-3.5 h-3.5 mr-1" /> <span className="hidden md:inline">Distribuir </span>({selectedLeads.size})
+            <Button size="sm" onClick={() => setShowDistributeDialog(true)} className="hidden md:flex bg-emerald-600 hover:bg-emerald-700 text-white h-8 text-xs px-3">
+              <Send className="w-3.5 h-3.5 mr-1" /> Distribuir ({selectedLeads.size})
             </Button>
           )}
           <Button variant="outline" size="sm" onClick={loadData} className="h-8 w-8 md:w-auto p-0 md:px-3">
@@ -407,12 +407,19 @@ const MatrizLeads = () => {
           {/* Mobile: card list */}
           <div className="md:hidden space-y-2">
             {activeTab === "pendentes" && tabFiltered.length > 0 && (
-              <button
-                onClick={() => toggleSelectAll(tabFiltered.map(l => l.id))}
-                className="text-xs text-primary font-medium px-1 py-1"
-              >
-                {tabFiltered.every(l => selectedLeads.has(l.id)) ? "Desmarcar todos" : "Selecionar todos"}
-              </button>
+              <div className="flex items-center justify-between">
+                <button
+                  onClick={() => toggleSelectAll(tabFiltered.map(l => l.id))}
+                  className="text-xs text-primary font-medium px-1 py-1"
+                >
+                  {tabFiltered.every(l => selectedLeads.has(l.id)) ? "Desmarcar todos" : "Selecionar todos"}
+                </button>
+                {selectedLeads.size > 0 && (
+                  <Button size="sm" onClick={() => setShowDistributeDialog(true)} className="bg-emerald-600 hover:bg-emerald-700 text-white h-7 text-xs px-2.5">
+                    <Send className="w-3 h-3 mr-1" /> Distribuir ({selectedLeads.size})
+                  </Button>
+                )}
+              </div>
             )}
             {tabFiltered.map(lead => {
               const dist = distributionMap.get(lead.id);
