@@ -236,10 +236,9 @@ const MatrizStores = () => {
 
       <div className="space-y-2.5">
         {filtered.map((store) => (
-          <Card key={store.id} className="p-3 sm:p-4">
-            {/* Mobile: stacked layout / Desktop: row layout */}
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-4">
-              {/* Top row: name + badge + price */}
+          <Card key={store.id} className="overflow-hidden border-border">
+            {/* Desktop layout */}
+            <div className="hidden sm:flex items-center justify-between p-4 gap-4">
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 flex-wrap">
                   <div className="p-1 rounded-md bg-primary/10 shrink-0">
@@ -247,50 +246,83 @@ const MatrizStores = () => {
                   </div>
                   <h3 className="font-semibold text-sm truncate">{store.name}</h3>
                   {statusBadge(store.plan_status)}
-                  <span className="text-sm font-bold text-primary ml-auto sm:hidden">
-                    {formatCurrency(store.subscription_plans?.price_monthly || 0)}/mês
-                  </span>
                 </div>
-
-                {/* Info grid - compact on mobile */}
-                <div className="grid grid-cols-2 sm:flex sm:flex-wrap gap-x-3 gap-y-0.5 mt-1.5 text-xs text-muted-foreground">
+                <div className="flex flex-wrap gap-x-3 gap-y-0.5 mt-1.5 text-xs text-muted-foreground">
                   {store.city && <span>{store.city}/{store.state}</span>}
-                  {store.subscription_plans && (
-                    <span className="font-medium">{store.subscription_plans.name}</span>
-                  )}
+                  {store.subscription_plans && <span className="font-medium">{store.subscription_plans.name}</span>}
                   {store.cnpj && <span>CNPJ: {store.cnpj}</span>}
-                  {(store as any).whatsapp && <span>📱 {(store as any).whatsapp}</span>}
+                  {store.whatsapp && <span>📱 {store.whatsapp}</span>}
                   <span>Cadastro: {formatDate(store.created_at)}</span>
                   <span className="font-mono text-[11px] opacity-70 truncate">/{store.slug}</span>
                 </div>
               </div>
-
-              {/* Price - desktop only */}
-              <div className="text-right shrink-0 hidden sm:block">
-                <p className="font-bold text-primary text-sm">
-                  {formatCurrency(store.subscription_plans?.price_monthly || 0)}/mês
-                </p>
-                <p className="text-xs text-muted-foreground">
-                  {store.subscription_plans?.name || "Gratuito"}
-                </p>
+              <div className="text-right shrink-0">
+                <p className="font-bold text-primary text-sm">{formatCurrency(store.subscription_plans?.price_monthly || 0)}/mês</p>
+                <p className="text-xs text-muted-foreground">{store.subscription_plans?.name || "Gratuito"}</p>
               </div>
-
-              {/* Actions row */}
-              <div className="flex items-center gap-1.5 shrink-0 border-t sm:border-t-0 pt-2 sm:pt-0 mt-1 sm:mt-0">
+              <div className="flex items-center gap-1.5 shrink-0">
                 <div className="flex items-center gap-1 mr-1" title="Distribuição de leads">
                   <Radio className="w-3 h-3 text-muted-foreground" />
-                  <Switch
-                    checked={!!store.lead_plan_active}
-                    onCheckedChange={(checked) => handleToggleLeadPlan(store.id, checked)}
-                    className="data-[state=checked]:bg-emerald-500 scale-90"
-                  />
+                  <Switch checked={!!store.lead_plan_active} onCheckedChange={(checked) => handleToggleLeadPlan(store.id, checked)} className="data-[state=checked]:bg-emerald-500 scale-90" />
                 </div>
-                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => openEdit(store)} title="Editar">
-                  <Pencil className="w-3.5 h-3.5" />
-                </Button>
-                <Button variant="ghost" size="icon" className="h-8 w-8 text-red-500 hover:text-red-600 hover:bg-red-500/10" onClick={() => setDeletingStore(store)} title="Excluir">
-                  <Trash2 className="w-3.5 h-3.5" />
-                </Button>
+                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => openEdit(store)} title="Editar"><Pencil className="w-3.5 h-3.5" /></Button>
+                <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10" onClick={() => setDeletingStore(store)} title="Excluir"><Trash2 className="w-3.5 h-3.5" /></Button>
+              </div>
+            </div>
+
+            {/* Mobile layout — clean card */}
+            <div className="sm:hidden">
+              {/* Header row */}
+              <div className="flex items-start justify-between gap-2 p-3 pb-0">
+                <div className="flex items-center gap-2 min-w-0">
+                  <div className="p-1.5 rounded-lg bg-primary/10 shrink-0">
+                    <Store className="w-4 h-4 text-primary" />
+                  </div>
+                  <div className="min-w-0">
+                    <h3 className="font-semibold text-[13px] text-foreground truncate">{store.name}</h3>
+                    <p className="text-[11px] text-muted-foreground">
+                      {store.city ? `${store.city}/${store.state}` : "Sem localização"}
+                    </p>
+                  </div>
+                </div>
+                <div className="text-right shrink-0">
+                  {statusBadge(store.plan_status)}
+                </div>
+              </div>
+
+              {/* Info section */}
+              <div className="px-3 pt-2.5 pb-2 space-y-1.5">
+                <div className="flex items-center justify-between">
+                  <span className="text-[11px] text-muted-foreground">Plano</span>
+                  <span className="text-[12px] font-semibold text-foreground">{store.subscription_plans?.name || "Gratuito"}</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-[11px] text-muted-foreground">Mensalidade</span>
+                  <span className="text-[13px] font-bold text-primary">{formatCurrency(store.subscription_plans?.price_monthly || 0)}</span>
+                </div>
+                {store.cnpj && (
+                  <div className="flex items-center justify-between">
+                    <span className="text-[11px] text-muted-foreground">CNPJ</span>
+                    <span className="text-[11px] text-foreground font-mono">{store.cnpj}</span>
+                  </div>
+                )}
+                <div className="flex items-center justify-between">
+                  <span className="text-[11px] text-muted-foreground">Cadastro</span>
+                  <span className="text-[11px] text-foreground">{formatDate(store.created_at)}</span>
+                </div>
+              </div>
+
+              {/* Actions footer */}
+              <div className="flex items-center justify-between px-3 py-2 border-t border-border bg-muted/30">
+                <div className="flex items-center gap-1.5" title="Distribuição de leads">
+                  <Radio className="w-3 h-3 text-muted-foreground" />
+                  <Switch checked={!!store.lead_plan_active} onCheckedChange={(checked) => handleToggleLeadPlan(store.id, checked)} className="data-[state=checked]:bg-emerald-500 scale-90" />
+                  <span className="text-[10px] text-muted-foreground ml-0.5">Leads</span>
+                </div>
+                <div className="flex items-center gap-0.5">
+                  <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => openEdit(store)}><Pencil className="w-3.5 h-3.5" /></Button>
+                  <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive hover:text-destructive hover:bg-destructive/10" onClick={() => setDeletingStore(store)}><Trash2 className="w-3.5 h-3.5" /></Button>
+                </div>
               </div>
             </div>
           </Card>
