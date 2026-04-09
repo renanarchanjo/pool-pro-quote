@@ -177,13 +177,14 @@ const Auth = () => {
           const { data: storeResult, error: storeError } = await supabase.functions.invoke("setup-store", {
             body: {
               userId: authData.user.id,
-              storeName: nomeFantasia || razaoSocial,
+              storeName: sanitizeText(nomeFantasia || razaoSocial, 200),
               slug: storeSetupAttempt > 0 ? slug + '-' + storeSetupAttempt : slug,
-              city, state,
-              cnpj: cnpjDigits,
-              razaoSocial, nomeFantasia,
-              phone: phone.replace(/\D/g, ""),
-              fullName: nomeFantasia || razaoSocial,
+              city: sanitizeText(city, 100), state: sanitizeText(state, 2),
+              cnpj: sanitizeCNPJ(cnpjDigits),
+              razaoSocial: sanitizeText(razaoSocial, 200),
+              nomeFantasia: sanitizeText(nomeFantasia, 200),
+              phone: sanitizePhone(phone),
+              fullName: sanitizeText(nomeFantasia || razaoSocial, 200),
             },
           });
           if (storeError) throw storeError;

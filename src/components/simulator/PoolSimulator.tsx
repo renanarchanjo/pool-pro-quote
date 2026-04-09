@@ -233,15 +233,17 @@ const PoolSimulator = ({ onBack }: PoolSimulatorProps) => {
       const optionalsPrice = allSelectedOpts.reduce((sum, opt) => sum + opt.price, 0);
       const totalPrice = selectedModel.base_price + inclTotal + optionalsPrice;
 
+      const { sanitizeText, sanitizePhone, sanitizeCurrency } = await import("@/lib/sanitize");
+
       const { error } = await supabase
         .from("proposals")
         .insert({
-          customer_name: data.name,
-          customer_city: data.city,
-          customer_whatsapp: data.whatsapp,
+          customer_name: sanitizeText(data.name, 200),
+          customer_city: sanitizeText(data.city, 200),
+          customer_whatsapp: sanitizePhone(data.whatsapp),
           model_id: selectedModel.id,
           selected_optionals: allSelectedOpts as any,
-          total_price: totalPrice,
+          total_price: sanitizeCurrency(totalPrice),
           store_id: targetStoreId,
         });
 
