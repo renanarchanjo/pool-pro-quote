@@ -33,22 +33,18 @@ const MatrizSidebarContent = ({ onNavigate, isMobile = false }: MatrizSidebarCon
     navigate("/");
   };
 
-  const gestaoItems = [
-    { title: "Dashboard Financeiro", url: "/matriz", icon: TrendingUp },
-    { title: "Lojistas Ativos", url: "/matriz/lojistas", icon: Users },
-    { title: "Inadimplência", url: "/matriz/inadimplencia", icon: AlertTriangle },
-  ];
-
-  const cadastroItems = [
-    { title: "Lojas Cadastradas", url: "/matriz/lojas", icon: Store },
+  const mainItems = [
+    { title: "Dashboard", url: "/matriz", icon: TrendingUp },
+    { title: "Lojas Ativas", url: "/matriz/lojistas", icon: Store },
     { title: "Parceiros", url: "/matriz/parceiros", icon: Handshake },
-    { title: "Planos e Preços", url: "/matriz/planos", icon: Tag },
+    { title: "Mapa de Lojistas", url: "/matriz/mapa", icon: MapPin },
   ];
 
-  const analiseItems = [
-    { title: "Mapa de Lojistas", url: "/matriz/mapa", icon: MapPin },
-    { title: "Relatórios", url: "/matriz/relatorios", icon: FileBarChart },
+  const operacaoItems = [
     { title: "Leads", url: "/matriz/leads", icon: Filter },
+    { title: "Planos e Preços", url: "/matriz/planos", icon: Tag },
+    { title: "Inadimplência", url: "/matriz/inadimplencia", icon: AlertTriangle },
+    { title: "Relatórios", url: "/matriz/relatorios", icon: FileBarChart },
   ];
 
   const renderGroup = (label: string, items: typeof gestaoItems) => (
@@ -93,9 +89,8 @@ const MatrizSidebarContent = ({ onNavigate, isMobile = false }: MatrizSidebarCon
 
       {/* Content */}
       <div className="flex-1 overflow-y-auto px-1 py-1">
-        {renderGroup("Gestão", gestaoItems)}
-        {!isMobile && renderGroup("Cadastro", cadastroItems)}
-        {renderGroup("Análise", analiseItems)}
+        {renderGroup("Principal", mainItems)}
+        {renderGroup("Operação", operacaoItems)}
       </div>
 
       {/* Footer */}

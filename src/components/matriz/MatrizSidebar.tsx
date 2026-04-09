@@ -34,22 +34,18 @@ const MatrizSidebar = () => {
     navigate("/");
   };
 
-  const gestaoItems = [
-    { title: "Dashboard Financeiro", url: "/matriz", icon: TrendingUp },
-    { title: "Lojistas Ativos", url: "/matriz/lojistas", icon: Users },
-    { title: "Inadimplência", url: "/matriz/inadimplencia", icon: AlertTriangle },
-  ];
-
-  const cadastroItems = [
-    { title: "Lojas Cadastradas", url: "/matriz/lojas", icon: Store },
+  const mainItems = [
+    { title: "Dashboard", url: "/matriz", icon: TrendingUp },
+    { title: "Lojas Ativas", url: "/matriz/lojistas", icon: Store },
     { title: "Parceiros", url: "/matriz/parceiros", icon: Handshake },
-    { title: "Planos e Preços", url: "/matriz/planos", icon: Tag },
+    { title: "Mapa de Lojistas", url: "/matriz/mapa", icon: MapPin },
   ];
 
-  const analiseItems = [
-    { title: "Mapa de Lojistas", url: "/matriz/mapa", icon: MapPin },
-    { title: "Relatórios", url: "/matriz/relatorios", icon: FileBarChart },
+  const operacaoItems = [
     { title: "Leads", url: "/matriz/leads", icon: Filter },
+    { title: "Planos e Preços", url: "/matriz/planos", icon: Tag },
+    { title: "Inadimplência", url: "/matriz/inadimplencia", icon: AlertTriangle },
+    { title: "Relatórios", url: "/matriz/relatorios", icon: FileBarChart },
   ];
 
   const renderGroup = (label: string, items: typeof gestaoItems) => (
@@ -97,9 +93,8 @@ const MatrizSidebar = () => {
       </SidebarHeader>
 
       <SidebarContent className="px-2 overflow-y-auto flex-1 min-h-0">
-        {renderGroup("Gestão", gestaoItems)}
-        {renderGroup("Cadastro", cadastroItems)}
-        {renderGroup("Análise", analiseItems)}
+        {renderGroup("Principal", mainItems)}
+        {renderGroup("Operação", operacaoItems)}
       </SidebarContent>
 
       <SidebarFooter className="mt-auto shrink-0 p-3 border-t border-border safe-area-bottom">
