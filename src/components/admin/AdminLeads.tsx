@@ -274,25 +274,28 @@ const AdminLeads = () => {
   };
 
   const handleAssignLead = async () => {
-    if (!assigningLeadId || !assignTargetUser) return;
+    if (!assignTargetUser) return;
+    const idsToAssign = assigningLeadId ? [assigningLeadId] : Array.from(selectedIds);
+    if (idsToAssign.length === 0) return;
     try {
       const { error } = await (supabase as any)
         .from("lead_distributions")
         .update({ assigned_to: assignTargetUser })
-        .eq("id", assigningLeadId);
+        .in("id", idsToAssign);
       if (error) throw error;
-      toast.success("Lead atribuído com sucesso!");
+      toast.success(`${idsToAssign.length} lead(s) atribuído(s) com sucesso!`);
       setAssignDialogOpen(false);
       setAssigningLeadId(null);
       setAssignTargetUser("");
+      setSelectedIds(new Set());
       loadData();
     } catch (err: any) {
       toast.error(err.message || "Erro ao atribuir lead");
     }
   };
 
-  const openAssignDialog = (leadId: string) => {
-    setAssigningLeadId(leadId);
+  const openAssignDialog = (leadId?: string) => {
+    setAssigningLeadId(leadId || null);
     setAssignTargetUser("");
     setAssignDialogOpen(true);
   };
