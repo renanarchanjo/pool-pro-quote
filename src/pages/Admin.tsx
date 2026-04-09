@@ -91,7 +91,7 @@ const Admin = () => {
 
   return (
     <SidebarProvider>
-      <div className="h-full flex w-full bg-secondary overflow-hidden">
+      <div className="h-dvh flex w-full bg-secondary overflow-hidden">
         {/* Desktop sidebar */}
         <div className="hidden md:block">
           <AdminSidebar />
