@@ -212,7 +212,7 @@ const MatrizDashboard = () => {
   }
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-5" ref={reportRef}>
       {/* ── HEADER ── */}
       <div className="flex items-center justify-between">
         <div>
