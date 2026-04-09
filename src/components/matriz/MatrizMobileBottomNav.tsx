@@ -1,5 +1,5 @@
 import { useNavigate, useLocation } from "react-router-dom";
-import { Home, Send, AlignRight } from "lucide-react";
+import { LayoutGrid, Filter, AlignRight } from "lucide-react";
 import { useState, useEffect } from "react";
 import MatrizSidebarContent from "./MatrizSidebarContent";
 import FloatingPanel from "@/components/admin/FloatingPanel";

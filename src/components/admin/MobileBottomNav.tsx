@@ -1,5 +1,5 @@
 import { useNavigate, useLocation } from "react-router-dom";
-import { Home, Plus, Send, AlignRight } from "lucide-react";
+import { LayoutGrid, FilePlus, Filter, AlignRight } from "lucide-react";
 import { useState, useEffect } from "react";
 import AdminSidebarContent from "./AdminSidebarContent";
 import FloatingPanel from "./FloatingPanel";
