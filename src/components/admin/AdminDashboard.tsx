@@ -194,6 +194,22 @@ const AdminDashboard = () => {
     });
   };
 
+  const [exportingProposal, setExportingProposal] = useState<Proposal | null>(null);
+
+  const handleExportProposalPDF = async (proposal: Proposal) => {
+    setExportingProposal(proposal);
+    // Wait for render
+    await new Promise(r => setTimeout(r, 300));
+    if (!proposalPdfRef.current) return;
+    await exportPDF({
+      element: proposalPdfRef.current,
+      filename: `proposta-${proposal.customer_name.replace(/\s+/g, "-")}.pdf`,
+      orientation: "portrait",
+      captureWidth: 800,
+    });
+    setExportingProposal(null);
+  };
+
   if (loading) {
     return (
       <div className="flex justify-center p-8">
