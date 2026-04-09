@@ -107,7 +107,7 @@ export async function exportLeadsXlsx(rows: LeadRow[], fileName?: string) {
 
     // Currency format for valor column (6)
     const valorCell = row.getCell(6);
-    valorCell.numFmt = '#.##0,00';
+    valorCell.numFmt = 'R$ #,##0.00';
     valorCell.value = r.valor;
     valorCell.alignment = { vertical: "middle", horizontal: "right" };
 
