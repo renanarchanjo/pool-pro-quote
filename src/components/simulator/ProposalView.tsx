@@ -118,8 +118,8 @@ const ProposalView = ({
     const element = document.getElementById("proposal-content");
     if (!element) return;
 
-    const pageElements = Array.from(element.querySelectorAll<HTMLElement>("[data-pdf-page]"));
-    if (pageElements.length === 0) return;
+    const sections = Array.from(element.querySelectorAll<HTMLElement>("[data-pdf-section]"));
+    if (sections.length === 0) return;
 
     const nameSlug = customerData.name.trim().replace(/\s+/g, "-");
     const filename = `Proposta-${nameSlug}-${today.replace(/\//g, "-")}.pdf`;
@@ -140,7 +140,6 @@ const ProposalView = ({
         el.style.display = "none";
       });
 
-      // Force-show elements hidden on mobile (e.g. partner banners)
       const pdfOnlyEls = element.querySelectorAll<HTMLElement>("[data-pdf-only]");
       pdfOnlyEls.forEach((el) => {
         pdfOnlyOriginals.push({ el, display: el.style.display });
@@ -159,10 +158,15 @@ const ProposalView = ({
       const pdf = new jsPDF({ unit: "mm", format: "a4", orientation: "portrait" });
       const margin = 10;
       const pageWidth = 210;
+      const pageHeight = 297;
       const contentWidth = pageWidth - margin * 2;
+      const contentHeight = pageHeight - margin * 2;
+      const sectionGap = 2;
 
-      for (const [index, pageEl] of pageElements.entries()) {
-        const canvas = await html2canvas(pageEl, {
+      let currentY = margin;
+
+      for (const section of sections) {
+        const canvas = await html2canvas(section, {
           scale: 2,
           useCORS: true,
           width,
@@ -171,13 +175,16 @@ const ProposalView = ({
           logging: false,
         });
 
-        const imgHeight = (canvas.height * contentWidth) / canvas.width;
+        const imgHeightMm = (canvas.height * contentWidth) / canvas.width;
 
-        if (index > 0) {
+        // If section doesn't fit on current page and we're not at the top, go to next page
+        if (currentY > margin && currentY + imgHeightMm > pageHeight - margin) {
           pdf.addPage("a4", "portrait");
+          currentY = margin;
         }
 
-        pdf.addImage(canvas.toDataURL("image/png"), "PNG", margin, margin, contentWidth, imgHeight);
+        pdf.addImage(canvas.toDataURL("image/png"), "PNG", margin, currentY, contentWidth, imgHeightMm);
+        currentY += imgHeightMm + sectionGap;
       }
 
       pdf.save(filename);
