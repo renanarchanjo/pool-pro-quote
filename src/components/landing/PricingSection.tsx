@@ -157,16 +157,6 @@ const PricingSection = ({
         <div className="relative z-10 px-4 pt-14 pb-20 md:pt-20 md:pb-28">
           {/* Header */}
           <div className="text-center mb-14 md:mb-16">
-            <span
-              className="inline-flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-[0.14em] px-4 py-1.5 rounded-full mb-5"
-              style={{
-                background: "hsla(199,89%,48%,0.12)",
-                color: "hsl(199,89%,68%)",
-                border: "1px solid hsla(199,89%,48%,0.15)",
-              }}
-            >
-              💰 Planos & Preços
-            </span>
             <h1
               className="text-3xl md:text-5xl font-extrabold mb-5 leading-[1.1] tracking-tight"
               style={{ color: "#F1F5F9" }}
