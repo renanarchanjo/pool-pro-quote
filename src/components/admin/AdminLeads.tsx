@@ -63,6 +63,12 @@ const AdminLeads = () => {
   const [teamMembers, setTeamMembers] = useState<{ id: string; full_name: string | null }[]>([]);
   const [leadPlans, setLeadPlans] = useState<LeadPlanOption[]>([]);
   const [selectedLeadPlan, setSelectedLeadPlan] = useState<LeadPlanOption | null>(null);
+  // Search & filters
+  const [search, setSearch] = useState("");
+  const [filterStatus, setFilterStatus] = useState("all");
+  const [filterPeriod, setFilterPeriod] = useState("all");
+  const [filterCity, setFilterCity] = useState("all");
+  const [activeTab, setActiveTab] = useState("pendentes");
   // Assignment dialog
   const [assignDialogOpen, setAssignDialogOpen] = useState(false);
   const [assigningLeadId, setAssigningLeadId] = useState<string | null>(null);
