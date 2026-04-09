@@ -86,7 +86,7 @@ const MatrizSidebar = () => {
   );
 
   return (
-    <Sidebar collapsible="offcanvas" className="!w-[230px] !bg-sidebar !border-r !border-sidebar-border">
+    <Sidebar collapsible="offcanvas" className="!w-[230px] !bg-sidebar !border-r !border-sidebar-border [&>div]:flex [&>div]:flex-col [&>div]:h-full">
       <SidebarHeader className="border-b border-border px-4 py-3.5">
         <div className="flex items-center gap-2.5">
           <img src={logoIcon} alt="SimulaPool" className="h-7 w-auto shrink-0" />
@@ -97,7 +97,7 @@ const MatrizSidebar = () => {
         </div>
       </SidebarHeader>
 
-      <SidebarContent className="px-2 overflow-y-auto">
+      <SidebarContent className="px-2 overflow-y-auto flex-1 min-h-0">
         {renderGroup("Gestão", gestaoItems)}
         {renderGroup("Cadastro", cadastroItems)}
         {renderGroup("Análise", analiseItems)}
