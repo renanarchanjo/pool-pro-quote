@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, Routes, Route } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Loader2 } from "lucide-react";
-import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { SidebarProvider } from "@/components/ui/sidebar";
 import MatrizSidebar from "@/components/matriz/MatrizSidebar";
 import MatrizDashboard from "@/components/matriz/MatrizDashboard";
 import MatrizStores from "@/components/matriz/MatrizStores";
@@ -19,23 +19,13 @@ const Matriz = () => {
   useEffect(() => {
     const checkAuth = async () => {
       const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
-        navigate("/auth");
-        return;
-      }
+      if (!session) { navigate("/auth"); return; }
 
       const { data: roleData } = await supabase
-        .from("user_roles")
-        .select("role")
-        .eq("user_id", session.user.id)
-        .eq("role", "super_admin")
-        .single();
+        .from("user_roles").select("role")
+        .eq("user_id", session.user.id).eq("role", "super_admin").single();
 
-      if (!roleData) {
-        navigate("/admin");
-        return;
-      }
-
+      if (!roleData) { navigate("/admin"); return; }
       setIsSuperAdmin(true);
       setLoading(false);
     };
@@ -54,17 +44,14 @@ const Matriz = () => {
 
   return (
     <SidebarProvider>
-      <div className="min-h-screen flex w-full bg-muted/30 overflow-x-hidden">
+      <div className="min-h-screen flex w-full bg-[#F8F9FA] overflow-x-hidden">
         <MatrizSidebar />
         <div className="flex-1 flex flex-col min-w-0">
-          <header className="flex items-center border-b border-border/50 bg-background px-2 md:px-4 h-[72px] pt-[env(safe-area-inset-top,0px)]">
-            <SidebarTrigger className="h-14 w-14 md:h-10 md:w-10 [&>svg]:!w-7 [&>svg]:!h-7 md:[&>svg]:!w-5 md:[&>svg]:!h-5 text-primary shrink-0" />
-            <span className="ml-2 text-sm font-medium text-primary truncate">SIMULAPOOL Matriz</span>
-          </header>
-          <main className="flex-1 p-3 md:p-6 overflow-x-hidden overflow-y-auto safe-area-bottom">
+          <main className="flex-1 overflow-x-hidden overflow-y-auto safe-area-bottom">
             <Routes>
               <Route index element={<MatrizDashboard />} />
               <Route path="lojas" element={<MatrizStores />} />
+              <Route path="lojistas" element={<MatrizStores />} />
               <Route path="pagamentos" element={<MatrizPayments />} />
               <Route path="parceiros" element={<PartnersManager />} />
               <Route path="leads" element={<MatrizLeads />} />
