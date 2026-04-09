@@ -151,7 +151,7 @@ const MatrizInadimplencia = () => {
   const hasIssues = inadimplentes.length > 0 || atRisk.length > 0 || payments.length > 0;
 
   return (
-    <div className="space-y-6 p-4 md:p-8">
+    <>
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
