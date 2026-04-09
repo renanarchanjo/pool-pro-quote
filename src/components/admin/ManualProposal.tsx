@@ -182,9 +182,20 @@ const ManualProposal = () => {
   };
 
   const toggleOptional = (id: string) => {
-    setSelectedOptionalIds((prev) =>
-      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
-    );
+    const opt = optionals.find((o) => o.id === id);
+    if (!opt) return;
+    setSelectedOptionalIds((prev) => {
+      if (prev.includes(id)) {
+        // Deselect
+        return prev.filter((x) => x !== id);
+      }
+      // Select this one, deselect any other from the same group
+      const sameGroupIds = opt.group_id
+        ? optionals.filter((o) => o.group_id === opt.group_id).map((o) => o.id)
+        : [];
+      const withoutSameGroup = prev.filter((x) => !sameGroupIds.includes(x));
+      return [...withoutSameGroup, id];
+    });
   };
 
   const handleSubmit = async () => {

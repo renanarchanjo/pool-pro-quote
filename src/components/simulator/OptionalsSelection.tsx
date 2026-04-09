@@ -86,19 +86,20 @@ const OptionalsSelection = ({ optionals, modelOptionals = [], selectedOptionals:
     }
   };
 
-  const handleCheckboxChange = (groupId: string, optionalId: string, checked: boolean) => {
+  const handleSelectOptional = (groupId: string, optionalId: string) => {
     setSelected((prev) => {
       const current = prev[groupId] || [];
-      if (checked) {
-        return { ...prev, [groupId]: [...current, optionalId] };
-      } else {
-        return { ...prev, [groupId]: current.filter((id) => id !== optionalId) };
+      // Regular optionals: only 1 per group (toggle on/off)
+      if (current.includes(optionalId)) {
+        return { ...prev, [groupId]: [] };
       }
+      return { ...prev, [groupId]: [optionalId] };
     });
   };
 
+  // Kept for backwards compat — now same as handleSelectOptional
   const handleRadioChange = (groupId: string, optionalId: string) => {
-    setSelected((prev) => ({ ...prev, [groupId]: [optionalId] }));
+    handleSelectOptional(groupId, optionalId);
   };
 
   const handleContinue = () => {
@@ -245,7 +246,7 @@ const OptionalsSelection = ({ optionals, modelOptionals = [], selectedOptionals:
                     return (
                       <div key={optional.id} className="space-y-2">
                         <div
-                          onClick={() => handleCheckboxChange(group.id, optional.id, !isSelected)}
+                          onClick={() => handleSelectOptional(group.id, optional.id)}
                           className={`relative p-4 rounded-xl border-2 cursor-pointer transition-all duration-200 active:scale-[0.98] ${
                             isSelected
                               ? "border-primary bg-primary/10 shadow-md shadow-primary/10"
