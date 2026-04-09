@@ -1,7 +1,8 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { FileDown, ArrowLeft } from "lucide-react";
 import { exportPDF } from "@/lib/exportPDF";
+import { toBase64Safe } from "@/lib/pdfImageUtils";
 import simulapoolLogoFooter from "@/assets/simulapool-logo-footer.png";
 
 interface PoolModel {
@@ -78,6 +79,9 @@ const ProposalView = ({
   includedItemsTotal = 0,
 }: ProposalViewProps) => {
   const hasAutoDownloaded = useRef(false);
+  const pdfAssetsPromiseRef = useRef<Promise<void> | null>(null);
+  const pdfAssetsCacheRef = useRef<Record<string, string>>({});
+  const [pdfAssetMap, setPdfAssetMap] = useState<Record<string, string>>({});
   const displayBasePrice = model.base_price + includedItemsTotal;
   const optionalsTotal = selectedOptionals.reduce((sum, opt) => sum + opt.price, 0);
   const totalPrice = displayBasePrice + optionalsTotal;
@@ -119,11 +123,53 @@ const ProposalView = ({
     .filter((p) => p.banner_1_url)
     .map((p) => ({ url: p.banner_1_url!, name: p.name }));
 
+  const resolvePdfAssetSrc = (url?: string | null) => {
+    if (!url) return null;
+    return pdfAssetMap[url] || url;
+  };
+
+  const preparePdfAssets = async () => {
+    const assetUrls = Array.from(
+      new Set(
+        [
+          storeSettings?.logo_url,
+          brandLogoUrl,
+          simulapoolLogoFooter,
+          ...banner1Urls.map((banner) => banner.url),
+          ...partners.map((partner) => partner.logo_url),
+        ].filter((url): url is string => Boolean(url)),
+      ),
+    );
+
+    const missingUrls = assetUrls.filter((url) => !pdfAssetsCacheRef.current[url]);
+    if (missingUrls.length === 0) return;
+    if (pdfAssetsPromiseRef.current) return pdfAssetsPromiseRef.current;
+
+    pdfAssetsPromiseRef.current = (async () => {
+      const loadedAssets = await Promise.all(
+        missingUrls.map(async (url) => [url, await toBase64Safe(url)] as const),
+      );
+
+      const nextAssets = Object.fromEntries(loadedAssets);
+      pdfAssetsCacheRef.current = { ...pdfAssetsCacheRef.current, ...nextAssets };
+      setPdfAssetMap((current) => ({ ...current, ...nextAssets }));
+    })();
+
+    try {
+      await pdfAssetsPromiseRef.current;
+    } finally {
+      pdfAssetsPromiseRef.current = null;
+    }
+  };
+
   const handleDownloadPDF = async () => {
     const element = document.getElementById("proposal-content");
     if (!element) return;
 
     const filename = `Proposta-${customerData.name.trim().replace(/\s+/g, "-")}-${today.replace(/\//g, "-")}.pdf`;
+
+    await preparePdfAssets();
+    await new Promise((resolve) => setTimeout(resolve, 800));
 
     await exportPDF({
       element,
@@ -135,6 +181,10 @@ const ProposalView = ({
   };
 
   const storeLocation = [storeCity, storeState].filter(Boolean).join(" / ");
+
+  useEffect(() => {
+    void preparePdfAssets();
+  }, [storeSettings?.logo_url, brandLogoUrl, partners, brandPartnerId]);
 
   useEffect(() => {
     if (autoDownload && !hasAutoDownloaded.current) {
@@ -212,7 +262,7 @@ const ProposalView = ({
               <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
                 {storeSettings?.logo_url ? (
                   <img
-                    src={storeSettings.logo_url}
+                    src={resolvePdfAssetSrc(storeSettings.logo_url) || undefined}
                     alt="Logo"
                     loading="eager"
                     referrerPolicy="no-referrer"
@@ -257,7 +307,7 @@ const ProposalView = ({
               <div style={{ display: "flex", alignItems: "center", gap: "12px", flexWrap: "wrap" }}>
                 {brandLogoUrl && (
                   <img
-                    src={brandLogoUrl}
+                    src={resolvePdfAssetSrc(brandLogoUrl) || undefined}
                     alt="Marca"
                     loading="eager"
                     referrerPolicy="no-referrer"
@@ -342,7 +392,7 @@ const ProposalView = ({
                   {banner1Urls.map((b, i) => (
                     <img
                       key={i}
-                      src={b.url}
+                      src={resolvePdfAssetSrc(b.url) || undefined}
                       alt={`Banner ${b.name}`}
                       loading="eager"
                       referrerPolicy="no-referrer"
@@ -463,7 +513,7 @@ const ProposalView = ({
                   <div key={p.id} style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
                     {p.logo_url ? (
                       <img
-                        src={p.logo_url}
+                        src={resolvePdfAssetSrc(p.logo_url) || undefined}
                         alt={p.name}
                         loading="eager"
                         referrerPolicy="no-referrer"
@@ -489,7 +539,7 @@ const ProposalView = ({
 
           {/* ===== FOOTER ===== */}
           <div data-pdf-section style={{ textAlign: "center", marginTop: "14px", paddingTop: "10px", borderTop: "1px solid #e5e7eb", display: "flex", flexDirection: "column", alignItems: "center", gap: "6px" }}>
-            <img src={simulapoolLogoFooter} alt="SimulaPool" style={{ height: "28px", width: "auto", objectFit: "contain" }} />
+            <img src={resolvePdfAssetSrc(simulapoolLogoFooter) || simulapoolLogoFooter} alt="SimulaPool" style={{ height: "28px", width: "auto", objectFit: "contain" }} />
             <p style={{ fontSize: "9px", color: "#9ca3af", margin: 0 }}>Documento gerado por SimulaPool</p>
           </div>
         </div>

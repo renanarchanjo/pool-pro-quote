@@ -54,7 +54,7 @@ const toBase64ViaProxy = async (url: string): Promise<string> => {
 };
 
 /** Try direct fetch first, then proxy, then return transparent fallback */
-const toBase64Safe = async (url: string): Promise<string> => {
+export const toBase64Safe = async (url: string): Promise<string> => {
   // Transparent 1×1 PNG fallback
   const FALLBACK = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=";
 
