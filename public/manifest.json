@@ -1,9 +1,9 @@
 {
-  "id": "/login",
+  "id": "/loginmatriz",
   "name": "SIMULAPOOL - Orçamentos de Piscinas",
   "short_name": "SIMULAPOOL",
   "description": "O jeito moderno de orçar piscinas. Simule, orce e feche negócios.",
-  "start_url": "/login",
+  "start_url": "/loginmatriz",
   "scope": "/",
   "display": "standalone",
   "orientation": "portrait",
