@@ -25,11 +25,11 @@ const STATE_COORDS: Record<string, [number, number]> = {
 };
 
 function getColor(count: number): string {
-  if (count <= 0) return "hsl(var(--muted))";
-  if (count === 1) return "#E0F2FE";
-  if (count <= 5) return "#7DD3FC";
-  if (count <= 10) return "#0EA5E9";
-  return "#0284C7";
+  if (count <= 0) return "#E8ECF1";
+  if (count === 1) return "#BAE6FD";
+  if (count <= 5) return "#38BDF8";
+  if (count <= 10) return "#0284C7";
+  return "#0369A1";
 }
 
 function getDarkColor(count: number): string {
@@ -85,7 +85,7 @@ const BrazilMap = ({ stateData, stores = [] }: Props) => {
                   key={geo.rsmKey}
                   geography={geo}
                   fill={isDark ? getDarkColor(count) : getColor(count)}
-                  stroke={isDark ? "hsl(215 20% 25%)" : "#FFFFFF"}
+                  stroke={isDark ? "hsl(215 20% 25%)" : "#CBD5E1"}
                   strokeWidth={0.8}
                   onMouseEnter={() => setTooltip({ name: abbr, count })}
                   onMouseLeave={() => setTooltip(null)}
@@ -154,11 +154,11 @@ const BrazilMap = ({ stateData, stores = [] }: Props) => {
 
       {/* Legend */}
       <div className="flex items-center gap-4 mt-3 text-[11px] text-muted-foreground flex-wrap">
-        <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-full bg-[#E0F2FE] dark:bg-[#1e3a5f] border border-border" /> 1</span>
-        <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-full bg-[#7DD3FC] dark:bg-[#0c4a6e] border border-border" /> 2–5</span>
-        <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-full bg-[#0EA5E9] dark:bg-[#0369a1] border border-border" /> 6–10</span>
-        <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-full bg-[#0284C7] border border-border" /> 10+</span>
-        <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-full bg-muted border border-border" /> Sem lojistas</span>
+        <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-full bg-[#BAE6FD] dark:bg-[#1e3a5f] border border-border" /> 1</span>
+        <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-full bg-[#38BDF8] dark:bg-[#0c4a6e] border border-border" /> 2–5</span>
+        <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-full bg-[#0284C7] dark:bg-[#0369a1] border border-border" /> 6–10</span>
+        <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-full bg-[#0369A1] border border-border" /> 10+</span>
+        <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-full bg-[#E8ECF1] dark:bg-muted border border-border" /> Sem lojistas</span>
         <span className="flex items-center gap-1.5">
           <svg width="12" height="14" viewBox="-8 -12 16 18"><path d="M0,-12 C-5,-12 -8,-7 -8,-4 C-8,2 0,6 0,6 C0,6 8,2 8,-4 C8,-7 5,-12 0,-12 Z" fill="#EF4444" stroke="#fff" strokeWidth="1"/></svg>
           Loja ativa
