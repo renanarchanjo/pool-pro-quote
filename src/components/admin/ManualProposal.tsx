@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useStoreData } from "@/hooks/useStoreData";
 import { toast } from "sonner";
-import { Loader2, FileText, ArrowLeft, Eye, EyeOff, ChevronRight, User, Waves, Settings, Send } from "lucide-react";
+import { Loader2, FileText, ArrowLeft, Eye, EyeOff, ChevronRight, ChevronLeft, User, Waves, Settings, Send, Check, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
