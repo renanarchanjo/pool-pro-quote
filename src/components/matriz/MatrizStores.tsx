@@ -109,8 +109,9 @@ const MatrizStores = () => {
           cnpj: editForm.cnpj.trim() || null,
           razao_social: editForm.razao_social.trim() || null,
           nome_fantasia: editForm.nome_fantasia.trim() || null,
+          whatsapp: editForm.whatsapp.trim() || null,
           plan_status: editForm.plan_status || "active",
-        })
+        } as any)
         .eq("id", editingStore.id);
 
       if (error) throw error;
