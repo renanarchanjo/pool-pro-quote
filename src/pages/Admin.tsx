@@ -166,6 +166,7 @@ const Admin = () => {
       {/* Mobile bottom nav */}
       <MobileBottomNav />
       <PwaInstallBanner />
+      <NotificationPrompt />
 
       {/* Desktop floating panel */}
       <FloatingPanel open={panelOpen} onClose={() => setPanelOpen(false)}>
