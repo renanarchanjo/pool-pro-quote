@@ -8,7 +8,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Loader2, Lock, CheckCircle, AlertTriangle, Copy, Package, XCircle, CheckCheck, Eye, FileDown, ExternalLink, Check, Radio, CreditCard, Users, UserPlus, Send } from "lucide-react";
+import { Loader2, Lock, CheckCircle, AlertTriangle, Copy, Package, XCircle, CheckCheck, Eye, FileDown, ExternalLink, Check, Radio, CreditCard, Users, UserPlus, Send, ZoomIn, ZoomOut, X } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
