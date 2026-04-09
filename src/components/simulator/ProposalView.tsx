@@ -468,37 +468,6 @@ const ProposalView = ({
               </div>
             )}
 
-            {finalPartner && (finalPartner.banner_1_url || finalPartner.banner_2_url || finalPartner.logo_url) && (
-              <div data-pdf-section style={{ marginTop: "16px", padding: "16px", border: "1px solid #e5e7eb", borderRadius: "8px", background: "#f9fafb" }}>
-                <p style={{ textAlign: "center", fontSize: "10px", color: "#6b7280", marginBottom: "12px", textTransform: "uppercase", letterSpacing: "1px", fontWeight: 700 }}>
-                  Marca parceira desta proposta
-                </p>
-                <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "12px" }}>
-                  {(finalPartner.banner_1_url || finalPartner.banner_2_url) && (
-                    <img
-                      src={finalPartner.banner_1_url || finalPartner.banner_2_url || ""}
-                      alt={`Banner ${finalPartner.name}`}
-                      loading="eager"
-                      referrerPolicy="no-referrer"
-                      style={{ width: "100%", maxWidth: "240px", height: "auto", borderRadius: "10px", objectFit: "contain" }}
-                      crossOrigin="anonymous"
-                    />
-                  )}
-                  {finalPartner.logo_url ? (
-                    <img
-                      src={finalPartner.logo_url}
-                      alt={finalPartner.name}
-                      loading="eager"
-                      referrerPolicy="no-referrer"
-                      style={{ maxHeight: "42px", maxWidth: "140px", objectFit: "contain" }}
-                      crossOrigin="anonymous"
-                    />
-                  ) : (
-                    <span style={{ fontSize: "12px", fontWeight: 700, color: "#374151" }}>{finalPartner.name}</span>
-                  )}
-                </div>
-              </div>
-            )}
 
             {/* ===== FOOTER ===== */}
             <div data-pdf-section style={{ textAlign: "center", fontSize: "10px", color: "#9ca3af", marginTop: "14px", paddingTop: "10px", borderTop: "1px solid #e5e7eb" }}>
