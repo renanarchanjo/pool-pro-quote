@@ -22,6 +22,7 @@ import StorePartnersManager from "@/components/admin/StorePartnersManager";
 import { useStoreData } from "@/hooks/useStoreData";
 import PendingLeadsAlert from "@/components/admin/PendingLeadsAlert";
 import MobileBottomNav from "@/components/admin/MobileBottomNav";
+import PwaInstallBanner from "@/components/PwaInstallBanner";
 
 const PAGE_TITLES: Record<string, string> = {
   "": "Dashboard",
@@ -152,6 +153,7 @@ const Admin = () => {
 
       {/* Mobile bottom nav */}
       <MobileBottomNav />
+      <PwaInstallBanner />
 
       {/* Desktop floating panel */}
       <FloatingPanel open={panelOpen} onClose={() => setPanelOpen(false)}>
