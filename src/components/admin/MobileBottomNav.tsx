@@ -5,9 +5,9 @@ import AdminSidebarContent from "./AdminSidebarContent";
 import FloatingPanel from "./FloatingPanel";
 
 const NAV_ITEMS = [
-  { icon: Home, url: "/admin" },
-  { icon: Plus, url: "/admin/gerar-proposta" },
-  { icon: Send, url: "/admin/leads" },
+  { icon: LayoutGrid, url: "/admin" },
+  { icon: FilePlus, url: "/admin/gerar-proposta" },
+  { icon: Filter, url: "/admin/leads" },
 ];
 
 const MobileBottomNav = () => {

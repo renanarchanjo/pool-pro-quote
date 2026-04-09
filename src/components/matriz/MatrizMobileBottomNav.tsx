@@ -5,8 +5,8 @@ import MatrizSidebarContent from "./MatrizSidebarContent";
 import FloatingPanel from "@/components/admin/FloatingPanel";
 
 const NAV_ITEMS = [
-  { icon: Home, url: "/matriz" },
-  { icon: Send, url: "/matriz/leads" },
+  { icon: LayoutGrid, url: "/matriz" },
+  { icon: Filter, url: "/matriz/leads" },
 ];
 
 const MatrizMobileBottomNav = () => {
