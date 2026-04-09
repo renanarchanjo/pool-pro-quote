@@ -2,7 +2,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import ThemeToggle from "@/components/ThemeToggle";
 import {
   LayoutGrid, CircleAlert,
-  Building2, Users, Wallet, MapPinned, Funnel, LogOut,
+  Building2, Users, Wallet, MapPinned, Filter, LogOut,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
