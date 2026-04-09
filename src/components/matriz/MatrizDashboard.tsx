@@ -126,12 +126,13 @@ const MatrizDashboard = () => {
     const filteredProposals = proposals.filter(p => inRange(p.created_at));
     const filteredPayments = payments.filter(p => inRange(p.payment_date));
 
+    const LIM_PISCINAS_ID = "5e8165c0-64b6-4d06-b274-8eeb261a79c4";
     const activeStores = stores.filter(s => s.plan_status === "active" || s.stripe_subscription_id);
     const activeCount = activeStores.length;
     const newThisMonth = stores.filter(s => inRange(s.created_at)).length;
 
     let mrr = 0;
-    activeStores.forEach(s => { if (s.subscription_plans) mrr += s.subscription_plans.price_monthly; });
+    activeStores.forEach(s => { if (s.subscription_plans && s.id !== LIM_PISCINAS_ID) mrr += s.subscription_plans.price_monthly; });
 
     const lastMonthPayments = payments.filter(p => {
       if (!p.payment_date || p.status !== "paid") return false;

@@ -54,9 +54,10 @@ const MatrizReports = () => {
     const thisMonth = now.getMonth();
     const thisYear = now.getFullYear();
 
+    const LIM_PISCINAS_ID = "5e8165c0-64b6-4d06-b274-8eeb261a79c4";
     const activeStores = stores.filter(s => s.plan_status === "active");
     let mrr = 0;
-    activeStores.forEach(s => { if (s.subscription_plans) mrr += s.subscription_plans.price_monthly; });
+    activeStores.forEach(s => { if (s.subscription_plans && s.id !== LIM_PISCINAS_ID) mrr += s.subscription_plans.price_monthly; });
 
     const totalRevenue = proposals.filter(p => p.status === "fechada").reduce((a: number, p: any) => a + p.total_price, 0);
     const totalProposals = proposals.length;
