@@ -113,18 +113,13 @@ const PricingSection = ({
 
   useEffect(() => {
     (async () => {
-      const [plansRes, leadRes, settingsRes] = await Promise.all([
+      const [plansRes, leadRes] = await Promise.all([
         supabase.rpc("get_subscription_plans_public"),
         supabase.rpc("get_lead_plans_public"),
-        supabase.rpc("get_platform_settings_public"),
       ]);
       if (plansRes.data) setPlans(plansRes.data as SubPlan[]);
       if (leadRes.data) setLeadPlans(leadRes.data as LeadPlan[]);
-      if (settingsRes.data) {
-        const m = Object.fromEntries(settingsRes.data.map((s: any) => [s.key, s.value]));
-        if (m.extra_proposal_cost) setExtraProposalCost(fmt(Number(m.extra_proposal_cost)));
-        if (m.extra_user_cost) setExtraUserCost(fmt(Number(m.extra_user_cost)));
-      }
+      // platform_settings is restricted to super_admin; use safe defaults for public pricing
       setLoading(false);
     })();
   }, []);
