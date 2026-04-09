@@ -54,6 +54,7 @@ const AdminLeads = () => {
   const [storeInfo, setStoreInfo] = useState<{ lead_limit_monthly: number; lead_price_excess: number; lead_plan_active: boolean } | null>(null);
   const [viewingProposal, setViewingProposal] = useState<any>(null);
   const [loadingProposal, setLoadingProposal] = useState(false);
+  const [previewZoomed, setPreviewZoomed] = useState(false);
   const [leadSubActive, setLeadSubActive] = useState<boolean | null>(null);
   const [checkoutLoading, setCheckoutLoading] = useState(false);
   const [filterUser, setFilterUser] = useState<string>("all");
