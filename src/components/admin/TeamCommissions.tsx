@@ -1,14 +1,9 @@
 import { useState, useEffect, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useStoreData } from "@/hooks/useStoreData";
-import { toast } from "sonner";
-import {
-  Loader2, DollarSign, TrendingUp, Target, Trophy, CalendarIcon,
-} from "lucide-react";
+import { Loader2, CalendarIcon, DollarSign } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Progress } from "@/components/ui/progress";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
@@ -32,6 +27,9 @@ const DATE_PRESETS = [
 
 const formatCurrency = (v: number) =>
   `R$ ${v.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`;
+
+const getInitials = (name: string) =>
+  name.split(" ").filter(Boolean).map(w => w[0]).join("").toUpperCase().slice(0, 2);
 
 const TeamCommissions = () => {
   const { store, role, profile } = useStoreData();
@@ -65,7 +63,6 @@ const TeamCommissions = () => {
       setCommissionSettings((settingsRes.data as any) || []);
       setDistributions(distRes.data || []);
       setProposals(proposalsRes.data || []);
-
     } catch (e) { console.error(e); } finally { setLoading(false); }
   };
 
@@ -95,11 +92,9 @@ const TeamCommissions = () => {
     const visibleMembers = isOwner ? members : members.filter(m => m.id === profile?.id);
 
     return visibleMembers.map(member => {
-      // Flow 1: Leads accepted by this member
       const acceptedIds = new Set(
         distributions.filter(d => d.accepted_by === member.id && d.status === "accepted").map(d => d.proposal_id)
       );
-      // Flow 2: Proposals manually created by this member
       const allProposals = Array.from(proposalMap.values());
       const memberProposalIds = new Set<string>(acceptedIds);
       allProposals.forEach(p => { if ((p as any).created_by === member.id) memberProposalIds.add(p.id); });
@@ -120,8 +115,7 @@ const TeamCommissions = () => {
         totalProposals: inRange.length, closed: closed.length, lost: lost.length, inNegotiation: inNeg.length,
         revenueClosed, commissionPercent: cp, commissionValue, conversionRate, ticketMedio,
         closedProposals: closed.map(p => ({
-          name: p.customer_name, value: p.total_price, commission: p.total_price * (cp / 100),
-          date: p.created_at,
+          name: p.customer_name, value: p.total_price, commission: p.total_price * (cp / 100), date: p.created_at,
         })),
       };
     }).filter(m => isOwner || m.totalProposals > 0 || m.commissionPercent > 0)
@@ -137,14 +131,19 @@ const TeamCommissions = () => {
 
   return (
     <div className="space-y-4">
+      {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <h3 className="text-lg font-bold">Comissões</h3>
-          <p className="text-xs text-muted-foreground">{isOwner ? "Gerencie as comissões da equipe" : "Acompanhe suas comissões"}</p>
+          <h3 className="text-[18px] font-semibold text-foreground">Comissões</h3>
+          <p className="text-[13px] text-muted-foreground">
+            {isOwner ? "Gerencie as comissões da equipe" : "Acompanhe suas comissões"}
+          </p>
         </div>
         <div className="flex items-center gap-2">
           <Select value={datePreset} onValueChange={applyPreset}>
-            <SelectTrigger className="h-8 w-[140px] text-xs"><SelectValue /></SelectTrigger>
+            <SelectTrigger className="h-8 w-[140px] text-[13px] bg-background border border-border rounded-md text-muted-foreground">
+              <SelectValue />
+            </SelectTrigger>
             <SelectContent>
               {DATE_PRESETS.map(p => <SelectItem key={p.value} value={p.value}>{p.label}</SelectItem>)}
               <SelectItem value="custom">Personalizado</SelectItem>
@@ -152,7 +151,7 @@ const TeamCommissions = () => {
           </Select>
           <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
             <PopoverTrigger asChild>
-              <Button variant="outline" size="sm" className="h-8 text-xs gap-1">
+              <Button variant="outline" size="sm" className="h-8 text-[13px] gap-1 bg-background border border-border rounded-md text-muted-foreground">
                 <CalendarIcon className="w-3 h-3" />{dateLabel}
               </Button>
             </PopoverTrigger>
@@ -166,25 +165,26 @@ const TeamCommissions = () => {
         </div>
       </div>
 
+      {/* Owner summary cards */}
       {isOwner && (
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <div className="rounded-xl border border-border bg-card px-4 py-4 text-center">
-            <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">Vendas Fechadas</p>
-            <p className="text-2xl font-bold mt-2">{teamTotals.closed}</p>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.06em] text-muted-foreground">Vendas Fechadas</p>
+            <p className="text-[22px] font-bold text-foreground mt-1">{teamTotals.closed}</p>
           </div>
           <div className="rounded-xl border border-border bg-card px-4 py-4 text-center">
-            <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">Receita Total</p>
-            <p className="text-2xl font-bold mt-2 text-emerald-600">{formatCurrency(teamTotals.revenue)}</p>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.06em] text-muted-foreground">Receita Total</p>
+            <p className="text-[22px] font-bold text-foreground mt-1">{formatCurrency(teamTotals.revenue)}</p>
           </div>
           <div className="rounded-xl border border-border bg-card px-4 py-4 text-center">
-            <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">Total Comissões</p>
-            <p className="text-2xl font-bold mt-2 text-primary">{formatCurrency(teamTotals.commission)}</p>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.06em] text-muted-foreground">Total Comissões</p>
+            <p className="text-[22px] font-bold text-primary mt-1">{formatCurrency(teamTotals.commission)}</p>
           </div>
         </div>
       )}
 
       {commissionData.length === 0 ? (
-        <Card className="border-border/50">
+        <Card className="border border-border rounded-xl">
           <CardContent className="p-8 text-center">
             <DollarSign className="w-10 h-10 text-muted-foreground mx-auto mb-2" />
             <p className="text-sm text-muted-foreground">Nenhum dado de comissão no período selecionado</p>
@@ -192,77 +192,85 @@ const TeamCommissions = () => {
         </Card>
       ) : (
         <div className="space-y-3">
-          {commissionData.map((m, idx) => (
-            <Card key={m.memberId} className="border-border/50">
-              <CardContent className="p-4 space-y-3">
+          {commissionData.map((m) => (
+            <Card key={m.memberId} className="border border-border rounded-xl">
+              <CardContent className="p-4">
+                {/* Seller row */}
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex items-center gap-3">
-                    <div className={cn(
-                      "w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold shrink-0",
-                      idx === 0 ? "bg-amber-100 text-amber-700" : idx === 1 ? "bg-gray-100 text-gray-600" :
-                      idx === 2 ? "bg-orange-100 text-orange-700" : "bg-muted text-muted-foreground"
-                    )}>
-                      {idx < 3 ? <Trophy className="w-4 h-4" /> : idx + 1}
+                    <div className="w-9 h-9 rounded-full bg-accent flex items-center justify-center shrink-0">
+                      <span className="text-[13px] font-semibold text-accent-foreground">{getInitials(m.name)}</span>
                     </div>
                     <div>
-                      <p className="font-semibold text-sm">{m.name}</p>
-                      <div className="flex items-center gap-2 mt-0.5">
-                        <Badge variant="outline" className="text-[10px] bg-primary/10 text-primary border-primary/20">
-                          {m.commissionPercent}% comissão
-                        </Badge>
-                      </div>
+                      <p className="text-[14px] font-semibold text-foreground">{m.name}</p>
+                      <span
+                        className="inline-flex items-center text-[12px] font-semibold rounded-md px-2.5 py-0.5 mt-0.5"
+                        style={{ background: "#F0FDF4", color: "#166534" }}
+                      >
+                        {m.commissionPercent}% comissão
+                      </span>
                     </div>
                   </div>
                   <div className="text-right shrink-0">
-                    <p className="text-sm font-bold text-primary">{formatCurrency(m.commissionValue)}</p>
-                    <p className="text-[10px] text-muted-foreground">comissão</p>
+                    <p className="text-[16px] font-bold text-foreground">{formatCurrency(m.commissionValue)}</p>
+                    <p className="text-[11px] text-muted-foreground">comissão</p>
                   </div>
                 </div>
 
-                {commissionData[0]?.revenueClosed > 0 && (
-                  <Progress value={(m.revenueClosed / commissionData[0].revenueClosed) * 100} className="h-2" />
-                )}
+                {/* Separator */}
+                <div className="border-t border-border my-3" />
 
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                  <div className="flex items-center gap-1.5">
-                    <DollarSign className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-                    <div><p className="text-[10px] text-muted-foreground">Receita Fechada</p><p className="text-sm font-semibold">{formatCurrency(m.revenueClosed)}</p></div>
+                {/* Metrics grid 2x2 */}
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.06em] text-muted-foreground">Receita Fechada</p>
+                    <p className="text-[18px] font-bold text-foreground">{formatCurrency(m.revenueClosed)}</p>
                   </div>
-                  <div className="flex items-center gap-1.5">
-                    <Target className="w-3.5 h-3.5 text-primary shrink-0" />
-                    <div><p className="text-[10px] text-muted-foreground">Conversão</p><p className="text-sm font-semibold">{m.conversionRate.toFixed(1)}%</p></div>
+                  <div>
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.06em] text-muted-foreground">Conversão</p>
+                    <p className="text-[18px] font-bold text-foreground">{m.conversionRate.toFixed(1)}%</p>
                   </div>
-                  <div className="flex items-center gap-1.5">
-                    <TrendingUp className="w-3.5 h-3.5 text-violet-600 shrink-0" />
-                    <div><p className="text-[10px] text-muted-foreground">Ticket Médio</p><p className="text-sm font-semibold">{formatCurrency(m.ticketMedio)}</p></div>
+                  <div>
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.06em] text-muted-foreground">Ticket Médio</p>
+                    <p className="text-[18px] font-bold text-foreground">{formatCurrency(m.ticketMedio)}</p>
                   </div>
-                  <div className="flex items-center gap-1.5">
-                    <Trophy className="w-3.5 h-3.5 text-amber-600 shrink-0" />
-                    <div><p className="text-[10px] text-muted-foreground">Fechamentos</p><p className="text-sm font-semibold">{m.closed}</p></div>
+                  <div>
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.06em] text-muted-foreground">Fechamentos</p>
+                    <p className="text-[18px] font-bold text-foreground">{m.closed}</p>
                   </div>
                 </div>
 
-                <div className="pt-3 border-t border-border/50 flex items-center gap-2 text-[10px] flex-wrap">
-                  <Badge variant="outline" className="text-[10px] bg-blue-50 text-blue-700 border-blue-200">{m.totalProposals} propostas</Badge>
-                  <span className="text-muted-foreground">→</span>
-                  <Badge variant="outline" className="text-[10px] bg-amber-50 text-amber-700 border-amber-200">{m.inNegotiation} negociando</Badge>
-                  <span className="text-muted-foreground">→</span>
-                  <Badge variant="outline" className="text-[10px] bg-emerald-50 text-emerald-700 border-emerald-200">{m.closed} fechados</Badge>
-                  <Badge variant="outline" className="text-[10px] bg-red-50 text-red-700 border-red-200">{m.lost} perdidos</Badge>
+                {/* Funnel badges */}
+                <div className="mt-3 pt-3 border-t border-border flex items-center gap-2 flex-wrap">
+                  <span className="inline-flex items-center text-[12px] font-semibold rounded-md px-2.5 py-1" style={{ background: "#E0F2FE", color: "#0369A1" }}>
+                    {m.totalProposals} propostas
+                  </span>
+                  <span className="text-[13px] text-muted-foreground">→</span>
+                  <span className="inline-flex items-center text-[12px] font-semibold rounded-md px-2.5 py-1" style={{ background: "#FEF3C7", color: "#92400E" }}>
+                    {m.inNegotiation} negociando
+                  </span>
+                  <span className="text-[13px] text-muted-foreground">→</span>
+                  <span className="inline-flex items-center text-[12px] font-semibold rounded-md px-2.5 py-1" style={{ background: "#F0FDF4", color: "#166534" }}>
+                    {m.closed} fechados
+                  </span>
+                  <span className="inline-flex items-center text-[12px] font-semibold rounded-md px-2.5 py-1" style={{ background: "#FEF2F2", color: "#991B1B" }}>
+                    {m.lost} perdidos
+                  </span>
                 </div>
 
+                {/* Closed proposals detail */}
                 {m.closedProposals.length > 0 && (
-                  <div className="pt-3 border-t border-border/50">
-                    <p className="text-xs font-medium text-muted-foreground mb-2">Vendas fechadas no período</p>
+                  <div className="pt-3 mt-3 border-t border-border">
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.06em] text-muted-foreground mb-2">Vendas fechadas no período</p>
                     <div className="space-y-1.5">
                       {m.closedProposals.map((cp, i) => (
-                        <div key={i} className="flex items-center justify-between text-xs bg-muted/50 rounded-lg px-3 py-2">
+                        <div key={i} className="flex items-center justify-between text-[13px] bg-accent/50 rounded-lg px-3 py-2">
                           <div className="flex items-center gap-2 min-w-0">
-                            <span className="font-medium truncate">{cp.name}</span>
+                            <span className="font-medium text-foreground truncate">{cp.name}</span>
                             <span className="text-muted-foreground shrink-0">{new Date(cp.date).toLocaleDateString("pt-BR")}</span>
                           </div>
                           <div className="flex items-center gap-3 shrink-0">
-                            <span className="font-semibold">{formatCurrency(cp.value)}</span>
+                            <span className="font-semibold text-foreground">{formatCurrency(cp.value)}</span>
                             <span className="text-primary font-semibold">+{formatCurrency(cp.commission)}</span>
                           </div>
                         </div>
