@@ -198,29 +198,33 @@ const OptionalsSelection = ({ optionals, modelOptionals = [], selectedOptionals:
                   value={selected[group.id]?.[0] || ""}
                   onValueChange={(value) => handleRadioChange(group.id, value)}
                 >
-                  <div className="space-y-3">
+                  <div className="grid gap-2.5">
                     {groupOptionals.map((optional) => {
                       const isSelected = selected[group.id]?.[0] === optional.id;
                       return (
                         <div key={optional.id} className="space-y-2">
                           <div
                             onClick={() => handleRadioChange(group.id, optional.id)}
-                            className={`flex items-center gap-3 p-4 rounded-xl border-2 cursor-pointer transition-all ${
+                            className={`relative p-4 rounded-xl border-2 cursor-pointer transition-all ${
                               isSelected
                                 ? "border-primary bg-primary/5 shadow-sm"
                                 : "border-border hover:border-primary/40"
                             }`}
                           >
-                            <RadioGroupItem value={optional.id} id={optional.id} className="pointer-events-none" />
-                            <div className="flex-1">
-                              <p className="font-semibold">{optional.name}</p>
-                              {optional.description && (
-                                <p className="text-sm text-muted-foreground">{optional.description}</p>
-                              )}
+                            <div className="flex items-start gap-3">
+                              <RadioGroupItem value={optional.id} id={optional.id} className="pointer-events-none mt-0.5 shrink-0" />
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-start justify-between gap-2">
+                                  <p className="font-semibold text-[15px] leading-snug">{optional.name}</p>
+                                  <span className="font-bold text-primary text-[14px] whitespace-nowrap shrink-0">
+                                    + R$ {optional.price.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                                  </span>
+                                </div>
+                                {optional.description && (
+                                  <p className="text-[13px] text-muted-foreground mt-1 leading-relaxed">{optional.description}</p>
+                                )}
+                              </div>
                             </div>
-                            <p className="font-bold text-primary ml-4 whitespace-nowrap">
-                              + R$ {optional.price.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
-                            </p>
                           </div>
                           {optional.warning_note && isSelected && (
                             <Alert variant="destructive" className="ml-2">
@@ -234,33 +238,37 @@ const OptionalsSelection = ({ optionals, modelOptionals = [], selectedOptionals:
                   </div>
                 </RadioGroup>
               ) : (
-                <div className="space-y-3">
+                <div className="grid gap-2.5">
                   {groupOptionals.map((optional) => {
                     const isSelected = selected[group.id]?.includes(optional.id) || false;
                     return (
                       <div key={optional.id} className="space-y-2">
                         <div
                           onClick={() => handleCheckboxChange(group.id, optional.id, !isSelected)}
-                          className={`flex items-center gap-3 p-4 rounded-xl border-2 cursor-pointer transition-all ${
+                          className={`relative p-4 rounded-xl border-2 cursor-pointer transition-all ${
                             isSelected
                               ? "border-primary bg-primary/5 shadow-sm"
                               : "border-border hover:border-primary/40"
                           }`}
                         >
-                          <Checkbox
-                            id={optional.id}
-                            checked={isSelected}
-                            className="pointer-events-none"
-                          />
-                          <div className="flex-1">
-                            <p className="font-semibold">{optional.name}</p>
-                            {optional.description && (
-                              <p className="text-sm text-muted-foreground">{optional.description}</p>
-                            )}
+                          <div className="flex items-start gap-3">
+                            <Checkbox
+                              id={optional.id}
+                              checked={isSelected}
+                              className="pointer-events-none mt-0.5 shrink-0"
+                            />
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-start justify-between gap-2">
+                                <p className="font-semibold text-[15px] leading-snug">{optional.name}</p>
+                                <span className="font-bold text-primary text-[14px] whitespace-nowrap shrink-0">
+                                  + R$ {optional.price.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                                </span>
+                              </div>
+                              {optional.description && (
+                                <p className="text-[13px] text-muted-foreground mt-1 leading-relaxed">{optional.description}</p>
+                              )}
+                            </div>
                           </div>
-                          <p className="font-bold text-primary ml-4 whitespace-nowrap">
-                            + R$ {optional.price.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
-                          </p>
                         </div>
                         {optional.warning_note && isSelected && (
                           <Alert variant="destructive" className="ml-2">
