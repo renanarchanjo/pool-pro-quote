@@ -48,7 +48,7 @@ const MatrizSidebar = () => {
     { title: "Relatórios", url: "/matriz/relatorios", icon: FileBarChart },
   ];
 
-  const renderGroup = (label: string, items: typeof gestaoItems) => (
+  const renderGroup = (label: string, items: typeof mainItems) => (
     <SidebarGroup className="py-0">
       <SidebarGroupLabel className="text-[10px] font-semibold uppercase tracking-[0.1em] text-muted-foreground/70 px-3 pt-5 pb-1.5">
         {label}

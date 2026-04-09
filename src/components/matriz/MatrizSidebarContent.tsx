@@ -47,7 +47,7 @@ const MatrizSidebarContent = ({ onNavigate, isMobile = false }: MatrizSidebarCon
     { title: "Relatórios", url: "/matriz/relatorios", icon: FileBarChart },
   ];
 
-  const renderGroup = (label: string, items: typeof gestaoItems) => (
+  const renderGroup = (label: string, items: typeof mainItems) => (
     <div className="mb-1">
       <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground px-3 mt-4 mb-1.5 text-right">
         {label}
