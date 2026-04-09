@@ -468,29 +468,29 @@ const MatrizDashboard = () => {
       </div>
 
       {/* BLOCO 8 — COMPOSIÇÃO */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-card border border-border rounded-xl p-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
+        <div className="bg-card border border-border rounded-xl p-3 md:p-6">
           <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">COMPOSIÇÃO DA RECEITA</span>
-          <div className="mt-4 space-y-4">
+          <div className="mt-3 md:mt-4 space-y-3 md:space-y-4">
             <RevenueRow label="Recorrente (Planos)" value={metrics.recorrente} pctVal={metrics.recPct} color="hsl(var(--primary))" />
             <RevenueRow label="Excedente (Uso)" value={metrics.excedente} pctVal={metrics.exPct} color="#22C55E" />
             <div className="border-t border-border pt-3 flex justify-between items-center">
-              <span className="text-[14px] font-semibold text-foreground">Receita Total</span>
-              <span className="text-[16px] font-bold text-foreground">{fmt(metrics.totalRev)}</span>
+              <span className="text-[13px] md:text-[14px] font-semibold text-foreground">Receita Total</span>
+              <span className="text-[15px] md:text-[16px] font-bold text-foreground">{fmt(metrics.totalRev)}</span>
             </div>
           </div>
         </div>
-        <div className="bg-card border border-border rounded-xl p-6 flex flex-col items-center justify-center">
-          <ResponsiveContainer width="100%" height={220}>
+        <div className="bg-card border border-border rounded-xl p-3 md:p-6 flex flex-col items-center justify-center">
+          <ResponsiveContainer width="100%" height={180}>
             <PieChart>
               <Pie data={[{ name: "Recorrente", value: metrics.recorrente || 0.01 }, { name: "Excedente", value: metrics.excedente || 0.01 }]}
-                cx="50%" cy="50%" innerRadius={60} outerRadius={90} dataKey="value" paddingAngle={2}>
+                cx="50%" cy="50%" innerRadius={50} outerRadius={75} dataKey="value" paddingAngle={2}>
                 <Cell fill="hsl(var(--primary))" /><Cell fill="#22C55E" />
               </Pie>
               <Tooltip formatter={(v: number) => fmt(v)} contentStyle={{ borderRadius: 8, border: "1px solid hsl(var(--border))", fontSize: 12, background: "hsl(var(--card))", color: "hsl(var(--foreground))" }} />
             </PieChart>
           </ResponsiveContainer>
-          <div className="flex gap-6 text-[12px] text-foreground">
+          <div className="flex gap-4 md:gap-6 text-[11px] md:text-[12px] text-foreground mt-1">
             <div className="flex items-center gap-2"><div className="w-3 h-3 rounded-sm bg-primary" /> Recorrente</div>
             <div className="flex items-center gap-2"><div className="w-3 h-3 rounded-sm bg-green-500" /> Excedente</div>
           </div>
