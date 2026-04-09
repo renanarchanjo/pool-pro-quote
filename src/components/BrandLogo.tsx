@@ -23,7 +23,7 @@ const BrandLogo = ({ size = "md", className = "", showSlogan = false, variant = 
       : "text-foreground";
 
   return (
-    <div className={`flex items-center gap-1.5 ${className}`}>
+    <div className={`flex items-center justify-center gap-0.5 ${className}`}>
       <img src={logoIcon} alt="SimulaPool" className={`${s.img} shrink-0`} loading="eager" decoding="async" fetchPriority="high" />
       <div className="flex flex-col">
         <span className={`${s.text} font-bold tracking-[-0.02em] leading-tight`}>
