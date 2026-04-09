@@ -101,7 +101,7 @@ const restoreAncestorTransforms = (ancestorResets: AncestorSnapshot[]) => {
   });
 };
 
-const waitForStablePaint = async (delay = 700) => {
+const waitForStablePaint = async (delay = 800) => {
   await new Promise((resolve) => requestAnimationFrame(() => resolve(undefined)));
   await new Promise((resolve) => requestAnimationFrame(() => resolve(undefined)));
   await new Promise((resolve) => setTimeout(resolve, delay));

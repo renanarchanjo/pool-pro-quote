@@ -1,135 +1,151 @@
-const waitForImageLoad = async (image: HTMLImageElement) => {
-  if (image.complete && image.naturalWidth > 0) {
-    return;
-  }
+/**
+ * PDF Image Utilities
+ *
+ * Converts all <img> elements inside a root element to inline base64 data URIs
+ * so that html2canvas / jsPDF can render them without CORS issues.
+ */
 
-  await new Promise<void>((resolve) => {
-    const cleanup = () => {
-      image.removeEventListener("load", handleDone);
-      image.removeEventListener("error", handleDone);
-    };
+// ─── helpers ───────────────────────────────────────────────────────────
 
-    const handleDone = () => {
-      cleanup();
-      resolve();
-    };
+const toBase64 = async (url: string): Promise<string> => {
+  const response = await fetch(url, {
+    mode: "cors",
+    credentials: "omit",
+    cache: "force-cache",
+  });
 
-    image.addEventListener("load", handleDone, { once: true });
-    image.addEventListener("error", handleDone, { once: true });
+  if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+  const blob = await response.blob();
+  if (!blob.type.startsWith("image/")) throw new Error("Not an image");
+
+  return new Promise<string>((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onloadend = () => resolve(reader.result as string);
+    reader.onerror = reject;
+    reader.readAsDataURL(blob);
   });
 };
 
-interface PreparedImageSnapshot {
+const toBase64ViaProxy = async (url: string): Promise<string> => {
+  const proxyUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/pdf-image-proxy?url=${encodeURIComponent(url)}`;
+
+  const response = await fetch(proxyUrl, {
+    mode: "cors",
+    credentials: "omit",
+    cache: "force-cache",
+    headers: {
+      apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+      Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+    },
+  });
+
+  if (!response.ok) throw new Error(`Proxy HTTP ${response.status}`);
+
+  const blob = await response.blob();
+  if (!blob.type.startsWith("image/")) throw new Error("Proxy returned non-image");
+
+  return new Promise<string>((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onloadend = () => resolve(reader.result as string);
+    reader.onerror = reject;
+    reader.readAsDataURL(blob);
+  });
+};
+
+/** Try direct fetch first, then proxy, then return transparent fallback */
+const toBase64Safe = async (url: string): Promise<string> => {
+  // Transparent 1×1 PNG fallback
+  const FALLBACK = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=";
+
+  try {
+    return await toBase64(url);
+  } catch {
+    try {
+      return await toBase64ViaProxy(url);
+    } catch {
+      console.warn("[PDF] Imagem não carregou, usando fallback:", url);
+      return FALLBACK;
+    }
+  }
+};
+
+// ─── snapshot type ─────────────────────────────────────────────────────
+
+interface ImageSnapshot {
   image: HTMLImageElement;
   originalSrc: string | null;
   originalSrcset: string | null;
   originalLoading: string | null;
   originalCrossOrigin: string | null;
-  objectUrl: string;
 }
 
-const shouldProxyImageForPdf = (source: string) => {
-  if (!source || source.startsWith("data:") || source.startsWith("blob:")) {
-    return false;
-  }
+// ─── main API ──────────────────────────────────────────────────────────
 
-  try {
-    const url = new URL(source, window.location.origin);
-    return url.origin !== window.location.origin && ["http:", "https:"].includes(url.protocol);
-  } catch {
-    return false;
-  }
-};
-
-const buildFetchSources = (source: string) => {
-  const encodedSource = encodeURIComponent(source);
-  const proxyUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/pdf-image-proxy?url=${encodedSource}`;
-
-  return [proxyUrl, source];
-};
-
-const fetchImageBlob = async (source: string) => {
-  const candidates = buildFetchSources(source);
-  let lastError: unknown = null;
-
-  for (const candidate of candidates) {
-    try {
-      const response = await fetch(candidate, {
-        mode: "cors",
-        credentials: "omit",
-        cache: "force-cache",
-        headers: candidate === source
-          ? undefined
-          : {
-              apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
-              Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
-            },
-      });
-
-      if (!response.ok) {
-        throw new Error(`Falha ao baixar imagem: ${response.status}`);
-      }
-
-      const blob = await response.blob();
-      if (!blob.type.startsWith("image/")) {
-        throw new Error("Arquivo recebido não é uma imagem válida");
-      }
-
-      return blob;
-    } catch (error) {
-      lastError = error;
-    }
-  }
-
-  throw lastError instanceof Error ? lastError : new Error("Não foi possível baixar a imagem");
-};
-
+/**
+ * Scans all `<img>` inside `root`, converts remote sources to base64 data URIs,
+ * waits for every image to decode, then returns a restore function.
+ */
 export const inlineImagesForPdf = async (root: HTMLElement): Promise<() => void> => {
   const images = Array.from(root.querySelectorAll("img"));
-  const snapshots: PreparedImageSnapshot[] = [];
+  const snapshots: ImageSnapshot[] = [];
 
   await Promise.all(
     images.map(async (image) => {
       const source = image.currentSrc || image.getAttribute("src") || image.src;
 
-      if (!shouldProxyImageForPdf(source)) {
-        await waitForImageLoad(image);
-        if (typeof image.decode === "function") {
-          await image.decode().catch(() => undefined);
-        }
+      // Skip images that are already inline or bundled assets (blob / data / relative)
+      if (!source || source.startsWith("data:") || source.startsWith("blob:")) {
         return;
       }
 
+      // Skip same-origin images (bundled Vite assets) — they work fine with html2canvas
       try {
-        const blob = await fetchImageBlob(source);
-        const objectUrl = URL.createObjectURL(blob);
-        snapshots.push({
-          image,
-          originalSrc: image.getAttribute("src"),
-          originalSrcset: image.getAttribute("srcset"),
-          originalLoading: image.getAttribute("loading"),
-          originalCrossOrigin: image.getAttribute("crossorigin"),
-          objectUrl,
-        });
-
-        image.setAttribute("loading", "eager");
-        image.setAttribute("crossorigin", "anonymous");
-        image.removeAttribute("srcset");
-        image.src = objectUrl;
-
-        await waitForImageLoad(image);
-        if (typeof image.decode === "function") {
-          await image.decode().catch(() => undefined);
+        const imgUrl = new URL(source, window.location.origin);
+        if (imgUrl.origin === window.location.origin) {
+          // Still ensure it's loaded
+          if (!image.complete) {
+            await new Promise<void>((r) => {
+              image.addEventListener("load", () => r(), { once: true });
+              image.addEventListener("error", () => r(), { once: true });
+            });
+          }
+          return;
         }
-      } catch (error) {
-        console.warn("Não foi possível preparar imagem para PDF:", source, error);
-        await waitForImageLoad(image);
+      } catch {
+        // relative path — skip
+        return;
+      }
+
+      // Save original attributes
+      snapshots.push({
+        image,
+        originalSrc: image.getAttribute("src"),
+        originalSrcset: image.getAttribute("srcset"),
+        originalLoading: image.getAttribute("loading"),
+        originalCrossOrigin: image.getAttribute("crossorigin"),
+      });
+
+      // Convert to base64
+      const base64 = await toBase64Safe(source);
+
+      image.removeAttribute("srcset");
+      image.setAttribute("loading", "eager");
+      image.removeAttribute("crossorigin");
+      image.src = base64;
+
+      // Wait for decode
+      try {
+        await image.decode();
+      } catch {
+        // ignore decode errors — image is still usable
       }
     }),
   );
 
+  // Return restore function
   return () => {
-    snapshots.forEach(({ image, originalSrc, originalSrcset, originalLoading, originalCrossOrigin, objectUrl }) => {
+    snapshots.forEach(({ image, originalSrc, originalSrcset, originalLoading, originalCrossOrigin }) => {
       if (originalSrc === null) {
         image.removeAttribute("src");
       } else {
@@ -153,8 +169,6 @@ export const inlineImagesForPdf = async (root: HTMLElement): Promise<() => void>
       } else {
         image.setAttribute("crossorigin", originalCrossOrigin);
       }
-
-      URL.revokeObjectURL(objectUrl);
     });
   };
 };
