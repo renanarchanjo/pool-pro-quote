@@ -204,24 +204,24 @@ const MatrizStores = () => {
   }
 
   return (
-    <div className="space-y-6 p-4 md:p-8">
+    <div className="space-y-4 p-3 md:p-8">
       <div>
         <h1 className="text-[18px] font-semibold text-foreground">Lojas Cadastradas</h1>
         <p className="text-[13px] text-muted-foreground">{stores.length} lojas no total</p>
       </div>
 
-      <div className="flex gap-3">
+      <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <Input
-            placeholder="Buscar por nome, cidade ou estado..."
+            placeholder="Buscar..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="pl-10"
+            className="pl-9 h-9 text-sm"
           />
         </div>
         <Select value={planFilter} onValueChange={setPlanFilter}>
-          <SelectTrigger className="w-48">
+          <SelectTrigger className="w-full sm:w-44 h-9 text-sm">
             <SelectValue placeholder="Filtrar plano" />
           </SelectTrigger>
           <SelectContent>
@@ -234,29 +234,40 @@ const MatrizStores = () => {
         </Select>
       </div>
 
-      <div className="space-y-3">
+      <div className="space-y-2.5">
         {filtered.map((store) => (
-          <Card key={store.id} className="p-4">
-            <div className="flex items-center justify-between gap-4">
+          <Card key={store.id} className="p-3 sm:p-4">
+            {/* Mobile: stacked layout / Desktop: row layout */}
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-4">
+              {/* Top row: name + badge + price */}
               <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-3 flex-wrap">
-                  <div className="p-1.5 rounded-lg bg-primary/10">
-                    <Store className="w-4 h-4 text-primary" />
+                <div className="flex items-center gap-2 flex-wrap">
+                  <div className="p-1 rounded-md bg-primary/10 shrink-0">
+                    <Store className="w-3.5 h-3.5 text-primary" />
                   </div>
-                  <h3 className="font-semibold">{store.name}</h3>
+                  <h3 className="font-semibold text-sm truncate">{store.name}</h3>
                   {statusBadge(store.plan_status)}
+                  <span className="text-sm font-bold text-primary ml-auto sm:hidden">
+                    {formatCurrency(store.subscription_plans?.price_monthly || 0)}/mês
+                  </span>
                 </div>
-                <div className="flex gap-4 mt-1.5 text-sm text-muted-foreground flex-wrap">
+
+                {/* Info grid - compact on mobile */}
+                <div className="grid grid-cols-2 sm:flex sm:flex-wrap gap-x-3 gap-y-0.5 mt-1.5 text-xs text-muted-foreground">
                   {store.city && <span>{store.city}/{store.state}</span>}
+                  {store.subscription_plans && (
+                    <span className="font-medium">{store.subscription_plans.name}</span>
+                  )}
                   {store.cnpj && <span>CNPJ: {store.cnpj}</span>}
                   {(store as any).whatsapp && <span>📱 {(store as any).whatsapp}</span>}
                   <span>Cadastro: {formatDate(store.created_at)}</span>
-                  <span className="font-mono text-xs">/{store.slug}</span>
+                  <span className="font-mono text-[11px] opacity-70 truncate">/{store.slug}</span>
                 </div>
               </div>
 
-              <div className="text-right shrink-0">
-                <p className="font-bold text-primary">
+              {/* Price - desktop only */}
+              <div className="text-right shrink-0 hidden sm:block">
+                <p className="font-bold text-primary text-sm">
                   {formatCurrency(store.subscription_plans?.price_monthly || 0)}/mês
                 </p>
                 <p className="text-xs text-muted-foreground">
@@ -264,21 +275,21 @@ const MatrizStores = () => {
                 </p>
               </div>
 
-              <div className="flex items-center gap-2 shrink-0">
-                <div className="flex items-center gap-1.5 mr-2" title="Habilitar distribuição de leads">
-                  <Radio className="w-3.5 h-3.5 text-muted-foreground" />
+              {/* Actions row */}
+              <div className="flex items-center gap-1.5 shrink-0 border-t sm:border-t-0 pt-2 sm:pt-0 mt-1 sm:mt-0">
+                <div className="flex items-center gap-1 mr-1" title="Distribuição de leads">
+                  <Radio className="w-3 h-3 text-muted-foreground" />
                   <Switch
                     checked={!!store.lead_plan_active}
                     onCheckedChange={(checked) => handleToggleLeadPlan(store.id, checked)}
-                    className="data-[state=checked]:bg-emerald-500"
+                    className="data-[state=checked]:bg-emerald-500 scale-90"
                   />
-                  <span className="text-xs text-muted-foreground hidden lg:inline">Leads</span>
                 </div>
-                <Button variant="ghost" size="icon" onClick={() => openEdit(store)} title="Editar">
-                  <Pencil className="w-4 h-4" />
+                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => openEdit(store)} title="Editar">
+                  <Pencil className="w-3.5 h-3.5" />
                 </Button>
-                <Button variant="ghost" size="icon" className="text-red-500 hover:text-red-600 hover:bg-red-500/10" onClick={() => setDeletingStore(store)} title="Excluir">
-                  <Trash2 className="w-4 h-4" />
+                <Button variant="ghost" size="icon" className="h-8 w-8 text-red-500 hover:text-red-600 hover:bg-red-500/10" onClick={() => setDeletingStore(store)} title="Excluir">
+                  <Trash2 className="w-3.5 h-3.5" />
                 </Button>
               </div>
             </div>
