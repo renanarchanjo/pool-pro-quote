@@ -377,7 +377,7 @@ const ProposalView = ({
 
                 {/* Banner parceiro ao lado dos itens inclusos */}
                 {banner1Urls.length > 0 && (
-                  <div className="hidden sm:flex" style={{ width: "220px", flexShrink: 0, flexDirection: "column", justifyContent: "center", alignItems: "center", gap: "8px" }}>
+                  <div className="hidden sm:flex" data-pdf-only style={{ width: "220px", flexShrink: 0, flexDirection: "column", justifyContent: "center", alignItems: "center", gap: "8px" }}>
                     {banner1Urls.map((b, i) => (
                       <img
                         key={i}
