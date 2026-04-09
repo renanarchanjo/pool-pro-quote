@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "npm:@supabase/supabase-js@2.57.2";
+import { checkRateLimit } from "../_shared/rateLimiter.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -24,6 +25,18 @@ serve(async (req) => {
     const token = authHeader.replace("Bearer ", "");
     const { data: { user }, error: authError } = await supabaseAdmin.auth.getUser(token);
     if (authError || !user) throw new Error("Não autenticado");
+
+    // Rate limiting: 50 requests per IP per hour
+    const clientIp = req.headers.get("x-forwarded-for") ||
+                     req.headers.get("cf-connecting-ip") ||
+                     "unknown";
+    const { allowed } = await checkRateLimit(supabaseAdmin, clientIp, "accept-lead", 50, 60);
+    if (!allowed) {
+      return new Response(
+        JSON.stringify({ error: "Muitas tentativas. Aguarde." }),
+        { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
 
     const { distribution_id } = await req.json();
     if (!distribution_id) throw new Error("distribution_id é obrigatório");

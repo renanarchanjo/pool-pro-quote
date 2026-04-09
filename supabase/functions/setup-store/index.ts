@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "npm:@supabase/supabase-js@2.57.2";
+import { checkRateLimit } from "../_shared/rateLimiter.ts";
 
 const ALLOWED_ORIGIN = Deno.env.get("ALLOWED_ORIGIN") ?? "https://simulapool.lovable.app";
 
@@ -42,6 +43,18 @@ serve(async (req) => {
     Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
     { auth: { persistSession: false } }
   );
+
+  // Rate limiting: 3 requests per IP per hour
+  const clientIp = req.headers.get("x-forwarded-for") ||
+                   req.headers.get("cf-connecting-ip") ||
+                   "unknown";
+  const { allowed } = await checkRateLimit(supabaseAdmin, clientIp, "setup-store", 3, 60);
+  if (!allowed) {
+    return new Response(
+      JSON.stringify({ error: "Muitas tentativas. Aguarde." }),
+      { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    );
+  }
 
   let createdStoreId: string | null = null;
 
