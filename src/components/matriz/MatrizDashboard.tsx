@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo, useCallback } from "react";
+import { useEffect, useState, useMemo, useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -22,6 +22,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { cn } from "@/lib/utils";
 import BrazilMap from "./BrazilMap";
 import { toast } from "sonner";
+import { exportPDF } from "@/lib/exportPDF";
 
 /* ─── helpers ─── */
 const fmt = (v: number) =>
@@ -69,6 +70,7 @@ const MatrizDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [period, setPeriod] = useState("month");
   const [customRange, setCustomRange] = useState<{ from?: Date; to?: Date }>({});
+  const reportRef = useRef<HTMLDivElement>(null);
 
   const handleViewStore = () => navigate(`/matriz/lojas`);
 
@@ -210,7 +212,7 @@ const MatrizDashboard = () => {
   }
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-5" ref={reportRef}>
       {/* ── HEADER ── */}
       <div className="flex items-center justify-between">
         <div>
@@ -257,7 +259,15 @@ const MatrizDashboard = () => {
               </PopoverContent>
             </Popover>
           )}
-          <Button variant="outline" size="sm" className="h-8 gap-1.5 text-[12px]">
+          <Button variant="outline" size="sm" className="h-8 gap-1.5 text-[12px]" onClick={async () => {
+            if (!reportRef.current) return;
+            await exportPDF({
+              element: reportRef.current,
+              filename: `dashboard-matriz-${new Date().toISOString().split("T")[0]}.pdf`,
+              orientation: "portrait",
+              captureWidth: 900,
+            });
+          }}>
             <FileDown className="w-3.5 h-3.5" /> PDF
           </Button>
         </div>
