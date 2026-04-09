@@ -239,14 +239,14 @@ const MatrizDashboard = () => {
 
   if (loading || !metrics) {
     return (
-      <div className="space-y-6 p-4 md:p-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {Array.from({ length: 8 }).map((_, i) => <Skeleton key={i} className="h-[120px] rounded-xl" />)}
+      <div className="space-y-4 md:space-y-6">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6">
+          {Array.from({ length: 8 }).map((_, i) => <Skeleton key={i} className="h-[80px] md:h-[120px] rounded-xl" />)}
         </div>
-        <Skeleton className="h-[200px] rounded-xl" />
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <Skeleton className="h-[320px] rounded-xl" />
-          <Skeleton className="h-[320px] rounded-xl" />
+        <Skeleton className="h-[180px] md:h-[200px] rounded-xl" />
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
+          <Skeleton className="h-[240px] md:h-[320px] rounded-xl" />
+          <Skeleton className="h-[240px] md:h-[320px] rounded-xl" />
         </div>
       </div>
     );
@@ -265,7 +265,7 @@ const MatrizDashboard = () => {
   };
 
   return (
-    <div className="space-y-6 p-4 md:p-8">
+    <div className="space-y-4 md:space-y-6">
       {/* HEADER */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
@@ -294,40 +294,39 @@ const MatrizDashboard = () => {
       </div>
 
       {/* BLOCO 1 — KPIs */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6">
         <KPICard label="MRR" value={fmt(metrics.mrr)} icon={DollarSign} badge={<VariationBadge value={metrics.mrrGrowth} />} />
         <KPICard label="CRESCIMENTO MRR" value={pct(metrics.mrrGrowth)} icon={TrendingUp} badge={<VariationBadge value={metrics.mrrGrowth} />} />
         <KPICard label="CHURN MENSAL" value={pct(metrics.churnRate)} icon={Activity}
-          badge={<span className={`inline-flex items-center text-[11px] font-medium px-2 py-0.5 rounded-full ${metrics.churnRate > 5 ? "bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400" : "bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400"}`}>{metrics.churnRate > 5 ? "⚠ Acima de 5%" : "✓ Saudável"}</span>} />
+          badge={<span className={`inline-flex items-center text-[10px] md:text-[11px] font-medium px-1.5 md:px-2 py-0.5 rounded-full ${metrics.churnRate > 5 ? "bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400" : "bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400"}`}>{metrics.churnRate > 5 ? "⚠ Alto" : "✓ OK"}</span>} />
         <KPICard label="LOJISTAS ATIVOS" value={String(metrics.activeCount)} icon={Users}
-          badge={<span className="inline-flex items-center text-[11px] font-medium px-2 py-0.5 rounded-full bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400">+{metrics.newThisMonth} novos este mês</span>} />
+          badge={<span className="inline-flex items-center text-[10px] md:text-[11px] font-medium px-1.5 md:px-2 py-0.5 rounded-full bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400">+{metrics.newThisMonth} novos</span>} />
       </div>
 
       {/* BLOCO 2 */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6">
         <KPICard label="ARPU" value={fmt(metrics.arpu)} icon={DollarSign} />
         <KPICard label="LTV MÉDIO" value={fmt(metrics.ltv)} icon={BarChart3} />
         <KPICard label="RECEITA PERDIDA" value={fmt(metrics.lostRevenue)} icon={XCircle} valueColor={metrics.lostRevenue > 0 ? "text-destructive" : undefined} />
-        <KPICard label="SIMULAÇÕES NO MÊS" value={String(metrics.simsThisMonth)} icon={Activity} badge={<VariationBadge value={metrics.simsGrowth} />} />
+        <KPICard label="SIMULAÇÕES" value={String(metrics.simsThisMonth)} icon={Activity} badge={<VariationBadge value={metrics.simsGrowth} />} />
       </div>
 
       {/* BLOCO 3 — ALERTAS */}
-      <div className="bg-amber-50 dark:bg-amber-900/10 border border-amber-300 dark:border-amber-700 rounded-xl p-6">
-        <h3 className="text-[14px] font-semibold text-amber-800 dark:text-amber-300 mb-4 flex items-center gap-2">
+      <div className="bg-amber-50 dark:bg-amber-900/10 border border-amber-300 dark:border-amber-700 rounded-xl p-3 md:p-6">
+        <h3 className="text-[13px] md:text-[14px] font-semibold text-amber-800 dark:text-amber-300 mb-3 md:mb-4 flex items-center gap-2">
           <AlertTriangle className="w-4 h-4" /> Alertas do Sistema
         </h3>
         {metrics.alerts.length === 0 ? (
-          <span className="inline-flex items-center gap-2 text-[13px] font-medium px-3 py-1.5 rounded-full bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400">
-            <CheckCircle2 className="w-4 h-4" /> Todos os sistemas normais
+          <span className="inline-flex items-center gap-2 text-[12px] md:text-[13px] font-medium px-3 py-1.5 rounded-full bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400">
+            <CheckCircle2 className="w-4 h-4" /> Tudo normal
           </span>
         ) : (
-          <div className="space-y-3">
+          <div className="space-y-2 md:space-y-3">
             {metrics.alerts.map((a, i) => (
-              <div key={i} className="flex items-center gap-3 text-[13px]">
+              <div key={i} className="flex items-center gap-2 md:gap-3 text-[12px] md:text-[13px]">
                 <span className={`w-2 h-2 rounded-full shrink-0 ${a.type === "red" ? "bg-destructive" : a.type === "yellow" ? "bg-amber-500" : "bg-primary"}`} />
-                <span className="flex-1 text-amber-800 dark:text-amber-300">{a.text}</span>
-                <span className="text-[11px] text-amber-700/60 dark:text-amber-400/60">{a.date}</span>
-                <Button variant="ghost" size="sm" className="h-7 text-[11px] text-amber-800 dark:text-amber-300">Ver</Button>
+                <span className="flex-1 text-amber-800 dark:text-amber-300 line-clamp-1">{a.text}</span>
+                <span className="text-[10px] md:text-[11px] text-amber-700/60 dark:text-amber-400/60 shrink-0">{a.date}</span>
               </div>
             ))}
           </div>
@@ -335,22 +334,22 @@ const MatrizDashboard = () => {
       </div>
 
       {/* BLOCO 4 — GRÁFICOS */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-card border border-border rounded-xl p-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
+        <div className="bg-card border border-border rounded-xl p-3 md:p-6">
           <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">CRESCIMENTO</span>
-          <h3 className="text-[15px] font-semibold text-foreground mt-1 mb-4">Crescimento de Lojistas Ativos</h3>
+          <h3 className="text-[14px] md:text-[15px] font-semibold text-foreground mt-1 mb-3 md:mb-4">Crescimento de Lojistas Ativos</h3>
           {metrics.monthlyActive.every(m => m.count === 0) ? <EmptyChart /> : (
-            <ResponsiveContainer width="100%" height={260}>
-              <AreaChart data={metrics.monthlyActive}>
+            <ResponsiveContainer width="100%" height={220}>
+              <AreaChart data={metrics.monthlyActive} margin={{ top: 5, right: 5, left: -20, bottom: 0 }}>
                 <defs>
                   <linearGradient id="areaFill" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity={0.08} />
+                    <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity={0.15} />
                     <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity={0} />
                   </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                <XAxis dataKey="month" tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} axisLine={false} tickLine={false} />
-                <YAxis tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} axisLine={false} tickLine={false} />
+                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
+                <XAxis dataKey="month" tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }} axisLine={false} tickLine={false} interval="preserveStartEnd" tickMargin={8} />
+                <YAxis tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }} axisLine={false} tickLine={false} width={30} allowDecimals={false} />
                 <Tooltip contentStyle={{ borderRadius: 8, border: "1px solid hsl(var(--border))", fontSize: 12, background: "hsl(var(--card))", color: "hsl(var(--foreground))" }} />
                 <Area type="monotone" dataKey="count" stroke="hsl(var(--primary))" strokeWidth={2} fill="url(#areaFill)" name="Lojistas" />
               </AreaChart>
@@ -358,17 +357,17 @@ const MatrizDashboard = () => {
           )}
         </div>
 
-        <div className="bg-card border border-border rounded-xl p-6">
+        <div className="bg-card border border-border rounded-xl p-3 md:p-6">
           <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">ATIVIDADE</span>
-          <h3 className="text-[15px] font-semibold text-foreground mt-1 mb-4">Simulações por Dia</h3>
+          <h3 className="text-[14px] md:text-[15px] font-semibold text-foreground mt-1 mb-3 md:mb-4">Simulações por Dia</h3>
           {metrics.dailySims.every(d => d.count === 0) ? <EmptyChart /> : (
-            <ResponsiveContainer width="100%" height={260}>
-              <BarChart data={metrics.dailySims}>
-                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                <XAxis dataKey="day" tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }} axisLine={false} tickLine={false} interval={4} />
-                <YAxis tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} axisLine={false} tickLine={false} />
+            <ResponsiveContainer width="100%" height={220}>
+              <BarChart data={metrics.dailySims} margin={{ top: 5, right: 5, left: -20, bottom: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
+                <XAxis dataKey="day" tick={{ fontSize: 9, fill: "hsl(var(--muted-foreground))" }} axisLine={false} tickLine={false} interval={6} tickMargin={8} angle={-35} textAnchor="end" height={40} />
+                <YAxis tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }} axisLine={false} tickLine={false} width={30} allowDecimals={false} />
                 <Tooltip contentStyle={{ borderRadius: 8, border: "1px solid hsl(var(--border))", fontSize: 12, background: "hsl(var(--card))", color: "hsl(var(--foreground))" }} />
-                <Bar dataKey="count" name="Simulações" radius={[4, 4, 0, 0]}>
+                <Bar dataKey="count" name="Simulações" radius={[3, 3, 0, 0]} maxBarSize={16}>
                   {metrics.dailySims.map((entry, idx) => (
                     <Cell key={idx} fill={entry.isToday ? "#0284C7" : "hsl(var(--primary))"} />
                   ))}
@@ -427,40 +426,40 @@ const MatrizDashboard = () => {
       </div>
 
       {/* BLOCO 6 — MAPA */}
-      <div className="bg-card border border-border rounded-xl p-6">
+      <div className="bg-card border border-border rounded-xl p-3 md:p-6">
         <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">DISTRIBUIÇÃO GEOGRÁFICA</span>
-        <h3 className="text-[15px] font-semibold text-foreground mt-1 mb-4">Lojistas por estado</h3>
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <h3 className="text-[14px] md:text-[15px] font-semibold text-foreground mt-1 mb-3 md:mb-4">Lojistas por estado</h3>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
           <div className="lg:col-span-2">
             <BrazilMap stateData={Object.fromEntries(metrics.stateMap)} stores={data.stores.map(s => ({ id: s.id, name: s.name, city: s.city, state: s.state }))} />
           </div>
-          <div className="space-y-3">
-            <h4 className="text-[13px] font-semibold text-foreground">Top 5 Estados</h4>
+          <div className="space-y-2 md:space-y-3">
+            <h4 className="text-[12px] md:text-[13px] font-semibold text-foreground">Top 5 Estados</h4>
             {metrics.topStates.map(ts => (
               <div key={ts.state}>
-                <div className="flex justify-between text-[14px] mb-1">
+                <div className="flex justify-between text-[13px] md:text-[14px] mb-1">
                   <span className="font-medium text-foreground">{ts.state}</span>
                   <span className="font-semibold text-primary">{ts.count}</span>
                 </div>
-                <div className="w-full h-2 bg-muted rounded-full overflow-hidden">
+                <div className="w-full h-1.5 md:h-2 bg-muted rounded-full overflow-hidden">
                   <div className="h-full bg-primary rounded-full transition-all" style={{ width: `${(ts.count / metrics.maxStateCount) * 100}%` }} />
                 </div>
               </div>
             ))}
-            {metrics.topStates.length === 0 && <p className="text-[13px] text-muted-foreground">Nenhum dado</p>}
+            {metrics.topStates.length === 0 && <p className="text-[12px] md:text-[13px] text-muted-foreground">Nenhum dado</p>}
           </div>
         </div>
       </div>
 
       {/* BLOCO 7 — PROJEÇÃO */}
-      <div className="bg-card border border-border rounded-xl p-6">
+      <div className="bg-card border border-border rounded-xl p-3 md:p-6">
         <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">PROJEÇÃO DE FATURAMENTO</span>
-        <p className="text-[12px] text-muted-foreground mt-1 mb-4">Base: MRR {fmt(metrics.mrr)} · Crescimento: {pct(metrics.mrrGrowth)} · Churn: {pct(metrics.churnRate)}</p>
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+        <p className="text-[11px] md:text-[12px] text-muted-foreground mt-1 mb-3 md:mb-4">MRR {fmt(metrics.mrr)} · Cresc. {pct(metrics.mrrGrowth)} · Churn {pct(metrics.churnRate)}</p>
+        <div className="grid grid-cols-3 md:grid-cols-3 lg:grid-cols-6 gap-3 md:gap-4">
           {metrics.projections.map(p => (
             <div key={p.label} className="text-center">
-              <div className="text-[12px] font-medium text-muted-foreground">{p.label}</div>
-              <div className="text-[20px] font-bold text-foreground mt-1">{fmt(p.value)}</div>
+              <div className="text-[11px] md:text-[12px] font-medium text-muted-foreground">{p.label}</div>
+              <div className="text-[16px] md:text-[20px] font-bold text-foreground mt-0.5 md:mt-1 truncate">{fmt(p.value)}</div>
               <VariationBadge value={p.pctChange} suffix="" />
             </div>
           ))}
@@ -468,29 +467,29 @@ const MatrizDashboard = () => {
       </div>
 
       {/* BLOCO 8 — COMPOSIÇÃO */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-card border border-border rounded-xl p-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
+        <div className="bg-card border border-border rounded-xl p-3 md:p-6">
           <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">COMPOSIÇÃO DA RECEITA</span>
-          <div className="mt-4 space-y-4">
+          <div className="mt-3 md:mt-4 space-y-3 md:space-y-4">
             <RevenueRow label="Recorrente (Planos)" value={metrics.recorrente} pctVal={metrics.recPct} color="hsl(var(--primary))" />
             <RevenueRow label="Excedente (Uso)" value={metrics.excedente} pctVal={metrics.exPct} color="#22C55E" />
             <div className="border-t border-border pt-3 flex justify-between items-center">
-              <span className="text-[14px] font-semibold text-foreground">Receita Total</span>
-              <span className="text-[16px] font-bold text-foreground">{fmt(metrics.totalRev)}</span>
+              <span className="text-[13px] md:text-[14px] font-semibold text-foreground">Receita Total</span>
+              <span className="text-[15px] md:text-[16px] font-bold text-foreground">{fmt(metrics.totalRev)}</span>
             </div>
           </div>
         </div>
-        <div className="bg-card border border-border rounded-xl p-6 flex flex-col items-center justify-center">
-          <ResponsiveContainer width="100%" height={220}>
+        <div className="bg-card border border-border rounded-xl p-3 md:p-6 flex flex-col items-center justify-center">
+          <ResponsiveContainer width="100%" height={180}>
             <PieChart>
               <Pie data={[{ name: "Recorrente", value: metrics.recorrente || 0.01 }, { name: "Excedente", value: metrics.excedente || 0.01 }]}
-                cx="50%" cy="50%" innerRadius={60} outerRadius={90} dataKey="value" paddingAngle={2}>
+                cx="50%" cy="50%" innerRadius={50} outerRadius={75} dataKey="value" paddingAngle={2}>
                 <Cell fill="hsl(var(--primary))" /><Cell fill="#22C55E" />
               </Pie>
               <Tooltip formatter={(v: number) => fmt(v)} contentStyle={{ borderRadius: 8, border: "1px solid hsl(var(--border))", fontSize: 12, background: "hsl(var(--card))", color: "hsl(var(--foreground))" }} />
             </PieChart>
           </ResponsiveContainer>
-          <div className="flex gap-6 text-[12px] text-foreground">
+          <div className="flex gap-4 md:gap-6 text-[11px] md:text-[12px] text-foreground mt-1">
             <div className="flex items-center gap-2"><div className="w-3 h-3 rounded-sm bg-primary" /> Recorrente</div>
             <div className="flex items-center gap-2"><div className="w-3 h-3 rounded-sm bg-green-500" /> Excedente</div>
           </div>
@@ -505,15 +504,15 @@ function KPICard({ label, value, icon: Icon, badge, valueColor }: {
   label: string; value: string; icon: any; badge?: React.ReactNode; valueColor?: string;
 }) {
   return (
-    <div className="bg-card border border-border rounded-xl p-5">
-      <div className="flex items-center gap-2 mb-3">
-        <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
-          <Icon className="w-4 h-4 text-primary" strokeWidth={1.5} />
+    <div className="bg-card border border-border rounded-xl p-3 md:p-5">
+      <div className="flex items-center gap-1.5 md:gap-2 mb-2 md:mb-3">
+        <div className="w-6 h-6 md:w-8 md:h-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+          <Icon className="w-3 h-3 md:w-4 md:h-4 text-primary" strokeWidth={1.5} />
         </div>
-        <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">{label}</span>
+        <span className="text-[9px] md:text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground leading-tight">{label}</span>
       </div>
-      <div className={`text-[24px] font-bold ${valueColor || "text-foreground"}`}>{value}</div>
-      {badge && <div className="mt-2">{badge}</div>}
+      <div className={`text-[18px] md:text-[24px] font-bold truncate ${valueColor || "text-foreground"}`}>{value}</div>
+      {badge && <div className="mt-1.5 md:mt-2">{badge}</div>}
     </div>
   );
 }
