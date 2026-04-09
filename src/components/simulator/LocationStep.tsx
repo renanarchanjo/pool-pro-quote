@@ -126,14 +126,10 @@ const LocationStep = ({ onSelectStore, onBack, onSkip }: LocationStepProps) => {
   return (
     <div className="max-w-2xl mx-auto">
       <div className="text-center mb-10 animate-fade-in">
-        <div className="inline-flex items-center gap-2 bg-primary/10 text-primary px-4 py-2 rounded-full text-sm font-medium mb-4">
-          <MapPin className="w-4 h-4" />
-          Localização
-        </div>
-        <h1 className="text-4xl md:text-5xl font-display font-bold mb-4">
+        <h1 className="text-3xl md:text-5xl font-display font-bold mb-3">
           Onde você está?
         </h1>
-        <p className="text-lg text-muted-foreground">
+        <p className="text-base md:text-lg text-muted-foreground">
           Encontre lojistas parceiros na sua região
         </p>
       </div>
