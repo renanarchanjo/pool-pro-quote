@@ -324,54 +324,41 @@ const MatrizPlans = () => {
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {settings.map(setting => {
-              const isEditable = setting.key === "lead_expiration_hours";
               const isHours = setting.key === "lead_expiration_hours";
-              const displayValue = isHours
-                ? `${parseFloat(setting.value) || 0}h`
-                : formatCurrency(parseFloat(setting.value) || 0);
-
-              return isEditable ? (
+              return (
                 <div key={setting.id} className="p-4 rounded-lg border border-primary/30 bg-primary/5">
-                  <Label htmlFor={setting.key} className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                  <Label htmlFor={setting.key} className="text-xs font-medium text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">
+                    {setting.key === "extra_user_cost" && <Users className="w-3.5 h-3.5" />}
+                    {setting.key === "extra_proposal_cost" && <FileText className="w-3.5 h-3.5" />}
                     {setting.label || setting.key}
                   </Label>
                   <div className="flex items-center gap-2 mt-2">
+                    {!isHours && <span className="text-sm text-muted-foreground">R$</span>}
                     <Input
                       id={setting.key}
                       type="number"
-                      step="1"
+                      step={isHours ? "1" : "0.01"}
                       value={settingsForm[setting.key] || ""}
                       onChange={e => setSettingsForm(prev => ({ ...prev, [setting.key]: e.target.value }))}
                       className="max-w-[120px]"
                     />
-                    <span className="text-sm text-muted-foreground">horas</span>
+                    {isHours && <span className="text-sm text-muted-foreground">horas</span>}
                   </div>
-                  <p className="text-xs text-muted-foreground mt-1">Tempo para o lojista aceitar antes de expirar</p>
-                </div>
-              ) : (
-                <div key={setting.id} className="p-4 rounded-lg border border-border/50 bg-muted/30">
-                  <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">
-                    {setting.key === "extra_user_cost" && <Users className="w-3.5 h-3.5" />}
-                    {setting.key === "extra_proposal_cost" && <FileText className="w-3.5 h-3.5" />}
-                    {setting.label || setting.key}
-                  </p>
-                  <p className="text-2xl font-bold mt-1">{displayValue}</p>
                   <p className="text-xs text-muted-foreground mt-1">
                     {setting.key === "extra_user_cost" && "Por colaborador além do limite"}
                     {setting.key === "extra_proposal_cost" && "Por proposta além do limite"}
+                    {isHours && "Tempo para o lojista aceitar antes de expirar"}
                   </p>
                 </div>
               );
             })}
           </div>
-          {settings.some(s => s.key === "lead_expiration_hours") && (
-            <div className="mt-4">
-              <Button onClick={handleSaveSettings} disabled={saving} size="sm">
-                {saving ? <Loader2 className="w-4 h-4 animate-spin mr-1" /> : <Save className="w-4 h-4 mr-1" />}
-                Salvar Configurações
-              </Button>
-            </div>
-          )}
+          <div className="mt-4">
+            <Button onClick={handleSaveSettings} disabled={saving} size="sm">
+              {saving ? <Loader2 className="w-4 h-4 animate-spin mr-1" /> : <Save className="w-4 h-4 mr-1" />}
+              Salvar Configurações
+            </Button>
+          </div>
         </CardContent>
       </Card>
 
