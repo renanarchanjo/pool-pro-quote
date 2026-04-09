@@ -231,49 +231,72 @@ const MatrizPlans = () => {
           <CardTitle className="text-base flex items-center gap-2"><CreditCard className="w-4 h-4" /> Planos de Assinatura</CardTitle>
         </CardHeader>
         <CardContent className="p-0">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Plano</TableHead>
-                <TableHead>Preço Mensal</TableHead>
-                <TableHead>Limite Orçamentos</TableHead>
-                <TableHead>Limite Usuários</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead className="text-right">Ações</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {plans.map(plan => (
-                <TableRow key={plan.id}>
-                  <TableCell className="font-medium">{plan.name}</TableCell>
-                  <TableCell>{formatCurrency(plan.price_monthly)}</TableCell>
-                  <TableCell>{plan.max_proposals_per_month}</TableCell>
-                  <TableCell>{plan.max_users || 1}</TableCell>
-                  <TableCell>
-                    <div className="flex items-center gap-1.5">
-                      <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${plan.active ? "bg-emerald-500/10 text-emerald-600" : "bg-red-500/10 text-red-600"}`}>
-                        {plan.active ? "Ativo" : "Inativo"}
-                      </span>
-                      {plan.stripe_price_id ? (
-                        <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-medium bg-primary/10 text-primary">
-                          Stripe ✓
-                        </span>
-                      ) : plan.price_monthly > 0 ? (
-                        <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-medium bg-amber-500/10 text-amber-600">
-                          Sem Stripe
-                        </span>
-                      ) : null}
-                    </div>
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <Button variant="ghost" size="sm" onClick={() => openEditPlan(plan)}>
-                      <Pencil className="w-4 h-4 mr-1" /> Editar
-                    </Button>
-                  </TableCell>
+          {/* Desktop table */}
+          <div className="hidden md:block">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Plano</TableHead>
+                  <TableHead>Preço Mensal</TableHead>
+                  <TableHead>Limite Orçamentos</TableHead>
+                  <TableHead>Limite Usuários</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead className="text-right">Ações</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {plans.map(plan => (
+                  <TableRow key={plan.id}>
+                    <TableCell className="font-medium">{plan.name}</TableCell>
+                    <TableCell>{formatCurrency(plan.price_monthly)}</TableCell>
+                    <TableCell>{plan.max_proposals_per_month}</TableCell>
+                    <TableCell>{plan.max_users || 1}</TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-1.5">
+                        <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${plan.active ? "bg-emerald-500/10 text-emerald-600" : "bg-red-500/10 text-red-600"}`}>
+                          {plan.active ? "Ativo" : "Inativo"}
+                        </span>
+                        {plan.stripe_price_id ? (
+                          <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-medium bg-primary/10 text-primary">
+                            Stripe ✓
+                          </span>
+                        ) : plan.price_monthly > 0 ? (
+                          <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-medium bg-amber-500/10 text-amber-600">
+                            Sem Stripe
+                          </span>
+                        ) : null}
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <Button variant="ghost" size="sm" onClick={() => openEditPlan(plan)}>
+                        <Pencil className="w-4 h-4 mr-1" /> Editar
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+
+          {/* Mobile cards */}
+          <div className="md:hidden divide-y divide-border">
+            {plans.map(plan => (
+              <div
+                key={plan.id}
+                className="flex items-center justify-between px-4 py-3 active:bg-muted/50 cursor-pointer"
+                onClick={() => openEditPlan(plan)}
+              >
+                <div className="min-w-0 flex-1">
+                  <div className="text-[13px] font-semibold text-foreground">{plan.name}</div>
+                  <div className="flex items-center gap-3 mt-0.5">
+                    <span className="text-[13px] font-bold text-primary">{formatCurrency(plan.price_monthly)}</span>
+                    <span className="text-[11px] text-muted-foreground">{plan.max_proposals_per_month} orçamentos</span>
+                  </div>
+                </div>
+                <Pencil className="w-4 h-4 text-muted-foreground shrink-0" />
+              </div>
+            ))}
+          </div>
         </CardContent>
       </Card>
 
