@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Loader2, LogIn } from "lucide-react";
 import { toast } from "sonner";
-import logoDark from "@/assets/simulapool-icon.png";
+import BrandLogo from "@/components/BrandLogo";
 import { useForceLightTheme } from "@/hooks/useForceLightTheme";
 
 const MobileApp = () => {
@@ -62,10 +62,7 @@ const MobileApp = () => {
     <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-b from-sky-50 to-background px-6">
       {/* Logo / Brand */}
       <div className="flex flex-col items-center mb-8">
-        <div className="flex justify-center mb-4">
-          <img src={logoDark} alt="SIMULAPOOL" className="h-20 object-contain" />
-        </div>
-        <h1 className="text-2xl font-bold text-foreground tracking-tight">SIMULAPOOL</h1>
+        <BrandLogo size="lg" className="mb-4" />
         <p className="text-sm text-muted-foreground mt-1">Área do Lojista</p>
       </div>
 
