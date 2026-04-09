@@ -205,7 +205,7 @@ const AdminLeads = () => {
     try {
       const { data: proposal, error } = await (supabase as any)
         .from("proposals")
-        .select("*, pool_models(*, categories(name))")
+        .select("*, pool_models(*, categories(name, brand_id, brands(name, logo_url, partner_id)))")
         .eq("id", proposalId)
         .single();
       if (error) throw error;
