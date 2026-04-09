@@ -325,15 +325,15 @@ const OptionalsSelection = ({ optionals, modelOptionals = [], selectedOptionals:
         )}
       </div>
 
-      <Card className="p-6 bg-card/80 backdrop-blur-sm border-2 border-primary sticky bottom-4">
-        <div className="flex justify-between items-center">
-          <div>
-            <p className="text-sm text-muted-foreground">Total do Orçamento</p>
-            <p className="text-3xl font-display font-bold text-primary">
+      <Card className="p-4 md:p-6 bg-card/80 backdrop-blur-sm border-2 border-primary sticky bottom-4">
+        <div className="flex justify-between items-center gap-3">
+          <div className="min-w-0">
+            <p className="text-xs md:text-sm text-muted-foreground">Total do Orçamento</p>
+            <p className="text-xl md:text-3xl font-display font-bold text-primary truncate">
               R$ {calculateTotal().toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
             </p>
           </div>
-          <Button className="gradient-primary text-white px-8" size="lg" onClick={handleContinue}>
+          <Button className="gradient-primary text-white px-5 md:px-8 shrink-0" size="lg" onClick={handleContinue}>
             Continuar
           </Button>
         </div>
