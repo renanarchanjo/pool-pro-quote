@@ -424,9 +424,8 @@ const ProposalView = ({
                 )}
               </div>
             </div>
-          </div>
 
-          <div data-pdf-page>
+
             {/* ===== NÃO INCLUSOS ===== */}
             {model.not_included_items && model.not_included_items.length > 0 && (
               <div style={{ ...sectionStyle, marginBottom: "16px" }}>
