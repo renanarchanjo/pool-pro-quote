@@ -1,7 +1,7 @@
 import { useNavigate, useLocation } from "react-router-dom";
 import {
-  TrendingUp, AlertTriangle,
-  Store, Handshake, Tag, MapPin, FileBarChart, Filter, LogOut,
+  LayoutGrid, CircleAlert,
+  Building2, Users, Wallet, MapPinned, Filter, LogOut,
 } from "lucide-react";
 import ThemeToggle from "@/components/ThemeToggle";
 import {
@@ -35,16 +35,16 @@ const MatrizSidebar = () => {
   };
 
   const mainItems = [
-    { title: "Dashboard", url: "/matriz", icon: TrendingUp },
-    { title: "Lojas Ativas", url: "/matriz/lojistas", icon: Store },
-    { title: "Parceiros", url: "/matriz/parceiros", icon: Handshake },
-    { title: "Mapa de Lojistas", url: "/matriz/mapa", icon: MapPin },
+    { title: "Dashboard", url: "/matriz", icon: LayoutGrid },
+    { title: "Lojas Ativas", url: "/matriz/lojistas", icon: Building2 },
+    { title: "Parceiros", url: "/matriz/parceiros", icon: Users },
+    { title: "Mapa de Lojistas", url: "/matriz/mapa", icon: MapPinned },
   ];
 
   const operacaoItems = [
     { title: "Leads", url: "/matriz/leads", icon: Filter },
-    { title: "Planos e Preços", url: "/matriz/planos", icon: Tag },
-    { title: "Inadimplência", url: "/matriz/inadimplencia", icon: AlertTriangle },
+    { title: "Planos e Preços", url: "/matriz/planos", icon: Wallet },
+    { title: "Inadimplência", url: "/matriz/inadimplencia", icon: CircleAlert },
     
   ];
 

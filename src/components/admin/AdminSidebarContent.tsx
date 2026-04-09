@@ -1,7 +1,7 @@
 import { useNavigate, useLocation } from "react-router-dom";
 import ThemeToggle from "@/components/ThemeToggle";
 import {
-  LayoutDashboard, FilePlus, Tag, Box, Package, User, Users, LogOut, UsersRound, CreditCard, Receipt, TrendingUp, DollarSign, Handshake, FolderTree
+  LayoutGrid, FilePlus, Layers, Boxes, Package, UserCircle, Users, LogOut, UsersRound, CreditCard, Receipt, TrendingUp, DollarSign, Handshake, FolderTree
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -43,21 +43,21 @@ const AdminSidebarContent = ({ onNavigate, isMobile = false }: AdminSidebarConte
     .toUpperCase();
 
   const mainItems = [
-    { title: "Dashboard", url: "/admin", icon: LayoutDashboard },
+    { title: "Dashboard", url: "/admin", icon: LayoutGrid },
     { title: "Gerar Nova Proposta", url: "/admin/gerar-proposta", icon: FilePlus },
     { title: "Leads (Tráfego)", url: "/admin/leads", icon: Users },
   ];
 
   const catalogItems = isOwner ? [
     { title: "Marcas Parceiras", url: "/admin/parceiros", icon: Handshake },
-    { title: "Marcas", url: "/admin/marcas", icon: Tag },
+    { title: "Marcas", url: "/admin/marcas", icon: Layers },
     { title: "Categorias de Marcas", url: "/admin/categorias", icon: FolderTree },
-    { title: "Modelos e Opcionais", url: "/admin/modelos", icon: Box },
+    { title: "Modelos e Opcionais", url: "/admin/modelos", icon: Boxes },
     { title: "Opcionais", url: "/admin/opcionais", icon: Package },
   ] : [];
 
   const accountItems = [
-    { title: "Minha Conta", url: "/admin/perfil", icon: User },
+    { title: "Minha Conta", url: "/admin/perfil", icon: UserCircle },
     ...(!isOwner ? [
       { title: "Performance", url: "/admin/performance", icon: TrendingUp },
       { title: "Comissão", url: "/admin/comissao", icon: DollarSign },

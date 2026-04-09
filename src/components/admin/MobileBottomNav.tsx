@@ -1,13 +1,13 @@
 import { useNavigate, useLocation } from "react-router-dom";
-import { Home, Plus, Send, AlignRight } from "lucide-react";
+import { LayoutGrid, FilePlus, Filter, AlignRight } from "lucide-react";
 import { useState, useEffect } from "react";
 import AdminSidebarContent from "./AdminSidebarContent";
 import FloatingPanel from "./FloatingPanel";
 
 const NAV_ITEMS = [
-  { icon: Home, url: "/admin" },
-  { icon: Plus, url: "/admin/gerar-proposta" },
-  { icon: Send, url: "/admin/leads" },
+  { icon: LayoutGrid, url: "/admin" },
+  { icon: FilePlus, url: "/admin/gerar-proposta" },
+  { icon: Filter, url: "/admin/leads" },
 ];
 
 const MobileBottomNav = () => {
