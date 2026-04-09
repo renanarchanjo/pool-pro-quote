@@ -8,9 +8,9 @@ interface BrandLogoProps {
 }
 
 const sizes = {
-  sm: { img: "h-9 w-auto", text: "text-[17px]", slogan: "text-[9px]" },
-  md: { img: "h-11 w-auto", text: "text-[22px]", slogan: "text-[10px]" },
-  lg: { img: "h-14 w-auto", text: "text-[26px]", slogan: "text-[11px]" },
+  sm: { img: "h-10 w-auto", text: "text-[20px]", slogan: "text-[9px]" },
+  md: { img: "h-14 w-auto", text: "text-[26px]", slogan: "text-[11px]" },
+  lg: { img: "h-[72px] w-auto", text: "text-[34px]", slogan: "text-[13px]" },
 };
 
 const BrandLogo = ({ size = "md", className = "", showSlogan = false, variant = "auto" }: BrandLogoProps) => {
