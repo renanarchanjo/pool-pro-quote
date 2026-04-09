@@ -337,22 +337,21 @@ const MatrizDashboard = () => {
 
       {/* ── PROJEÇÃO (compact) ── */}
       <div className="bg-card border border-border rounded-2xl p-4">
-        <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground mb-3">Projeção de receita</p>
-        <div className="grid grid-cols-4 gap-3">
+        <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground mb-4">Projeção de receita</p>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {metrics.projections.map(p => (
-            <div key={p.label} className="text-center">
-              <span className="text-[10px] text-muted-foreground">{p.label}</span>
-              <p className="text-[15px] md:text-[18px] font-semibold text-foreground mt-0.5 tabular-nums">{fmtCompact(p.value)}</p>
+            <div key={p.label} className="text-center bg-muted/40 rounded-xl py-3 px-2">
+              <span className="text-[11px] text-muted-foreground font-medium">{p.label}</span>
+              <p className="text-[18px] md:text-[22px] font-bold text-foreground mt-1 tabular-nums tracking-tight">{fmtCompact(p.value)}</p>
             </div>
           ))}
         </div>
       </div>
 
-      {/* ── COMPOSIÇÃO RECEITA ── */}
-      <div className="grid grid-cols-1 lg:grid-cols-5 gap-3">
+      {/* ── COMPOSIÇÃO RECEITA (desktop only) ── */}
+      <div className="hidden md:grid grid-cols-1 lg:grid-cols-5 gap-3">
         <div className="lg:col-span-3 bg-card border border-border rounded-2xl p-4">
           <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground mb-4">Composição da receita</p>
-          {/* Stacked bar */}
           <div className="flex items-center gap-3 mb-3">
             <div className="flex-1 h-3 rounded-full bg-muted overflow-hidden flex">
               <div className="h-full bg-primary rounded-l-full transition-all" style={{ width: `${metrics.recPct}%` }} />
