@@ -87,7 +87,11 @@ const MatrizLeads = () => {
     ]);
     if (leadsRes.data) setLeads(leadsRes.data as Lead[]);
     if (distRes.data) setDistributions(distRes.data);
-    if (storesRes.data) setStores(storesRes.data);
+    if (storesRes.error) console.error("[MatrizLeads] stores error:", storesRes.error);
+    if (storesRes.data) {
+      console.log("[MatrizLeads] stores loaded:", storesRes.data.length);
+      setStores(storesRes.data);
+    }
     setLoading(false);
   };
 
