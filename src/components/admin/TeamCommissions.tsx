@@ -243,7 +243,6 @@ const TeamCommissions = () => {
                         )}
                       </div>
                       <span
-                        className="inline-flex items-center text-[12px] font-semibold rounded-md px-2.5 py-0.5 mt-0.5"
                         className="inline-flex items-center text-[12px] font-semibold rounded-md px-2.5 py-0.5 mt-0.5 bg-primary/10 text-primary"
                       >
                         {m.commissionPercent}% comissão
