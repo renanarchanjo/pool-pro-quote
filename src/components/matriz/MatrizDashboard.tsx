@@ -312,22 +312,21 @@ const MatrizDashboard = () => {
       </div>
 
       {/* BLOCO 3 — ALERTAS */}
-      <div className="bg-amber-50 dark:bg-amber-900/10 border border-amber-300 dark:border-amber-700 rounded-xl p-6">
-        <h3 className="text-[14px] font-semibold text-amber-800 dark:text-amber-300 mb-4 flex items-center gap-2">
+      <div className="bg-amber-50 dark:bg-amber-900/10 border border-amber-300 dark:border-amber-700 rounded-xl p-3 md:p-6">
+        <h3 className="text-[13px] md:text-[14px] font-semibold text-amber-800 dark:text-amber-300 mb-3 md:mb-4 flex items-center gap-2">
           <AlertTriangle className="w-4 h-4" /> Alertas do Sistema
         </h3>
         {metrics.alerts.length === 0 ? (
-          <span className="inline-flex items-center gap-2 text-[13px] font-medium px-3 py-1.5 rounded-full bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400">
-            <CheckCircle2 className="w-4 h-4" /> Todos os sistemas normais
+          <span className="inline-flex items-center gap-2 text-[12px] md:text-[13px] font-medium px-3 py-1.5 rounded-full bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400">
+            <CheckCircle2 className="w-4 h-4" /> Tudo normal
           </span>
         ) : (
-          <div className="space-y-3">
+          <div className="space-y-2 md:space-y-3">
             {metrics.alerts.map((a, i) => (
-              <div key={i} className="flex items-center gap-3 text-[13px]">
+              <div key={i} className="flex items-center gap-2 md:gap-3 text-[12px] md:text-[13px]">
                 <span className={`w-2 h-2 rounded-full shrink-0 ${a.type === "red" ? "bg-destructive" : a.type === "yellow" ? "bg-amber-500" : "bg-primary"}`} />
-                <span className="flex-1 text-amber-800 dark:text-amber-300">{a.text}</span>
-                <span className="text-[11px] text-amber-700/60 dark:text-amber-400/60">{a.date}</span>
-                <Button variant="ghost" size="sm" className="h-7 text-[11px] text-amber-800 dark:text-amber-300">Ver</Button>
+                <span className="flex-1 text-amber-800 dark:text-amber-300 line-clamp-1">{a.text}</span>
+                <span className="text-[10px] md:text-[11px] text-amber-700/60 dark:text-amber-400/60 shrink-0">{a.date}</span>
               </div>
             ))}
           </div>
