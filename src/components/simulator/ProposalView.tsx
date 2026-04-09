@@ -132,6 +132,27 @@ const ProposalView = ({
     const origMaxWidth = element.style.maxWidth;
     const origPadding = element.style.padding;
 
+    // Temporarily reset transforms on all ancestors to prevent layout distortion
+    const ancestorResets: { el: HTMLElement; transform: string; width: string; marginLeft: string; minHeight: string }[] = [];
+    let ancestor = element.parentElement;
+    while (ancestor) {
+      const computed = getComputedStyle(ancestor);
+      if (computed.transform !== "none") {
+        ancestorResets.push({
+          el: ancestor,
+          transform: ancestor.style.transform,
+          width: ancestor.style.width,
+          marginLeft: ancestor.style.marginLeft,
+          minHeight: ancestor.style.minHeight,
+        });
+        ancestor.style.transform = "none";
+        ancestor.style.width = "100%";
+        ancestor.style.marginLeft = "0";
+        ancestor.style.minHeight = "auto";
+      }
+      ancestor = ancestor.parentElement;
+    }
+
     try {
       toast.info("Gerando PDF...", { duration: 3000 });
 
@@ -150,6 +171,9 @@ const ProposalView = ({
       element.style.maxWidth = `${width}px`;
       element.style.padding = "32px";
 
+      // Force a reflow so html2canvas sees the correct layout
+      element.getBoundingClientRect();
+
       const [{ default: html2canvas }, { jsPDF }] = await Promise.all([
         import("html2canvas"),
         import("jspdf"),
@@ -160,7 +184,6 @@ const ProposalView = ({
       const pageWidth = 210;
       const pageHeight = 297;
       const contentWidth = pageWidth - margin * 2;
-      const contentHeight = pageHeight - margin * 2;
       const sectionGap = 2;
 
       let currentY = margin;
@@ -177,7 +200,6 @@ const ProposalView = ({
 
         const imgHeightMm = (canvas.height * contentWidth) / canvas.width;
 
-        // If section doesn't fit on current page and we're not at the top, go to next page
         if (currentY > margin && currentY + imgHeightMm > pageHeight - margin) {
           pdf.addPage("a4", "portrait");
           currentY = margin;
@@ -201,6 +223,13 @@ const ProposalView = ({
       });
       pdfOnlyOriginals.forEach(({ el, display }) => {
         el.style.display = display;
+      });
+      // Restore ancestor transforms
+      ancestorResets.forEach(({ el, transform, width, marginLeft, minHeight }) => {
+        el.style.transform = transform;
+        el.style.width = width;
+        el.style.marginLeft = marginLeft;
+        el.style.minHeight = minHeight;
       });
     }
   };
