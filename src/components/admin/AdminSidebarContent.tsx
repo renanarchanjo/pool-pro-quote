@@ -43,16 +43,16 @@ const AdminSidebarContent = ({ onNavigate, isMobile = false }: AdminSidebarConte
     .toUpperCase();
 
   const mainItems = [
-    { title: "Dashboard", url: "/admin", icon: LayoutDashboard },
+    { title: "Dashboard", url: "/admin", icon: LayoutGrid },
     { title: "Gerar Nova Proposta", url: "/admin/gerar-proposta", icon: FilePlus },
     { title: "Leads (Tráfego)", url: "/admin/leads", icon: Users },
   ];
 
   const catalogItems = isOwner ? [
     { title: "Marcas Parceiras", url: "/admin/parceiros", icon: Handshake },
-    { title: "Marcas", url: "/admin/marcas", icon: Tag },
+    { title: "Marcas", url: "/admin/marcas", icon: Layers },
     { title: "Categorias de Marcas", url: "/admin/categorias", icon: FolderTree },
-    { title: "Modelos e Opcionais", url: "/admin/modelos", icon: Box },
+    { title: "Modelos e Opcionais", url: "/admin/modelos", icon: Boxes },
     { title: "Opcionais", url: "/admin/opcionais", icon: Package },
   ] : [];
 
