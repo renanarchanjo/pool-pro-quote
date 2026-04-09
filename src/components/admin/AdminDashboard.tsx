@@ -310,55 +310,107 @@ const AdminDashboard = () => {
         />
       </div>
 
-      {/* Proposal Detail Dialog */}
-      <Dialog open={!!viewingProposal} onOpenChange={(open) => !open && setViewingProposal(null)}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto w-[95vw] p-3 sm:p-6">
-          <DialogHeader>
-            <DialogTitle>Proposta — {viewingProposal?.customer_name}</DialogTitle>
-          </DialogHeader>
-          <Tabs defaultValue="proposal" className="w-full">
-            <TabsList className="w-full grid grid-cols-2">
-              <TabsTrigger value="proposal">Proposta</TabsTrigger>
-              <TabsTrigger value="notes">Anotações</TabsTrigger>
-            </TabsList>
-            <TabsContent value="proposal">
-              {viewingProposal?.pool_models && (
-                <ProposalView
-                  model={viewingProposal.pool_models as any}
-                  selectedOptionals={
-                    Array.isArray(viewingProposal.selected_optionals)
-                      ? viewingProposal.selected_optionals.map((o: any) =>
-                          typeof o === "object" && o !== null
-                            ? { name: o.name || "Item", price: o.price || 0 }
-                            : { name: String(o), price: 0 }
-                        )
-                      : []
-                  }
-                  customerData={{
-                    name: viewingProposal.customer_name,
-                    city: viewingProposal.customer_city,
-                    whatsapp: viewingProposal.customer_whatsapp,
-                  }}
-                  category={viewingProposal.pool_models.name}
-                  onBack={() => setViewingProposal(null)}
-                  storeSettings={storeSettings}
-                  storeName={store?.name}
-                  storeCity={store?.city}
-                  storeState={store?.state}
-                />
-              )}
-            </TabsContent>
-            <TabsContent value="notes">
-              {viewingProposal && store && (
-                <ProposalNotesPanel
-                  proposalId={viewingProposal.id}
-                  storeId={store.id}
-                />
-              )}
-            </TabsContent>
-          </Tabs>
-        </DialogContent>
-      </Dialog>
+      {/* Hidden proposal for PDF export */}
+      {exportingProposal?.pool_models && (
+        <div ref={proposalPdfRef} className="hidden">
+          <ProposalView
+            model={exportingProposal.pool_models as any}
+            selectedOptionals={
+              Array.isArray(exportingProposal.selected_optionals)
+                ? exportingProposal.selected_optionals.map((o: any) =>
+                    typeof o === "object" && o !== null
+                      ? { name: o.name || "Item", price: o.price || 0 }
+                      : { name: String(o), price: 0 }
+                  )
+                : []
+            }
+            customerData={{
+              name: exportingProposal.customer_name,
+              city: exportingProposal.customer_city,
+              whatsapp: exportingProposal.customer_whatsapp,
+            }}
+            category={exportingProposal.pool_models.name}
+            onBack={() => {}}
+            storeSettings={storeSettings}
+            storeName={store?.name}
+            storeCity={store?.city}
+            storeState={store?.state}
+          />
+        </div>
+      )}
+
+      {/* Proposal Preview Overlay (same as Leads) */}
+      {viewingProposal && (
+        <div
+          className="fixed inset-0 z-[70] flex items-center justify-center bg-black/50 backdrop-blur-sm p-3 md:p-6"
+          onClick={() => { setViewingProposal(null); setPreviewZoomed(false); }}
+        >
+          <div
+            className="relative bg-background rounded-2xl shadow-2xl border border-border flex flex-col w-full max-w-lg max-h-[85dvh]"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Toolbar */}
+            <div className="flex items-center justify-between px-4 py-2.5 border-b border-border shrink-0">
+              <span className="text-sm font-bold text-foreground">Proposta</span>
+              <div className="flex items-center gap-1.5">
+                <button
+                  onClick={() => setPreviewZoomed(!previewZoomed)}
+                  className="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-muted transition-colors"
+                  title={previewZoomed ? "Reduzir" : "Ampliar"}
+                >
+                  {previewZoomed ? <ZoomOut className="w-4 h-4 text-muted-foreground" /> : <ZoomIn className="w-4 h-4 text-muted-foreground" />}
+                </button>
+                <button
+                  onClick={() => { setViewingProposal(null); setPreviewZoomed(false); }}
+                  className="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-muted transition-colors"
+                >
+                  <X className="w-4 h-4 text-muted-foreground" />
+                </button>
+              </div>
+            </div>
+
+            {/* Proposal content */}
+            <div className="flex-1 overflow-y-auto overflow-x-hidden overscroll-contain">
+              <div
+                style={{
+                  transform: previewZoomed ? 'scale(1)' : 'scale(0.65)',
+                  transformOrigin: 'top center',
+                  width: previewZoomed ? '100%' : '154%',
+                  marginLeft: previewZoomed ? '0' : '-27%',
+                  minHeight: previewZoomed ? 'auto' : '154%',
+                  transition: 'transform 250ms ease, width 250ms ease, margin 250ms ease',
+                }}
+              >
+                {viewingProposal?.pool_models && (
+                  <ProposalView
+                    model={viewingProposal.pool_models as any}
+                    selectedOptionals={
+                      Array.isArray(viewingProposal.selected_optionals)
+                        ? viewingProposal.selected_optionals.map((o: any) =>
+                            typeof o === "object" && o !== null
+                              ? { name: o.name || "Item", price: o.price || 0 }
+                              : { name: String(o), price: 0 }
+                          )
+                        : []
+                    }
+                    customerData={{
+                      name: viewingProposal.customer_name,
+                      city: viewingProposal.customer_city,
+                      whatsapp: viewingProposal.customer_whatsapp,
+                    }}
+                    category={viewingProposal.pool_models.name}
+                    onBack={() => { setViewingProposal(null); setPreviewZoomed(false); }}
+                    storeSettings={storeSettings}
+                    storeName={store?.name}
+                    storeCity={store?.city}
+                    storeState={store?.state}
+                  />
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
