@@ -4,7 +4,6 @@ import path from "path";
 import { componentTagger } from "lovable-tagger";
 import { VitePWA } from "vite-plugin-pwa";
 
-// https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
   server: {
     host: "::",
@@ -15,18 +14,18 @@ export default defineConfig(({ mode }) => ({
     mode === "development" && componentTagger(),
     VitePWA({
       registerType: "autoUpdate",
-      includeAssets: ["favicon.ico", "apple-touch-icon.png", "images/pools/*"],
+      devOptions: {
+        enabled: false,
+      },
+      includeAssets: ["favicon.png", "pwa-192x192.png", "pwa-512x512.png"],
       workbox: {
         navigateFallbackDenylist: [/^\/~oauth/],
         globPatterns: ["**/*.{js,css,html,ico,png,svg,woff2}"],
-        // Skip waiting so the new SW activates immediately
         skipWaiting: true,
         clientsClaim: true,
-        // Don't cache-bust URLs with hashes (Vite already hashes filenames)
         dontCacheBustURLsMatching: /\.[0-9a-f]{8}\./,
         runtimeCaching: [
           {
-            // Cache Google Fonts with stale-while-revalidate
             urlPattern: /^https:\/\/fonts\.(googleapis|gstatic)\.com\/.*/i,
             handler: "StaleWhileRevalidate",
             options: {
@@ -35,12 +34,10 @@ export default defineConfig(({ mode }) => ({
             },
           },
           {
-            // API calls: always network-first
             urlPattern: /\/functions\/v1\//,
             handler: "NetworkOnly",
           },
           {
-            // Supabase REST: always network-first
             urlPattern: /\/rest\/v1\//,
             handler: "NetworkOnly",
           },
@@ -54,13 +51,15 @@ export default defineConfig(({ mode }) => ({
         background_color: "#ffffff",
         display: "standalone",
         orientation: "portrait",
-        start_url: "/",
+        start_url: "/login",
         scope: "/",
+        categories: ["business", "productivity"],
+        lang: "pt-BR",
         icons: [
           {
-            src: "/favicon.ico",
+            src: "/favicon.png",
             sizes: "64x64",
-            type: "image/x-icon",
+            type: "image/png",
           },
           {
             src: "/pwa-192x192.png",
