@@ -141,6 +141,7 @@ const AdminDashboard = () => {
       setProposals(rawProposals);
       setLeadDistributions(distRes.data || []);
       setTeamMembers(teamRes.data || []);
+      setPartners(partnersRes.data || []);
 
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
