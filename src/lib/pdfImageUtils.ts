@@ -53,6 +53,44 @@ const toBase64ViaProxy = async (url: string): Promise<string> => {
   });
 };
 
+const toBase64ViaCanvas = async (url: string): Promise<string> => {
+  const absoluteUrl = new URL(url, window.location.origin).toString();
+
+  const image = await new Promise<HTMLImageElement>((resolve, reject) => {
+    const img = new Image();
+    img.crossOrigin = "anonymous";
+    img.decoding = "async";
+    img.onload = () => resolve(img);
+    img.onerror = () => reject(new Error("Image load failed"));
+    img.src = absoluteUrl;
+  });
+
+  try {
+    await image.decode();
+  } catch {
+    // ignore decode errors — image may still be drawable
+  }
+
+  const width = image.naturalWidth || image.width;
+  const height = image.naturalHeight || image.height;
+
+  if (!width || !height) {
+    throw new Error("Image has no dimensions");
+  }
+
+  const canvas = document.createElement("canvas");
+  canvas.width = width;
+  canvas.height = height;
+
+  const context = canvas.getContext("2d");
+  if (!context) {
+    throw new Error("Canvas context unavailable");
+  }
+
+  context.drawImage(image, 0, 0, width, height);
+  return canvas.toDataURL("image/png");
+};
+
 /** Check if a URL is same-origin or relative (local asset) — these don't need the proxy */
 const isSameOriginOrRelative = (url: string): boolean => {
   try {
@@ -69,6 +107,9 @@ export const toBase64Safe = async (url: string): Promise<string> => {
   // Transparent 1×1 PNG fallback
   const FALLBACK = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=";
 
+  if (!url) return FALLBACK;
+  if (url.startsWith("data:") || url.startsWith("blob:")) return url;
+
   const isLocal = isSameOriginOrRelative(url);
 
   try {
@@ -76,8 +117,12 @@ export const toBase64Safe = async (url: string): Promise<string> => {
   } catch {
     // Only try the proxy for cross-origin URLs — local assets should never go through it
     if (isLocal) {
-      console.warn("[PDF] Local image failed direct fetch, using fallback:", url);
-      return FALLBACK;
+      try {
+        return await toBase64ViaCanvas(url);
+      } catch {
+        console.warn("[PDF] Local image failed direct fetch/canvas, using fallback:", url);
+        return FALLBACK;
+      }
     }
     try {
       return await toBase64ViaProxy(url);

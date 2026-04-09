@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { FileDown, ArrowLeft } from "lucide-react";
 import { exportPDF } from "@/lib/exportPDF";
 import { toBase64Safe } from "@/lib/pdfImageUtils";
-import simulapoolLogoFooter from "@/assets/simulapool-logo-footer.png";
+import simulapoolLogoFooter from "@/assets/simulapool-logo-footer.png?inline";
 
 interface PoolModel {
   name: string;
@@ -137,7 +137,7 @@ const ProposalView = ({
           simulapoolLogoFooter,
           ...banner1Urls.map((banner) => banner.url),
           ...partners.map((partner) => partner.logo_url),
-        ].filter((url): url is string => Boolean(url)),
+        ].filter((url): url is string => Boolean(url) && !url.startsWith("data:") && !url.startsWith("blob:")),
       ),
     );
 
