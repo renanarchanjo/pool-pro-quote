@@ -68,8 +68,10 @@ const MatrizInadimplencia = () => {
     load();
   }, []);
 
+  const LIM_PISCINAS_ID = "5e8165c0-64b6-4d06-b274-8eeb261a79c4";
+
   const inadimplentes = useMemo(
-    () => stores.filter((s) => s.plan_status === "past_due" || s.plan_status === "canceled" || s.plan_status === "inactive"),
+    () => stores.filter((s) => s.id !== LIM_PISCINAS_ID && (s.plan_status === "past_due" || s.plan_status === "canceled" || s.plan_status === "inactive")),
     [stores]
   );
 
