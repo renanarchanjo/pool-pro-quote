@@ -415,8 +415,8 @@ const MatrizDashboard = () => {
                     <td className="px-4"><span className={`inline-flex text-[11px] font-medium px-2 py-0.5 rounded-full ${statusStyle.bg} ${statusStyle.text}`}>{statusStyle.label}</span></td>
                     <td className="px-4">
                       <div className="flex gap-2">
-                        <Button variant="ghost" size="sm" className="h-7 text-[11px] gap-1"><Eye className="w-3 h-3" /> Ver</Button>
-                        <Button variant="ghost" size="sm" className="h-7 text-[11px] gap-1"><Phone className="w-3 h-3" /> Contato</Button>
+                        <Button variant="ghost" size="sm" className="h-7 text-[11px] gap-1" onClick={() => handleViewStore(s.id)}><Eye className="w-3 h-3" /> Ver</Button>
+                        <Button variant="ghost" size="sm" className="h-7 text-[11px] gap-1" onClick={() => handleContact(s.id)}><Phone className="w-3 h-3" /> Contato</Button>
                       </div>
                     </td>
                   </tr>
