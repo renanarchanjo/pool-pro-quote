@@ -44,6 +44,7 @@ const MatrizInadimplencia = () => {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
+  const pdfRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const load = async () => {
