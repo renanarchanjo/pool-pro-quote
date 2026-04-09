@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
+import MemberSalesFunnel from "./MemberSalesFunnel";
 import { format, startOfMonth, endOfMonth, subDays, subMonths, startOfDay, endOfDay } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { DateRange } from "react-day-picker";
@@ -100,9 +101,11 @@ const TeamCommissions = () => {
       allProposals.forEach(p => { if ((p as any).created_by === member.id) memberProposalIds.add(p.id); });
       const memberProposals = Array.from(memberProposalIds).map(id => proposalMap.get(id)).filter(Boolean) as ProposalDataFull[];
       const inRange = memberProposals.filter(p => { const dt = new Date(p.created_at); return dt >= from && dt <= to; });
+      const nova = inRange.filter(p => p.status === "nova");
+      const enviada = inRange.filter(p => p.status === "enviada");
+      const inNeg = inRange.filter(p => p.status === "em_negociacao");
       const closed = inRange.filter(p => p.status === "fechada");
       const lost = inRange.filter(p => p.status === "perdida");
-      const inNeg = inRange.filter(p => p.status === "em_negociacao");
       const revenueClosed = closed.reduce((s, p) => s + p.total_price, 0);
       const cp = getCommissionPercent(member.id);
       const commissionValue = revenueClosed * (cp / 100);
@@ -112,8 +115,13 @@ const TeamCommissions = () => {
 
       return {
         memberId: member.id, name: member.full_name || "Sem nome",
-        totalProposals: inRange.length, closed: closed.length, lost: lost.length, inNegotiation: inNeg.length,
-        revenueClosed, commissionPercent: cp, commissionValue, conversionRate, ticketMedio,
+        totalProposals: inRange.length, nova: nova.length, enviada: enviada.length,
+        inNegotiation: inNeg.length, closed: closed.length, lost: lost.length,
+        revenueNova: nova.reduce((s, p) => s + p.total_price, 0),
+        revenueEnviada: enviada.reduce((s, p) => s + p.total_price, 0),
+        revenueNeg: inNeg.reduce((s, p) => s + p.total_price, 0),
+        revenueClosed, revenueLost: lost.reduce((s, p) => s + p.total_price, 0),
+        commissionPercent: cp, commissionValue, conversionRate, ticketMedio,
         closedProposals: closed.map(p => ({
           name: p.customer_name, value: p.total_price, commission: p.total_price * (cp / 100), date: p.created_at,
         })),
@@ -288,6 +296,18 @@ const TeamCommissions = () => {
                     {m.lost} perdidos
                   </span>
                 </div>
+
+                {/* Sales Funnel */}
+                <MemberSalesFunnel
+                  stages={[
+                    { label: "Novas", count: m.nova, revenue: m.revenueNova, color: "#0EA5E9" },
+                    { label: "Enviadas", count: m.enviada, revenue: m.revenueEnviada, color: "#8B5CF6" },
+                    { label: "Em Negociação", count: m.inNegotiation, revenue: m.revenueNeg, color: "#F59E0B" },
+                    { label: "Fechadas", count: m.closed, revenue: m.revenueClosed, color: "#22C55E" },
+                    { label: "Perdidas", count: m.lost, revenue: m.revenueLost, color: "#EF4444" },
+                  ]}
+                  total={m.totalProposals}
+                />
 
                 {/* Closed proposals detail */}
                 {m.closedProposals.length > 0 && (
