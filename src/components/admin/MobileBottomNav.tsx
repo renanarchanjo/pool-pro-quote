@@ -1,13 +1,8 @@
 import { useNavigate, useLocation } from "react-router-dom";
 import { LayoutDashboard, FilePlus, Users, Menu as MenuIcon } from "lucide-react";
 import { useState, useEffect } from "react";
-import AdminSidebar from "./AdminSidebar";
-import { SidebarProvider } from "@/components/ui/sidebar";
-import {
-  Sheet,
-  SheetContent,
-  SheetTitle,
-} from "@/components/ui/sheet";
+import AdminSidebarContent from "./AdminSidebarContent";
+import FloatingPanel from "./FloatingPanel";
 
 const NAV_ITEMS = [
   { label: "Dash", icon: LayoutDashboard, url: "/admin" },
@@ -18,21 +13,21 @@ const NAV_ITEMS = [
 const MobileBottomNav = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const [sheetOpen, setSheetOpen] = useState(false);
+  const [panelOpen, setPanelOpen] = useState(false);
 
   const isActive = (url: string) => {
     if (url === "/admin") return location.pathname === "/admin";
     return location.pathname.startsWith(url);
   };
 
-  // Close sheet on route change
+  // Close panel on route change
   useEffect(() => {
-    setSheetOpen(false);
+    setPanelOpen(false);
   }, [location.pathname]);
 
   return (
     <>
-      {/* Bottom Navigation Bar — fixed, respects safe area */}
+      {/* Bottom Navigation Bar */}
       <nav
         className="mobile-bottom-nav md:hidden fixed bottom-0 left-0 right-0 z-50 bg-background border-t border-border flex items-center justify-around"
         style={{
@@ -61,32 +56,25 @@ const MobileBottomNav = () => {
           );
         })}
         <button
-          onClick={() => setSheetOpen(true)}
+          onClick={() => setPanelOpen(true)}
           className="flex flex-col items-center justify-center gap-0.5 flex-1 transition-colors duration-100 active:scale-95"
           style={{ height: 'var(--bottom-nav-height)' }}
           data-compact
         >
           <MenuIcon
-            className={`w-5 h-5 transition-colors ${sheetOpen ? "text-primary" : "text-muted-foreground"}`}
-            strokeWidth={sheetOpen ? 2.2 : 1.5}
+            className={`w-5 h-5 transition-colors ${panelOpen ? "text-primary" : "text-muted-foreground"}`}
+            strokeWidth={panelOpen ? 2.2 : 1.5}
           />
-          <span className={`text-[10px] font-medium transition-colors ${sheetOpen ? "text-primary" : "text-muted-foreground"}`}>
+          <span className={`text-[10px] font-medium transition-colors ${panelOpen ? "text-primary" : "text-muted-foreground"}`}>
             Menu
           </span>
         </button>
       </nav>
 
-      {/* Right-side Sheet */}
-      <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
-        <SheetContent side="right" className="w-[80%] max-w-[300px] p-0 bg-background">
-          <SheetTitle className="sr-only">Menu</SheetTitle>
-          <SidebarProvider>
-            <div className="w-full h-full overflow-y-auto overscroll-contain">
-              <AdminSidebar />
-            </div>
-          </SidebarProvider>
-        </SheetContent>
-      </Sheet>
+      {/* Floating Right Panel */}
+      <FloatingPanel open={panelOpen} onClose={() => setPanelOpen(false)}>
+        <AdminSidebarContent onNavigate={() => setPanelOpen(false)} isMobile />
+      </FloatingPanel>
     </>
   );
 };
