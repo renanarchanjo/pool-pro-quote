@@ -227,7 +227,7 @@ const PricingSection = ({
               return (
                 <div
                   key={plan.id}
-                  className="plan-card relative flex flex-col transition-all duration-500 ease-out"
+                  className={`plan-card relative flex flex-col transition-all duration-500 ease-out ${isHero ? "lg:-my-4 lg:-mx-2" : ""}`}
                   style={{
                     opacity: 0,
                     transform: "translateY(24px)",
