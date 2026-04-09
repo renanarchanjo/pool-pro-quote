@@ -68,6 +68,7 @@ const MatrizDashboard = () => {
   const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
   const [period, setPeriod] = useState("month");
+  const [customRange, setCustomRange] = useState<{ from?: Date; to?: Date }>({});
 
   const handleViewStore = () => navigate(`/matriz/lojas`);
 
