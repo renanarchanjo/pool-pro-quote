@@ -73,6 +73,7 @@ const AdminLeads = () => {
   const [assignDialogOpen, setAssignDialogOpen] = useState(false);
   const [assigningLeadId, setAssigningLeadId] = useState<string | null>(null);
   const [assignTargetUser, setAssignTargetUser] = useState<string>("");
+  const [partners, setPartners] = useState<{ id: string; name: string; logo_url: string | null; banner_1_url: string | null; banner_2_url: string | null; display_percent?: number }[]>([]);
 
   const isOwner = role === "owner";
 
@@ -133,7 +134,7 @@ const AdminLeads = () => {
   const loadData = async () => {
     if (!store) return;
     setLoading(true);
-    const [leadsRes, storeRes, teamRes] = await Promise.all([
+    const [leadsRes, storeRes, teamRes, partnersRes] = await Promise.all([
       (supabase as any)
         .from("lead_distributions")
         .select("*, proposals(customer_name, customer_city, customer_whatsapp, total_price, created_at, pool_models(name)), accepted_by_profile:profiles!accepted_by(full_name), assigned_to_profile:profiles!assigned_to(full_name)")
@@ -149,10 +150,12 @@ const AdminLeads = () => {
         .from("profiles")
         .select("id, full_name")
         .eq("store_id", store.id),
+      supabase.from("partners").select("id, name, logo_url, banner_1_url, banner_2_url, display_percent").eq("active", true).order("display_order"),
     ]);
     if (leadsRes.data) setLeads(leadsRes.data);
     if (storeRes.data) setStoreInfo(storeRes.data);
     if (teamRes.data) setTeamMembers(teamRes.data);
+    if (partnersRes.data) setPartners(partnersRes.data);
     setLoading(false);
   };
 
@@ -202,7 +205,7 @@ const AdminLeads = () => {
     try {
       const { data: proposal, error } = await (supabase as any)
         .from("proposals")
-        .select("*, pool_models(*, categories(name))")
+        .select("*, pool_models(*, categories(name, brand_id, brands(name, logo_url, partner_id)))")
         .eq("id", proposalId)
         .single();
       if (error) throw error;
@@ -965,6 +968,10 @@ const AdminLeads = () => {
                   storeName={store?.name}
                   storeCity={store?.city}
                   storeState={store?.state}
+                  brandLogoUrl={viewingProposal.pool_models?.categories?.brands?.logo_url}
+                  brandName={viewingProposal.pool_models?.categories?.brands?.name}
+                  brandPartnerId={viewingProposal.pool_models?.categories?.brands?.partner_id}
+                  partners={partners}
                 />
               </div>
             </div>
