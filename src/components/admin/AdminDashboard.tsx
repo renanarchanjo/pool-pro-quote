@@ -1,19 +1,14 @@
 import { useState, useEffect, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button"; 
-import { Loader2, Download, CalendarIcon } from "lucide-react";
+import { Loader2, Download, CalendarIcon, ZoomIn, ZoomOut, X } from "lucide-react";
 import { useStoreData } from "@/hooks/useStoreData";
 import { toast } from "sonner";
 import { exportPDF } from "@/lib/exportPDF";
-import {
-  Dialog, DialogContent, DialogHeader, DialogTitle,
-} from "@/components/ui/dialog";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import ProposalView from "@/components/simulator/ProposalView";
-import ProposalNotesPanel from "./dashboard/ProposalNotesPanel";
 import { Proposal, ProposalStatus, STATUS_CONFIG } from "./dashboard/types";
 import DashboardKPIs from "./dashboard/DashboardKPIs";
 import DashboardFunnel from "./dashboard/DashboardFunnel";
