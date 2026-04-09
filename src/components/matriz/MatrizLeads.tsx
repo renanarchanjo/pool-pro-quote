@@ -613,9 +613,9 @@ const MatrizLeads = () => {
           <div className="space-y-3">
             <Select value={targetStoreId} onValueChange={setTargetStoreId}>
               <SelectTrigger className="h-9 text-sm"><SelectValue placeholder="Selecione o lojista" /></SelectTrigger>
-              <SelectContent>
+              <SelectContent position="popper" className="max-h-[250px] z-[9999]" sideOffset={4}>
                 {availableStores.length === 0 ? (
-                  <SelectItem value="_none" disabled>Nenhum lojista com plano ativo</SelectItem>
+                  <SelectItem value="_none" disabled>Nenhum lojista cadastrado</SelectItem>
                 ) : (
                   availableStores.map(s => (
                     <SelectItem key={s.id} value={s.id}>{s.name} {s.city ? `— ${s.city}/${s.state}` : ""}{s.lead_plan_active ? "" : " (plano inativo)"}</SelectItem>
