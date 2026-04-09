@@ -407,13 +407,7 @@ const MatrizDashboard = () => {
         <h3 className="text-[15px] font-semibold text-foreground mt-1 mb-4">Lojistas por estado</h3>
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2">
-            <BrazilMap stateData={Object.fromEntries(metrics.stateMap)} />
-            <div className="flex items-center gap-4 mt-4 text-[11px] text-muted-foreground">
-              {[{ label: "1", color: "#E0F2FE" }, { label: "2–5", color: "#7DD3FC" }, { label: "6–10", color: "#0EA5E9" }, { label: "10+", color: "#0284C7" }].map(l => (
-                <div key={l.label} className="flex items-center gap-1.5"><div className="w-3 h-3 rounded-sm" style={{ backgroundColor: l.color }} /><span>{l.label}</span></div>
-              ))}
-              <div className="flex items-center gap-1.5"><div className="w-3 h-3 rounded-sm bg-muted" /><span>Sem lojistas</span></div>
-            </div>
+            <BrazilMap stateData={Object.fromEntries(metrics.stateMap)} stores={data.stores.map(s => ({ id: s.id, name: s.name, city: s.city, state: s.state }))} />
           </div>
           <div className="space-y-3">
             <h4 className="text-[13px] font-semibold text-foreground">Top 5 Estados</h4>
