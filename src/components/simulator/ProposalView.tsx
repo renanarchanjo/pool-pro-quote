@@ -192,6 +192,9 @@ const ProposalView = ({
       hiddenOriginals.forEach(({ el, display }) => {
         el.style.display = display;
       });
+      pdfOnlyOriginals.forEach(({ el, display }) => {
+        el.style.display = display;
+      });
     }
   };
 
