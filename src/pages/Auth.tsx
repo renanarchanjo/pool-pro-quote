@@ -154,7 +154,7 @@ const Auth = () => {
 
     setLoading(true);
     try {
-      const slug = email.split('@')[0].toLowerCase().replace(/[^a-z0-9]/g, '') + '-' + Date.now();
+      const slug = Math.random().toString(36).substring(2, 8) + '-' + Date.now().toString(36);
       const cnpjDigits = cnpj.replace(/\D/g, "");
 
       const { data: authData, error: signUpError } = await supabase.auth.signUp({

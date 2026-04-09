@@ -60,7 +60,18 @@ const Admin = () => {
   useEffect(() => {
     const checkAuth = async () => {
       const { data: { session } } = await supabase.auth.getSession();
-      if (!session) navigate("/auth");
+      if (!session) { navigate("/login"); return; }
+
+      const { data: roleData } = await supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", session.user.id)
+        .single();
+
+      if (!roleData?.role) { navigate("/login"); return; }
+      if (roleData.role === "super_admin") { navigate("/matriz", { replace: true }); return; }
+      if (roleData.role !== "owner" && roleData.role !== "seller") { navigate("/login"); return; }
+
       setAuthLoading(false);
     };
     checkAuth();

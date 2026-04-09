@@ -22,7 +22,17 @@ const MobileApp = () => {
     const checkSession = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (session) {
-        navigate("/admin");
+        const { data: roleData } = await supabase
+          .from("user_roles")
+          .select("role")
+          .eq("user_id", session.user.id)
+          .single();
+
+        if (roleData?.role === "super_admin") {
+          navigate("/matriz");
+        } else {
+          navigate("/admin");
+        }
       }
       setCheckingSession(false);
     };

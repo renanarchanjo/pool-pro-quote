@@ -46,7 +46,7 @@ const Matriz = () => {
   useEffect(() => {
     const checkAuth = async () => {
       const { data: { session } } = await supabase.auth.getSession();
-      if (!session) { navigate("/auth"); return; }
+      if (!session) { navigate("/loginmatriz"); return; }
 
       const { data: roleData } = await supabase
         .from("user_roles").select("role")
