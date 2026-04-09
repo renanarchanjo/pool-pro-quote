@@ -36,11 +36,13 @@ const prepareElementForCapture = (element: HTMLElement): ElementSnapshot => {
   element.style.display = "block";
   element.style.visibility = "visible";
   element.style.opacity = "1";
-  element.style.position = "fixed";
-  element.style.left = "-10000px";
+  element.style.position = "absolute";
+  element.style.left = "0";
   element.style.top = "0";
-  element.style.zIndex = "-1";
+  element.style.zIndex = "-9999";
   element.style.pointerEvents = "none";
+  element.style.overflow = "hidden";
+  element.style.clipPath = "inset(0)";
 
   return snapshot;
 };
