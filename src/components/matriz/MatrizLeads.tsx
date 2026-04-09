@@ -275,18 +275,25 @@ const MatrizLeads = () => {
   const receitaPotencial = filtered.reduce((sum, l) => sum + l.total_price, 0);
   const formatCurrency = (v: number) => v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 
-  const handleExportCSV = () => {
-    const headers = ["Nome", "Cidade", "WhatsApp", "Piscina", "Valor", "Status", "Distribuído Para", "Data"];
+  const handleExportXlsx = async () => {
+    const { exportLeadsXlsx } = await import("@/lib/exportLeadsXlsx");
     const rows = tabFiltered.map(l => {
       const dist = distributionMap.get(l.id);
-      return [l.customer_name, l.customer_city, l.customer_whatsapp, l.pool_models?.name || "-", l.total_price.toString(), statusConfig[l.status].label, dist ? (dist.stores?.name || "-") : "Não", l.created_at ? format(new Date(l.created_at), "dd/MM/yyyy HH:mm") : "-"];
+      return {
+        nome: l.customer_name,
+        whatsapp: l.customer_whatsapp,
+        cidade: l.customer_city,
+        estado: l.stores?.state || "—",
+        piscina: l.pool_models?.name || "",
+        valor: l.total_price,
+        status: statusConfig[l.status].label,
+        distribuidoPara: dist ? (dist.stores?.name || "") : "",
+        dataEntrada: l.created_at || "",
+        dataDistribuicao: dist?.created_at || "",
+      };
     });
-    const csv = [headers, ...rows].map(r => r.map(c => `"${c}"`).join(",")).join("\n");
-    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a"); a.href = url; a.download = `leads-${format(new Date(), "yyyy-MM-dd")}.csv`; a.click();
-    URL.revokeObjectURL(url);
-    toast.success("CSV exportado");
+    await exportLeadsXlsx(rows);
+    toast.success("Planilha exportada com sucesso");
   };
 
   if (loading) return (
@@ -317,9 +324,9 @@ const MatrizLeads = () => {
             <RefreshCw className="w-3.5 h-3.5 md:mr-1" />
             <span className="hidden md:inline">Atualizar</span>
           </Button>
-          <Button variant="outline" size="sm" onClick={handleExportCSV} className="h-8 w-8 md:w-auto p-0 md:px-3">
+          <Button variant="outline" size="sm" onClick={handleExportXlsx} className="h-8 w-8 md:w-auto p-0 md:px-3">
             <Download className="w-3.5 h-3.5 md:mr-1" />
-            <span className="hidden md:inline">CSV</span>
+            <span className="hidden md:inline">Exportar</span>
           </Button>
         </div>
       </div>
