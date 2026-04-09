@@ -27,7 +27,7 @@ const SiteHeader = ({ onSimulate }: SiteHeaderProps) => {
 
       <nav className="sticky top-0 z-50 h-14 md:h-[68px] bg-transparent">
         <div className="container mx-auto px-5 md:px-12 h-full flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-2">
+          <Link to="/" className="flex items-center gap-2.5">
             <img src={logoIcon} alt="SimulaPool" className="h-10 md:h-14 w-auto" />
             <div className="flex flex-col">
               <span className="text-[20px] md:text-[26px] font-bold text-white tracking-[-0.01em] leading-tight">
