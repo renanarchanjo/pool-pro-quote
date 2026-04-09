@@ -91,13 +91,13 @@ const Admin = () => {
 
   return (
     <SidebarProvider>
-      <div className="h-full flex w-full bg-secondary overflow-hidden">
+      <div className="h-dvh flex w-full bg-secondary overflow-hidden">
         {/* Desktop sidebar */}
         <div className="hidden md:block">
           <AdminSidebar />
         </div>
 
-        <div className="flex-1 flex flex-col min-w-0 h-full">
+        <div className="flex-1 flex flex-col min-w-0 min-h-0">
           {/* App Header */}
           <header
             className="flex items-center border-b border-border bg-background px-4 shrink-0"
