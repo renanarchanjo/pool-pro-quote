@@ -53,14 +53,32 @@ const toBase64ViaProxy = async (url: string): Promise<string> => {
   });
 };
 
+/** Check if a URL is same-origin or relative (local asset) — these don't need the proxy */
+const isSameOriginOrRelative = (url: string): boolean => {
+  try {
+    const parsed = new URL(url, window.location.origin);
+    return parsed.origin === window.location.origin;
+  } catch {
+    // If URL parsing fails it's likely a relative path
+    return true;
+  }
+};
+
 /** Try direct fetch first, then proxy, then return transparent fallback */
 export const toBase64Safe = async (url: string): Promise<string> => {
   // Transparent 1×1 PNG fallback
   const FALLBACK = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=";
 
+  const isLocal = isSameOriginOrRelative(url);
+
   try {
     return await toBase64(url);
   } catch {
+    // Only try the proxy for cross-origin URLs — local assets should never go through it
+    if (isLocal) {
+      console.warn("[PDF] Local image failed direct fetch, using fallback:", url);
+      return FALLBACK;
+    }
     try {
       return await toBase64ViaProxy(url);
     } catch {
