@@ -523,10 +523,9 @@ const ProposalView = ({
             )}
 
             {/* ===== FOOTER ===== */}
-            <div style={{ textAlign: "center", fontSize: "10px", color: "#9ca3af", marginTop: "14px", paddingTop: "10px", borderTop: "1px solid #e5e7eb" }}>
+            <div data-pdf-section style={{ textAlign: "center", fontSize: "10px", color: "#9ca3af", marginTop: "14px", paddingTop: "10px", borderTop: "1px solid #e5e7eb" }}>
               Documento gerado por SimulaPool
             </div>
-          </div>
         </div>
       </main>
     </div>
