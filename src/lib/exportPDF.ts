@@ -171,6 +171,23 @@ export const exportPDF = async ({
   try {
     toast.info("Gerando PDF...", { duration: 3000 });
 
+    // Aguarda imagens/fontes em mobile antes da captura
+    const images = Array.from(element.querySelectorAll("img"));
+    await Promise.all(
+      images.map(
+        (img) =>
+          new Promise<void>((resolve) => {
+            if (img.complete) return resolve();
+            img.onload = () => resolve();
+            img.onerror = () => resolve();
+          }),
+      ),
+    );
+
+    if (typeof document !== "undefined" && "fonts" in document) {
+      await (document as Document & { fonts?: { ready?: Promise<unknown> } }).fonts?.ready;
+    }
+
     // Show PDF-only headers
     pdfHeaders.forEach((el) => {
       hiddenOriginals.push({ el, display: el.style.display });
@@ -188,9 +205,8 @@ export const exportPDF = async ({
     element.style.maxWidth = `${width}px`;
     element.style.padding = "24px";
     element.style.background = "#ffffff";
-    // Force reflow before capture
     element.getBoundingClientRect();
-    await new Promise(r => setTimeout(r, 200));
+    await new Promise((r) => setTimeout(r, 300));
 
     if (sectionSelector) {
       await exportSectionedPDF({ element, filename, orientation, sectionSelector });
@@ -207,6 +223,8 @@ export const exportPDF = async ({
             windowWidth: width,
             backgroundColor: "#ffffff",
             logging: false,
+            scrollX: 0,
+            scrollY: -window.scrollY,
           },
           jsPDF: { unit: "mm", format: "a4", orientation },
           pagebreak: { mode: ["avoid-all", "css", "legacy"] },
