@@ -274,25 +274,28 @@ const AdminLeads = () => {
   };
 
   const handleAssignLead = async () => {
-    if (!assigningLeadId || !assignTargetUser) return;
+    if (!assignTargetUser) return;
+    const idsToAssign = assigningLeadId ? [assigningLeadId] : Array.from(selectedIds);
+    if (idsToAssign.length === 0) return;
     try {
       const { error } = await (supabase as any)
         .from("lead_distributions")
         .update({ assigned_to: assignTargetUser })
-        .eq("id", assigningLeadId);
+        .in("id", idsToAssign);
       if (error) throw error;
-      toast.success("Lead atribuído com sucesso!");
+      toast.success(`${idsToAssign.length} lead(s) atribuído(s) com sucesso!`);
       setAssignDialogOpen(false);
       setAssigningLeadId(null);
       setAssignTargetUser("");
+      setSelectedIds(new Set());
       loadData();
     } catch (err: any) {
       toast.error(err.message || "Erro ao atribuir lead");
     }
   };
 
-  const openAssignDialog = (leadId: string) => {
-    setAssigningLeadId(leadId);
+  const openAssignDialog = (leadId?: string) => {
+    setAssigningLeadId(leadId || null);
     setAssignTargetUser("");
     setAssignDialogOpen(true);
   };
@@ -632,14 +635,23 @@ const AdminLeads = () => {
         <div className="bg-primary/5 border border-primary/20 rounded-lg p-3 animate-fade-in space-y-2">
           <span className="text-sm font-medium">{selectedIds.size} lead(s) selecionado(s)</span>
           <div className="flex gap-2 w-full">
-            <Button size="sm" className="h-8 text-xs bg-emerald-600 hover:bg-emerald-700 text-white flex-1" onClick={handleBulkAccept} disabled={bulkProcessing}>
-              {bulkProcessing ? <Loader2 className="w-3 h-3 animate-spin mr-1" /> : <CheckCheck className="w-3.5 h-3.5 mr-1" />}
-              Aceitar
-            </Button>
-            <Button size="sm" variant="outline" className="h-8 text-xs border-red-500/30 text-red-600 hover:bg-red-50 flex-1" onClick={handleBulkReject} disabled={bulkProcessing}>
-              <XCircle className="w-3.5 h-3.5 mr-1" />
-              Recusar
-            </Button>
+            {isOwner && teamMembers.length > 1 ? (
+              <Button size="sm" className="h-8 text-xs flex-1" onClick={() => openAssignDialog()} disabled={bulkProcessing}>
+                <Send className="w-3.5 h-3.5 mr-1" />
+                Atribuir ({selectedIds.size})
+              </Button>
+            ) : (
+              <>
+                <Button size="sm" className="h-8 text-xs bg-emerald-600 hover:bg-emerald-700 text-white flex-1" onClick={handleBulkAccept} disabled={bulkProcessing}>
+                  {bulkProcessing ? <Loader2 className="w-3 h-3 animate-spin mr-1" /> : <CheckCheck className="w-3.5 h-3.5 mr-1" />}
+                  Aceitar
+                </Button>
+                <Button size="sm" variant="outline" className="h-8 text-xs border-red-500/30 text-red-600 hover:bg-red-50 flex-1" onClick={handleBulkReject} disabled={bulkProcessing}>
+                  <XCircle className="w-3.5 h-3.5 mr-1" />
+                  Recusar
+                </Button>
+              </>
+            )}
           </div>
         </div>
       )}
@@ -703,7 +715,7 @@ const AdminLeads = () => {
 
                         {isPending ? (
                           <div className="flex gap-2">
-                            {isOwner && teamMembers.length > 1 && (
+                            {isOwner && teamMembers.length > 1 ? (
                               <Button
                                 size="sm"
                                 variant="outline"
@@ -712,24 +724,27 @@ const AdminLeads = () => {
                               >
                                 <Send className="w-3.5 h-3.5 mr-1" /> Atribuir
                               </Button>
-                            )}
-                            <Button
-                              size="sm"
-                              className="h-9 text-xs bg-emerald-600 hover:bg-emerald-700 text-white px-4"
-                              onClick={() => handleAccept(lead.id)}
-                              disabled={accepting === lead.id || bulkProcessing}
-                            >
-                              {accepting === lead.id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <><CheckCircle className="w-3.5 h-3.5 mr-1" /> Aceitar</>}
-                            </Button>
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              className="h-9 text-xs border-red-500/30 text-red-600 px-3"
-                              onClick={() => handleReject(lead.id)}
-                              disabled={bulkProcessing}
-                            >
-                              <XCircle className="w-3.5 h-3.5" />
-                            </Button>
+                            ) : !isOwner ? (
+                              <>
+                                <Button
+                                  size="sm"
+                                  className="h-9 text-xs bg-emerald-600 hover:bg-emerald-700 text-white px-4"
+                                  onClick={() => handleAccept(lead.id)}
+                                  disabled={accepting === lead.id || bulkProcessing}
+                                >
+                                  {accepting === lead.id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <><CheckCircle className="w-3.5 h-3.5 mr-1" /> Aceitar</>}
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  className="h-9 text-xs border-red-500/30 text-red-600 px-3"
+                                  onClick={() => handleReject(lead.id)}
+                                  disabled={bulkProcessing}
+                                >
+                                  <XCircle className="w-3.5 h-3.5" />
+                                </Button>
+                              </>
+                            ) : null}
                           </div>
                         ) : lead.status === "accepted" ? (
                           <div className="flex gap-2">
@@ -836,15 +851,6 @@ const AdminLeads = () => {
                                 <Badge variant="secondary" className="text-[10px]">
                                   {lead.assigned_to_profile.full_name}
                                 </Badge>
-                              ) : isPending ? (
-                                <Button
-                                  size="sm"
-                                  variant="ghost"
-                                  className="h-7 text-[11px] text-muted-foreground hover:text-primary"
-                                  onClick={() => openAssignDialog(lead.id)}
-                                >
-                                  <Send className="w-3 h-3 mr-1" /> Atribuir
-                                </Button>
                               ) : (
                                 <span className="text-xs text-muted-foreground">—</span>
                               )}
@@ -852,14 +858,20 @@ const AdminLeads = () => {
                           )}
                           <TableCell className="text-right" onClick={(e) => e.stopPropagation()}>
                             {isPending ? (
-                              <div className="flex items-center justify-end gap-1">
-                                <Button size="sm" className="h-7 text-xs bg-emerald-600 hover:bg-emerald-700 text-white" onClick={() => handleAccept(lead.id)} disabled={accepting === lead.id || bulkProcessing}>
-                                  {accepting === lead.id ? <Loader2 className="w-3 h-3 animate-spin" /> : <><CheckCircle className="w-3 h-3 mr-1" /> Aceitar</>}
+                              isOwner && teamMembers.length > 1 ? (
+                                <Button size="sm" variant="ghost" className="h-7 text-xs text-muted-foreground hover:text-primary" onClick={() => openAssignDialog(lead.id)}>
+                                  <Send className="w-3 h-3 mr-1" /> Atribuir
                                 </Button>
-                                <Button size="sm" variant="ghost" className="h-7 text-xs text-red-500 hover:text-red-700 hover:bg-red-50" onClick={() => handleReject(lead.id)} disabled={bulkProcessing}>
-                                  <XCircle className="w-3 h-3" />
-                                </Button>
-                              </div>
+                              ) : !isOwner ? (
+                                <div className="flex items-center justify-end gap-1">
+                                  <Button size="sm" className="h-7 text-xs bg-emerald-600 hover:bg-emerald-700 text-white" onClick={() => handleAccept(lead.id)} disabled={accepting === lead.id || bulkProcessing}>
+                                    {accepting === lead.id ? <Loader2 className="w-3 h-3 animate-spin" /> : <><CheckCircle className="w-3 h-3 mr-1" /> Aceitar</>}
+                                  </Button>
+                                  <Button size="sm" variant="ghost" className="h-7 text-xs text-red-500 hover:text-red-700 hover:bg-red-50" onClick={() => handleReject(lead.id)} disabled={bulkProcessing}>
+                                    <XCircle className="w-3 h-3" />
+                                  </Button>
+                                </div>
+                              ) : null
                             ) : lead.status === "accepted" ? (
                               <div className="flex items-center justify-end gap-1">
                                 <Button size="sm" variant="outline" className="h-7 text-xs" onClick={() => handleViewProposal(lead.proposal_id)} disabled={loadingProposal}>
@@ -964,9 +976,9 @@ const AdminLeads = () => {
       <Dialog open={assignDialogOpen} onOpenChange={setAssignDialogOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Atribuir Lead</DialogTitle>
+            <DialogTitle>Atribuir Lead{(!assigningLeadId && selectedIds.size > 1) ? `s (${selectedIds.size})` : ""}</DialogTitle>
             <DialogDescription>
-              Escolha o membro da equipe que receberá este lead. Apenas ele poderá aceitá-lo.
+              Escolha o membro da equipe que receberá {assigningLeadId ? "este lead" : `${selectedIds.size} lead(s)`}. Apenas ele poderá aceitá-lo.
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-3 py-4">
