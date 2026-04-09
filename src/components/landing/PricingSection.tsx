@@ -116,7 +116,7 @@ const PricingSection = ({
       const [plansRes, leadRes, settingsRes] = await Promise.all([
         supabase.rpc("get_subscription_plans_public"),
         supabase.rpc("get_lead_plans_public"),
-        supabase.from("platform_settings").select("key, value"),
+        supabase.rpc("get_platform_settings_public"),
       ]);
       if (plansRes.data) setPlans(plansRes.data as SubPlan[]);
       if (leadRes.data) setLeadPlans(leadRes.data as LeadPlan[]);
