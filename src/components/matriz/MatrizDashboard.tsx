@@ -70,6 +70,7 @@ const MatrizDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [period, setPeriod] = useState("month");
   const [customRange, setCustomRange] = useState<{ from?: Date; to?: Date }>({});
+  const reportRef = useRef<HTMLDivElement>(null);
 
   const handleViewStore = () => navigate(`/matriz/lojas`);
 
@@ -258,7 +259,15 @@ const MatrizDashboard = () => {
               </PopoverContent>
             </Popover>
           )}
-          <Button variant="outline" size="sm" className="h-8 gap-1.5 text-[12px]">
+          <Button variant="outline" size="sm" className="h-8 gap-1.5 text-[12px]" onClick={async () => {
+            if (!reportRef.current) return;
+            await exportPDF({
+              element: reportRef.current,
+              filename: `dashboard-matriz-${new Date().toISOString().split("T")[0]}.pdf`,
+              orientation: "portrait",
+              captureWidth: 900,
+            });
+          }}>
             <FileDown className="w-3.5 h-3.5" /> PDF
           </Button>
         </div>
