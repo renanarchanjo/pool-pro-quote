@@ -27,6 +27,7 @@ interface StoreRow {
   cnpj: string | null;
   razao_social: string | null;
   nome_fantasia: string | null;
+  whatsapp: string | null;
   plan_status: string | null;
   plan_started_at: string | null;
   created_at: string | null;
@@ -42,6 +43,7 @@ interface EditForm {
   cnpj: string;
   razao_social: string;
   nome_fantasia: string;
+  whatsapp: string;
   plan_status: string;
 }
 
@@ -53,7 +55,7 @@ const MatrizStores = () => {
 
   // Edit state
   const [editingStore, setEditingStore] = useState<StoreRow | null>(null);
-  const [editForm, setEditForm] = useState<EditForm>({ name: "", slug: "", city: "", state: "", cnpj: "", razao_social: "", nome_fantasia: "", plan_status: "" });
+  const [editForm, setEditForm] = useState<EditForm>({ name: "", slug: "", city: "", state: "", cnpj: "", razao_social: "", nome_fantasia: "", whatsapp: "", plan_status: "" });
   const [saving, setSaving] = useState(false);
 
   // Delete state
@@ -84,6 +86,7 @@ const MatrizStores = () => {
       cnpj: store.cnpj || "",
       razao_social: store.razao_social || "",
       nome_fantasia: store.nome_fantasia || "",
+      whatsapp: store.whatsapp || "",
       plan_status: store.plan_status || "active",
     });
   };
@@ -106,8 +109,9 @@ const MatrizStores = () => {
           cnpj: editForm.cnpj.trim() || null,
           razao_social: editForm.razao_social.trim() || null,
           nome_fantasia: editForm.nome_fantasia.trim() || null,
+          whatsapp: editForm.whatsapp.trim() || null,
           plan_status: editForm.plan_status || "active",
-        })
+        } as any)
         .eq("id", editingStore.id);
 
       if (error) throw error;
@@ -316,9 +320,15 @@ const MatrizStores = () => {
               </div>
             </div>
 
-            <div className="space-y-1.5">
-              <Label>CNPJ</Label>
-              <Input value={editForm.cnpj} onChange={(e) => setEditForm({ ...editForm, cnpj: e.target.value })} />
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1.5">
+                <Label>CNPJ</Label>
+                <Input value={editForm.cnpj} onChange={(e) => setEditForm({ ...editForm, cnpj: e.target.value })} />
+              </div>
+              <div className="space-y-1.5">
+                <Label>WhatsApp</Label>
+                <Input value={editForm.whatsapp} onChange={(e) => setEditForm({ ...editForm, whatsapp: e.target.value })} placeholder="(43) 99999-9999" />
+              </div>
             </div>
 
             <div className="grid grid-cols-2 gap-3">

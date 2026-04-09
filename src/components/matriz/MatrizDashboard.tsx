@@ -67,25 +67,18 @@ const MatrizDashboard = () => {
   };
 
   const handleContact = async (storeId: string) => {
-    const { data: owner } = await supabase
-      .from("profiles")
-      .select("full_name, id")
-      .eq("store_id", storeId)
-      .limit(1)
+    const { data: store } = await supabase
+      .from("stores")
+      .select("whatsapp, name")
+      .eq("id", storeId)
       .maybeSingle();
-    if (!owner) {
-      toast.error("Nenhum proprietário encontrado para esta loja");
+    if (!store?.whatsapp) {
+      toast.error("WhatsApp não cadastrado para esta loja");
       return;
     }
-    const { data: authUser } = await supabase.rpc("has_role", { _user_id: owner.id, _role: "owner" });
-    // Fetch email via edge or just open mailto with store info
-    // For now, copy store info and show toast
-    const store = data?.stores.find(s => s.id === storeId);
-    if (store) {
-      const info = `${store.name} — ${store.city || ""}/${store.state || ""}`;
-      await navigator.clipboard.writeText(info);
-      toast.success(`Informações copiadas: ${info}`, { description: "Proprietário: " + (owner.full_name || "—") });
-    }
+    const phone = store.whatsapp.replace(/\D/g, "");
+    const msg = encodeURIComponent(`Olá ${store.name}! Aqui é da SimulaPool.`);
+    window.open(`https://wa.me/55${phone}?text=${msg}`, "_blank");
   };
 
   const loadAll = useCallback(async () => {

@@ -1180,6 +1180,7 @@ export type Database = {
           stripe_customer_id: string | null
           stripe_subscription_id: string | null
           updated_at: string | null
+          whatsapp: string | null
         }
         Insert: {
           city?: string | null
@@ -1203,6 +1204,7 @@ export type Database = {
           stripe_customer_id?: string | null
           stripe_subscription_id?: string | null
           updated_at?: string | null
+          whatsapp?: string | null
         }
         Update: {
           city?: string | null
@@ -1226,6 +1228,7 @@ export type Database = {
           stripe_customer_id?: string | null
           stripe_subscription_id?: string | null
           updated_at?: string | null
+          whatsapp?: string | null
         }
         Relationships: [
           {
