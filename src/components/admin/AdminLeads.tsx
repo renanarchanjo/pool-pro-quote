@@ -297,11 +297,8 @@ const AdminLeads = () => {
     setAssignDialogOpen(true);
   };
 
-  // Visibility: owners see all, sellers see only their own accepted leads + pending assigned to them
   const getVisibleLeads = () => {
     if (isOwner) return leads.filter(l => l.proposals != null);
-
-    // Seller: sees pending leads assigned to them (or unassigned) + leads they accepted
     return leads.filter(l => {
       if (!l.proposals) return false;
       if (l.status === "accepted" && l.accepted_by === profile?.id) return true;
@@ -311,11 +308,39 @@ const AdminLeads = () => {
   };
 
   const allVisibleLeads = getVisibleLeads();
-  const pendingLeads = allVisibleLeads.filter(l => l.status === "pending");
-  const validLeads = allVisibleLeads.filter(l => {
+
+  // Apply search & filters
+  const now = new Date();
+  const filteredLeads = allVisibleLeads.filter(l => {
+    const p = l.proposals;
+    if (search) {
+      const s = search.toLowerCase();
+      if (![p.customer_name, p.customer_city, p.customer_whatsapp, p.pool_models?.name || ""].some(v => v.toLowerCase().includes(s))) return false;
+    }
+    if (filterStatus !== "all" && l.status !== filterStatus) return false;
+    if (filterCity !== "all" && p.customer_city !== filterCity) return false;
     if (filterUser !== "all" && l.accepted_by !== filterUser) return false;
+    if (filterPeriod !== "all") {
+      const diffDays = (now.getTime() - new Date(l.created_at).getTime()) / 86400000;
+      if (filterPeriod === "7d" && diffDays > 7) return false;
+      if (filterPeriod === "30d" && diffDays > 30) return false;
+      if (filterPeriod === "90d" && diffDays > 90) return false;
+    }
     return true;
   });
+
+  const pendingLeads = filteredLeads.filter(l => l.status === "pending");
+  const acceptedLeads = filteredLeads.filter(l => l.status === "accepted");
+  const rejectedLeads = filteredLeads.filter(l => l.status === "rejected");
+
+  const tabLeads = filteredLeads.filter(l => {
+    if (activeTab === "pendentes") return l.status === "pending";
+    if (activeTab === "aceitos") return l.status === "accepted";
+    if (activeTab === "recusados") return l.status === "rejected";
+    return true;
+  });
+
+  const uniqueCities = [...new Set(allVisibleLeads.map(l => l.proposals.customer_city))].sort();
 
   const toggleSelect = (id: string) => {
     setSelectedIds(prev => {
@@ -326,11 +351,33 @@ const AdminLeads = () => {
   };
 
   const toggleSelectAll = () => {
-    if (selectedIds.size === pendingLeads.length) {
+    const pendingInTab = tabLeads.filter(l => l.status === "pending");
+    if (selectedIds.size === pendingInTab.length && pendingInTab.length > 0) {
       setSelectedIds(new Set());
     } else {
-      setSelectedIds(new Set(pendingLeads.map(l => l.id)));
+      setSelectedIds(new Set(pendingInTab.map(l => l.id)));
     }
+  };
+
+  const handleExportXlsx = async () => {
+    const { exportLeadsXlsx } = await import("@/lib/exportLeadsXlsx");
+    const rows = tabLeads.map(l => {
+      const p = l.proposals;
+      return {
+        nome: l.status === "pending" ? maskName(p.customer_name) : p.customer_name,
+        whatsapp: l.status === "accepted" ? p.customer_whatsapp : maskPhone(),
+        cidade: p.customer_city,
+        estado: "",
+        piscina: p.pool_models?.name || "",
+        valor: p.total_price,
+        status: statusLabel(l.status),
+        distribuidoPara: l.assigned_to_profile?.full_name || "",
+        dataEntrada: l.created_at || "",
+        dataDistribuicao: l.accepted_at || "",
+      };
+    });
+    await exportLeadsXlsx(rows);
+    toast.success("Planilha exportada com sucesso");
   };
 
   // Monthly stats
