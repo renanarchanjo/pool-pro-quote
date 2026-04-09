@@ -86,7 +86,7 @@ const MatrizSidebar = () => {
   );
 
   return (
-    <Sidebar collapsible="none" className="!w-[230px] !bg-sidebar !border-r !border-sidebar-border">
+    <Sidebar collapsible="offcanvas" className="!w-[230px] !bg-sidebar !border-r !border-sidebar-border">
       <SidebarHeader className="border-b border-border px-4 py-3.5">
         <div className="flex items-center gap-2.5">
           <img src={logoIcon} alt="SimulaPool" className="h-7 w-auto shrink-0" />

@@ -264,8 +264,10 @@ const PartnersManager = () => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-20">
-        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      <div className="space-y-6 p-4 md:p-8">
+        <Skeleton className="h-8 w-64 rounded-lg" />
+        <Skeleton className="h-[200px] rounded-xl" />
+        <Skeleton className="h-[400px] rounded-xl" />
       </div>
     );
   }

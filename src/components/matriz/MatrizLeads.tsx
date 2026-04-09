@@ -288,7 +288,15 @@ const MatrizLeads = () => {
     toast.success("CSV exportado");
   };
 
-  if (loading) return <div className="flex items-center justify-center py-20"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
+  if (loading) return (
+    <div className="space-y-6 p-4 md:p-8">
+      <Skeleton className="h-8 w-64 rounded-lg" />
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+        {Array.from({ length: 5 }).map((_, i) => <Skeleton key={i} className="h-[80px] rounded-xl" />)}
+      </div>
+      <Skeleton className="h-[400px] rounded-xl" />
+    </div>
+  );
 
   return (
     <div className="space-y-6 p-4 md:p-8">

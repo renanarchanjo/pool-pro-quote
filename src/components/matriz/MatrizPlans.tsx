@@ -173,7 +173,13 @@ const MatrizPlans = () => {
 
   const formatCurrency = (v: number) => v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 
-  if (loading) return <div className="flex items-center justify-center py-20"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
+  if (loading) return (
+    <div className="space-y-6 p-4 md:p-8">
+      <Skeleton className="h-8 w-64 rounded-lg" />
+      <Skeleton className="h-[300px] rounded-xl" />
+      <Skeleton className="h-[200px] rounded-xl" />
+    </div>
+  );
 
   return (
     <div className="space-y-6 p-4 md:p-8">
