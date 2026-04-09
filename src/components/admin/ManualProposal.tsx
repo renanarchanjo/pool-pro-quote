@@ -529,7 +529,6 @@ const ManualProposal = () => {
                     isSelected ? "border-primary bg-primary/5 shadow-sm" : "border-border hover:border-primary/40"
                   }`}
                 >
-                  <Checkbox checked={isSelected} className="pointer-events-none mt-0.5" />
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium leading-tight">{opt.name}</p>
                     {opt.description && <p className="text-xs text-muted-foreground">{opt.description}</p>}
