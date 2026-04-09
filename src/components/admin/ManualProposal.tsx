@@ -415,7 +415,7 @@ const ManualProposal = () => {
     </div>
   );
 
-  const renderOptionalCard = (opt: Optional, isEnabled: boolean, isSelected: boolean) => (
+  const renderOptionalCard = (opt: Optional, isEnabled: boolean, isSelected: boolean, showToggle = true) => (
     <div
       key={opt.id}
       onClick={() => isEnabled && toggleOptional(opt.id)}
@@ -427,16 +427,18 @@ const ManualProposal = () => {
           : "border-border hover:border-primary/40 cursor-pointer"
       }`}
     >
-      <button
-        type="button"
-        onClick={(e) => { e.stopPropagation(); toggleEnabled(opt.id); }}
-        className="absolute top-2 right-2 p-1 rounded hover:bg-muted transition-colors z-10"
-        title={isEnabled ? "Desativar opcional" : "Ativar opcional"}
-      >
-        {isEnabled ? <Eye className="w-3.5 h-3.5 text-primary" /> : <EyeOff className="w-3.5 h-3.5 text-muted-foreground" />}
-      </button>
+      {showToggle && (
+        <button
+          type="button"
+          onClick={(e) => { e.stopPropagation(); toggleEnabled(opt.id); }}
+          className="absolute top-2 right-2 p-1 rounded hover:bg-muted transition-colors z-10"
+          title={isEnabled ? "Desativar opcional" : "Ativar opcional"}
+        >
+          {isEnabled ? <Eye className="w-3.5 h-3.5 text-primary" /> : <EyeOff className="w-3.5 h-3.5 text-muted-foreground" />}
+        </button>
+      )}
       <Checkbox checked={isSelected} className="pointer-events-none mt-0.5" disabled={!isEnabled} />
-      <div className="flex-1 min-w-0 pr-5">
+      <div className={`flex-1 min-w-0 ${showToggle ? "pr-5" : ""}`}>
         <p className="text-sm font-medium leading-tight">{opt.name}</p>
         <p className="text-xs text-primary font-semibold mt-1">
           + R$ {opt.price.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
