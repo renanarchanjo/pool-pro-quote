@@ -1319,6 +1319,10 @@ export type Database = {
           updated_at: string
         }[]
       }
+      get_model_included_items_total: {
+        Args: { _model_id: string }
+        Returns: number
+      }
       get_model_optionals_public: {
         Args: { _store_id?: string }
         Returns: {
