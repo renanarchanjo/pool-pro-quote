@@ -317,18 +317,22 @@ const ManualProposal = () => {
   // ── Shared sub-renders ──
 
   const renderCustomerFields = () => (
-    <div className="space-y-4">
+    <div className="space-y-5">
       <div>
-        <Label htmlFor="cname">Nome Completo *</Label>
-        <Input id="cname" value={customerName} onChange={(e) => setCustomerName(e.target.value)} placeholder="Nome do cliente" />
+        <label className="block text-sm font-semibold text-foreground mb-2">Nome Completo *</label>
+        <Input
+          value={customerName}
+          onChange={(e) => setCustomerName(e.target.value)}
+          placeholder="Nome do cliente"
+          className="h-12 rounded-xl text-base bg-muted/40 border-border/50 focus:border-primary focus:bg-background transition-all"
+        />
       </div>
       <div>
-        <Label htmlFor="cuf">Estado (UF) *</Label>
+        <label className="block text-sm font-semibold text-foreground mb-2">Estado (UF) *</label>
         <select
-          id="cuf"
           value={customerUf}
           onChange={(e) => { setCustomerUf(e.target.value); setCustomerCity(""); }}
-          className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          className="flex h-12 w-full rounded-xl border border-border/50 bg-muted/40 px-4 py-2 text-base ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus:bg-background transition-all"
         >
           <option value="">Selecione o estado</option>
           {STATES.map((s) => (
@@ -337,17 +341,16 @@ const ManualProposal = () => {
         </select>
       </div>
       <div>
-        <Label htmlFor="ccity">Cidade *</Label>
+        <label className="block text-sm font-semibold text-foreground mb-2">Cidade *</label>
         {loadingCities ? (
-          <div className="flex items-center gap-2 h-10 text-sm text-muted-foreground">
+          <div className="flex items-center gap-2 h-12 text-sm text-muted-foreground">
             <Loader2 className="w-4 h-4 animate-spin" /> Carregando cidades...
           </div>
         ) : customerCities.length > 0 ? (
           <select
-            id="ccity"
             value={customerCity}
             onChange={(e) => setCustomerCity(e.target.value)}
-            className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            className="flex h-12 w-full rounded-xl border border-border/50 bg-muted/40 px-4 py-2 text-base ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus:bg-background transition-all"
           >
             <option value="">Selecione a cidade</option>
             {customerCities.map((c) => (
@@ -355,12 +358,23 @@ const ManualProposal = () => {
             ))}
           </select>
         ) : (
-          <Input id="ccity" value={customerCity} onChange={(e) => setCustomerCity(e.target.value)} placeholder="Selecione um estado primeiro" />
+          <Input
+            value={customerCity}
+            onChange={(e) => setCustomerCity(e.target.value)}
+            placeholder="Selecione um estado primeiro"
+            className="h-12 rounded-xl text-base bg-muted/40 border-border/50"
+            disabled
+          />
         )}
       </div>
       <div>
-        <Label htmlFor="cwhat">WhatsApp *</Label>
-        <Input id="cwhat" value={customerWhatsapp} onChange={(e) => setCustomerWhatsapp(e.target.value)} placeholder="(00) 00000-0000" />
+        <label className="block text-sm font-semibold text-foreground mb-2">WhatsApp *</label>
+        <Input
+          value={customerWhatsapp}
+          onChange={(e) => setCustomerWhatsapp(e.target.value)}
+          placeholder="(00) 00000-0000"
+          className="h-12 rounded-xl text-base bg-muted/40 border-border/50 focus:border-primary focus:bg-background transition-all"
+        />
       </div>
     </div>
   );
