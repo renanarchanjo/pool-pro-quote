@@ -474,16 +474,10 @@ const MatrizLeads = () => {
                             <span className="text-xs text-muted-foreground truncate">{lead.pool_models?.name || "-"}</span>
                             <span className="text-xs font-semibold text-emerald-600">{formatCurrency(lead.total_price)}</span>
                           </div>
-                          <div className="flex items-center gap-0.5">
-                            <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleViewLead(lead)}>
-                              <Eye className="w-3.5 h-3.5" />
-                            </Button>
-                            <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleCopyPhone(lead)}>
-                              <Copy className="w-3.5 h-3.5 text-muted-foreground" />
-                            </Button>
-                            <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => setDeletingLead(lead)}>
-                              <Trash2 className="w-3.5 h-3.5" />
-                            </Button>
+                          <div className="flex items-center gap-2.5">
+                            <button onClick={() => handleViewLead(lead)} className="text-[11px] text-primary font-medium">Ver</button>
+                            <button onClick={() => handleCopyPhone(lead)} className="text-[11px] text-muted-foreground">Copiar</button>
+                            <button onClick={() => setDeletingLead(lead)} className="text-[11px] text-destructive">Excluir</button>
                           </div>
                         </div>
 
