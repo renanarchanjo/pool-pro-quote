@@ -505,15 +505,15 @@ function KPICard({ label, value, icon: Icon, badge, valueColor }: {
   label: string; value: string; icon: any; badge?: React.ReactNode; valueColor?: string;
 }) {
   return (
-    <div className="bg-card border border-border rounded-xl p-5">
-      <div className="flex items-center gap-2 mb-3">
-        <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
-          <Icon className="w-4 h-4 text-primary" strokeWidth={1.5} />
+    <div className="bg-card border border-border rounded-xl p-3 md:p-5">
+      <div className="flex items-center gap-1.5 md:gap-2 mb-2 md:mb-3">
+        <div className="w-6 h-6 md:w-8 md:h-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+          <Icon className="w-3 h-3 md:w-4 md:h-4 text-primary" strokeWidth={1.5} />
         </div>
-        <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">{label}</span>
+        <span className="text-[9px] md:text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground leading-tight">{label}</span>
       </div>
-      <div className={`text-[24px] font-bold ${valueColor || "text-foreground"}`}>{value}</div>
-      {badge && <div className="mt-2">{badge}</div>}
+      <div className={`text-[18px] md:text-[24px] font-bold truncate ${valueColor || "text-foreground"}`}>{value}</div>
+      {badge && <div className="mt-1.5 md:mt-2">{badge}</div>}
     </div>
   );
 }
