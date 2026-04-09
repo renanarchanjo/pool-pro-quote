@@ -27,6 +27,7 @@ interface StoreRow {
   cnpj: string | null;
   razao_social: string | null;
   nome_fantasia: string | null;
+  whatsapp: string | null;
   plan_status: string | null;
   plan_started_at: string | null;
   created_at: string | null;
@@ -42,6 +43,7 @@ interface EditForm {
   cnpj: string;
   razao_social: string;
   nome_fantasia: string;
+  whatsapp: string;
   plan_status: string;
 }
 
