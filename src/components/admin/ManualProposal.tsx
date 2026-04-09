@@ -641,7 +641,7 @@ const ManualProposal = () => {
         {/* Step content */}
         {mobileStep === 0 && renderCustomerFields()}
         {mobileStep === 1 && renderModelFields()}
-        {mobileStep === 2 && renderOptionalsContent()}
+        {mobileStep === 2 && renderOptionalsContent(false)}
         {mobileStep === 3 && renderSummaryStep()}
 
         {/* Navigation buttons */}
