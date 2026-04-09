@@ -9,7 +9,7 @@ const BlurredPrice = ({ value, prefix = "R$", className = "" }: BlurredPriceProp
   return (
     <span className={`relative select-none inline-flex items-baseline gap-0.5 ${className}`}>
       <span>{prefix}</span>
-      <span className="blur-[6px] opacity-70">{formatted}</span>
+      <span className="blur-[4px] opacity-80">{formatted}</span>
     </span>
   );
 };
