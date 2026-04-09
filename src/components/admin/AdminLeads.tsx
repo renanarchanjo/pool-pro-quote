@@ -635,14 +635,23 @@ const AdminLeads = () => {
         <div className="bg-primary/5 border border-primary/20 rounded-lg p-3 animate-fade-in space-y-2">
           <span className="text-sm font-medium">{selectedIds.size} lead(s) selecionado(s)</span>
           <div className="flex gap-2 w-full">
-            <Button size="sm" className="h-8 text-xs bg-emerald-600 hover:bg-emerald-700 text-white flex-1" onClick={handleBulkAccept} disabled={bulkProcessing}>
-              {bulkProcessing ? <Loader2 className="w-3 h-3 animate-spin mr-1" /> : <CheckCheck className="w-3.5 h-3.5 mr-1" />}
-              Aceitar
-            </Button>
-            <Button size="sm" variant="outline" className="h-8 text-xs border-red-500/30 text-red-600 hover:bg-red-50 flex-1" onClick={handleBulkReject} disabled={bulkProcessing}>
-              <XCircle className="w-3.5 h-3.5 mr-1" />
-              Recusar
-            </Button>
+            {isOwner && teamMembers.length > 1 ? (
+              <Button size="sm" className="h-8 text-xs flex-1" onClick={() => openAssignDialog()} disabled={bulkProcessing}>
+                <Send className="w-3.5 h-3.5 mr-1" />
+                Atribuir ({selectedIds.size})
+              </Button>
+            ) : (
+              <>
+                <Button size="sm" className="h-8 text-xs bg-emerald-600 hover:bg-emerald-700 text-white flex-1" onClick={handleBulkAccept} disabled={bulkProcessing}>
+                  {bulkProcessing ? <Loader2 className="w-3 h-3 animate-spin mr-1" /> : <CheckCheck className="w-3.5 h-3.5 mr-1" />}
+                  Aceitar
+                </Button>
+                <Button size="sm" variant="outline" className="h-8 text-xs border-red-500/30 text-red-600 hover:bg-red-50 flex-1" onClick={handleBulkReject} disabled={bulkProcessing}>
+                  <XCircle className="w-3.5 h-3.5 mr-1" />
+                  Recusar
+                </Button>
+              </>
+            )}
           </div>
         </div>
       )}
