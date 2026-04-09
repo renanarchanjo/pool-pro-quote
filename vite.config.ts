@@ -97,7 +97,7 @@ export default defineConfig(({ mode }) => ({
   ].filter(Boolean),
   build: {
     target: "es2020",
-    cssMinify: "lightningcss",
+    cssMinify: true,
     rollupOptions: {
       output: {
         manualChunks: {
