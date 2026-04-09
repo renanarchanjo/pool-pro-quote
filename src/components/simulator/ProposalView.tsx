@@ -173,8 +173,22 @@ const ProposalView = ({
 
       // Force a reflow so html2canvas sees the correct layout
       element.getBoundingClientRect();
+
+      // Wait for all images (including partner logos) to load
+      const allImages = Array.from(element.querySelectorAll("img"));
+      await Promise.all(
+        allImages.map(
+          (img) =>
+            new Promise<void>((resolve) => {
+              if (img.complete) return resolve();
+              img.onload = () => resolve();
+              img.onerror = () => resolve();
+            })
+        )
+      );
+
       // Additional wait for mobile browsers to apply layout
-      await new Promise(r => setTimeout(r, 200));
+      await new Promise(r => setTimeout(r, 300));
 
       const [{ default: html2canvas }, { jsPDF }] = await Promise.all([
         import("html2canvas"),
