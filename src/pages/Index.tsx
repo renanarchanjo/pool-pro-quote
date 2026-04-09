@@ -67,7 +67,7 @@ const Index = () => {
         />
 
         {/* ─── Hero Content ─── */}
-        <div className="relative max-w-[720px] mx-auto text-center z-10 px-5 md:px-4 pt-12 pb-28 md:pt-24 md:pb-36">
+        <div className="relative max-w-[720px] mx-auto text-center z-10 px-5 md:px-4 pt-16 pb-12 md:pt-24 md:pb-36 flex flex-col justify-center" style={{ minHeight: 'calc(100svh - 56px)' }}>
           <motion.p
             variants={fadeUp} initial="hidden" animate="visible" custom={0}
             className="text-[12px] md:text-[13px] font-medium tracking-[0.08em] uppercase mb-5 md:mb-6"
