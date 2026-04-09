@@ -36,11 +36,13 @@ const prepareElementForCapture = (element: HTMLElement): ElementSnapshot => {
   element.style.display = "block";
   element.style.visibility = "visible";
   element.style.opacity = "1";
-  element.style.position = "fixed";
-  element.style.left = "-10000px";
+  element.style.position = "absolute";
+  element.style.left = "0";
   element.style.top = "0";
-  element.style.zIndex = "-1";
+  element.style.zIndex = "-9999";
   element.style.pointerEvents = "none";
+  element.style.overflow = "hidden";
+  element.style.clipPath = "inset(0)";
 
   return snapshot;
 };
@@ -80,12 +82,15 @@ const exportSectionedPDF = async ({
 
   for (let index = 0; index < sections.length; index += 1) {
     const section = sections[index];
+    section.getBoundingClientRect();
     const canvas = await html2canvas(section, {
       scale: 2,
       useCORS: true,
       backgroundColor: "#ffffff",
       logging: false,
       windowWidth: section.scrollWidth,
+      scrollX: 0,
+      scrollY: -window.scrollY,
     });
 
     const imgWidthMm = contentWidth;
@@ -183,7 +188,9 @@ export const exportPDF = async ({
     element.style.maxWidth = `${width}px`;
     element.style.padding = "24px";
     element.style.background = "#ffffff";
-    element.style.color = "#000000";
+    // Force reflow before capture
+    element.getBoundingClientRect();
+    await new Promise(r => setTimeout(r, 200));
 
     if (sectionSelector) {
       await exportSectionedPDF({ element, filename, orientation, sectionSelector });

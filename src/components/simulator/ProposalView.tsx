@@ -173,6 +173,8 @@ const ProposalView = ({
 
       // Force a reflow so html2canvas sees the correct layout
       element.getBoundingClientRect();
+      // Additional wait for mobile browsers to apply layout
+      await new Promise(r => setTimeout(r, 200));
 
       const [{ default: html2canvas }, { jsPDF }] = await Promise.all([
         import("html2canvas"),
@@ -189,6 +191,8 @@ const ProposalView = ({
       let currentY = margin;
 
       for (const section of sections) {
+        // Force reflow per section on mobile
+        section.getBoundingClientRect();
         const canvas = await html2canvas(section, {
           scale: 2,
           useCORS: true,
@@ -196,6 +200,8 @@ const ProposalView = ({
           windowWidth: width,
           backgroundColor: "#ffffff",
           logging: false,
+          scrollX: 0,
+          scrollY: -window.scrollY,
         });
 
         const imgHeightMm = (canvas.height * contentWidth) / canvas.width;

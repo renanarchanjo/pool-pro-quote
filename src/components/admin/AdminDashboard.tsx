@@ -201,9 +201,15 @@ const AdminDashboard = () => {
 
   const handleExportProposalPDF = async (proposal: Proposal) => {
     setExportingProposal(proposal);
-    // Wait for render
-    await new Promise(r => setTimeout(r, 300));
-    if (!proposalPdfRef.current) return;
+    // Wait longer for mobile render
+    await new Promise(r => setTimeout(r, 600));
+    if (!proposalPdfRef.current) {
+      toast.error("Erro ao preparar proposta para PDF");
+      setExportingProposal(null);
+      return;
+    }
+    // Force reflow
+    proposalPdfRef.current.getBoundingClientRect();
     await exportPDF({
       element: proposalPdfRef.current,
       filename: `proposta-${proposal.customer_name.replace(/\s+/g, "-")}.pdf`,
