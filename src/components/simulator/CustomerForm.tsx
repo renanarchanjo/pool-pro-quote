@@ -5,6 +5,7 @@ import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import { Loader2, MapPin } from "lucide-react";
 import { toast } from "sonner";
+import BlurredPrice from "./BlurredPrice";
 import { useGeolocation, STATES_LIST } from "@/hooks/useGeolocation";
 
 interface CustomerData {
@@ -194,7 +195,7 @@ const CustomerForm = ({ onSubmit, onBack, model, optionals, includedItemsTotal =
               <div className="flex justify-between pt-2 border-t">
                 <span className="font-semibold">Total:</span>
                 <span className="text-xl font-bold text-primary">
-                  {hidePricing ? "Liberado após gerar proposta" : `R$ ${totalPrice.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`}
+                  {hidePricing ? <BlurredPrice value={totalPrice} className="text-xl" /> : `R$ ${totalPrice.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`}
                 </span>
               </div>
             </div>
