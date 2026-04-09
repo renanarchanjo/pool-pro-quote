@@ -41,6 +41,7 @@ const AdminDashboard = () => {
   const [filterMember, setFilterMember] = useState<string>("all");
   const [leadDistributions, setLeadDistributions] = useState<{ proposal_id: string; accepted_by: string | null; status: string }[]>([]);
   const [commissionPercent, setCommissionPercent] = useState(0);
+  const [partners, setPartners] = useState<{ id: string; name: string; logo_url: string | null; banner_1_url: string | null; banner_2_url: string | null; display_percent?: number }[]>([]);
   const isOwner = role === "owner";
   const [pdfDatePreset, setPdfDatePreset] = useState("month");
   const [pdfDateRange, setPdfDateRange] = useState<DateRange | undefined>(() => {
@@ -95,13 +96,13 @@ const AdminDashboard = () => {
   const loadData = async () => {
     if (!store) return;
     try {
-      const [proposalsRes, distRes, teamRes] = await Promise.all([
+      const [proposalsRes, distRes, teamRes, partnersRes] = await Promise.all([
         supabase
         .from("proposals")
         .select(`
           id, customer_name, customer_city, customer_whatsapp, created_by,
           total_price, created_at, selected_optionals, store_id, status,
-          pool_models (name, length, width, depth, photo_url, differentials, included_items, not_included_items, base_price, cost, delivery_days, installation_days, payment_terms, notes, category_id),
+          pool_models (name, length, width, depth, photo_url, differentials, included_items, not_included_items, base_price, cost, delivery_days, installation_days, payment_terms, notes, category_id, categories(name, brand_id, brands(name, logo_url, partner_id))),
           stores (name)
         `)
         .eq("store_id", store.id)
@@ -109,6 +110,7 @@ const AdminDashboard = () => {
         .limit(2000),
         supabase.from("lead_distributions").select("proposal_id, accepted_by, status").eq("store_id", store.id),
         (supabase as any).from("profiles").select("id, full_name").eq("store_id", store.id),
+        supabase.from("partners").select("id, name, logo_url, banner_1_url, banner_2_url, display_percent").eq("active", true).order("display_order"),
       ]);
 
       if (proposalsRes.error) throw proposalsRes.error;
