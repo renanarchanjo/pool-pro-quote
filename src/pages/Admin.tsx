@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useLocation, Routes, Route } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2 } from "lucide-react";
+import { Loader2, Menu as MenuIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { SidebarProvider } from "@/components/ui/sidebar";
-import AdminSidebar from "@/components/admin/AdminSidebar";
+import AdminSidebarContent from "@/components/admin/AdminSidebarContent";
+import FloatingPanel from "@/components/admin/FloatingPanel";
 import AdminDashboard from "@/components/admin/AdminDashboard";
 import BrandCategoryManager from "@/components/admin/BrandCategoryManager";
 import PoolModelManager from "@/components/admin/PoolModelManager";
@@ -43,12 +43,18 @@ const PAGE_TITLES: Record<string, string> = {
 
 const Admin = () => {
   const [authLoading, setAuthLoading] = useState(true);
+  const [panelOpen, setPanelOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   const { store, role, loading: storeLoading } = useStoreData();
 
   const path = location.pathname.replace("/admin", "").replace(/^\//, "");
   const pageTitle = PAGE_TITLES[path] || "Dashboard";
+
+  // Close panel on route change
+  useEffect(() => {
+    setPanelOpen(false);
+  }, [location.pathname]);
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -90,64 +96,68 @@ const Admin = () => {
   const isOwner = role === "owner";
 
   return (
-    <SidebarProvider>
-      <div className="h-dvh flex w-full bg-secondary overflow-hidden">
-        {/* Desktop sidebar */}
-        <div className="hidden md:block">
-          <AdminSidebar />
+    <div className="h-dvh flex flex-col w-full bg-secondary overflow-hidden">
+      {/* App Header */}
+      <header
+        className="flex items-center justify-between border-b border-border bg-background px-4 shrink-0"
+        style={{ height: 'calc(56px + var(--safe-area-top))', paddingTop: 'var(--safe-area-top)' }}
+      >
+        <div className="flex-1 min-w-0">
+          <h1 className="text-[16px] md:text-[18px] font-semibold text-foreground truncate">{pageTitle}</h1>
         </div>
+        {/* Desktop menu trigger */}
+        <button
+          onClick={() => setPanelOpen(true)}
+          className="hidden md:flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground px-3 py-2 rounded-lg border border-border hover:border-primary/30 transition-all duration-150"
+        >
+          <MenuIcon className="w-4 h-4" strokeWidth={1.5} />
+          <span>Menu</span>
+        </button>
+      </header>
 
-        <div className="flex-1 flex flex-col min-w-0 min-h-0">
-          {/* App Header */}
-          <header
-            className="flex items-center border-b border-border bg-background px-4 shrink-0"
-            style={{ height: 'calc(56px + var(--safe-area-top))', paddingTop: 'var(--safe-area-top)' }}
-          >
-            <div className="flex-1 min-w-0">
-              <h1 className="text-[16px] md:text-[18px] font-semibold text-foreground truncate">{pageTitle}</h1>
-            </div>
-          </header>
-
-          {/* Scrollable content area — only this scrolls */}
-          <main
-            className="flex-1 overflow-y-auto overflow-x-hidden overscroll-contain"
-            style={{ paddingBottom: 'calc(var(--bottom-nav-height) + var(--safe-area-bottom) + 8px)' }}
-          >
-            <div className="p-4 md:p-6">
-              <PendingLeadsAlert />
-              <Routes>
-                <Route index element={<AdminDashboard />} />
-                <Route path="gerar-proposta" element={<ManualProposal />} />
-                <Route path="leads" element={<AdminLeads />} />
-                <Route path="faturas" element={<InvoiceHistory />} />
-                <Route path="perfil" element={<AdminProfile />} />
-                {!isOwner && (
-                  <>
-                    <Route path="performance" element={<TeamPerformance />} />
-                    <Route path="comissao" element={<TeamCommissions />} />
-                  </>
-                )}
-                {isOwner && (
-                  <>
-                    <Route path="marcas" element={<BrandCategoryManager mode="brands" />} />
-                    <Route path="categorias" element={<BrandCategoryManager mode="categories" />} />
-                    <Route path="modelos" element={<PoolModelManager />} />
-                    <Route path="opcionais" element={<OptionalManager />} />
-                    <Route path="equipe" element={<TeamManager />} />
-                    <Route path="lojistas" element={<StoresManager />} />
-                    <Route path="assinatura" element={<SubscriptionManager />} />
-                    <Route path="parceiros" element={<StorePartnersManager />} />
-                  </>
-                )}
-              </Routes>
-            </div>
-          </main>
+      {/* Scrollable content area */}
+      <main
+        className="flex-1 overflow-y-auto overflow-x-hidden overscroll-contain min-h-0"
+        style={{ paddingBottom: 'calc(var(--bottom-nav-height) + var(--safe-area-bottom) + 8px)' }}
+      >
+        <div className="p-4 md:p-6">
+          <PendingLeadsAlert />
+          <Routes>
+            <Route index element={<AdminDashboard />} />
+            <Route path="gerar-proposta" element={<ManualProposal />} />
+            <Route path="leads" element={<AdminLeads />} />
+            <Route path="faturas" element={<InvoiceHistory />} />
+            <Route path="perfil" element={<AdminProfile />} />
+            {!isOwner && (
+              <>
+                <Route path="performance" element={<TeamPerformance />} />
+                <Route path="comissao" element={<TeamCommissions />} />
+              </>
+            )}
+            {isOwner && (
+              <>
+                <Route path="marcas" element={<BrandCategoryManager mode="brands" />} />
+                <Route path="categorias" element={<BrandCategoryManager mode="categories" />} />
+                <Route path="modelos" element={<PoolModelManager />} />
+                <Route path="opcionais" element={<OptionalManager />} />
+                <Route path="equipe" element={<TeamManager />} />
+                <Route path="lojistas" element={<StoresManager />} />
+                <Route path="assinatura" element={<SubscriptionManager />} />
+                <Route path="parceiros" element={<StorePartnersManager />} />
+              </>
+            )}
+          </Routes>
         </div>
+      </main>
 
-        {/* Mobile bottom nav */}
-        <MobileBottomNav />
-      </div>
-    </SidebarProvider>
+      {/* Mobile bottom nav */}
+      <MobileBottomNav />
+
+      {/* Desktop floating panel */}
+      <FloatingPanel open={panelOpen} onClose={() => setPanelOpen(false)}>
+        <AdminSidebarContent onNavigate={() => setPanelOpen(false)} />
+      </FloatingPanel>
+    </div>
   );
 };
 
