@@ -33,7 +33,7 @@ const AdminSidebarContent = ({ onNavigate, isMobile = false }: AdminSidebarConte
   const handleLogout = async () => {
     await supabase.auth.signOut();
     toast.success("Logout realizado");
-    navigate("/");
+    navigate("/login", { replace: true });
   };
 
   const initials = (profile?.full_name || "L")

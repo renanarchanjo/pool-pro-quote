@@ -29,8 +29,11 @@ const Login = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
+    // Clear history so back button can't return to admin/matriz after logout
+    window.history.replaceState(null, "", "/login");
+
     supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session) navigate("/admin");
+      if (session) navigate("/admin", { replace: true });
       else setCheckingSession(false);
     });
   }, [navigate]);

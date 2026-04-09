@@ -28,6 +28,8 @@ const LoginMatriz = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
+    window.history.replaceState(null, "", "/loginmatriz");
+
     const checkExistingSession = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (session) {
@@ -39,7 +41,7 @@ const LoginMatriz = () => {
           .single();
 
         if (roleData) {
-          navigate("/matriz");
+          navigate("/matriz", { replace: true });
           return;
         }
       }
