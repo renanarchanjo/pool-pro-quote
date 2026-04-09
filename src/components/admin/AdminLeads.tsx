@@ -381,7 +381,7 @@ const AdminLeads = () => {
   };
 
   // Monthly stats
-  const now = new Date();
+  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
   const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
   const consumed = leads.filter(l => l.status === "accepted" && l.accepted_at && new Date(l.accepted_at) >= monthStart).length;
   const limit = storeInfo?.lead_limit_monthly || 100;
