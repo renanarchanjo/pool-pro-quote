@@ -5,7 +5,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import {
   TrendingUp, TrendingDown, Users, DollarSign, AlertTriangle,
   BarChart3, Activity, FileDown, Eye, Phone,
-  CheckCircle2, XCircle, ArrowUpRight, ArrowDownRight,
+  CheckCircle2, XCircle, ArrowUpRight, ArrowDownRight, RefreshCw,
 } from "lucide-react";
 import {
   BarChart, Bar, PieChart, Pie, Cell,
@@ -180,7 +180,10 @@ const MatrizDashboard = () => {
           <h1 className="text-[17px] font-semibold text-foreground tracking-tight">Visão geral</h1>
           <p className="text-[12px] text-muted-foreground mt-0.5">Atualizado em tempo real</p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5">
+          <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground" onClick={() => { loadAll(); toast.success("Dashboard atualizado"); }}>
+            <RefreshCw className="w-4 h-4" />
+          </Button>
           <Select value={period} onValueChange={setPeriod}>
             <SelectTrigger className="h-8 w-[120px] text-[12px] rounded-lg bg-card border-border">
               <SelectValue />
