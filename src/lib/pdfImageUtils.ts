@@ -70,6 +70,29 @@ const toBase64Safe = async (url: string): Promise<string> => {
   }
 };
 
+const waitForImageReady = async (image: HTMLImageElement): Promise<void> => {
+  if (image.complete && image.naturalWidth > 0) {
+    try {
+      await image.decode();
+    } catch {
+      // ignore decode errors — image is still usable
+    }
+    return;
+  }
+
+  await new Promise<void>((resolve) => {
+    const finish = () => resolve();
+    image.addEventListener("load", finish, { once: true });
+    image.addEventListener("error", finish, { once: true });
+  });
+
+  try {
+    await image.decode();
+  } catch {
+    // ignore decode errors — image is still usable
+  }
+};
+
 // ─── snapshot type ─────────────────────────────────────────────────────
 
 interface ImageSnapshot {
@@ -94,26 +117,8 @@ export const inlineImagesForPdf = async (root: HTMLElement): Promise<() => void>
     images.map(async (image) => {
       const source = image.currentSrc || image.getAttribute("src") || image.src;
 
-      // Skip images that are already inline or bundled assets (blob / data / relative)
+      // Skip images that are already inline
       if (!source || source.startsWith("data:") || source.startsWith("blob:")) {
-        return;
-      }
-
-      // Skip same-origin images (bundled Vite assets) — they work fine with html2canvas
-      try {
-        const imgUrl = new URL(source, window.location.origin);
-        if (imgUrl.origin === window.location.origin) {
-          // Still ensure it's loaded
-          if (!image.complete) {
-            await new Promise<void>((r) => {
-              image.addEventListener("load", () => r(), { once: true });
-              image.addEventListener("error", () => r(), { once: true });
-            });
-          }
-          return;
-        }
-      } catch {
-        // relative path — skip
         return;
       }
 
@@ -134,12 +139,7 @@ export const inlineImagesForPdf = async (root: HTMLElement): Promise<() => void>
       image.removeAttribute("crossorigin");
       image.src = base64;
 
-      // Wait for decode
-      try {
-        await image.decode();
-      } catch {
-        // ignore decode errors — image is still usable
-      }
+      await waitForImageReady(image);
     }),
   );
 
