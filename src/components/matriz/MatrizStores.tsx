@@ -273,14 +273,14 @@ const MatrizStores = () => {
             {/* Mobile layout — clean card */}
             <div className="sm:hidden">
               {/* Header row */}
-              <div className="flex items-start justify-between gap-2 p-3 pb-0">
-                <div className="flex items-center gap-2 min-w-0">
-                  <div className="p-1.5 rounded-lg bg-primary/10 shrink-0">
-                    <Store className="w-4 h-4 text-primary" />
+              <div className="flex items-start justify-between gap-1.5 p-2 pb-0">
+                <div className="flex items-center gap-1.5 min-w-0">
+                  <div className="p-1 rounded-md bg-primary/10 shrink-0">
+                    <Store className="w-3 h-3 text-primary" />
                   </div>
                   <div className="min-w-0">
-                    <h3 className="font-semibold text-[13px] text-foreground truncate">{store.name}</h3>
-                    <p className="text-[11px] text-muted-foreground">
+                    <h3 className="font-semibold text-[11px] text-foreground truncate">{store.name}</h3>
+                    <p className="text-[10px] text-muted-foreground">
                       {store.city ? `${store.city}/${store.state}` : "Sem localização"}
                     </p>
                   </div>
@@ -291,37 +291,37 @@ const MatrizStores = () => {
               </div>
 
               {/* Info section */}
-              <div className="px-3 pt-2.5 pb-2 space-y-1.5">
+              <div className="px-2 pt-1.5 pb-1 space-y-0.5">
                 <div className="flex items-center justify-between">
-                  <span className="text-[11px] text-muted-foreground">Plano</span>
-                  <span className="text-[12px] font-semibold text-foreground">{store.subscription_plans?.name || "Gratuito"}</span>
+                  <span className="text-[10px] text-muted-foreground">Plano</span>
+                  <span className="text-[10px] font-semibold text-foreground">{store.subscription_plans?.name || "Gratuito"}</span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-[11px] text-muted-foreground">Mensalidade</span>
-                  <span className="text-[13px] font-bold text-primary">{formatCurrency(store.subscription_plans?.price_monthly || 0)}</span>
+                  <span className="text-[10px] text-muted-foreground">Mensalidade</span>
+                  <span className="text-[11px] font-bold text-primary">{formatCurrency(store.subscription_plans?.price_monthly || 0)}</span>
                 </div>
                 {store.cnpj && (
                   <div className="flex items-center justify-between">
-                    <span className="text-[11px] text-muted-foreground">CNPJ</span>
-                    <span className="text-[11px] text-foreground font-mono">{store.cnpj}</span>
+                    <span className="text-[10px] text-muted-foreground">CNPJ</span>
+                    <span className="text-[10px] text-foreground font-mono">{store.cnpj}</span>
                   </div>
                 )}
                 <div className="flex items-center justify-between">
-                  <span className="text-[11px] text-muted-foreground">Cadastro</span>
-                  <span className="text-[11px] text-foreground">{formatDate(store.created_at)}</span>
+                  <span className="text-[10px] text-muted-foreground">Cadastro</span>
+                  <span className="text-[10px] text-foreground">{formatDate(store.created_at)}</span>
                 </div>
               </div>
 
               {/* Actions footer */}
-              <div className="flex items-center justify-between px-3 py-2 border-t border-border bg-muted/30">
-                <div className="flex items-center gap-1.5" title="Distribuição de leads">
-                  <Radio className="w-3 h-3 text-muted-foreground" />
-                  <Switch checked={!!store.lead_plan_active} onCheckedChange={(checked) => handleToggleLeadPlan(store.id, checked)} className="data-[state=checked]:bg-emerald-500 scale-90" />
-                  <span className="text-[10px] text-muted-foreground ml-0.5">Leads</span>
+              <div className="flex items-center justify-between px-2 py-1.5 border-t border-border bg-muted/30">
+                <div className="flex items-center gap-1" title="Distribuição de leads">
+                  <Radio className="w-2.5 h-2.5 text-muted-foreground" />
+                  <Switch checked={!!store.lead_plan_active} onCheckedChange={(checked) => handleToggleLeadPlan(store.id, checked)} className="data-[state=checked]:bg-emerald-500 scale-75" />
+                  <span className="text-[9px] text-muted-foreground">Leads</span>
                 </div>
-                <div className="flex items-center gap-0.5">
-                  <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => openEdit(store)}><Pencil className="w-3.5 h-3.5" /></Button>
-                  <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive hover:text-destructive hover:bg-destructive/10" onClick={() => setDeletingStore(store)}><Trash2 className="w-3.5 h-3.5" /></Button>
+                <div className="flex items-center gap-0">
+                  <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => openEdit(store)}><Pencil className="w-3 h-3" /></Button>
+                  <Button variant="ghost" size="icon" className="h-6 w-6 text-destructive hover:text-destructive hover:bg-destructive/10" onClick={() => setDeletingStore(store)}><Trash2 className="w-3 h-3" /></Button>
                 </div>
               </div>
             </div>
