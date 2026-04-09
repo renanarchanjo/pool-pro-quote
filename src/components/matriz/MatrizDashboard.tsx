@@ -294,21 +294,21 @@ const MatrizDashboard = () => {
       </div>
 
       {/* BLOCO 1 — KPIs */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6">
         <KPICard label="MRR" value={fmt(metrics.mrr)} icon={DollarSign} badge={<VariationBadge value={metrics.mrrGrowth} />} />
         <KPICard label="CRESCIMENTO MRR" value={pct(metrics.mrrGrowth)} icon={TrendingUp} badge={<VariationBadge value={metrics.mrrGrowth} />} />
         <KPICard label="CHURN MENSAL" value={pct(metrics.churnRate)} icon={Activity}
-          badge={<span className={`inline-flex items-center text-[11px] font-medium px-2 py-0.5 rounded-full ${metrics.churnRate > 5 ? "bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400" : "bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400"}`}>{metrics.churnRate > 5 ? "⚠ Acima de 5%" : "✓ Saudável"}</span>} />
+          badge={<span className={`inline-flex items-center text-[10px] md:text-[11px] font-medium px-1.5 md:px-2 py-0.5 rounded-full ${metrics.churnRate > 5 ? "bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400" : "bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400"}`}>{metrics.churnRate > 5 ? "⚠ Alto" : "✓ OK"}</span>} />
         <KPICard label="LOJISTAS ATIVOS" value={String(metrics.activeCount)} icon={Users}
-          badge={<span className="inline-flex items-center text-[11px] font-medium px-2 py-0.5 rounded-full bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400">+{metrics.newThisMonth} novos este mês</span>} />
+          badge={<span className="inline-flex items-center text-[10px] md:text-[11px] font-medium px-1.5 md:px-2 py-0.5 rounded-full bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400">+{metrics.newThisMonth} novos</span>} />
       </div>
 
       {/* BLOCO 2 */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6">
         <KPICard label="ARPU" value={fmt(metrics.arpu)} icon={DollarSign} />
         <KPICard label="LTV MÉDIO" value={fmt(metrics.ltv)} icon={BarChart3} />
         <KPICard label="RECEITA PERDIDA" value={fmt(metrics.lostRevenue)} icon={XCircle} valueColor={metrics.lostRevenue > 0 ? "text-destructive" : undefined} />
-        <KPICard label="SIMULAÇÕES NO MÊS" value={String(metrics.simsThisMonth)} icon={Activity} badge={<VariationBadge value={metrics.simsGrowth} />} />
+        <KPICard label="SIMULAÇÕES" value={String(metrics.simsThisMonth)} icon={Activity} badge={<VariationBadge value={metrics.simsGrowth} />} />
       </div>
 
       {/* BLOCO 3 — ALERTAS */}
