@@ -3,7 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { RadioGroup } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Loader2, AlertCircle, Check } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -298,29 +298,25 @@ const OptionalsSelection = ({ optionals, modelOptionals = [], selectedOptionals:
                   <div
                     key={mOpt.id}
                     onClick={() => toggleModelOpt(mOpt.id)}
-                    className={`relative p-4 rounded-xl border-2 cursor-pointer transition-all ${
+                    className={`relative p-4 rounded-xl border-2 cursor-pointer transition-all duration-200 active:scale-[0.98] ${
                       isSelected
-                        ? "border-primary bg-primary/5 shadow-sm"
-                        : "border-border hover:border-primary/40"
+                        ? "border-primary bg-primary/10 shadow-md shadow-primary/10"
+                        : "border-border hover:border-primary/40 hover:bg-muted/30"
                     }`}
                   >
-                    <div className="flex items-start gap-3">
-                      <Checkbox
-                        id={`mopt-${mOpt.id}`}
-                        checked={isSelected}
-                        className="pointer-events-none mt-0.5 shrink-0"
-                      />
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-start justify-between gap-2">
-                          <p className="font-semibold text-[15px] leading-snug">{mOpt.name}</p>
-                          <span className="font-bold text-primary text-[14px] whitespace-nowrap shrink-0">
-                            + R$ {mOpt.price.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
-                          </span>
-                        </div>
-                        {mOpt.description && (
-                          <p className="text-[13px] text-muted-foreground mt-1 leading-relaxed">{mOpt.description}</p>
-                        )}
+                    {isSelected && (
+                      <div className="absolute top-3 right-3 w-5 h-5 rounded-full bg-primary flex items-center justify-center">
+                        <Check className="w-3 h-3 text-primary-foreground" />
                       </div>
+                    )}
+                    <div className="flex-1 min-w-0 pr-6">
+                      <p className="font-semibold text-[15px] leading-snug">{mOpt.name}</p>
+                      {mOpt.description && (
+                        <p className="text-[13px] text-muted-foreground mt-1 leading-relaxed">{mOpt.description}</p>
+                      )}
+                      <p className="font-bold text-primary text-[15px] mt-2">
+                        + R$ {mOpt.price.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                      </p>
                     </div>
                   </div>
                 );
