@@ -153,6 +153,7 @@ const Admin = () => {
 
       {/* Mobile bottom nav */}
       <MobileBottomNav />
+      <PwaInstallBanner />
 
       {/* Desktop floating panel */}
       <FloatingPanel open={panelOpen} onClose={() => setPanelOpen(false)}>
