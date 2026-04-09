@@ -715,7 +715,7 @@ const AdminLeads = () => {
 
                         {isPending ? (
                           <div className="flex gap-2">
-                            {isOwner && teamMembers.length > 1 && (
+                            {isOwner && teamMembers.length > 1 ? (
                               <Button
                                 size="sm"
                                 variant="outline"
@@ -724,24 +724,27 @@ const AdminLeads = () => {
                               >
                                 <Send className="w-3.5 h-3.5 mr-1" /> Atribuir
                               </Button>
-                            )}
-                            <Button
-                              size="sm"
-                              className="h-9 text-xs bg-emerald-600 hover:bg-emerald-700 text-white px-4"
-                              onClick={() => handleAccept(lead.id)}
-                              disabled={accepting === lead.id || bulkProcessing}
-                            >
-                              {accepting === lead.id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <><CheckCircle className="w-3.5 h-3.5 mr-1" /> Aceitar</>}
-                            </Button>
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              className="h-9 text-xs border-red-500/30 text-red-600 px-3"
-                              onClick={() => handleReject(lead.id)}
-                              disabled={bulkProcessing}
-                            >
-                              <XCircle className="w-3.5 h-3.5" />
-                            </Button>
+                            ) : !isOwner ? (
+                              <>
+                                <Button
+                                  size="sm"
+                                  className="h-9 text-xs bg-emerald-600 hover:bg-emerald-700 text-white px-4"
+                                  onClick={() => handleAccept(lead.id)}
+                                  disabled={accepting === lead.id || bulkProcessing}
+                                >
+                                  {accepting === lead.id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <><CheckCircle className="w-3.5 h-3.5 mr-1" /> Aceitar</>}
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  className="h-9 text-xs border-red-500/30 text-red-600 px-3"
+                                  onClick={() => handleReject(lead.id)}
+                                  disabled={bulkProcessing}
+                                >
+                                  <XCircle className="w-3.5 h-3.5" />
+                                </Button>
+                              </>
+                            ) : null}
                           </div>
                         ) : lead.status === "accepted" ? (
                           <div className="flex gap-2">
