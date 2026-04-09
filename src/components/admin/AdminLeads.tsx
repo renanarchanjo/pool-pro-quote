@@ -646,24 +646,8 @@ const AdminLeads = () => {
 
       {/* Table */}
       <Card>
-        <CardHeader className="pb-2 px-3 md:px-6 flex flex-row items-center justify-between gap-2">
-          <CardTitle className="text-sm md:text-base">Leads Recebidos ({tabLeads.length})</CardTitle>
-          {isOwner && teamMembers.length > 1 && (
-            <Select value={filterUser} onValueChange={setFilterUser}>
-              <SelectTrigger className="w-[180px] h-8 text-xs">
-                <Users className="w-3.5 h-3.5 mr-1.5 text-muted-foreground" />
-                <SelectValue placeholder="Filtrar por usuário" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Todos da equipe</SelectItem>
-                {teamMembers.map(m => (
-                  <SelectItem key={m.id} value={m.id}>
-                    {m.full_name || "Sem nome"}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          )}
+        <CardHeader className="pb-2 px-3 md:px-6">
+          <CardTitle className="text-sm md:text-base">Leads ({tabLeads.length})</CardTitle>
         </CardHeader>
         <CardContent className="p-0">
           {tabLeads.length === 0 ? (
