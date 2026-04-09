@@ -1,6 +1,6 @@
 import { useNavigate, useLocation } from "react-router-dom";
 import {
-  TrendingUp, Users, CreditCard, AlertTriangle,
+  TrendingUp, AlertTriangle,
   Store, Handshake, Tag, MapPin, FileBarChart, Filter, LogOut,
 } from "lucide-react";
 import ThemeToggle from "@/components/ThemeToggle";
@@ -34,25 +34,21 @@ const MatrizSidebar = () => {
     navigate("/");
   };
 
-  const gestaoItems = [
-    { title: "Dashboard Financeiro", url: "/matriz", icon: TrendingUp },
-    { title: "Lojistas Ativos", url: "/matriz/lojistas", icon: Users },
-    { title: "Inadimplência", url: "/matriz/inadimplencia", icon: AlertTriangle },
-  ];
-
-  const cadastroItems = [
-    { title: "Lojas Cadastradas", url: "/matriz/lojas", icon: Store },
+  const mainItems = [
+    { title: "Dashboard", url: "/matriz", icon: TrendingUp },
+    { title: "Lojas Ativas", url: "/matriz/lojistas", icon: Store },
     { title: "Parceiros", url: "/matriz/parceiros", icon: Handshake },
-    { title: "Planos e Preços", url: "/matriz/planos", icon: Tag },
-  ];
-
-  const analiseItems = [
     { title: "Mapa de Lojistas", url: "/matriz/mapa", icon: MapPin },
-    { title: "Relatórios", url: "/matriz/relatorios", icon: FileBarChart },
-    { title: "Leads", url: "/matriz/leads", icon: Filter },
   ];
 
-  const renderGroup = (label: string, items: typeof gestaoItems) => (
+  const operacaoItems = [
+    { title: "Leads", url: "/matriz/leads", icon: Filter },
+    { title: "Planos e Preços", url: "/matriz/planos", icon: Tag },
+    { title: "Inadimplência", url: "/matriz/inadimplencia", icon: AlertTriangle },
+    { title: "Relatórios", url: "/matriz/relatorios", icon: FileBarChart },
+  ];
+
+  const renderGroup = (label: string, items: typeof mainItems) => (
     <SidebarGroup className="py-0">
       <SidebarGroupLabel className="text-[10px] font-semibold uppercase tracking-[0.1em] text-muted-foreground/70 px-3 pt-5 pb-1.5">
         {label}
@@ -97,9 +93,8 @@ const MatrizSidebar = () => {
       </SidebarHeader>
 
       <SidebarContent className="px-2 overflow-y-auto flex-1 min-h-0">
-        {renderGroup("Gestão", gestaoItems)}
-        {renderGroup("Cadastro", cadastroItems)}
-        {renderGroup("Análise", analiseItems)}
+        {renderGroup("Principal", mainItems)}
+        {renderGroup("Operação", operacaoItems)}
       </SidebarContent>
 
       <SidebarFooter className="mt-auto shrink-0 p-3 border-t border-border safe-area-bottom">
