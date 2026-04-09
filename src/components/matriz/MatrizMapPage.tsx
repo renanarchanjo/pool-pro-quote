@@ -170,7 +170,8 @@ const MatrizMapPage = () => {
           </div>
         </div>
 
-        <div className="overflow-x-auto">
+        {/* Desktop table */}
+        <div className="hidden md:block overflow-x-auto">
           <table className="w-full">
             <thead>
               <tr className="bg-muted">
@@ -203,6 +204,44 @@ const MatrizMapPage = () => {
             </tbody>
           </table>
         </div>
+
+        {/* Mobile cards */}
+        <div className="md:hidden space-y-2">
+          {filteredStores.map(s => (
+            <div key={s.id} className="rounded-xl border border-border overflow-hidden">
+              <div className="flex items-center justify-between p-3 pb-0">
+                <div className="flex items-center gap-2 min-w-0">
+                  <div className="p-1.5 rounded-lg bg-primary/10 shrink-0">
+                    <Store className="w-4 h-4 text-primary" />
+                  </div>
+                  <h3 className="text-[13px] font-semibold text-foreground truncate">{s.name}</h3>
+                </div>
+                {statusBadge(s.plan_status)}
+              </div>
+              <div className="px-3 pt-2 pb-2.5 space-y-1">
+                <div className="flex items-center justify-between">
+                  <span className="text-[11px] text-muted-foreground">Cidade</span>
+                  <span className="text-[12px] text-foreground">{s.city || "—"}</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-[11px] text-muted-foreground">Estado</span>
+                  <span className="text-[12px] font-semibold text-foreground">{s.state || "—"}</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-[11px] text-muted-foreground">Plano</span>
+                  <span className="text-[12px] text-foreground">{s.subscription_plans?.name || "—"}</span>
+                </div>
+              </div>
+            </div>
+          ))}
+          {filteredStores.length === 0 && (
+            <div className="text-center py-8 text-[13px] text-muted-foreground">
+              <MapPin className="w-8 h-8 mx-auto mb-2 opacity-30" />
+              Nenhum lojista encontrado
+            </div>
+          )}
+        </div>
+
         <div className="text-[12px] text-muted-foreground mt-3">{filteredStores.length} de {stores.length} lojistas</div>
       </div>
     </div>
