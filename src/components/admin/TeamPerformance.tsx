@@ -10,6 +10,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import TeamPerformancePdfReport from "./TeamPerformancePdfReport";
 import { cn } from "@/lib/utils";
+import MemberSalesFunnel from "./MemberSalesFunnel";
 import { format, startOfMonth, endOfMonth, subDays, subMonths, startOfDay, endOfDay } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { DateRange } from "react-day-picker";
