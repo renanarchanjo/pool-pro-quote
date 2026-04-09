@@ -21,7 +21,7 @@ const LojistaPlanos = () => {
 
       <PricingSection hideLeadPlans hideFinalCta />
 
-      <div className="bg-background">
+      <div style={{ background: "#0B1929" }}>
         <SiteFooter />
       </div>
     </div>
