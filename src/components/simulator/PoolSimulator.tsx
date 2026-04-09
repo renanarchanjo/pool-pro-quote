@@ -225,13 +225,9 @@ const PoolSimulator = ({ onBack }: PoolSimulatorProps) => {
 
       const allSelectedOpts = [...selectedGeneralOpts, ...selectedModelOpts];
 
-      // Fetch included items total for this model
-      const { data: inclItems } = await supabase
-        .from("model_included_items")
-        .select("price")
-        .eq("model_id", selectedModel.id)
-        .eq("active", true);
-      const inclTotal = (inclItems || []).reduce((sum, item) => sum + Number(item.price), 0);
+      // Fetch included items total for this model via public RPC
+      const { data: inclTotalData } = await supabase.rpc("get_model_included_items_total", { _model_id: selectedModel.id });
+      const inclTotal = Number(inclTotalData) || 0;
       setIncludedItemsTotal(inclTotal);
 
       const optionalsPrice = allSelectedOpts.reduce((sum, opt) => sum + opt.price, 0);
