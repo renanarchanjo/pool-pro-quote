@@ -320,9 +320,15 @@ const MatrizStores = () => {
               </div>
             </div>
 
-            <div className="space-y-1.5">
-              <Label>CNPJ</Label>
-              <Input value={editForm.cnpj} onChange={(e) => setEditForm({ ...editForm, cnpj: e.target.value })} />
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1.5">
+                <Label>CNPJ</Label>
+                <Input value={editForm.cnpj} onChange={(e) => setEditForm({ ...editForm, cnpj: e.target.value })} />
+              </div>
+              <div className="space-y-1.5">
+                <Label>WhatsApp</Label>
+                <Input value={editForm.whatsapp} onChange={(e) => setEditForm({ ...editForm, whatsapp: e.target.value })} placeholder="(43) 99999-9999" />
+              </div>
             </div>
 
             <div className="grid grid-cols-2 gap-3">
