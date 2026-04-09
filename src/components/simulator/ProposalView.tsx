@@ -442,6 +442,7 @@ const ProposalView = ({
 
             {/* ===== RESUMO FINANCEIRO ===== */}
             <div data-pdf-section style={sectionStyle}>
+              <div style={sectionHeaderStyle}>Resumo Financeiro</div>
               <div style={{ ...sectionBodyStyle, padding: "12px 16px" }}>
                 <table style={{ width: "100%", fontSize: "13px", borderCollapse: "collapse" }}>
                   <tbody>
