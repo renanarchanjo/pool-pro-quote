@@ -1,9 +1,12 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import Stripe from "https://esm.sh/stripe@18.5.0";
 
+const ALLOWED_ORIGIN = Deno.env.get("ALLOWED_ORIGIN") ?? "https://simulapool.lovable.app";
+
 const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Origin": ALLOWED_ORIGIN,
+  "Access-Control-Allow-Headers":
+    "authorization, x-client-info, apikey, content-type",
 };
 
 Deno.serve(async (req) => {
@@ -28,7 +31,6 @@ Deno.serve(async (req) => {
       apiVersion: "2025-08-27.basil",
     });
 
-    // Find Stripe customer by email
     const customers = await stripe.customers.list({
       email: userData.user.email,
       limit: 1,
@@ -43,7 +45,6 @@ Deno.serve(async (req) => {
 
     const customerId = customers.data[0].id;
 
-    // Fetch all invoices for this customer
     const invoices = await stripe.invoices.list({
       customer: customerId,
       limit: 100,

@@ -2,13 +2,16 @@ import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import Stripe from "https://esm.sh/stripe@18.5.0";
 import { createClient } from "npm:@supabase/supabase-js@2.57.2";
 
+const ALLOWED_ORIGIN = Deno.env.get("ALLOWED_ORIGIN") ?? "https://simulapool.lovable.app";
+
 const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
+  "Access-Control-Allow-Origin": ALLOWED_ORIGIN,
+  "Access-Control-Allow-Headers":
+    "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
 const logStep = (step: string, details?: any) => {
-  const detailsStr = details ? ` - ${JSON.stringify(details)}` : '';
+  const detailsStr = details ? ` - ${JSON.stringify(details)}` : "";
   console.log(`[CANCEL-SUBSCRIPTION] ${step}${detailsStr}`);
 };
 
@@ -39,13 +42,14 @@ serve(async (req) => {
     if (!user?.email) throw new Error("User not authenticated or email not available");
     logStep("User authenticated", { userId: user.id, email: user.email });
 
-    const { subscription_id, cancel_immediately } = await req.json();
-    logStep("Request body", { subscription_id, cancel_immediately });
+    // Read body ONCE
+    const body = await req.json();
+    const { subscription_id, cancel_immediately, product_id } = body;
+    logStep("Request body", { subscription_id, cancel_immediately, product_id });
 
     const stripe = new Stripe(stripeKey, { apiVersion: "2025-08-27.basil" });
 
     if (subscription_id) {
-      // Cancel a specific subscription by ID
       if (cancel_immediately) {
         const canceled = await stripe.subscriptions.cancel(subscription_id);
         logStep("Subscription canceled immediately", { id: canceled.id });
@@ -62,8 +66,6 @@ serve(async (req) => {
     }
 
     // If no subscription_id provided, find and cancel by product_id
-    const { product_id } = await req.json().catch(() => ({}));
-    
     const customers = await stripe.customers.list({ email: user.email, limit: 1 });
     if (customers.data.length === 0) {
       throw new Error("No Stripe customer found");

@@ -2,9 +2,12 @@ import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import Stripe from "https://esm.sh/stripe@18.5.0";
 import { createClient } from "npm:@supabase/supabase-js@2.57.2";
 
+const ALLOWED_ORIGIN = Deno.env.get("ALLOWED_ORIGIN") ?? "https://simulapool.lovable.app";
+
 const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
+  "Access-Control-Allow-Origin": ALLOWED_ORIGIN,
+  "Access-Control-Allow-Headers":
+    "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
 const logStep = (step: string, details?: any) => {
@@ -52,7 +55,6 @@ serve(async (req) => {
 
     logStep("Starting price sync", { plan_id, new_price_monthly, plan_name });
 
-    // Get current plan data
     const { data: plan, error: planError } = await supabase
       .from("subscription_plans")
       .select("*")
@@ -64,7 +66,6 @@ serve(async (req) => {
     const stripe = new Stripe(stripeKey, { apiVersion: "2025-08-27.basil" });
     const amountInCents = Math.round(new_price_monthly * 100);
 
-    // If plan has no Stripe product yet, create one
     let productId = plan.stripe_product_id;
     if (!productId) {
       logStep("Creating new Stripe product", { name: plan_name || plan.name });
@@ -74,14 +75,12 @@ serve(async (req) => {
       });
       productId = product.id;
     } else {
-      // Update product name if changed
       if (plan_name && plan_name !== plan.name) {
         await stripe.products.update(productId, { name: plan_name });
         logStep("Updated product name", { productId, name: plan_name });
       }
     }
 
-    // If price is 0, skip Stripe price creation
     if (amountInCents === 0) {
       logStep("Price is 0, skipping Stripe price creation");
       await supabase
@@ -94,17 +93,17 @@ serve(async (req) => {
         })
         .eq("id", plan_id);
 
-      return new Response(JSON.stringify({
-        success: true,
-        new_price_id: null,
-        product_id: productId,
-        migrated_subscriptions: 0,
-      }), {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+      return new Response(
+        JSON.stringify({
+          success: true,
+          new_price_id: null,
+          product_id: productId,
+          migrated_subscriptions: 0,
+        }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
     }
 
-    // Create new Stripe Price
     logStep("Creating new Stripe price", { productId, amountInCents });
     const newPrice = await stripe.prices.create({
       product: productId,
@@ -115,12 +114,10 @@ serve(async (req) => {
     });
     logStep("New price created", { priceId: newPrice.id });
 
-    // Archive old price if exists
     const oldPriceId = plan.stripe_price_id;
     let migratedCount = 0;
 
     if (oldPriceId && oldPriceId !== newPrice.id) {
-      // Find all active subscriptions using the old price
       logStep("Looking for active subscriptions with old price", { oldPriceId });
       const subscriptions = await stripe.subscriptions.list({
         price: oldPriceId,
@@ -130,21 +127,13 @@ serve(async (req) => {
 
       logStep("Found subscriptions to migrate", { count: subscriptions.data.length });
 
-      // Migrate each subscription to the new price
       for (const sub of subscriptions.data) {
         try {
-          const subItem = sub.items.data.find(
-            (item) => item.price.id === oldPriceId
-          );
+          const subItem = sub.items.data.find((item) => item.price.id === oldPriceId);
           if (!subItem) continue;
 
           await stripe.subscriptions.update(sub.id, {
-            items: [
-              {
-                id: subItem.id,
-                price: newPrice.id,
-              },
-            ],
+            items: [{ id: subItem.id, price: newPrice.id }],
             proration_behavior: "none",
           });
           migratedCount++;
@@ -154,7 +143,6 @@ serve(async (req) => {
         }
       }
 
-      // Archive old price
       try {
         await stripe.prices.update(oldPriceId, { active: false });
         logStep("Archived old price", { oldPriceId });
@@ -163,7 +151,6 @@ serve(async (req) => {
       }
     }
 
-    // Update DB with new Stripe IDs
     await supabase
       .from("subscription_plans")
       .update({
@@ -176,17 +163,18 @@ serve(async (req) => {
 
     logStep("Done", { newPriceId: newPrice.id, migratedCount });
 
-    return new Response(JSON.stringify({
-      success: true,
-      new_price_id: newPrice.id,
-      product_id: productId,
-      migrated_subscriptions: migratedCount,
-    }), {
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
+    return new Response(
+      JSON.stringify({
+        success: true,
+        new_price_id: newPrice.id,
+        product_id: productId,
+        migrated_subscriptions: migratedCount,
+      }),
+      { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    );
   } catch (error) {
-    logStep("ERROR", { message: error.message });
-    return new Response(JSON.stringify({ error: error.message }), {
+    logStep("ERROR", { message: (error as Error).message });
+    return new Response(JSON.stringify({ error: (error as Error).message }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 500,
     });
