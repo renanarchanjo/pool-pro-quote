@@ -1,8 +1,3 @@
-import { Trophy, Clock, Target, DollarSign, TrendingUp } from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { cn } from "@/lib/utils";
-
 export interface PerformancePdfMetric {
   memberId: string;
   name: string;
@@ -29,118 +24,128 @@ interface Props {
   metrics: PerformancePdfMetric[];
 }
 
+const ACCENT = "#0EA5E9";
+const BORDER = "#E2E8F0";
+const TEXT_PRIMARY = "#0F172A";
+const TEXT_SECONDARY = "#64748B";
+const TEXT_MUTED = "#94A3B8";
+const SUCCESS = "#059669";
+
 const formatCurrency = (v: number) =>
   `R$ ${v.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`;
 
 const TeamPerformancePdfReport = ({ dateLabel, totals, metrics }: Props) => {
+  const reportDate = new Date().toLocaleDateString("pt-BR");
+  const reportTime = new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
+  const maxRevenue = Math.max(...metrics.map((m) => m.revenueClosed), 1);
+
   return (
-    <div className="w-[1100px] bg-background text-foreground p-8 space-y-6">
-      <header className="border-b border-border pb-4" data-pdf-section>
-        <h1 className="text-3xl font-bold tracking-tight">Performance da Equipe</h1>
-        <p className="text-sm text-muted-foreground mt-2">
-          Período: {dateLabel} · Gerado em {new Date().toLocaleDateString("pt-BR")}
-        </p>
-      </header>
+    <div style={{ width: 1100, background: "#fff", color: TEXT_PRIMARY, fontFamily: "'Inter', 'Helvetica Neue', Arial, sans-serif", padding: 0 }}>
 
-      <section className="grid grid-cols-5 gap-3" style={{ pageBreakInside: "avoid" }} data-pdf-section>
-        {[
-          { label: "Leads aceitos", value: `${totals.leads}` },
-          { label: "Fechamentos", value: `${totals.closed}` },
-          { label: "Conversão", value: `${totals.conversionRate.toFixed(1)}%` },
-          { label: "Receita fechada", value: formatCurrency(totals.revenue) },
-          { label: "Receita prevista", value: formatCurrency(totals.predicted) },
-        ].map((item) => (
-          <div key={item.label} className="rounded-xl border border-border bg-card p-4 text-center">
-            <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">{item.label}</p>
-            <p className="text-2xl font-bold mt-3">{item.value}</p>
+      {/* ═══ HEADER ═══ */}
+      <div data-pdf-section style={{ padding: "40px 48px 28px", borderBottom: `2px solid ${ACCENT}` }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+          <div>
+            <p style={{ fontSize: 11, color: TEXT_MUTED, letterSpacing: "0.12em", textTransform: "uppercase", margin: 0 }}>Relatório de Equipe</p>
+            <h1 style={{ fontSize: 28, fontWeight: 700, margin: "6px 0 0", letterSpacing: "-0.02em", color: TEXT_PRIMARY }}>Performance da Equipe</h1>
+            <p style={{ fontSize: 13, color: TEXT_SECONDARY, margin: "8px 0 0" }}>
+              Período: {dateLabel} · Gerado em {reportDate} às {reportTime}
+            </p>
           </div>
-        ))}
-      </section>
+          <div style={{ textAlign: "right" }}>
+            <p style={{ fontSize: 36, fontWeight: 700, color: ACCENT, margin: 0, lineHeight: 1 }}>{metrics.length}</p>
+            <p style={{ fontSize: 12, color: TEXT_SECONDARY, margin: "4px 0 0" }}>membros ativos</p>
+          </div>
+        </div>
+      </div>
 
-      <section className="space-y-4">
-        {metrics.map((m, idx) => {
-          const maxRevenue = metrics[0]?.revenueClosed || 1;
-          const revenuePercent = (m.revenueClosed / maxRevenue) * 100;
+      {/* ═══ RESUMO EXECUTIVO ═══ */}
+      <div data-pdf-section style={{ padding: "32px 48px", pageBreakInside: "avoid" }}>
+        <h2 style={{ fontSize: 15, fontWeight: 600, color: TEXT_PRIMARY, margin: "0 0 4px" }}>Resumo Consolidado</h2>
+        <p style={{ fontSize: 12, color: TEXT_SECONDARY, margin: "0 0 20px" }}>Visão geral da performance da equipe no período</p>
 
-          return (
-            <Card key={m.memberId} className="border-border/50 break-inside-avoid" data-pdf-section>
-              <CardContent className="p-5 space-y-4">
-                <div className="flex items-start justify-between gap-4">
-                  <div className="flex items-center gap-3">
-                    <div className={cn(
-                      "w-10 h-10 rounded-full flex items-center justify-center shrink-0",
-                      idx === 0 ? "bg-amber-100 text-amber-700" :
-                      idx === 1 ? "bg-gray-100 text-gray-600" :
-                      idx === 2 ? "bg-orange-100 text-orange-700" :
-                      "bg-muted text-muted-foreground",
-                    )}>
-                      {idx < 3 ? <Trophy className="w-5 h-5" /> : <span className="font-bold">{idx + 1}</span>}
-                    </div>
-                    <div>
-                      <p className="text-2xl font-semibold leading-none">{m.name}</p>
-                      <p className="text-sm text-muted-foreground mt-2">
-                        {m.leadsAccepted} leads aceitos · {m.closed} fechados · {m.lost} perdidos
-                      </p>
-                    </div>
-                  </div>
-                  <div className="text-right shrink-0">
-                    <p className="text-3xl font-bold text-emerald-600 leading-none">{formatCurrency(m.revenueClosed)}</p>
-                    <p className="text-sm text-muted-foreground mt-1">receita fechada</p>
-                  </div>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 0, borderTop: `1px solid ${BORDER}`, borderLeft: `1px solid ${BORDER}` }}>
+          {[
+            { label: "Leads Aceitos", value: `${totals.leads}` },
+            { label: "Fechamentos", value: `${totals.closed}` },
+            { label: "Conversão", value: `${totals.conversionRate.toFixed(1)}%` },
+            { label: "Receita Fechada", value: formatCurrency(totals.revenue) },
+            { label: "Receita Prevista", value: formatCurrency(totals.predicted) },
+          ].map((item) => (
+            <div key={item.label} style={{ padding: "20px 20px", borderRight: `1px solid ${BORDER}`, borderBottom: `1px solid ${BORDER}`, textAlign: "center" }}>
+              <p style={{ fontSize: 10, fontWeight: 600, color: TEXT_MUTED, textTransform: "uppercase", letterSpacing: "0.1em", margin: 0 }}>{item.label}</p>
+              <p style={{ fontSize: 22, fontWeight: 700, color: TEXT_PRIMARY, margin: "10px 0 0", lineHeight: 1 }}>{item.value}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* ═══ RANKING DA EQUIPE ═══ */}
+      <div data-pdf-section style={{ padding: "0 48px 16px" }}>
+        <h2 style={{ fontSize: 15, fontWeight: 600, color: TEXT_PRIMARY, margin: "0 0 4px" }}>Ranking Individual</h2>
+        <p style={{ fontSize: 12, color: TEXT_SECONDARY, margin: "0 0 20px" }}>Desempenho detalhado por membro da equipe</p>
+
+        <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12 }}>
+          <thead>
+            <tr>
+              {["#", "Membro", "Leads", "Fechados", "Perdidos", "Conversão", "Ticket Médio", "Resposta", "Receita Fechada", "Prevista"].map((h) => (
+                <th key={h} style={{
+                  textAlign: h === "#" ? "center" : "left", padding: "10px 10px",
+                  borderBottom: `2px solid ${TEXT_PRIMARY}`,
+                  fontSize: 10, fontWeight: 700, color: TEXT_SECONDARY, textTransform: "uppercase", letterSpacing: "0.06em",
+                }}>{h}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {metrics.map((m, idx) => {
+              const bg = idx % 2 === 0 ? "#fff" : "#FAFBFC";
+              const medal = idx === 0 ? "🥇" : idx === 1 ? "🥈" : idx === 2 ? "🥉" : `${idx + 1}`;
+              return (
+                <tr key={m.memberId} style={{ background: bg }}>
+                  <td style={{ padding: "12px 10px", borderBottom: `1px solid ${BORDER}`, textAlign: "center", fontSize: idx < 3 ? 16 : 12, fontWeight: 600 }}>{medal}</td>
+                  <td style={{ padding: "12px 10px", borderBottom: `1px solid ${BORDER}`, fontWeight: 700, fontSize: 13 }}>{m.name}</td>
+                  <td style={{ padding: "12px 10px", borderBottom: `1px solid ${BORDER}`, color: TEXT_SECONDARY }}>{m.leadsAccepted}</td>
+                  <td style={{ padding: "12px 10px", borderBottom: `1px solid ${BORDER}`, color: SUCCESS, fontWeight: 600 }}>{m.closed}</td>
+                  <td style={{ padding: "12px 10px", borderBottom: `1px solid ${BORDER}`, color: m.lost > 0 ? "#DC2626" : TEXT_MUTED }}>{m.lost}</td>
+                  <td style={{ padding: "12px 10px", borderBottom: `1px solid ${BORDER}`, fontWeight: 600 }}>{m.conversionRate.toFixed(1)}%</td>
+                  <td style={{ padding: "12px 10px", borderBottom: `1px solid ${BORDER}`, color: TEXT_SECONDARY }}>{formatCurrency(m.ticketMedio)}</td>
+                  <td style={{ padding: "12px 10px", borderBottom: `1px solid ${BORDER}`, color: TEXT_SECONDARY }}>
+                    {m.avgResponseTimeHours < 1 ? `${Math.round(m.avgResponseTimeHours * 60)}min` : `${m.avgResponseTimeHours.toFixed(1)}h`}
+                  </td>
+                  <td style={{ padding: "12px 10px", borderBottom: `1px solid ${BORDER}`, fontWeight: 700, fontSize: 13 }}>{formatCurrency(m.revenueClosed)}</td>
+                  <td style={{ padding: "12px 10px", borderBottom: `1px solid ${BORDER}`, color: TEXT_SECONDARY }}>{formatCurrency(m.revenuePredicted)}</td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+
+      {/* ═══ BARRA DE RECEITA ═══ */}
+      <div data-pdf-section style={{ padding: "16px 48px 32px", pageBreakInside: "avoid" }}>
+        <h2 style={{ fontSize: 15, fontWeight: 600, color: TEXT_PRIMARY, margin: "0 0 16px" }}>Receita por Membro</h2>
+        <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+          {metrics.map((m, idx) => {
+            const pct = (m.revenueClosed / maxRevenue) * 100;
+            return (
+              <div key={m.memberId} style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                <span style={{ width: 120, fontSize: 12, fontWeight: 600, color: TEXT_PRIMARY, textAlign: "right", flexShrink: 0 }}>{m.name}</span>
+                <div style={{ flex: 1, height: 20, background: "#F1F5F9", borderRadius: 4, overflow: "hidden", position: "relative" }}>
+                  <div style={{ height: "100%", borderRadius: 4, width: `${Math.max(pct, 2)}%`, background: idx === 0 ? ACCENT : idx === 1 ? "#38BDF8" : idx === 2 ? "#7DD3FC" : "#BAE6FD" }} />
                 </div>
+                <span style={{ width: 130, fontSize: 12, fontWeight: 700, color: TEXT_PRIMARY, textAlign: "right", flexShrink: 0 }}>{formatCurrency(m.revenueClosed)}</span>
+              </div>
+            );
+          })}
+        </div>
+      </div>
 
-                <div className="h-4 rounded-full bg-muted overflow-hidden">
-                  <div className="h-full rounded-full bg-primary" style={{ width: `${revenuePercent}%` }} />
-                </div>
-
-                <div className="grid grid-cols-4 gap-4 pt-1">
-                  <div className="flex items-start gap-2">
-                    <Target className="w-4 h-4 text-primary shrink-0 mt-0.5" />
-                    <div>
-                      <p className="text-sm text-muted-foreground">Conversão</p>
-                      <p className="text-2xl font-semibold leading-none mt-2">{m.conversionRate.toFixed(1)}%</p>
-                    </div>
-                  </div>
-                  <div className="flex items-start gap-2">
-                    <DollarSign className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                    <div>
-                      <p className="text-sm text-muted-foreground">Ticket Médio</p>
-                      <p className="text-2xl font-semibold leading-none mt-2">{formatCurrency(m.ticketMedio)}</p>
-                    </div>
-                  </div>
-                  <div className="flex items-start gap-2">
-                    <Clock className="w-4 h-4 text-blue-600 shrink-0 mt-0.5" />
-                    <div>
-                      <p className="text-sm text-muted-foreground">Tempo Resposta</p>
-                      <p className="text-2xl font-semibold leading-none mt-2">
-                        {m.avgResponseTimeHours < 1
-                          ? `${Math.round(m.avgResponseTimeHours * 60)}min`
-                          : `${m.avgResponseTimeHours.toFixed(1)}h`}
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex items-start gap-2">
-                    <TrendingUp className="w-4 h-4 text-violet-600 shrink-0 mt-0.5" />
-                    <div>
-                      <p className="text-sm text-muted-foreground">Receita Prevista</p>
-                      <p className="text-2xl font-semibold leading-none mt-2">{formatCurrency(m.revenuePredicted)}</p>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="pt-4 border-t border-border/50 flex items-center gap-3 text-sm flex-wrap">
-                  <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200 px-3 py-1">{m.leadsAccepted} aceitos</Badge>
-                  <span className="text-muted-foreground">→</span>
-                  <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200 px-3 py-1">{m.inNegotiation} negociando</Badge>
-                  <span className="text-muted-foreground">→</span>
-                  <Badge variant="outline" className="bg-emerald-50 text-emerald-700 border-emerald-200 px-3 py-1">{m.closed} fechados</Badge>
-                  <Badge variant="outline" className="bg-red-50 text-red-700 border-red-200 px-3 py-1">{m.lost} perdidos</Badge>
-                </div>
-              </CardContent>
-            </Card>
-          );
-        })}
-      </section>
+      {/* ═══ FOOTER ═══ */}
+      <div style={{ padding: "16px 48px", borderTop: `1px solid ${BORDER}`, display: "flex", justifyContent: "space-between" }}>
+        <p style={{ fontSize: 10, color: TEXT_MUTED, margin: 0 }}>SIMULAPOOL · Relatório de Performance</p>
+        <p style={{ fontSize: 10, color: TEXT_MUTED, margin: 0 }}>Documento confidencial · {reportDate}</p>
+      </div>
     </div>
   );
 };

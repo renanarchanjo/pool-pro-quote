@@ -1,5 +1,4 @@
 import { endOfMonth, startOfMonth, subMonths } from "date-fns";
-import { Badge } from "@/components/ui/badge";
 import { Proposal, PRIORITY_CONFIG, STATUS_CONFIG, STATUS_PROBABILITY, daysSince, formatCurrency, getPriority } from "./types";
 
 interface Props {
@@ -8,6 +7,23 @@ interface Props {
   storeName?: string | null;
   dateLabel?: string;
 }
+
+const ACCENT = "#0EA5E9";
+const ACCENT_LIGHT = "#F0F9FF";
+const BORDER = "#E2E8F0";
+const TEXT_PRIMARY = "#0F172A";
+const TEXT_SECONDARY = "#64748B";
+const TEXT_MUTED = "#94A3B8";
+const SUCCESS = "#059669";
+const DANGER = "#DC2626";
+
+const STATUS_COLORS: Record<string, string> = {
+  nova: "#3B82F6",
+  enviada: "#8B5CF6",
+  em_negociacao: "#F59E0B",
+  fechada: "#059669",
+  perdida: "#DC2626",
+};
 
 const DashboardPdfReport = ({ proposals, profileName, storeName, dateLabel }: Props) => {
   const now = new Date();
@@ -46,93 +62,101 @@ const DashboardPdfReport = ({ proposals, profileName, storeName, dateLabel }: Pr
   }));
 
   const activeProposals = proposals.filter((p) => p.status !== "fechada" && p.status !== "perdida");
-  const stale = [...activeProposals].filter((p) => daysSince(p.created_at) > 3).sort((a, b) => daysSince(b.created_at) - daysSince(a.created_at)).slice(0, 6);
-  const inNegotiation = [...activeProposals].filter((p) => p.status === "em_negociacao").sort((a, b) => daysSince(b.created_at) - daysSince(a.created_at)).slice(0, 6);
+  const stale = [...activeProposals].filter((p) => daysSince(p.created_at) > 3).sort((a, b) => daysSince(b.created_at) - daysSince(a.created_at)).slice(0, 5);
+  const inNegotiation = [...activeProposals].filter((p) => p.status === "em_negociacao").sort((a, b) => daysSince(b.created_at) - daysSince(a.created_at)).slice(0, 5);
   const pipelineRows = [...proposals]
     .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
     .slice(0, 14);
 
   const reportDate = new Date().toLocaleDateString("pt-BR");
   const reportTime = new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
+  const maxFunnel = Math.max(...funnel.map((f) => f.count), 1);
 
   return (
-    <div className="w-[1100px] bg-background text-foreground p-8 space-y-6">
-      <header className="border-b border-border pb-4" data-pdf-section>
-        <div className="flex items-start justify-between gap-6">
-          <div>
-            <p className="text-sm text-muted-foreground">
-              Relatório gerado para <span className="font-semibold text-foreground">{profileName || "Lojista"}</span>
-            </p>
-            <h1 className="text-3xl font-bold tracking-tight mt-1">Painel Comercial</h1>
-            <p className="text-sm text-muted-foreground mt-2">
-              {storeName ? `${storeName} · ` : ""}{dateLabel ? `Período: ${dateLabel} · ` : ""}Gerado em {reportDate} às {reportTime}
-            </p>
-          </div>
-          <div className="text-right">
-            <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Base</p>
-            <p className="text-2xl font-bold">{proposals.length}</p>
-            <p className="text-sm text-muted-foreground">propostas totais</p>
-          </div>
-        </div>
-      </header>
+    <div style={{ width: 1100, background: "#fff", color: TEXT_PRIMARY, fontFamily: "'Inter', 'Helvetica Neue', Arial, sans-serif", padding: 0 }}>
 
-      <section className="space-y-3" style={{ pageBreakInside: "avoid" }} data-pdf-section>
-        <div>
-          <h2 className="text-lg font-semibold">Indicadores do mês</h2>
-          <p className="text-sm text-muted-foreground">Resumo comercial do período atual</p>
+      {/* ═══ HEADER ═══ */}
+      <div data-pdf-section style={{ padding: "40px 48px 28px", borderBottom: `2px solid ${ACCENT}` }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+          <div>
+            <p style={{ fontSize: 11, color: TEXT_MUTED, letterSpacing: "0.12em", textTransform: "uppercase", margin: 0 }}>Relatório Comercial</p>
+            <h1 style={{ fontSize: 28, fontWeight: 700, margin: "6px 0 0", letterSpacing: "-0.02em", color: TEXT_PRIMARY }}>Painel Comercial</h1>
+            <p style={{ fontSize: 13, color: TEXT_SECONDARY, margin: "8px 0 0" }}>
+              {storeName ? `${storeName} · ` : ""}{profileName ? `${profileName} · ` : ""}{dateLabel ? `${dateLabel} · ` : ""}Gerado em {reportDate} às {reportTime}
+            </p>
+          </div>
+          <div style={{ textAlign: "right" }}>
+            <p style={{ fontSize: 36, fontWeight: 700, color: ACCENT, margin: 0, lineHeight: 1 }}>{proposals.length}</p>
+            <p style={{ fontSize: 12, color: TEXT_SECONDARY, margin: "4px 0 0" }}>propostas no período</p>
+          </div>
         </div>
-        <div className="grid grid-cols-4 gap-3">
+      </div>
+
+      {/* ═══ RESUMO EXECUTIVO ═══ */}
+      <div data-pdf-section style={{ padding: "32px 48px", pageBreakInside: "avoid" }}>
+        <h2 style={{ fontSize: 15, fontWeight: 600, color: TEXT_PRIMARY, margin: "0 0 4px", letterSpacing: "-0.01em" }}>Resumo do Período</h2>
+        <p style={{ fontSize: 12, color: TEXT_SECONDARY, margin: "0 0 20px" }}>Indicadores-chave de desempenho comercial</p>
+
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 0, borderTop: `1px solid ${BORDER}`, borderLeft: `1px solid ${BORDER}` }}>
           {[
-            { label: "Receita Fechada", value: formatCurrency(revenueClosed), change: pctChange(revenueClosed, revenueClosedLast) },
-            { label: "Receita Prevista", value: formatCurrency(revenuePredicted), helper: "propostas em aberto" },
-            { label: "Taxa de Conversão", value: `${conversionRate.toFixed(1)}%`, change: pctChange(conversionRate, 0) },
-            { label: "Ticket Médio", value: formatCurrency(ticketMedio) },
+            { label: "Receita Fechada", value: formatCurrency(revenueClosed), change: pctChange(revenueClosed, revenueClosedLast), positive: revenueClosed >= revenueClosedLast },
+            { label: "Receita Prevista", value: formatCurrency(revenuePredicted), sub: "propostas em aberto" },
+            { label: "Taxa de Conversão", value: `${conversionRate.toFixed(1)}%`, sub: `${closedCount} de ${totalExclNew} trabalhadas` },
+            { label: "Ticket Médio", value: formatCurrency(ticketMedio), sub: `${closedCount} fechamentos` },
           ].map((item) => (
-            <div key={item.label} className="rounded-xl border border-border bg-card px-4 py-4">
-              <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">{item.label}</p>
-              <p className="text-3xl font-bold mt-3 leading-none">{item.value}</p>
+            <div key={item.label} style={{ padding: "20px 24px", borderRight: `1px solid ${BORDER}`, borderBottom: `1px solid ${BORDER}` }}>
+              <p style={{ fontSize: 10, fontWeight: 600, color: TEXT_MUTED, textTransform: "uppercase", letterSpacing: "0.1em", margin: 0 }}>{item.label}</p>
+              <p style={{ fontSize: 24, fontWeight: 700, color: TEXT_PRIMARY, margin: "10px 0 0", lineHeight: 1 }}>{item.value}</p>
               {item.change !== undefined ? (
-                <p className="text-sm text-muted-foreground mt-3">Variação: {item.change >= 0 ? "+" : ""}{item.change.toFixed(1)}%</p>
-              ) : item.helper ? (
-                <p className="text-sm text-muted-foreground mt-3">{item.helper}</p>
+                <p style={{ fontSize: 11, color: item.positive ? SUCCESS : DANGER, margin: "8px 0 0", fontWeight: 500 }}>
+                  {item.change >= 0 ? "▲" : "▼"} {Math.abs(item.change).toFixed(1)}% vs mês anterior
+                </p>
+              ) : item.sub ? (
+                <p style={{ fontSize: 11, color: TEXT_MUTED, margin: "8px 0 0" }}>{item.sub}</p>
               ) : null}
             </div>
           ))}
         </div>
-        <div className="grid grid-cols-3 gap-3">
-          <div className="rounded-xl border border-border bg-card px-4 py-4 text-center">
-            <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">Propostas / mês</p>
-            <p className="text-2xl font-bold mt-2">{thisMonth.length}</p>
-          </div>
-          <div className="rounded-xl border border-border bg-card px-4 py-4 text-center">
-            <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">Fechamentos</p>
-            <p className="text-2xl font-bold mt-2">{closedCount}</p>
-          </div>
-          <div className="rounded-xl border border-border bg-card px-4 py-4 text-center">
-            <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">Taxa de perda</p>
-            <p className="text-2xl font-bold mt-2">{lossRate.toFixed(1)}%</p>
-          </div>
-        </div>
-      </section>
 
-      <section className="grid grid-cols-2 gap-4" style={{ pageBreakInside: "avoid" }} data-pdf-section>
-        <div className="rounded-2xl border border-border bg-card p-5">
-          <h2 className="text-lg font-semibold">Funil de vendas</h2>
-          <div className="mt-4 space-y-3">
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 0, borderLeft: `1px solid ${BORDER}` }}>
+          {[
+            { label: "Propostas no Mês", value: thisMonth.length },
+            { label: "Fechamentos", value: closedCount },
+            { label: "Taxa de Perda", value: `${lossRate.toFixed(1)}%` },
+          ].map((item) => (
+            <div key={item.label} style={{ padding: "16px 24px", borderRight: `1px solid ${BORDER}`, borderBottom: `1px solid ${BORDER}`, textAlign: "center" }}>
+              <p style={{ fontSize: 10, fontWeight: 600, color: TEXT_MUTED, textTransform: "uppercase", letterSpacing: "0.1em", margin: 0 }}>{item.label}</p>
+              <p style={{ fontSize: 20, fontWeight: 700, color: TEXT_PRIMARY, margin: "8px 0 0" }}>{item.value}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* ═══ FUNIL + ALERTAS ═══ */}
+      <div data-pdf-section style={{ padding: "0 48px 32px", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 40, pageBreakInside: "avoid" }}>
+        {/* Funil */}
+        <div>
+          <h2 style={{ fontSize: 15, fontWeight: 600, color: TEXT_PRIMARY, margin: "0 0 4px" }}>Funil de Vendas</h2>
+          <p style={{ fontSize: 12, color: TEXT_SECONDARY, margin: "0 0 20px" }}>Distribuição por etapa</p>
+
+          <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
             {funnel.map((stage) => {
-              const maxCount = Math.max(...funnel.map((item) => item.count), 1);
-              const width = `${(stage.count / maxCount) * 100}%`;
+              const width = `${Math.max((stage.count / maxFunnel) * 100, 4)}%`;
               return (
-                <div key={stage.status} className="space-y-1.5">
-                  <div className="flex items-center justify-between gap-3">
-                    <div className="flex items-center gap-2 min-w-0">
-                      <Badge variant="outline" className={STATUS_CONFIG[stage.status].className}>{STATUS_CONFIG[stage.status].label}</Badge>
-                      <span className="text-sm text-muted-foreground">{stage.count} propostas</span>
+                <div key={stage.status}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 5 }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                      <span style={{
+                        display: "inline-block", width: 8, height: 8, borderRadius: "50%",
+                        background: STATUS_COLORS[stage.status] || ACCENT,
+                      }} />
+                      <span style={{ fontSize: 13, fontWeight: 600, color: TEXT_PRIMARY }}>{STATUS_CONFIG[stage.status].label}</span>
+                      <span style={{ fontSize: 12, color: TEXT_MUTED }}>{stage.count}</span>
                     </div>
-                    <span className="text-sm font-semibold">{formatCurrency(stage.revenue)}</span>
+                    <span style={{ fontSize: 13, fontWeight: 600, color: TEXT_PRIMARY }}>{formatCurrency(stage.revenue)}</span>
                   </div>
-                  <div className="h-2 rounded-full bg-muted overflow-hidden">
-                    <div className="h-full rounded-full bg-primary" style={{ width }} />
+                  <div style={{ height: 6, background: "#F1F5F9", borderRadius: 3, overflow: "hidden" }}>
+                    <div style={{ height: "100%", borderRadius: 3, width, background: STATUS_COLORS[stage.status] || ACCENT }} />
                   </div>
                 </div>
               );
@@ -140,84 +164,94 @@ const DashboardPdfReport = ({ proposals, profileName, storeName, dateLabel }: Pr
           </div>
         </div>
 
-        <div className="rounded-2xl border border-border bg-card p-5">
-          <h2 className="text-lg font-semibold">Alertas e oportunidades</h2>
-          <div className="mt-4 grid grid-cols-2 gap-4">
+        {/* Alertas */}
+        <div>
+          <h2 style={{ fontSize: 15, fontWeight: 600, color: TEXT_PRIMARY, margin: "0 0 4px" }}>Oportunidades e Alertas</h2>
+          <p style={{ fontSize: 12, color: TEXT_SECONDARY, margin: "0 0 20px" }}>Propostas que exigem atenção</p>
+
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 24 }}>
             <div>
-              <p className="text-sm font-medium">Sem atualização</p>
-              <div className="mt-2 space-y-2">
-                {stale.length > 0 ? stale.map((p) => (
-                  <div key={p.id} className="rounded-lg border border-border p-3">
-                    <p className="font-medium text-sm">{p.customer_name}</p>
-                    <p className="text-xs text-muted-foreground">{p.customer_city} · {daysSince(p.created_at)} dias</p>
-                  </div>
-                )) : <p className="text-sm text-muted-foreground">Nenhum alerta no momento</p>}
-              </div>
+              <p style={{ fontSize: 11, fontWeight: 600, color: DANGER, textTransform: "uppercase", letterSpacing: "0.08em", margin: "0 0 10px" }}>Sem atualização</p>
+              {stale.length > 0 ? stale.map((p) => (
+                <div key={p.id} style={{ padding: "8px 0", borderBottom: `1px solid ${BORDER}` }}>
+                  <p style={{ fontSize: 13, fontWeight: 600, color: TEXT_PRIMARY, margin: 0 }}>{p.customer_name}</p>
+                  <p style={{ fontSize: 11, color: TEXT_MUTED, margin: "2px 0 0" }}>{p.customer_city} · {daysSince(p.created_at)} dias parado</p>
+                </div>
+              )) : <p style={{ fontSize: 12, color: TEXT_MUTED }}>Nenhum alerta</p>}
             </div>
             <div>
-              <p className="text-sm font-medium">Em negociação</p>
-              <div className="mt-2 space-y-2">
-                {inNegotiation.length > 0 ? inNegotiation.map((p) => (
-                  <div key={p.id} className="rounded-lg border border-border p-3">
-                    <p className="font-medium text-sm">{p.customer_name}</p>
-                    <p className="text-xs text-muted-foreground">{formatCurrency(p.total_price)} · {daysSince(p.created_at)} dias</p>
-                  </div>
-                )) : <p className="text-sm text-muted-foreground">Nenhuma negociação pendente</p>}
-              </div>
+              <p style={{ fontSize: 11, fontWeight: 600, color: "#F59E0B", textTransform: "uppercase", letterSpacing: "0.08em", margin: "0 0 10px" }}>Em negociação</p>
+              {inNegotiation.length > 0 ? inNegotiation.map((p) => (
+                <div key={p.id} style={{ padding: "8px 0", borderBottom: `1px solid ${BORDER}` }}>
+                  <p style={{ fontSize: 13, fontWeight: 600, color: TEXT_PRIMARY, margin: 0 }}>{p.customer_name}</p>
+                  <p style={{ fontSize: 11, color: TEXT_MUTED, margin: "2px 0 0" }}>{formatCurrency(p.total_price)} · {daysSince(p.created_at)}d</p>
+                </div>
+              )) : <p style={{ fontSize: 12, color: TEXT_MUTED }}>Nenhuma negociação</p>}
             </div>
           </div>
         </div>
-      </section>
+      </div>
 
-      <section className="rounded-2xl border border-border bg-card p-5" data-pdf-section>
-        <div className="flex items-end justify-between gap-4 mb-4">
+      {/* ═══ PIPELINE ═══ */}
+      <div data-pdf-section style={{ padding: "0 48px 40px" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: 16 }}>
           <div>
-            <h2 className="text-lg font-semibold">Pipeline resumido</h2>
-            <p className="text-sm text-muted-foreground">Últimas propostas para acompanhamento</p>
+            <h2 style={{ fontSize: 15, fontWeight: 600, color: TEXT_PRIMARY, margin: "0 0 4px" }}>Pipeline de Propostas</h2>
+            <p style={{ fontSize: 12, color: TEXT_SECONDARY, margin: 0 }}>Acompanhamento das últimas {pipelineRows.length} propostas</p>
           </div>
-          <p className="text-sm text-muted-foreground">Mostrando {pipelineRows.length} itens</p>
         </div>
 
-        <table className="w-full text-sm border-separate border-spacing-0">
+        <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12 }}>
           <thead>
             <tr>
-              {[
-                "Cliente",
-                "Cidade",
-                "Modelo",
-                "Status",
-                "Prioridade",
-                "Valor",
-                "Tempo",
-              ].map((head) => (
-                <th key={head} className="text-left px-3 py-3 border-b border-border text-muted-foreground font-medium">
-                  {head}
-                </th>
+              {["Cliente", "Cidade", "Modelo", "Status", "Prioridade", "Valor", "Dias"].map((h) => (
+                <th key={h} style={{
+                  textAlign: "left", padding: "10px 12px", borderBottom: `2px solid ${TEXT_PRIMARY}`,
+                  fontSize: 10, fontWeight: 700, color: TEXT_SECONDARY, textTransform: "uppercase", letterSpacing: "0.08em",
+                }}>{h}</th>
               ))}
             </tr>
           </thead>
           <tbody>
-            {pipelineRows.map((proposal) => {
-              const priority = getPriority(proposal);
+            {pipelineRows.map((p, i) => {
+              const priority = getPriority(p);
+              const bg = i % 2 === 0 ? "#fff" : "#FAFBFC";
               return (
-                <tr key={proposal.id}>
-                  <td className="px-3 py-3 border-b border-border align-top font-medium">{proposal.customer_name}</td>
-                  <td className="px-3 py-3 border-b border-border align-top">{proposal.customer_city}</td>
-                  <td className="px-3 py-3 border-b border-border align-top">{proposal.pool_models?.name || "—"}</td>
-                  <td className="px-3 py-3 border-b border-border align-top">
-                    <Badge variant="outline" className={STATUS_CONFIG[proposal.status].className}>{STATUS_CONFIG[proposal.status].label}</Badge>
+                <tr key={p.id} style={{ background: bg }}>
+                  <td style={{ padding: "10px 12px", borderBottom: `1px solid ${BORDER}`, fontWeight: 600 }}>{p.customer_name}</td>
+                  <td style={{ padding: "10px 12px", borderBottom: `1px solid ${BORDER}`, color: TEXT_SECONDARY }}>{p.customer_city}</td>
+                  <td style={{ padding: "10px 12px", borderBottom: `1px solid ${BORDER}`, color: TEXT_SECONDARY }}>{p.pool_models?.name || "—"}</td>
+                  <td style={{ padding: "10px 12px", borderBottom: `1px solid ${BORDER}` }}>
+                    <span style={{
+                      display: "inline-flex", alignItems: "center", gap: 5,
+                      fontSize: 11, fontWeight: 600, color: STATUS_COLORS[p.status] || TEXT_PRIMARY,
+                    }}>
+                      <span style={{ width: 6, height: 6, borderRadius: "50%", background: STATUS_COLORS[p.status] || ACCENT }} />
+                      {STATUS_CONFIG[p.status].label}
+                    </span>
                   </td>
-                  <td className="px-3 py-3 border-b border-border align-top">
-                    <span className={PRIORITY_CONFIG[priority].className}>{PRIORITY_CONFIG[priority].label}</span>
+                  <td style={{ padding: "10px 12px", borderBottom: `1px solid ${BORDER}` }}>
+                    <span style={{
+                      fontSize: 11, fontWeight: 600,
+                      color: priority === "alta" ? DANGER : priority === "media" ? "#F59E0B" : SUCCESS,
+                    }}>
+                      {PRIORITY_CONFIG[priority].label}
+                    </span>
                   </td>
-                  <td className="px-3 py-3 border-b border-border align-top font-semibold">{formatCurrency(proposal.total_price)}</td>
-                  <td className="px-3 py-3 border-b border-border align-top">{daysSince(proposal.created_at)}d</td>
+                  <td style={{ padding: "10px 12px", borderBottom: `1px solid ${BORDER}`, fontWeight: 700 }}>{formatCurrency(p.total_price)}</td>
+                  <td style={{ padding: "10px 12px", borderBottom: `1px solid ${BORDER}`, color: TEXT_SECONDARY }}>{daysSince(p.created_at)}d</td>
                 </tr>
               );
             })}
           </tbody>
         </table>
-      </section>
+      </div>
+
+      {/* ═══ FOOTER ═══ */}
+      <div style={{ padding: "16px 48px", borderTop: `1px solid ${BORDER}`, display: "flex", justifyContent: "space-between" }}>
+        <p style={{ fontSize: 10, color: TEXT_MUTED, margin: 0 }}>SIMULAPOOL · Relatório Comercial</p>
+        <p style={{ fontSize: 10, color: TEXT_MUTED, margin: 0 }}>Documento confidencial · {reportDate}</p>
+      </div>
     </div>
   );
 };
