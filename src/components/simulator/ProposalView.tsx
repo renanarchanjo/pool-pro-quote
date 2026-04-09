@@ -310,6 +310,7 @@ const ProposalView = ({
 
             {/* ===== CLIENTE ===== */}
             <div data-pdf-section style={sectionStyle}>
+              <div style={sectionHeaderStyle}>Cliente</div>
               <div style={{ ...sectionBodyStyle, padding: "12px 16px" }}>
                 <div style={{ display: "flex", flexWrap: "wrap", gap: "8px 24px", fontSize: "13px" }}>
                   <div><span style={{ fontWeight: 700, color: "#374151" }}>Nome: </span><span style={{ color: "#111827" }}>{customerData.name}</span></div>
@@ -320,7 +321,7 @@ const ProposalView = ({
             </div>
 
             {/* ===== PISCINA ===== */}
-            <div style={sectionStyle}>
+            <div data-pdf-section style={sectionStyle}>
               <div style={sectionHeaderStyle}>Piscina</div>
               <div style={{ ...sectionBodyStyle, padding: "12px 16px" }}>
                 <div style={{ display: "flex", alignItems: "center", gap: "12px", flexWrap: "wrap" }}>
@@ -359,7 +360,7 @@ const ProposalView = ({
 
             {/* ===== ITENS INCLUSOS + BANNER ===== */}
             {model.included_items.length > 0 && (
-              <div style={{ display: "flex", gap: "16px", marginBottom: "16px" }}>
+              <div data-pdf-section style={{ display: "flex", gap: "16px", marginBottom: "16px" }}>
                 <div style={{ ...sectionStyle, flex: 1, marginBottom: 0 }}>
                   <div style={sectionHeaderStyle}>Itens Inclusos</div>
                   <div style={{ ...sectionBodyStyle, padding: "12px 16px" }}>
@@ -404,7 +405,7 @@ const ProposalView = ({
             )}
 
             {/* ===== OPCIONAIS ===== */}
-            <div style={sectionStyle}>
+            <div data-pdf-section style={sectionStyle}>
               <div style={sectionHeaderStyle}>Opcionais</div>
               <div style={{ ...sectionBodyStyle, padding: "12px 16px" }}>
                 {selectedOptionals.length === 0 ? (
