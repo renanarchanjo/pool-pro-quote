@@ -281,7 +281,7 @@ const PricingSection = ({
                     onMouseLeave={(e) => {
                       const t = e.currentTarget;
                       if (isHero) {
-                        t.style.transform = "scale(1.06)";
+                        t.style.transform = "scale(1)";
                         t.style.boxShadow = cardShadow;
                       } else {
                         t.style.transform = "scale(1)";
