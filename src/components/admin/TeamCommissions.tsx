@@ -311,7 +311,8 @@ const TeamCommissions = () => {
                 )}
               </CardContent>
             </Card>
-          ))}
+            );
+          })}
         </div>
       )}
     </div>
