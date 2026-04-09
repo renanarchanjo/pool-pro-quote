@@ -88,9 +88,10 @@ const Parceiros = () => {
     <div className="min-h-screen bg-background flex flex-col">
       {/* ─── Hero ─── */}
       <div
-        className="hero-gradient relative overflow-hidden"
+        className="relative overflow-hidden"
         style={{
-          background: "linear-gradient(180deg, #0A1628 0%, #0C1A33 30%, #0D1F3C 50%, #0F2847 65%, #1A3A5C 78%, #3D6B8D 86%, #7AADCB 91%, #C5E2F0 95%, #FFFFFF 100%)",
+          background: "linear-gradient(180deg, #0A1628 0%, #0C1A33 30%, #0D1F3C 50%, #0F2847 65%, #1A3A5C 80%, #3D6B8D 90%, #7AADCB 96%, #FFFFFF 100%)",
+          minHeight: "100svh",
         }}
       >
         <SiteHeader />
