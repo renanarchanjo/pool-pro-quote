@@ -546,7 +546,20 @@ const ProposalView = ({
                   {partners.map((p) => (
                     <div key={p.id} style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
                       {p.logo_url ? (
-                        <img src={p.logo_url} alt={p.name} style={{ maxHeight: "32px", maxWidth: "80px", objectFit: "contain" }} crossOrigin="anonymous" />
+                        <img
+                          src={p.logo_url}
+                          alt={p.name}
+                          style={{ maxHeight: "32px", maxWidth: "80px", objectFit: "contain" }}
+                          crossOrigin="anonymous"
+                          onError={(e) => {
+                            const target = e.currentTarget;
+                            target.style.display = "none";
+                            const fallback = document.createElement("span");
+                            fallback.textContent = p.name;
+                            fallback.style.cssText = "font-size:11px;font-weight:700;color:#6b7280";
+                            target.parentElement?.appendChild(fallback);
+                          }}
+                        />
                       ) : (
                         <span style={{ fontSize: "11px", fontWeight: 700, color: "#6b7280" }}>{p.name}</span>
                       )}

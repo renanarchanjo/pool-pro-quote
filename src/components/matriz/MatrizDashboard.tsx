@@ -22,6 +22,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { cn } from "@/lib/utils";
 import BrazilMap from "./BrazilMap";
 import { toast } from "sonner";
+import { exportPDF } from "@/lib/exportPDF";
 
 /* ─── helpers ─── */
 const fmt = (v: number) =>
