@@ -118,8 +118,8 @@ const ProposalView = ({
     const element = document.getElementById("proposal-content");
     if (!element) return;
 
-    const pageElements = Array.from(element.querySelectorAll<HTMLElement>("[data-pdf-page]"));
-    if (pageElements.length === 0) return;
+    const sections = Array.from(element.querySelectorAll<HTMLElement>("[data-pdf-section]"));
+    if (sections.length === 0) return;
 
     const nameSlug = customerData.name.trim().replace(/\s+/g, "-");
     const filename = `Proposta-${nameSlug}-${today.replace(/\//g, "-")}.pdf`;
@@ -140,7 +140,6 @@ const ProposalView = ({
         el.style.display = "none";
       });
 
-      // Force-show elements hidden on mobile (e.g. partner banners)
       const pdfOnlyEls = element.querySelectorAll<HTMLElement>("[data-pdf-only]");
       pdfOnlyEls.forEach((el) => {
         pdfOnlyOriginals.push({ el, display: el.style.display });
@@ -159,10 +158,15 @@ const ProposalView = ({
       const pdf = new jsPDF({ unit: "mm", format: "a4", orientation: "portrait" });
       const margin = 10;
       const pageWidth = 210;
+      const pageHeight = 297;
       const contentWidth = pageWidth - margin * 2;
+      const contentHeight = pageHeight - margin * 2;
+      const sectionGap = 2;
 
-      for (const [index, pageEl] of pageElements.entries()) {
-        const canvas = await html2canvas(pageEl, {
+      let currentY = margin;
+
+      for (const section of sections) {
+        const canvas = await html2canvas(section, {
           scale: 2,
           useCORS: true,
           width,
@@ -171,13 +175,16 @@ const ProposalView = ({
           logging: false,
         });
 
-        const imgHeight = (canvas.height * contentWidth) / canvas.width;
+        const imgHeightMm = (canvas.height * contentWidth) / canvas.width;
 
-        if (index > 0) {
+        // If section doesn't fit on current page and we're not at the top, go to next page
+        if (currentY > margin && currentY + imgHeightMm > pageHeight - margin) {
           pdf.addPage("a4", "portrait");
+          currentY = margin;
         }
 
-        pdf.addImage(canvas.toDataURL("image/png"), "PNG", margin, margin, contentWidth, imgHeight);
+        pdf.addImage(canvas.toDataURL("image/png"), "PNG", margin, currentY, contentWidth, imgHeightMm);
+        currentY += imgHeightMm + sectionGap;
       }
 
       pdf.save(filename);
@@ -270,9 +277,8 @@ const ProposalView = ({
           }}
           className="sm:!p-8"
         >
-          <div data-pdf-page>
             {/* ===== HEADER ===== */}
-            <div style={{ marginBottom: "20px", borderBottom: "2px solid #e5e7eb", paddingBottom: "16px" }}>
+            <div data-pdf-section style={{ marginBottom: "20px", borderBottom: "2px solid #e5e7eb", paddingBottom: "16px" }}>
               <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "space-between", alignItems: "center", gap: "12px" }}>
                 <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
                   {storeSettings?.logo_url ? (
@@ -302,7 +308,7 @@ const ProposalView = ({
             </div>
 
             {/* ===== CLIENTE ===== */}
-            <div style={sectionStyle}>
+            <div data-pdf-section style={sectionStyle}>
               <div style={sectionHeaderStyle}>Cliente</div>
               <div style={{ ...sectionBodyStyle, padding: "12px 16px" }}>
                 <div style={{ display: "flex", flexWrap: "wrap", gap: "8px 24px", fontSize: "13px" }}>
@@ -314,7 +320,7 @@ const ProposalView = ({
             </div>
 
             {/* ===== PISCINA ===== */}
-            <div style={sectionStyle}>
+            <div data-pdf-section style={sectionStyle}>
               <div style={sectionHeaderStyle}>Piscina</div>
               <div style={{ ...sectionBodyStyle, padding: "12px 16px" }}>
                 <div style={{ display: "flex", alignItems: "center", gap: "12px", flexWrap: "wrap" }}>
@@ -353,7 +359,7 @@ const ProposalView = ({
 
             {/* ===== ITENS INCLUSOS + BANNER ===== */}
             {model.included_items.length > 0 && (
-              <div style={{ display: "flex", gap: "16px", marginBottom: "16px" }}>
+              <div data-pdf-section style={{ display: "flex", gap: "16px", marginBottom: "16px" }}>
                 <div style={{ ...sectionStyle, flex: 1, marginBottom: 0 }}>
                   <div style={sectionHeaderStyle}>Itens Inclusos</div>
                   <div style={{ ...sectionBodyStyle, padding: "12px 16px" }}>
@@ -398,7 +404,7 @@ const ProposalView = ({
             )}
 
             {/* ===== OPCIONAIS ===== */}
-            <div style={sectionStyle}>
+            <div data-pdf-section style={sectionStyle}>
               <div style={sectionHeaderStyle}>Opcionais</div>
               <div style={{ ...sectionBodyStyle, padding: "12px 16px" }}>
                 {selectedOptionals.length === 0 ? (
@@ -417,12 +423,11 @@ const ProposalView = ({
                 )}
               </div>
             </div>
-          </div>
 
-          <div data-pdf-page>
+
             {/* ===== NÃO INCLUSOS ===== */}
             {model.not_included_items && model.not_included_items.length > 0 && (
-              <div style={{ ...sectionStyle, marginBottom: "16px" }}>
+              <div data-pdf-section style={{ ...sectionStyle, marginBottom: "16px" }}>
                 <div style={{ ...sectionHeaderStyle, borderLeft: `4px solid #ef4444` }}>Não Inclusos</div>
                 <div style={{ ...sectionBodyStyle, padding: "12px 16px" }}>
                   <ul style={{ margin: 0, paddingLeft: "16px", fontSize: "12px", lineHeight: "1.7", columns: 2 }} className="!columns-1 sm:!columns-2">
@@ -435,7 +440,7 @@ const ProposalView = ({
             )}
 
             {/* ===== RESUMO FINANCEIRO ===== */}
-            <div style={sectionStyle}>
+            <div data-pdf-section style={sectionStyle}>
               <div style={sectionHeaderStyle}>Resumo Financeiro</div>
               <div style={{ ...sectionBodyStyle, padding: "12px 16px" }}>
                 <table style={{ width: "100%", fontSize: "13px", borderCollapse: "collapse" }}>
@@ -460,7 +465,7 @@ const ProposalView = ({
             </div>
 
             {/* ===== CONDIÇÕES + LOJISTA ===== */}
-            <div style={{ display: "flex", flexWrap: "wrap", gap: "16px", marginBottom: "16px" }}>
+            <div data-pdf-section style={{ display: "flex", flexWrap: "wrap", gap: "16px", marginBottom: "16px" }}>
               <div style={{ ...sectionStyle, flex: "1 1 240px", marginBottom: 0 }}>
                 <div style={sectionHeaderStyle}>Condições</div>
                 <div style={{ ...sectionBodyStyle, padding: "12px 16px" }}>
@@ -498,7 +503,7 @@ const ProposalView = ({
 
             {/* ===== PARCEIROS ===== */}
             {partners.length > 0 && (
-              <div style={{ marginTop: "20px", paddingTop: "12px", borderTop: "1px solid #e5e7eb" }}>
+              <div data-pdf-section style={{ marginTop: "20px", paddingTop: "12px", borderTop: "1px solid #e5e7eb" }}>
                 <p style={{ textAlign: "center", fontSize: "10px", color: "#9ca3af", marginBottom: "10px", textTransform: "uppercase", letterSpacing: "1px" }}>
                   Parceiros oficiais
                 </p>
@@ -517,10 +522,9 @@ const ProposalView = ({
             )}
 
             {/* ===== FOOTER ===== */}
-            <div style={{ textAlign: "center", fontSize: "10px", color: "#9ca3af", marginTop: "14px", paddingTop: "10px", borderTop: "1px solid #e5e7eb" }}>
+            <div data-pdf-section style={{ textAlign: "center", fontSize: "10px", color: "#9ca3af", marginTop: "14px", paddingTop: "10px", borderTop: "1px solid #e5e7eb" }}>
               Documento gerado por SimulaPool
             </div>
-          </div>
         </div>
       </main>
     </div>
