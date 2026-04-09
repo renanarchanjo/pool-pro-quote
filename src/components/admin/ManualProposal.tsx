@@ -614,67 +614,75 @@ const ManualProposal = () => {
     </div>
   );
 
-  // ── Mobile step-by-step layout ──
+  // ── Mobile step-by-step layout (Duolingo-inspired) ──
   if (isMobile) {
+    const progress = ((mobileStep) / (STEP_CONFIG.length - 1)) * 100;
+
     return (
-      <div className="pb-4">
-        {/* Step indicator */}
-        <div className="flex items-center justify-between mb-6 px-1">
-          {STEP_CONFIG.map((s, i) => {
-            const Icon = s.icon;
-            const isActive = i === mobileStep;
-            const isDone = i < mobileStep;
-            return (
-              <button
-                key={i}
-                onClick={() => i < mobileStep && setMobileStep(i)}
-                className="flex flex-col items-center gap-1 flex-1"
-              >
-                <div className={`w-9 h-9 rounded-full flex items-center justify-center transition-all ${
-                  isActive
-                    ? "bg-primary text-primary-foreground shadow-md"
-                    : isDone
-                    ? "bg-primary/20 text-primary"
-                    : "bg-muted text-muted-foreground"
-                }`}>
-                  <Icon className="w-4 h-4" />
-                </div>
-                <span className={`text-[10px] font-medium ${isActive ? "text-primary" : "text-muted-foreground"}`}>
-                  {s.label}
-                </span>
-              </button>
-            );
-          })}
+      <div className="flex flex-col min-h-[calc(100dvh-140px)]">
+        {/* Progress bar */}
+        <div className="flex items-center gap-3 mb-6">
+          {mobileStep > 0 && (
+            <button
+              onClick={() => setMobileStep((s) => s - 1)}
+              className="w-9 h-9 rounded-full flex items-center justify-center text-muted-foreground hover:bg-muted active:scale-90 transition-all shrink-0"
+            >
+              <ChevronLeft className="w-5 h-5" />
+            </button>
+          )}
+          <div className="flex-1 h-3 bg-muted rounded-full overflow-hidden">
+            <div
+              className="h-full bg-primary rounded-full transition-all duration-500 ease-out"
+              style={{ width: `${Math.max(progress, 8)}%` }}
+            />
+          </div>
+          <span className="text-xs font-semibold text-muted-foreground tabular-nums shrink-0">
+            {mobileStep + 1}/{STEP_CONFIG.length}
+          </span>
         </div>
 
-        {/* Step title */}
-        <h2 className="text-lg font-bold mb-4">
-          {STEP_CONFIG[mobileStep].label}
-        </h2>
+        {/* Step title + subtitle */}
+        <div className="mb-6">
+          <h2 className="text-2xl font-extrabold text-foreground tracking-tight">
+            {STEP_CONFIG[mobileStep].label}
+          </h2>
+          <p className="text-sm text-muted-foreground mt-1">
+            {mobileStep === 0 && "Preencha os dados do seu cliente"}
+            {mobileStep === 1 && "Escolha a piscina ideal"}
+            {mobileStep === 2 && "Selecione os adicionais"}
+            {mobileStep === 3 && "Confira e envie a proposta"}
+          </p>
+        </div>
 
         {/* Step content */}
-        {mobileStep === 0 && renderCustomerFields()}
-        {mobileStep === 1 && renderModelFields()}
-        {mobileStep === 2 && renderOptionalsContent(false)}
-        {mobileStep === 3 && renderSummaryStep()}
+        <div className="flex-1 min-h-0">
+          {mobileStep === 0 && renderCustomerFields()}
+          {mobileStep === 1 && renderModelFields()}
+          {mobileStep === 2 && renderOptionalsContent(false)}
+          {mobileStep === 3 && renderSummaryStep()}
+        </div>
 
-        {/* Navigation buttons */}
+        {/* Bottom action button */}
         {mobileStep < 3 && (
-          <div className="flex gap-3 mt-6">
-            {mobileStep > 0 && (
-              <Button variant="outline" className="flex-1" onClick={() => setMobileStep((s) => s - 1)}>
-                <ArrowLeft className="w-4 h-4 mr-1" /> Voltar
-              </Button>
-            )}
-            <Button className="flex-1 gradient-primary text-white" onClick={handleNextStep}>
-              Próximo <ChevronRight className="w-4 h-4 ml-1" />
-            </Button>
+          <div className="pt-6 pb-2 mt-auto">
+            <button
+              onClick={handleNextStep}
+              className="w-full h-14 rounded-2xl bg-primary text-primary-foreground font-bold text-base flex items-center justify-center gap-2 active:scale-[0.97] transition-all duration-150 shadow-lg shadow-primary/25"
+            >
+              Continuar
+              <ChevronRight className="w-5 h-5" />
+            </button>
           </div>
         )}
-        {mobileStep === 3 && mobileStep > 0 && (
-          <Button variant="outline" className="w-full mt-3" onClick={() => setMobileStep((s) => s - 1)}>
-            <ArrowLeft className="w-4 h-4 mr-1" /> Voltar
-          </Button>
+        {mobileStep === 3 && (
+          <div className="pt-4 pb-2 mt-auto">
+            <button
+              onClick={() => setMobileStep((s) => s - 1)}
+              className="w-full h-11 rounded-xl border border-border text-muted-foreground font-medium text-sm flex items-center justify-center gap-1.5 active:scale-[0.97] transition-all"
+            >
+              <ChevronLeft className="w-4 h-4" /> Voltar e editar
+            </button>
+          </div>
         )}
       </div>
     );
