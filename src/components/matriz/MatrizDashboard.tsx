@@ -452,14 +452,14 @@ const MatrizDashboard = () => {
       </div>
 
       {/* BLOCO 7 — PROJEÇÃO */}
-      <div className="bg-card border border-border rounded-xl p-6">
+      <div className="bg-card border border-border rounded-xl p-3 md:p-6">
         <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">PROJEÇÃO DE FATURAMENTO</span>
-        <p className="text-[12px] text-muted-foreground mt-1 mb-4">Base: MRR {fmt(metrics.mrr)} · Crescimento: {pct(metrics.mrrGrowth)} · Churn: {pct(metrics.churnRate)}</p>
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+        <p className="text-[11px] md:text-[12px] text-muted-foreground mt-1 mb-3 md:mb-4">MRR {fmt(metrics.mrr)} · Cresc. {pct(metrics.mrrGrowth)} · Churn {pct(metrics.churnRate)}</p>
+        <div className="grid grid-cols-3 md:grid-cols-3 lg:grid-cols-6 gap-3 md:gap-4">
           {metrics.projections.map(p => (
             <div key={p.label} className="text-center">
-              <div className="text-[12px] font-medium text-muted-foreground">{p.label}</div>
-              <div className="text-[20px] font-bold text-foreground mt-1">{fmt(p.value)}</div>
+              <div className="text-[11px] md:text-[12px] font-medium text-muted-foreground">{p.label}</div>
+              <div className="text-[16px] md:text-[20px] font-bold text-foreground mt-0.5 md:mt-1 truncate">{fmt(p.value)}</div>
               <VariationBadge value={p.pctChange} suffix="" />
             </div>
           ))}
