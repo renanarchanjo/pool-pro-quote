@@ -101,9 +101,11 @@ const TeamCommissions = () => {
       allProposals.forEach(p => { if ((p as any).created_by === member.id) memberProposalIds.add(p.id); });
       const memberProposals = Array.from(memberProposalIds).map(id => proposalMap.get(id)).filter(Boolean) as ProposalDataFull[];
       const inRange = memberProposals.filter(p => { const dt = new Date(p.created_at); return dt >= from && dt <= to; });
+      const nova = inRange.filter(p => p.status === "nova");
+      const enviada = inRange.filter(p => p.status === "enviada");
+      const inNeg = inRange.filter(p => p.status === "em_negociacao");
       const closed = inRange.filter(p => p.status === "fechada");
       const lost = inRange.filter(p => p.status === "perdida");
-      const inNeg = inRange.filter(p => p.status === "em_negociacao");
       const revenueClosed = closed.reduce((s, p) => s + p.total_price, 0);
       const cp = getCommissionPercent(member.id);
       const commissionValue = revenueClosed * (cp / 100);
@@ -113,8 +115,13 @@ const TeamCommissions = () => {
 
       return {
         memberId: member.id, name: member.full_name || "Sem nome",
-        totalProposals: inRange.length, closed: closed.length, lost: lost.length, inNegotiation: inNeg.length,
-        revenueClosed, commissionPercent: cp, commissionValue, conversionRate, ticketMedio,
+        totalProposals: inRange.length, nova: nova.length, enviada: enviada.length,
+        inNegotiation: inNeg.length, closed: closed.length, lost: lost.length,
+        revenueNova: nova.reduce((s, p) => s + p.total_price, 0),
+        revenueEnviada: enviada.reduce((s, p) => s + p.total_price, 0),
+        revenueNeg: inNeg.reduce((s, p) => s + p.total_price, 0),
+        revenueClosed, revenueLost: lost.reduce((s, p) => s + p.total_price, 0),
+        commissionPercent: cp, commissionValue, conversionRate, ticketMedio,
         closedProposals: closed.map(p => ({
           name: p.customer_name, value: p.total_price, commission: p.total_price * (cp / 100), date: p.created_at,
         })),
