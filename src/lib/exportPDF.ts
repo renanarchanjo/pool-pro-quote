@@ -185,7 +185,9 @@ export const exportPDF = async ({
     element.style.maxWidth = `${width}px`;
     element.style.padding = "24px";
     element.style.background = "#ffffff";
-    element.style.color = "#000000";
+    // Force reflow before capture
+    element.getBoundingClientRect();
+    await new Promise(r => setTimeout(r, 200));
 
     if (sectionSelector) {
       await exportSectionedPDF({ element, filename, orientation, sectionSelector });
