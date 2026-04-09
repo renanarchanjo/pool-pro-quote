@@ -31,7 +31,7 @@ const MatrizSidebarContent = ({ onNavigate, isMobile = false }: MatrizSidebarCon
   const handleLogout = async () => {
     await supabase.auth.signOut();
     toast.success("Logout realizado");
-    navigate("/");
+    navigate("/login", { replace: true });
   };
 
   const mainItems = [
