@@ -601,8 +601,8 @@ const MatrizLeads = () => {
       )}
 
       {/* Distribute Dialog */}
-      <Dialog open={showDistributeDialog} onOpenChange={setShowDistributeDialog}>
-        <DialogContent className="max-w-sm">
+      <Dialog open={showDistributeDialog} onOpenChange={setShowDistributeDialog} modal>
+        <DialogContent className="max-w-sm overflow-visible">
           <DialogHeader>
             <DialogTitle className="text-base">Distribuir Leads</DialogTitle>
             <DialogDescription className="text-xs">
