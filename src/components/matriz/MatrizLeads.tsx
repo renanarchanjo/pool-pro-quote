@@ -449,53 +449,51 @@ const MatrizLeads = () => {
                   className={`transition-colors cursor-pointer active:scale-[0.98] ${isSelected ? "ring-1 ring-primary/40 bg-primary/5" : ""}`}
                 >
                   <CardContent className="p-3">
-                    <div className="flex items-start gap-2.5">
-                      <Checkbox
-                        checked={isSelected}
-                        onCheckedChange={() => toggleSelect(lead.id)}
-                        onClick={(e) => e.stopPropagation()}
-                        className="mt-0.5 shrink-0"
-                      />
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center justify-between gap-2 mb-1">
-                          <span className="text-sm font-semibold text-foreground truncate">{lead.customer_name}</span>
-                          <Badge variant="outline" className={`${statusConfig[lead.status].color} text-[10px] px-1.5 py-0 shrink-0`}>
-                            {statusConfig[lead.status].label}
-                          </Badge>
-                        </div>
-
-                        <div className="flex items-center gap-3 text-[11px] text-muted-foreground mb-1.5">
-                          <span className="flex items-center gap-0.5"><MapPin className="w-3 h-3" />{lead.customer_city}</span>
-                          <span>{lead.created_at ? format(new Date(lead.created_at), "dd/MM HH:mm") : "-"}</span>
-                        </div>
-
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-2">
-                            <span className="text-xs text-muted-foreground truncate">{lead.pool_models?.name || "-"}</span>
-                            <span className="text-xs font-semibold text-emerald-600">{formatCurrency(lead.total_price)}</span>
-                          </div>
-                          <div className="flex items-center gap-2.5" onClick={(e) => e.stopPropagation()}>
-                            <button onClick={() => handleViewLead(lead)} className="text-[11px] text-primary font-medium">Ver</button>
-                            <button onClick={() => handleCopyPhone(lead)} className="text-[11px] text-muted-foreground">Copiar</button>
-                            <button onClick={() => setDeletingLead(lead)} className="text-[11px] text-destructive">Excluir</button>
-                          </div>
-                        </div>
-
-                        {dist && (
-                          <div className="mt-1.5 flex items-center gap-1.5">
-                            <span className="text-[10px] text-muted-foreground">→ {dist.stores?.name}</span>
-                            <Badge variant="outline" className={`text-[9px] px-1 py-0 ${dist.status === "accepted" ? "bg-emerald-500/10 text-emerald-600 border-emerald-500/20" : "bg-amber-500/10 text-amber-600 border-amber-500/20"}`}>
-                              {dist.status === "accepted" ? "Aceito" : "Aguardando"}
-                            </Badge>
-                          </div>
-                        )}
-
-                        {expired && expired.length > 0 && (
-                          <Badge variant="outline" className="bg-orange-500/10 text-orange-600 border-orange-500/20 text-[9px] px-1 py-0 mt-1">
-                            ↩ Retornou {expired.length}x
-                          </Badge>
-                        )}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between gap-2 mb-1">
+                        <span className="text-sm font-semibold text-foreground truncate">{lead.customer_name}</span>
+                        <Badge variant="outline" className={`${statusConfig[lead.status].color} text-[10px] px-1.5 py-0 shrink-0`}>
+                          {statusConfig[lead.status].label}
+                        </Badge>
                       </div>
+
+                      <div className="flex items-center gap-3 text-[11px] text-muted-foreground mb-1.5">
+                        <span className="flex items-center gap-0.5"><MapPin className="w-3 h-3" />{lead.customer_city}</span>
+                        <span>{lead.created_at ? format(new Date(lead.created_at), "dd/MM HH:mm") : "-"}</span>
+                      </div>
+
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs text-muted-foreground truncate">{lead.pool_models?.name || "-"}</span>
+                          <span className="text-xs font-semibold text-emerald-600">{formatCurrency(lead.total_price)}</span>
+                        </div>
+                        <div className="flex items-center gap-0.5" onClick={(e) => e.stopPropagation()}>
+                          <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleViewLead(lead)}>
+                            <Eye className="w-3.5 h-3.5" />
+                          </Button>
+                          <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleCopyPhone(lead)}>
+                            <Copy className="w-3.5 h-3.5 text-muted-foreground" />
+                          </Button>
+                          <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => setDeletingLead(lead)}>
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </Button>
+                        </div>
+                      </div>
+
+                      {dist && (
+                        <div className="mt-1.5 flex items-center gap-1.5">
+                          <span className="text-[10px] text-muted-foreground">→ {dist.stores?.name}</span>
+                          <Badge variant="outline" className={`text-[9px] px-1 py-0 ${dist.status === "accepted" ? "bg-emerald-500/10 text-emerald-600 border-emerald-500/20" : "bg-amber-500/10 text-amber-600 border-amber-500/20"}`}>
+                            {dist.status === "accepted" ? "Aceito" : "Aguardando"}
+                          </Badge>
+                        </div>
+                      )}
+
+                      {expired && expired.length > 0 && (
+                        <Badge variant="outline" className="bg-orange-500/10 text-orange-600 border-orange-500/20 text-[9px] px-1 py-0 mt-1">
+                          ↩ Retornou {expired.length}x
+                        </Badge>
+                      )}
                     </div>
                   </CardContent>
                 </Card>
