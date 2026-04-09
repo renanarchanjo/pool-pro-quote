@@ -154,7 +154,7 @@ const PricingSection = ({
           }}
         />
 
-        <div className="relative z-10 px-4 pt-14 pb-20 md:pt-20 md:pb-28">
+        <div className="relative z-10 px-4 pt-8 pb-20 md:pt-12 md:pb-28">
           {/* Header */}
           <div className="text-center mb-14 md:mb-16">
             <h1
