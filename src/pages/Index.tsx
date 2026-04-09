@@ -41,7 +41,7 @@ const Index = () => {
     <div className="min-h-screen bg-background flex flex-col">
       {/* ─── Unified Navbar + Hero Block ─── */}
       <div
-        className="hero-gradient relative overflow-hidden"
+        className="relative overflow-hidden"
         style={{
           background:
             "linear-gradient(180deg, #0A1628 0%, #0C1A33 30%, #0D1F3C 50%, #0F2847 65%, #1A3A5C 80%, #3D6B8D 90%, #7AADCB 96%, #FFFFFF 100%)",
@@ -67,7 +67,7 @@ const Index = () => {
         />
 
         {/* ─── Hero Content ─── */}
-        <div className="relative max-w-[720px] mx-auto text-center z-10 px-5 md:px-4 pt-16 pb-12 md:pt-24 md:pb-36 flex flex-col justify-center" style={{ minHeight: 'calc(100svh - 56px)' }}>
+        <div className="relative max-w-[720px] mx-auto text-center z-10 px-5 md:px-4 pt-14 md:pt-24 pb-12 md:pb-36">
           <motion.p
             variants={fadeUp} initial="hidden" animate="visible" custom={0}
             className="text-[12px] md:text-[13px] font-medium tracking-[0.08em] uppercase mb-5 md:mb-6"
