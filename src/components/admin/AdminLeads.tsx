@@ -629,16 +629,16 @@ const AdminLeads = () => {
 
       {/* Bulk Actions Bar */}
       {selectedIds.size > 0 && (
-        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-3 bg-primary/5 border border-primary/20 rounded-lg p-3 animate-fade-in">
+        <div className="bg-primary/5 border border-primary/20 rounded-lg p-3 animate-fade-in space-y-2">
           <span className="text-sm font-medium">{selectedIds.size} lead(s) selecionado(s)</span>
-          <div className="flex gap-2 sm:ml-auto w-full sm:w-auto">
-            <Button size="sm" className="h-8 text-xs bg-emerald-600 hover:bg-emerald-700 text-white" onClick={handleBulkAccept} disabled={bulkProcessing}>
+          <div className="flex gap-2 w-full">
+            <Button size="sm" className="h-8 text-xs bg-emerald-600 hover:bg-emerald-700 text-white flex-1" onClick={handleBulkAccept} disabled={bulkProcessing}>
               {bulkProcessing ? <Loader2 className="w-3 h-3 animate-spin mr-1" /> : <CheckCheck className="w-3.5 h-3.5 mr-1" />}
-              Aceitar Selecionados
+              Aceitar
             </Button>
-            <Button size="sm" variant="outline" className="h-8 text-xs border-red-500/30 text-red-600 hover:bg-red-50" onClick={handleBulkReject} disabled={bulkProcessing}>
+            <Button size="sm" variant="outline" className="h-8 text-xs border-red-500/30 text-red-600 hover:bg-red-50 flex-1" onClick={handleBulkReject} disabled={bulkProcessing}>
               <XCircle className="w-3.5 h-3.5 mr-1" />
-              Recusar Selecionados
+              Recusar
             </Button>
           </div>
         </div>
