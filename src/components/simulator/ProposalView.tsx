@@ -428,7 +428,7 @@ const ProposalView = ({
 
             {/* ===== NÃO INCLUSOS ===== */}
             {model.not_included_items && model.not_included_items.length > 0 && (
-              <div style={{ ...sectionStyle, marginBottom: "16px" }}>
+              <div data-pdf-section style={{ ...sectionStyle, marginBottom: "16px" }}>
                 <div style={{ ...sectionHeaderStyle, borderLeft: `4px solid #ef4444` }}>Não Inclusos</div>
                 <div style={{ ...sectionBodyStyle, padding: "12px 16px" }}>
                   <ul style={{ margin: 0, paddingLeft: "16px", fontSize: "12px", lineHeight: "1.7", columns: 2 }} className="!columns-1 sm:!columns-2">
@@ -441,8 +441,7 @@ const ProposalView = ({
             )}
 
             {/* ===== RESUMO FINANCEIRO ===== */}
-            <div style={sectionStyle}>
-              <div style={sectionHeaderStyle}>Resumo Financeiro</div>
+            <div data-pdf-section style={sectionStyle}>
               <div style={{ ...sectionBodyStyle, padding: "12px 16px" }}>
                 <table style={{ width: "100%", fontSize: "13px", borderCollapse: "collapse" }}>
                   <tbody>
@@ -466,7 +465,7 @@ const ProposalView = ({
             </div>
 
             {/* ===== CONDIÇÕES + LOJISTA ===== */}
-            <div style={{ display: "flex", flexWrap: "wrap", gap: "16px", marginBottom: "16px" }}>
+            <div data-pdf-section style={{ display: "flex", flexWrap: "wrap", gap: "16px", marginBottom: "16px" }}>
               <div style={{ ...sectionStyle, flex: "1 1 240px", marginBottom: 0 }}>
                 <div style={sectionHeaderStyle}>Condições</div>
                 <div style={{ ...sectionBodyStyle, padding: "12px 16px" }}>
@@ -504,7 +503,7 @@ const ProposalView = ({
 
             {/* ===== PARCEIROS ===== */}
             {partners.length > 0 && (
-              <div style={{ marginTop: "20px", paddingTop: "12px", borderTop: "1px solid #e5e7eb" }}>
+              <div data-pdf-section style={{ marginTop: "20px", paddingTop: "12px", borderTop: "1px solid #e5e7eb" }}>
                 <p style={{ textAlign: "center", fontSize: "10px", color: "#9ca3af", marginBottom: "10px", textTransform: "uppercase", letterSpacing: "1px" }}>
                   Parceiros oficiais
                 </p>
