@@ -985,9 +985,9 @@ const AdminLeads = () => {
       <Dialog open={assignDialogOpen} onOpenChange={setAssignDialogOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Atribuir Lead</DialogTitle>
+            <DialogTitle>Atribuir Lead{(!assigningLeadId && selectedIds.size > 1) ? `s (${selectedIds.size})` : ""}</DialogTitle>
             <DialogDescription>
-              Escolha o membro da equipe que receberá este lead. Apenas ele poderá aceitá-lo.
+              Escolha o membro da equipe que receberá {assigningLeadId ? "este lead" : `${selectedIds.size} lead(s)`}. Apenas ele poderá aceitá-lo.
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-3 py-4">
