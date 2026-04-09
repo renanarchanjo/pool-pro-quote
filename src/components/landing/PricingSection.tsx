@@ -182,7 +182,7 @@ const PricingSection = ({
           {/* ── GRID ── */}
           <div
             ref={gridRef}
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 max-w-[1140px] mx-auto items-end"
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 max-w-[1140px] mx-auto items-stretch"
             style={{ gap: "16px" }}
           >
             {plans.map((plan, idx) => {
