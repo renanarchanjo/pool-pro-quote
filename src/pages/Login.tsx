@@ -246,6 +246,7 @@ const Login = () => {
           </Button>
         </div>
       </div>
+      <PwaInstallBanner />
     </div>
   );
 };
