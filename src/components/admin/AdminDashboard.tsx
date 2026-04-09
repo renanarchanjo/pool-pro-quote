@@ -306,7 +306,7 @@ const AdminDashboard = () => {
           proposals={filteredProposals}
           onUpdateStatus={updateStatus}
           onViewProposal={setViewingProposal}
-          onExportPDF={setViewingProposal}
+          onExportPDF={handleExportProposalPDF}
         />
       </div>
 
