@@ -445,17 +445,17 @@ const MatrizLeads = () => {
               return (
                 <Card
                   key={lead.id}
-                  className={`transition-colors ${isSelected ? "ring-1 ring-primary/40 bg-primary/5" : ""}`}
+                  onClick={() => toggleSelect(lead.id)}
+                  className={`transition-colors cursor-pointer active:scale-[0.98] ${isSelected ? "ring-1 ring-primary/40 bg-primary/5" : ""}`}
                 >
                   <CardContent className="p-3">
-                    <div className="flex items-start gap-2">
-                      {activeTab === "pendentes" && (
-                        <Checkbox
-                          checked={isSelected}
-                          onCheckedChange={() => toggleSelect(lead.id)}
-                          className="mt-0.5 shrink-0"
-                        />
-                      )}
+                    <div className="flex items-start gap-2.5">
+                      <Checkbox
+                        checked={isSelected}
+                        onCheckedChange={() => toggleSelect(lead.id)}
+                        onClick={(e) => e.stopPropagation()}
+                        className="mt-0.5 shrink-0"
+                      />
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center justify-between gap-2 mb-1">
                           <span className="text-sm font-semibold text-foreground truncate">{lead.customer_name}</span>
@@ -474,7 +474,7 @@ const MatrizLeads = () => {
                             <span className="text-xs text-muted-foreground truncate">{lead.pool_models?.name || "-"}</span>
                             <span className="text-xs font-semibold text-emerald-600">{formatCurrency(lead.total_price)}</span>
                           </div>
-                          <div className="flex items-center gap-2.5">
+                          <div className="flex items-center gap-2.5" onClick={(e) => e.stopPropagation()}>
                             <button onClick={() => handleViewLead(lead)} className="text-[11px] text-primary font-medium">Ver</button>
                             <button onClick={() => handleCopyPhone(lead)} className="text-[11px] text-muted-foreground">Copiar</button>
                             <button onClick={() => setDeletingLead(lead)} className="text-[11px] text-destructive">Excluir</button>
