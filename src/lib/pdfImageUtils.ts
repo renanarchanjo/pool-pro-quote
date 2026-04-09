@@ -1,3 +1,5 @@
+import { supabase } from "@/integrations/supabase/client";
+
 const waitForImageLoad = async (image: HTMLImageElement) => {
   if (image.complete && image.naturalWidth > 0) {
     return;
@@ -26,6 +28,49 @@ interface PreparedImageSnapshot {
   objectUrl: string;
 }
 
+const buildFetchSources = (source: string) => {
+  const encodedSource = encodeURIComponent(source);
+  const proxyUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/pdf-image-proxy?url=${encodedSource}`;
+
+  return [source, proxyUrl];
+};
+
+const fetchImageBlob = async (source: string) => {
+  const candidates = buildFetchSources(source);
+  let lastError: unknown = null;
+
+  for (const candidate of candidates) {
+    try {
+      const response = await fetch(candidate, {
+        mode: "cors",
+        credentials: "omit",
+        cache: "force-cache",
+        headers: candidate === source
+          ? undefined
+          : {
+              apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+              Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+            },
+      });
+
+      if (!response.ok) {
+        throw new Error(`Falha ao baixar imagem: ${response.status}`);
+      }
+
+      const blob = await response.blob();
+      if (!blob.type.startsWith("image/")) {
+        throw new Error("Arquivo recebido não é uma imagem válida");
+      }
+
+      return blob;
+    } catch (error) {
+      lastError = error;
+    }
+  }
+
+  throw lastError instanceof Error ? lastError : new Error("Não foi possível baixar a imagem");
+};
+
 export const inlineImagesForPdf = async (root: HTMLElement): Promise<() => void> => {
   const images = Array.from(root.querySelectorAll("img"));
   const snapshots: PreparedImageSnapshot[] = [];
@@ -40,21 +85,7 @@ export const inlineImagesForPdf = async (root: HTMLElement): Promise<() => void>
       }
 
       try {
-        const response = await fetch(source, {
-          mode: "cors",
-          credentials: "omit",
-          cache: "force-cache",
-        });
-
-        if (!response.ok) {
-          throw new Error(`Falha ao baixar imagem: ${response.status}`);
-        }
-
-        const blob = await response.blob();
-        if (!blob.type.startsWith("image/")) {
-          throw new Error("Arquivo recebido não é uma imagem válida");
-        }
-
+        const blob = await fetchImageBlob(source);
         const objectUrl = URL.createObjectURL(blob);
         snapshots.push({
           image,
