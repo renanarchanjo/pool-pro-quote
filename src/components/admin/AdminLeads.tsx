@@ -867,14 +867,20 @@ const AdminLeads = () => {
                           )}
                           <TableCell className="text-right" onClick={(e) => e.stopPropagation()}>
                             {isPending ? (
-                              <div className="flex items-center justify-end gap-1">
-                                <Button size="sm" className="h-7 text-xs bg-emerald-600 hover:bg-emerald-700 text-white" onClick={() => handleAccept(lead.id)} disabled={accepting === lead.id || bulkProcessing}>
-                                  {accepting === lead.id ? <Loader2 className="w-3 h-3 animate-spin" /> : <><CheckCircle className="w-3 h-3 mr-1" /> Aceitar</>}
+                              isOwner && teamMembers.length > 1 ? (
+                                <Button size="sm" variant="ghost" className="h-7 text-xs text-muted-foreground hover:text-primary" onClick={() => openAssignDialog(lead.id)}>
+                                  <Send className="w-3 h-3 mr-1" /> Atribuir
                                 </Button>
-                                <Button size="sm" variant="ghost" className="h-7 text-xs text-red-500 hover:text-red-700 hover:bg-red-50" onClick={() => handleReject(lead.id)} disabled={bulkProcessing}>
-                                  <XCircle className="w-3 h-3" />
-                                </Button>
-                              </div>
+                              ) : !isOwner ? (
+                                <div className="flex items-center justify-end gap-1">
+                                  <Button size="sm" className="h-7 text-xs bg-emerald-600 hover:bg-emerald-700 text-white" onClick={() => handleAccept(lead.id)} disabled={accepting === lead.id || bulkProcessing}>
+                                    {accepting === lead.id ? <Loader2 className="w-3 h-3 animate-spin" /> : <><CheckCircle className="w-3 h-3 mr-1" /> Aceitar</>}
+                                  </Button>
+                                  <Button size="sm" variant="ghost" className="h-7 text-xs text-red-500 hover:text-red-700 hover:bg-red-50" onClick={() => handleReject(lead.id)} disabled={bulkProcessing}>
+                                    <XCircle className="w-3 h-3" />
+                                  </Button>
+                                </div>
+                              ) : null
                             ) : lead.status === "accepted" ? (
                               <div className="flex items-center justify-end gap-1">
                                 <Button size="sm" variant="outline" className="h-7 text-xs" onClick={() => handleViewProposal(lead.proposal_id)} disabled={loadingProposal}>
