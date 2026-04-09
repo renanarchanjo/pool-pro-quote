@@ -10,8 +10,13 @@ const LojistaHeader = () => {
       <nav className="sticky top-0 z-50 h-14 md:h-[68px] bg-transparent">
         <div className="container mx-auto px-5 md:px-12 h-full flex items-center justify-between">
           <Link to="/lojista" className="flex items-center gap-1.5">
-            <img src={logoIcon} alt="SimulaPool" className="h-11 w-auto" />
-            <span className="text-[22px] font-bold text-white tracking-[-0.01em] hidden sm:inline">SimulaPool</span>
+            <img src={logoIcon} alt="SimulaPool" className="h-10 md:h-14 w-auto" />
+            <div className="flex flex-col">
+              <span className="text-[20px] md:text-[26px] font-bold text-white tracking-[-0.01em] leading-tight">
+                <span>Simula</span><span className="bg-gradient-to-r from-sky-400 via-cyan-400 to-blue-500 bg-clip-text text-transparent drop-shadow-sm">Pool</span>
+              </span>
+              <span className="text-[8px] md:text-[9px] font-medium tracking-[0.08em] uppercase text-white/50 leading-tight">Orçamentos em Minutos!</span>
+            </div>
           </Link>
 
           <div className="flex items-center gap-6 md:gap-8">
