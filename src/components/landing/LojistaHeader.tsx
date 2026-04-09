@@ -34,7 +34,7 @@ const LojistaHeader = () => {
             {/* Planos e Preços — mobile only text link */}
             <Link
               to="/lojista/planos"
-              className="text-[13px] font-medium text-white/60 hover:text-white transition-colors duration-200 sm:hidden"
+              className="text-[13px] font-medium text-white/60 hover:text-white transition-colors duration-200 sm:hidden inline-flex items-center"
             >
               Planos e Preços
             </Link>
