@@ -106,11 +106,11 @@ const Parceiros = () => {
           style={{ width: 400, height: 400, bottom: 80, right: -80, background: "radial-gradient(circle, rgba(56,189,248,0.08) 0%, transparent 70%)" }}
         />
 
-        <div className="relative z-10 max-w-[740px] mx-auto text-center px-5 md:px-4 pt-12 pb-24 md:pt-24 md:pb-36">
+        <div className="relative z-10 max-w-[740px] mx-auto text-center px-5 md:px-4 pt-10 pb-16 md:pt-24 md:pb-36">
           {/* Eyebrow */}
           <motion.p
             variants={fadeUp} initial="hidden" animate="visible" custom={0}
-            className="text-[12px] md:text-[13px] font-medium tracking-[0.08em] uppercase mb-5 md:mb-6"
+            className="text-[11px] md:text-[13px] font-medium tracking-[0.08em] uppercase mb-4 md:mb-6"
             style={{ color: "rgba(125,211,252,0.55)" }}
           >
             Para Fabricantes e Marcas
@@ -119,7 +119,7 @@ const Parceiros = () => {
           {/* Headline */}
           <motion.h1
             variants={fadeUp} initial="hidden" animate="visible" custom={1}
-            className="text-[32px] leading-[1.1] md:text-[54px] md:leading-[1.06] font-bold text-white tracking-[-0.03em] mb-6 md:mb-7"
+            className="text-[28px] leading-[1.12] md:text-[54px] md:leading-[1.06] font-bold text-white tracking-[-0.03em] mb-5 md:mb-7"
           >
             Coloque sua marca no{" "}
             <span className="text-[#38BDF8]">momento exato</span>{" "}
@@ -129,7 +129,7 @@ const Parceiros = () => {
           {/* Subheadline */}
           <motion.p
             variants={fadeUp} initial="hidden" animate="visible" custom={2}
-            className="text-[15px] md:text-[18px] max-w-[540px] mx-auto mb-10 md:mb-12 leading-relaxed"
+            className="text-[14px] md:text-[18px] max-w-[540px] mx-auto mb-8 md:mb-12 leading-relaxed"
             style={{ color: "rgba(255,255,255,0.75)" }}
           >
             Seja exibido dentro de milhares de simulações reais todos os meses e influencie diretamente quem já está pronto para comprar uma piscina.
@@ -141,7 +141,7 @@ const Parceiros = () => {
               href={WHATSAPP_URL}
               target="_blank"
               rel="noopener noreferrer"
-              className="group w-full md:w-auto inline-flex items-center justify-center h-[52px] px-10 text-[16px] font-semibold rounded-xl transition-all duration-300 hover:scale-[1.03] active:scale-[0.98] animate-cta-pulse"
+              className="group w-full md:w-auto inline-flex items-center justify-center h-12 md:h-[52px] px-8 md:px-10 text-[15px] md:text-[16px] font-semibold rounded-xl transition-all duration-300 hover:scale-[1.03] active:scale-[0.98] animate-cta-pulse"
               style={{
                 backgroundColor: "#FFFFFF",
                 color: "#0A1628",
@@ -155,7 +155,7 @@ const Parceiros = () => {
           {/* Value prop line */}
           <motion.p
             variants={fadeUp} initial="hidden" animate="visible" custom={4}
-            className="text-[13px] mt-5"
+            className="text-[12px] md:text-[13px] mt-4 md:mt-5"
             style={{ color: "rgba(255,255,255,0.4)" }}
           >
             Sua marca integrada ao fluxo de decisão de compra
@@ -164,15 +164,15 @@ const Parceiros = () => {
           {/* Metrics */}
           <motion.div
             variants={fadeUp} initial="hidden" animate="visible" custom={5}
-            className="flex items-center justify-center mt-14 bg-white/[0.07] backdrop-blur-sm rounded-2xl px-8 py-5 mx-auto w-fit"
+            className="flex items-center justify-center mt-10 md:mt-14 bg-white/[0.07] backdrop-blur-sm rounded-2xl px-5 md:px-8 py-4 md:py-5 mx-auto w-fit"
             style={{ border: "1px solid rgba(255,255,255,0.08)" }}
           >
             {METRICS.map((m, i) => (
               <div key={m.label} className="flex items-center">
-                {i > 0 && <div className="w-px h-10 mx-5 md:mx-7" style={{ background: "rgba(255,255,255,0.15)" }} />}
+                {i > 0 && <div className="w-px h-8 md:h-10 mx-3 md:mx-7" style={{ background: "rgba(255,255,255,0.15)" }} />}
                 <div className="text-center">
-                  <p className="text-[22px] md:text-[28px] font-bold text-white">{m.value}</p>
-                  <p className="text-[11px] md:text-[12px] mt-1 font-medium tracking-wide" style={{ color: "rgba(255,255,255,0.55)" }}>{m.label}</p>
+                  <p className="text-[18px] md:text-[28px] font-bold text-white">{m.value}</p>
+                  <p className="text-[10px] md:text-[12px] mt-0.5 md:mt-1 font-medium tracking-wide" style={{ color: "rgba(255,255,255,0.55)" }}>{m.label}</p>
                 </div>
               </div>
             ))}
