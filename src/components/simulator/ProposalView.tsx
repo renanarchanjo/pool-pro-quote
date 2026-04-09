@@ -2,6 +2,7 @@ import { useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { FileDown, ArrowLeft } from "lucide-react";
 import { exportPDF } from "@/lib/exportPDF";
+import simulapoolLogoFooter from "@/assets/simulapool-logo-footer.png";
 
 interface PoolModel {
   name: string;
@@ -470,8 +471,9 @@ const ProposalView = ({
 
 
             {/* ===== FOOTER ===== */}
-            <div data-pdf-section style={{ textAlign: "center", fontSize: "10px", color: "#9ca3af", marginTop: "14px", paddingTop: "10px", borderTop: "1px solid #e5e7eb" }}>
-              Documento gerado por SimulaPool
+            <div data-pdf-section style={{ textAlign: "center", marginTop: "14px", paddingTop: "10px", borderTop: "1px solid #e5e7eb", display: "flex", flexDirection: "column", alignItems: "center", gap: "6px" }}>
+              <img src={simulapoolLogoFooter} alt="SimulaPool" style={{ height: "28px", width: "auto", objectFit: "contain" }} />
+              <p style={{ fontSize: "9px", color: "#9ca3af", margin: 0 }}>Documento gerado por SimulaPool</p>
             </div>
         </div>
       </main>
