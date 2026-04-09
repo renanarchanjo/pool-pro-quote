@@ -65,6 +65,12 @@
     --sidebar-accent-foreground: 0 0% 5%;
     --sidebar-border: 220 13% 91%;
     --sidebar-ring: 199 89% 48%;
+
+    /* Mobile app layout */
+    --safe-area-top: env(safe-area-inset-top, 0px);
+    --safe-area-bottom: env(safe-area-inset-bottom, 0px);
+    --bottom-nav-height: 56px;
+    --app-vh: 1vh;
   }
 
   .dark {
@@ -112,16 +118,30 @@
     @apply border-border;
   }
 
-  html, body, #root {
-    max-width: 100vw;
-    overflow-x: hidden;
+  /* ── Native app viewport ── */
+  html {
+    height: 100%;
+    overflow: hidden;
+    -webkit-text-size-adjust: 100%;
+    -webkit-tap-highlight-color: transparent;
   }
 
   body {
+    height: 100%;
+    overflow: hidden;
     @apply bg-background text-foreground;
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    /* Prevent pull-to-refresh and overscroll bounce */
+    overscroll-behavior: none;
+  }
+
+  #root {
+    height: 100%;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
   }
 
   h1, h2, h3, h4, h5, h6 {
@@ -177,59 +197,79 @@
 }
 
 /* ============================
-   MOBILE APP OPTIMIZATION
-   iOS & Android PWA styles
+   MOBILE APP — NATIVE FEEL
    ============================ */
 
-:root {
-  --safe-area-top: env(safe-area-inset-top, 0px);
-  --safe-area-bottom: env(safe-area-inset-bottom, 0px);
-}
-
-@media (max-width: 768px) {
-  .hero-gradient {
-    background: linear-gradient(180deg, #0F172A 0%, #FFFFFF 70%) !important;
+@media (max-width: 767px) {
+  /* Dynamic viewport height fix for mobile browsers */
+  html, body, #root {
+    height: 100dvh;
+    height: -webkit-fill-available;
   }
 
-  .mobile-matriz-header {
-    height: 4.5rem;
-    min-height: 4.5rem;
-    padding-top: var(--safe-area-top);
+  /* Prevent text selection on non-input elements */
+  body {
+    -webkit-user-select: none;
+    user-select: none;
   }
 
-  * {
-    max-width: 100%;
+  /* Allow text selection only on inputs */
+  input, textarea, [contenteditable="true"] {
+    -webkit-user-select: text;
+    user-select: text;
   }
 
-  table {
-    max-width: 100%;
-    display: block;
-    overflow-x: auto;
-  }
-
-  html {
-    -webkit-text-size-adjust: 100%;
-    font-size: 16px;
-  }
-
+  /* Prevent zoom on inputs */
   input, select, textarea {
     font-size: 16px !important;
   }
 
-  button:not([data-compact]), [role="button"]:not([data-compact]), a:not([data-compact]) {
+  /* Touch-friendly tap targets */
+  button:not([data-compact]),
+  [role="button"]:not([data-compact]),
+  a:not([data-compact]) {
     min-height: 44px;
   }
 
-  .scrollbar-none {
-    -ms-overflow-style: none;
-    scrollbar-width: none;
-  }
-  .scrollbar-none::-webkit-scrollbar {
-    display: none;
+  /* Disable text selection on buttons */
+  button, [role="button"] {
+    -webkit-user-select: none;
+    user-select: none;
   }
 
-  main.flex-1 {
-    padding: 1rem !important;
+  /* Smooth momentum scrolling */
+  .overflow-auto, .overflow-y-auto {
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-y: contain;
+  }
+
+  /* No scrollbars on mobile */
+  .scrollbar-none,
+  ::-webkit-scrollbar {
+    display: none;
+  }
+  * {
+    scrollbar-width: none;
+  }
+
+  /* Hardware acceleration for sidebar/sheets */
+  [data-sidebar],
+  [data-state] {
+    will-change: transform;
+    transform: translateZ(0);
+  }
+
+  /* Constrain tables */
+  table {
+    max-width: 100%;
+    display: block;
+    overflow-x: auto;
+    font-size: 0.8125rem;
+  }
+
+  /* Safe area for dialogs */
+  [role="dialog"] {
+    max-height: calc(100dvh - var(--safe-area-top) - var(--safe-area-bottom) - 2rem) !important;
   }
 
   .safe-area-bottom {
@@ -239,29 +279,20 @@
   .sidebar-safe-top {
     padding-top: var(--safe-area-top);
   }
+}
 
-  .overflow-auto, .overflow-y-auto {
-    -webkit-overflow-scrolling: touch;
-    will-change: scroll-position;
+/* ============================
+   KEYBOARD HANDLING
+   ============================ */
+
+/* When virtual keyboard is open, hide the bottom nav */
+@media (max-width: 767px) {
+  .keyboard-open .mobile-bottom-nav {
+    display: none !important;
   }
 
-  [data-sidebar] {
-    will-change: transform;
-    transform: translateZ(0);
-  }
-
-  button, [role="button"] {
-    -webkit-user-select: none;
-    user-select: none;
-  }
-
-  table {
-    font-size: 0.8125rem;
-  }
-
-  [role="dialog"] {
-    max-height: calc(100vh - var(--safe-area-top) - var(--safe-area-bottom) - 2rem) !important;
-    margin: 1rem;
+  .keyboard-open main {
+    padding-bottom: 0 !important;
   }
 }
 
