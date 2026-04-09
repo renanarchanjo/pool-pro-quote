@@ -44,6 +44,7 @@ export default defineConfig(({ mode }) => ({
         ],
       },
       manifest: {
+        id: "/login",
         name: "SIMULAPOOL - Orçamentos de Piscinas",
         short_name: "SIMULAPOOL",
         description: "O jeito moderno de orçar piscinas. Simule, orce e feche negócios.",
@@ -55,6 +56,8 @@ export default defineConfig(({ mode }) => ({
         scope: "/",
         categories: ["business", "productivity"],
         lang: "pt-BR",
+        dir: "ltr" as any,
+        prefer_related_applications: false,
         icons: [
           {
             src: "/favicon.png",
@@ -65,11 +68,13 @@ export default defineConfig(({ mode }) => ({
             src: "/pwa-192x192.png",
             sizes: "192x192",
             type: "image/png",
+            purpose: "any",
           },
           {
             src: "/pwa-512x512.png",
             sizes: "512x512",
             type: "image/png",
+            purpose: "any",
           },
           {
             src: "/pwa-512x512.png",
