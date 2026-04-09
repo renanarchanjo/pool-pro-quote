@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/select";
 import BrazilMap from "./BrazilMap";
 
-const LIM_ID = "5e8165c0-64b6-4d06-b274-8eeb261a79c4";
+
 
 interface StoreRow {
   id: string; name: string; city: string | null; state: string | null;
@@ -22,16 +22,27 @@ const MatrizMapPage = () => {
   const [search, setSearch] = useState("");
   const [filterState, setFilterState] = useState("all");
 
+  const loadStores = async () => {
+    const { data } = await supabase
+      .from("stores")
+      .select("id, name, city, state, plan_status, created_at, subscription_plans(name, slug)")
+      .order("created_at", { ascending: false });
+    setStores(((data as any) || []));
+    setLoading(false);
+  };
+
   useEffect(() => {
-    const load = async () => {
-      const { data } = await supabase
-        .from("stores")
-        .select("id, name, city, state, plan_status, created_at, subscription_plans(name, slug)")
-        .order("created_at", { ascending: false });
-      setStores(((data as any) || []).filter((s: StoreRow) => s.id !== LIM_ID));
-      setLoading(false);
-    };
-    load();
+    loadStores();
+
+    // Realtime: auto-update when stores change
+    const channel = supabase
+      .channel("stores-map-realtime")
+      .on("postgres_changes", { event: "*", schema: "public", table: "stores" }, () => {
+        loadStores();
+      })
+      .subscribe();
+
+    return () => { supabase.removeChannel(channel); };
   }, []);
 
   const stateMap = useMemo(() => {

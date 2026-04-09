@@ -21,7 +21,7 @@ const fmt = (v: number) =>
   new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(v ?? 0);
 const pct = (v: number) => (v ?? 0).toFixed(1) + "%";
 
-const LIM_PISCINAS_ID = "5e8165c0-64b6-4d06-b274-8eeb261a79c4";
+
 
 const PLAN_BADGE: Record<string, { bg: string; text: string }> = {
   basico: { bg: "bg-muted", text: "text-muted-foreground" },
@@ -66,9 +66,9 @@ const MatrizDashboard = () => {
       supabase.from("payment_history").select("id, store_id, amount, status, payment_date"),
     ]);
     setData({
-      stores: ((storesRes.data as any) || []).filter((s: StoreRow) => s.id !== LIM_PISCINAS_ID),
-      proposals: (proposalsRes.data || []).filter((p: any) => p.store_id !== LIM_PISCINAS_ID),
-      payments: (paymentsRes.data || []).filter((p: any) => p.store_id !== LIM_PISCINAS_ID),
+      stores: (storesRes.data as any) || [],
+      proposals: proposalsRes.data || [],
+      payments: paymentsRes.data || [],
     });
     setLoading(false);
   }, []);
