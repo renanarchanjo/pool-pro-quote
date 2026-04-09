@@ -591,17 +591,17 @@ const MatrizLeads = () => {
 
       {/* Distribute Dialog */}
       <Dialog open={showDistributeDialog} onOpenChange={setShowDistributeDialog}>
-        <DialogContent>
+        <DialogContent className="max-w-sm">
           <DialogHeader>
-            <DialogTitle>Distribuir Leads</DialogTitle>
-            <DialogDescription>
-              Enviar {selectedLeads.size} lead(s) para um lojista parceiro.
-              {selectedCities.length > 0 && <span className="block mt-1 text-xs font-medium">Cidades: {selectedCities.join(", ")}</span>}
+            <DialogTitle className="text-base">Distribuir Leads</DialogTitle>
+            <DialogDescription className="text-xs">
+              Enviar {selectedLeads.size} lead(s) para um lojista.
+              {selectedCities.length > 0 && <span className="block mt-1 font-medium">Cidades: {selectedCities.join(", ")}</span>}
             </DialogDescription>
           </DialogHeader>
-          <div className="space-y-4">
+          <div className="space-y-3">
             <Select value={targetStoreId} onValueChange={setTargetStoreId}>
-              <SelectTrigger><SelectValue placeholder="Selecione o lojista" /></SelectTrigger>
+              <SelectTrigger className="h-9 text-sm"><SelectValue placeholder="Selecione o lojista" /></SelectTrigger>
               <SelectContent>
                 {activeStores.length === 0 ? (
                   <SelectItem value="_none" disabled>Nenhum lojista com plano ativo</SelectItem>
@@ -613,15 +613,15 @@ const MatrizLeads = () => {
               </SelectContent>
             </Select>
             {targetStoreId && (
-              <div className="text-xs text-muted-foreground bg-muted/50 p-3 rounded-lg">
-                Os dados do lead ficarão <strong>bloqueados</strong> até o lojista aceitar. Após aceitar, o consumo será contabilizado.
+              <div className="text-[11px] text-muted-foreground bg-muted/50 p-2.5 rounded-lg">
+                Dados <strong>bloqueados</strong> até o lojista aceitar.
               </div>
             )}
           </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setShowDistributeDialog(false)}>Cancelar</Button>
-            <Button onClick={handleDistribute} disabled={!targetStoreId || distributing} className="bg-emerald-600 hover:bg-emerald-700 text-white">
-              {distributing ? <Loader2 className="w-4 h-4 animate-spin mr-1" /> : <Send className="w-4 h-4 mr-1" />}
+          <DialogFooter className="gap-2">
+            <Button variant="outline" size="sm" onClick={() => setShowDistributeDialog(false)}>Cancelar</Button>
+            <Button size="sm" onClick={handleDistribute} disabled={!targetStoreId || distributing} className="bg-emerald-600 hover:bg-emerald-700 text-white">
+              {distributing ? <Loader2 className="w-3.5 h-3.5 animate-spin mr-1" /> : <Send className="w-3.5 h-3.5 mr-1" />}
               Distribuir
             </Button>
           </DialogFooter>
@@ -630,28 +630,27 @@ const MatrizLeads = () => {
 
       {/* View Lead Dialog */}
       <Dialog open={!!viewingLead} onOpenChange={() => setViewingLead(null)}>
-        <DialogContent className="max-w-lg">
+        <DialogContent className="max-w-sm">
           <DialogHeader>
-            <DialogTitle>Detalhes do Lead</DialogTitle>
-            <DialogDescription>Informações completas do lead</DialogDescription>
+            <DialogTitle className="text-base">Detalhes do Lead</DialogTitle>
           </DialogHeader>
           {viewingLead && (
-            <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-3">
-                <div><p className="text-xs text-muted-foreground">Nome</p><p className="font-medium text-sm">{viewingLead.customer_name}</p></div>
-                <div><p className="text-xs text-muted-foreground">WhatsApp</p><p className="font-medium text-sm">{viewingLead.customer_whatsapp}</p></div>
-                <div><p className="text-xs text-muted-foreground">Cidade</p><p className="font-medium text-sm flex items-center gap-1"><MapPin className="w-3 h-3" />{viewingLead.customer_city}</p></div>
-                <div><p className="text-xs text-muted-foreground">Piscina</p><p className="font-medium text-sm">{viewingLead.pool_models?.name || "-"}</p></div>
-                <div><p className="text-xs text-muted-foreground">Valor</p><p className="font-medium text-sm text-emerald-600">{formatCurrency(viewingLead.total_price)}</p></div>
-                <div><p className="text-xs text-muted-foreground">Data</p><p className="font-medium text-sm flex items-center gap-1"><Calendar className="w-3 h-3" />{viewingLead.created_at ? format(new Date(viewingLead.created_at), "dd/MM/yyyy HH:mm", { locale: ptBR }) : "-"}</p></div>
+            <div className="space-y-3">
+              <div className="grid grid-cols-2 gap-2.5">
+                <div><p className="text-[10px] text-muted-foreground">Nome</p><p className="font-medium text-sm">{viewingLead.customer_name}</p></div>
+                <div><p className="text-[10px] text-muted-foreground">WhatsApp</p><p className="font-medium text-sm">{viewingLead.customer_whatsapp}</p></div>
+                <div><p className="text-[10px] text-muted-foreground">Cidade</p><p className="font-medium text-sm flex items-center gap-1"><MapPin className="w-3 h-3" />{viewingLead.customer_city}</p></div>
+                <div><p className="text-[10px] text-muted-foreground">Piscina</p><p className="font-medium text-sm">{viewingLead.pool_models?.name || "-"}</p></div>
+                <div><p className="text-[10px] text-muted-foreground">Valor</p><p className="font-medium text-sm text-emerald-600">{formatCurrency(viewingLead.total_price)}</p></div>
+                <div><p className="text-[10px] text-muted-foreground">Data</p><p className="font-medium text-sm flex items-center gap-1"><Calendar className="w-3 h-3" />{viewingLead.created_at ? format(new Date(viewingLead.created_at), "dd/MM/yyyy HH:mm", { locale: ptBR }) : "-"}</p></div>
               </div>
 
               {(() => {
                 const dist = distributionMap.get(viewingLead.id);
                 if (!dist) return null;
                 return (
-                  <div className="bg-muted/50 rounded-lg p-3">
-                    <p className="text-xs text-muted-foreground mb-1">Distribuição</p>
+                  <div className="bg-muted/50 rounded-lg p-2.5">
+                    <p className="text-[10px] text-muted-foreground mb-1">Distribuição</p>
                     <p className="text-sm font-medium">{dist.stores?.name}</p>
                     <Badge variant="outline" className={dist.status === "accepted" ? "bg-emerald-500/10 text-emerald-600 border-emerald-500/20 mt-1" : "bg-amber-500/10 text-amber-600 border-amber-500/20 mt-1"}>
                       {dist.status === "accepted" ? "Aceito" : "Aguardando aceitação"}
@@ -662,25 +661,24 @@ const MatrizLeads = () => {
 
               {viewingLead.selected_optionals && Array.isArray(viewingLead.selected_optionals) && viewingLead.selected_optionals.length > 0 && (
                 <div>
-                  <p className="text-xs text-muted-foreground mb-1">Opcionais</p>
+                  <p className="text-[10px] text-muted-foreground mb-1">Opcionais</p>
                   <div className="flex flex-wrap gap-1">
                     {viewingLead.selected_optionals.map((opt: any, i: number) => (
-                      <Badge key={i} variant="secondary" className="text-xs">{opt.name || opt} {opt.price ? `(${formatCurrency(opt.price)})` : ""}</Badge>
+                      <Badge key={i} variant="secondary" className="text-[10px]">{opt.name || opt} {opt.price ? `(${formatCurrency(opt.price)})` : ""}</Badge>
                     ))}
                   </div>
                 </div>
               )}
 
               <div>
-                <p className="text-xs text-muted-foreground mb-2">Status Atual</p>
+                <p className="text-[10px] text-muted-foreground mb-1">Status</p>
                 <Badge variant="outline" className={statusConfig[viewingLead.status]?.color || ""}>
                   {statusConfig[viewingLead.status]?.label || viewingLead.status}
                 </Badge>
-                <p className="text-[11px] text-muted-foreground mt-1.5">O status é controlado pelo lojista</p>
               </div>
 
               <DialogFooter>
-                <Button variant="outline" size="sm" onClick={() => handleCopyPhone(viewingLead)}><Copy className="w-4 h-4 mr-1" /> Copiar Número</Button>
+                <Button variant="outline" size="sm" onClick={() => handleCopyPhone(viewingLead)}><Copy className="w-3.5 h-3.5 mr-1" /> Copiar Número</Button>
               </DialogFooter>
             </div>
           )}
@@ -689,14 +687,14 @@ const MatrizLeads = () => {
 
       {/* Delete Dialog */}
       <Dialog open={!!deletingLead} onOpenChange={() => setDeletingLead(null)}>
-        <DialogContent>
+        <DialogContent className="max-w-xs">
           <DialogHeader>
-            <DialogTitle>Excluir Lead</DialogTitle>
-            <DialogDescription>Tem certeza que deseja excluir o lead de <strong>{deletingLead?.customer_name}</strong>? Esta ação não pode ser desfeita.</DialogDescription>
+            <DialogTitle className="text-base">Excluir Lead</DialogTitle>
+            <DialogDescription className="text-xs">Excluir <strong>{deletingLead?.customer_name}</strong>? Ação irreversível.</DialogDescription>
           </DialogHeader>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setDeletingLead(null)}>Cancelar</Button>
-            <Button variant="destructive" onClick={handleDelete}>Excluir</Button>
+          <DialogFooter className="gap-2">
+            <Button variant="outline" size="sm" onClick={() => setDeletingLead(null)}>Cancelar</Button>
+            <Button variant="destructive" size="sm" onClick={handleDelete}>Excluir</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
