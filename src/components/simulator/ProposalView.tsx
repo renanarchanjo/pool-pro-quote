@@ -88,8 +88,7 @@ const ProposalView = ({
 
   const fmt = (v: number) => `R$ ${v.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`;
 
-  // Banner logic: if brand has a partner_id, match by ID; fallback to name matching
-  // For non-partner brands, use weighted random selection based on display_percent
+  // Banner logic
   const matchedPartner = brandPartnerId
     ? partners.find(p => p.id === brandPartnerId)
     : brandName
@@ -114,8 +113,6 @@ const ProposalView = ({
     ? [matchedPartner]
     : (() => { const selected = selectWeightedPartner(); return selected ? [selected] : partners; })();
   const banner1Urls = bannersToShow.filter(p => p.banner_1_url).map(p => ({ url: p.banner_1_url!, name: p.name }));
-  
-  // Removed WhatsApp and email send functions - lead only gets PDF download and view
 
   const handleDownloadPDF = async () => {
     const element = document.getElementById("proposal-content");
@@ -220,6 +217,10 @@ const ProposalView = ({
     padding: "16px",
   };
 
+  // Separate included items
+  const materiais = model.included_items.filter(item => !item.includes("[MO]"));
+  const maoDeObra = model.included_items.filter(item => item.includes("[MO]")).map(item => item.replace("[MO] ", "").replace("[MO]", ""));
+
   return (
     <div style={{ minHeight: "100vh", background: "#f3f4f6" }} className="print:bg-white">
       {/* Action bar */}
@@ -247,173 +248,156 @@ const ProposalView = ({
             background: "white",
             fontFamily: "'Inter', 'Segoe UI', sans-serif",
             color: "#111827",
-            padding: "32px",
+            padding: "20px",
             boxSizing: "border-box",
           }}
+          className="sm:!p-8"
         >
           <div data-pdf-page>
             {/* ===== HEADER ===== */}
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "28px", borderBottom: "2px solid #e5e7eb", paddingBottom: "20px" }}>
-              <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
-                {storeSettings?.logo_url ? (
-                  <img
-                    src={storeSettings.logo_url}
-                    alt="Logo"
-                    style={{ maxHeight: "72px", maxWidth: "200px", width: "auto", height: "auto", objectFit: "contain" }}
-                    crossOrigin="anonymous"
-                  />
-                ) : null}
-                <div>
-                  <div style={{ fontSize: "18px", fontWeight: 800, color: "#111827" }}>
-                    {storeName || "SIMULAPOOL"}
-                  </div>
-                  {storeLocation && (
-                    <div style={{ fontSize: "12px", color: "#6b7280", marginTop: "2px" }}>
-                      {storeLocation}
+            <div style={{ marginBottom: "20px", borderBottom: "2px solid #e5e7eb", paddingBottom: "16px" }}>
+              <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "space-between", alignItems: "center", gap: "12px" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+                  {storeSettings?.logo_url ? (
+                    <img
+                      src={storeSettings.logo_url}
+                      alt="Logo"
+                      style={{ maxHeight: "56px", maxWidth: "140px", width: "auto", height: "auto", objectFit: "contain" }}
+                      crossOrigin="anonymous"
+                    />
+                  ) : null}
+                  <div>
+                    <div style={{ fontSize: "16px", fontWeight: 800, color: "#111827" }}>
+                      {storeName || "SIMULAPOOL"}
                     </div>
-                  )}
+                    {storeLocation && (
+                      <div style={{ fontSize: "11px", color: "#6b7280", marginTop: "2px" }}>
+                        {storeLocation}
+                      </div>
+                    )}
+                  </div>
                 </div>
-              </div>
-              <div style={{ textAlign: "right" }}>
-                <h1 style={{ fontSize: "24px", fontWeight: 800, color: "#111827", margin: 0 }}>Proposta Comercial</h1>
-                <p style={{ fontSize: "12px", color: "#6b7280", margin: "4px 0 0" }}>Emitida em {today}</p>
-                <p style={{ fontSize: "12px", color: "#6b7280", margin: "2px 0 0" }}>Validade: {validUntil}</p>
+                <div style={{ textAlign: "right" }}>
+                  <h1 style={{ fontSize: "18px", fontWeight: 800, color: "#111827", margin: 0 }}>Proposta Comercial</h1>
+                  <p style={{ fontSize: "11px", color: "#6b7280", margin: "3px 0 0" }}>Emitida em {today} · Válida até {validUntil}</p>
+                </div>
               </div>
             </div>
 
-            {/* ===== CLIENTE + BANNER LATERAL ===== */}
-            <div style={{ display: "flex", gap: "16px", marginBottom: "16px" }}>
-              <div style={{ ...sectionStyle, flex: 1, marginBottom: 0 }}>
-                <div style={sectionHeaderStyle}>Cliente</div>
-                <div style={sectionBodyStyle}>
-                  <table style={{ width: "100%", fontSize: "13px", borderCollapse: "collapse" }}>
-                    <tbody>
-                      {[
-                        ["Nome", customerData.name],
-                        ["WhatsApp", customerData.whatsapp],
-                        ["Cidade / UF", customerData.city],
-                      ].map(([label, value], i) => (
-                        <tr key={i} style={{ borderBottom: i < 2 ? "1px solid #f3f4f6" : "none" }}>
-                          <td style={{ fontWeight: 700, color: "#374151", padding: "8px 16px 8px 0", width: "140px" }}>{label}</td>
-                          <td style={{ padding: "8px 0", color: "#111827" }}>{value}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
+            {/* ===== CLIENTE ===== */}
+            <div style={sectionStyle}>
+              <div style={sectionHeaderStyle}>Cliente</div>
+              <div style={{ ...sectionBodyStyle, padding: "12px 16px" }}>
+                <div style={{ display: "flex", flexWrap: "wrap", gap: "8px 24px", fontSize: "13px" }}>
+                  <div><span style={{ fontWeight: 700, color: "#374151" }}>Nome: </span><span style={{ color: "#111827" }}>{customerData.name}</span></div>
+                  <div><span style={{ fontWeight: 700, color: "#374151" }}>WhatsApp: </span><span style={{ color: "#111827" }}>{customerData.whatsapp}</span></div>
+                  <div><span style={{ fontWeight: 700, color: "#374151" }}>Cidade: </span><span style={{ color: "#111827" }}>{customerData.city}</span></div>
                 </div>
               </div>
-
-              {/* Banner lateral (banner_1) */}
-              {banner1Urls.length > 0 && (
-                <div style={{ width: "200px", flexShrink: 0, display: "flex", flexDirection: "column", gap: "8px", justifyContent: "center" }}>
-                  {banner1Urls.map((b, i) => (
-                    <img
-                      key={i}
-                      src={b.url}
-                      alt={`Banner ${b.name}`}
-                      style={{ width: "100%", height: "auto", borderRadius: "8px", objectFit: "contain" }}
-                      crossOrigin="anonymous"
-                    />
-                  ))}
-                </div>
-              )}
             </div>
 
             {/* ===== PISCINA ===== */}
             <div style={sectionStyle}>
               <div style={sectionHeaderStyle}>Piscina</div>
-              <div style={{ ...sectionBodyStyle, display: "flex", alignItems: "flex-start", gap: "16px" }}>
-                {brandLogoUrl && (
-                  <div style={{ flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", width: "80px", height: "80px" }}>
-                    <img src={brandLogoUrl} alt="Marca" style={{ maxWidth: "80px", maxHeight: "80px", objectFit: "contain" }} crossOrigin="anonymous" />
-                  </div>
-                )}
-                <div style={{ flex: 1 }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "8px" }}>
-                    <span style={{ fontSize: "20px", fontWeight: 800, color: "#111827" }}>{model.name}</span>
-                    <span style={{
-                      display: "inline-block",
-                      background: `${primaryColor}18`,
-                      color: primaryColor,
-                      fontSize: "11px",
-                      fontWeight: 700,
-                      padding: "3px 10px",
-                      borderRadius: "12px",
-                      textTransform: "uppercase",
-                      letterSpacing: "0.5px",
-                    }}>
-                      {category}
-                    </span>
-                  </div>
-                  {(model.length || model.width) && (
-                    <p style={{ fontSize: "13px", color: "#374151", margin: "0 0 4px" }}>
-                      <strong>Dimensões:</strong> COMP: {model.length}M LARG: {model.width}M{model.depth ? ` PROF: ${model.depth}M` : ""}
-                    </p>
+              <div style={{ ...sectionBodyStyle, padding: "12px 16px" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "12px", flexWrap: "wrap" }}>
+                  {brandLogoUrl && (
+                    <img src={brandLogoUrl} alt="Marca" style={{ width: "48px", height: "48px", objectFit: "contain", flexShrink: 0 }} crossOrigin="anonymous" />
                   )}
-                  <p style={{ fontSize: "13px", color: "#374151", margin: 0 }}>
-                    <strong>Valor base:</strong> {fmt(displayBasePrice)}
-                  </p>
+                  <div style={{ flex: 1, minWidth: "180px" }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: "8px", flexWrap: "wrap", marginBottom: "4px" }}>
+                      <span style={{ fontSize: "16px", fontWeight: 800, color: "#111827" }}>{model.name}</span>
+                      <span style={{
+                        display: "inline-block",
+                        background: `${primaryColor}18`,
+                        color: primaryColor,
+                        fontSize: "10px",
+                        fontWeight: 700,
+                        padding: "2px 8px",
+                        borderRadius: "10px",
+                        textTransform: "uppercase",
+                        letterSpacing: "0.5px",
+                      }}>
+                        {category}
+                      </span>
+                    </div>
+                    <div style={{ fontSize: "12px", color: "#374151", display: "flex", flexWrap: "wrap", gap: "4px 16px" }}>
+                      {(model.length || model.width) && (
+                        <span>
+                          <strong>Dimensões:</strong> {model.length}m × {model.width}m{model.depth ? ` × ${model.depth}m` : ""}
+                        </span>
+                      )}
+                      <span><strong>Valor base:</strong> {fmt(displayBasePrice)}</span>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
 
-            {/* ===== ITENS INCLUSOS + OPCIONAIS ===== */}
-            <div style={{ display: "flex", flexDirection: "row", gap: "16px", marginBottom: "16px" }}>
-              <div style={{ ...sectionStyle, flex: 1, marginBottom: 0 }}>
+            {/* ===== ITENS INCLUSOS ===== */}
+            {model.included_items.length > 0 && (
+              <div style={sectionStyle}>
                 <div style={sectionHeaderStyle}>Itens Inclusos</div>
-                <div style={sectionBodyStyle}>
-                  {(() => {
-                    const materiais = model.included_items.filter(item => !item.includes("[MO]"));
-                    const maoDeObra = model.included_items.filter(item => item.includes("[MO]")).map(item => item.replace("[MO] ", "").replace("[MO]", ""));
-                    return (
-                      <>
-                        {materiais.length > 0 && (
-                          <>
-                            <p style={{ fontSize: "10px", fontWeight: 700, color: "#0284c7", textTransform: "uppercase", margin: "0 0 4px", letterSpacing: "0.5px" }}>Equipamentos e Produtos</p>
-                            <ul style={{ margin: "0 0 8px", paddingLeft: "18px", fontSize: "12px", lineHeight: "1.8" }}>
-                              {materiais.map((item, i) => (
-                                <li key={`m-${i}`} style={{ color: "#374151" }}>{item}</li>
-                              ))}
-                            </ul>
-                          </>
-                        )}
-                        {maoDeObra.length > 0 && (
-                          <>
-                            <p style={{ fontSize: "10px", fontWeight: 700, color: "#d97706", textTransform: "uppercase", margin: "0 0 4px", letterSpacing: "0.5px" }}>Mão de Obra</p>
-                            <ul style={{ margin: 0, paddingLeft: "18px", fontSize: "12px", lineHeight: "1.8" }}>
-                              {maoDeObra.map((item, i) => (
-                                <li key={`mo-${i}`} style={{ color: "#374151" }}>{item}</li>
-                              ))}
-                            </ul>
-                          </>
-                        )}
-                      </>
-                    );
-                  })()}
-                </div>
-              </div>
-
-              <div style={{ ...sectionStyle, flex: 1, marginBottom: 0 }}>
-                <div style={sectionHeaderStyle}>Opcionais</div>
-                <div style={sectionBodyStyle}>
-                  {selectedOptionals.length === 0 ? (
-                    <p style={{ fontSize: "12px", color: "#9ca3af", margin: 0 }}>Nenhum opcional selecionado</p>
-                  ) : (
-                    <table style={{ width: "100%", fontSize: "12px", borderCollapse: "collapse" }}>
-                      <tbody>
-                        {selectedOptionals.map((opt, i) => (
-                          <tr key={i} style={{ borderBottom: "1px solid #f3f4f6" }}>
-                            <td style={{ padding: "6px 8px 6px 0", color: "#374151" }}>{opt.name}</td>
-                            <td style={{ padding: "6px 0", textAlign: "right", fontWeight: 600, color: "#111827", whiteSpace: "nowrap" }}>{fmt(opt.price)}</td>
-                          </tr>
+                <div style={{ ...sectionBodyStyle, padding: "12px 16px" }}>
+                  {materiais.length > 0 && (
+                    <div style={{ marginBottom: maoDeObra.length > 0 ? "10px" : 0 }}>
+                      <p style={{ fontSize: "10px", fontWeight: 700, color: "#0284c7", textTransform: "uppercase", margin: "0 0 4px", letterSpacing: "0.5px" }}>Equipamentos e Produtos</p>
+                      <ul style={{ margin: 0, paddingLeft: "16px", fontSize: "12px", lineHeight: "1.7" }}>
+                        {materiais.map((item, i) => (
+                          <li key={`m-${i}`} style={{ color: "#374151" }}>{item}</li>
                         ))}
-                      </tbody>
-                    </table>
+                      </ul>
+                    </div>
+                  )}
+                  {maoDeObra.length > 0 && (
+                    <div>
+                      <p style={{ fontSize: "10px", fontWeight: 700, color: "#d97706", textTransform: "uppercase", margin: "0 0 4px", letterSpacing: "0.5px" }}>Mão de Obra</p>
+                      <ul style={{ margin: 0, paddingLeft: "16px", fontSize: "12px", lineHeight: "1.7" }}>
+                        {maoDeObra.map((item, i) => (
+                          <li key={`mo-${i}`} style={{ color: "#374151" }}>{item}</li>
+                        ))}
+                      </ul>
+                    </div>
                   )}
                 </div>
               </div>
+            )}
+
+            {/* ===== OPCIONAIS ===== */}
+            <div style={sectionStyle}>
+              <div style={sectionHeaderStyle}>Opcionais</div>
+              <div style={{ ...sectionBodyStyle, padding: "12px 16px" }}>
+                {selectedOptionals.length === 0 ? (
+                  <p style={{ fontSize: "12px", color: "#9ca3af", margin: 0 }}>Nenhum opcional selecionado</p>
+                ) : (
+                  <table style={{ width: "100%", fontSize: "12px", borderCollapse: "collapse" }}>
+                    <tbody>
+                      {selectedOptionals.map((opt, i) => (
+                        <tr key={i} style={{ borderBottom: i < selectedOptionals.length - 1 ? "1px solid #f3f4f6" : "none" }}>
+                          <td style={{ padding: "5px 8px 5px 0", color: "#374151" }}>{opt.name}</td>
+                          <td style={{ padding: "5px 0", textAlign: "right", fontWeight: 600, color: "#111827", whiteSpace: "nowrap" }}>{fmt(opt.price)}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                )}
+              </div>
             </div>
 
+            {/* Banner lateral no final da página 1 */}
+            {banner1Urls.length > 0 && (
+              <div style={{ display: "flex", justifyContent: "center", gap: "12px", flexWrap: "wrap", marginBottom: "8px" }}>
+                {banner1Urls.map((b, i) => (
+                  <img
+                    key={i}
+                    src={b.url}
+                    alt={`Banner ${b.name}`}
+                    style={{ maxWidth: "200px", height: "auto", borderRadius: "8px", objectFit: "contain" }}
+                    crossOrigin="anonymous"
+                  />
+                ))}
+              </div>
+            )}
           </div>
 
           <div data-pdf-page>
@@ -421,8 +405,8 @@ const ProposalView = ({
             {model.not_included_items && model.not_included_items.length > 0 && (
               <div style={{ ...sectionStyle, marginBottom: "16px" }}>
                 <div style={{ ...sectionHeaderStyle, borderLeft: `4px solid #ef4444` }}>Não Inclusos</div>
-                <div style={sectionBodyStyle}>
-                  <ul style={{ margin: 0, paddingLeft: "18px", fontSize: "12px", lineHeight: "1.8" }}>
+                <div style={{ ...sectionBodyStyle, padding: "12px 16px" }}>
+                  <ul style={{ margin: 0, paddingLeft: "16px", fontSize: "12px", lineHeight: "1.7", columns: 2 }} className="!columns-1 sm:!columns-2">
                     {model.not_included_items.map((item, i) => (
                       <li key={i} style={{ color: "#6b7280" }}>{item}</li>
                     ))}
@@ -430,85 +414,80 @@ const ProposalView = ({
                 </div>
               </div>
             )}
+
             {/* ===== RESUMO FINANCEIRO ===== */}
             <div style={sectionStyle}>
               <div style={sectionHeaderStyle}>Resumo Financeiro</div>
-              <div style={sectionBodyStyle}>
+              <div style={{ ...sectionBodyStyle, padding: "12px 16px" }}>
                 <table style={{ width: "100%", fontSize: "13px", borderCollapse: "collapse" }}>
                   <tbody>
                     <tr style={{ borderBottom: "1px solid #f3f4f6" }}>
-                      <td style={{ padding: "8px 0", color: "#6b7280" }}>Valor base</td>
-                      <td style={{ padding: "8px 0", textAlign: "right", color: "#111827" }}>{fmt(displayBasePrice)}</td>
+                      <td style={{ padding: "6px 0", color: "#6b7280" }}>Valor base</td>
+                      <td style={{ padding: "6px 0", textAlign: "right", color: "#111827" }}>{fmt(displayBasePrice)}</td>
                     </tr>
                     {optionalsTotal > 0 && (
                       <tr style={{ borderBottom: "1px solid #f3f4f6" }}>
-                        <td style={{ padding: "8px 0", color: "#6b7280" }}>Opcionais</td>
-                        <td style={{ padding: "8px 0", textAlign: "right", color: "#111827" }}>{fmt(optionalsTotal)}</td>
+                        <td style={{ padding: "6px 0", color: "#6b7280" }}>Opcionais</td>
+                        <td style={{ padding: "6px 0", textAlign: "right", color: "#111827" }}>{fmt(optionalsTotal)}</td>
                       </tr>
                     )}
                     <tr>
-                      <td style={{ padding: "12px 0 8px", fontWeight: 800, fontSize: "16px", color: primaryColor }}>Total</td>
-                      <td style={{ padding: "12px 0 8px", textAlign: "right", fontWeight: 800, fontSize: "16px", color: primaryColor }}>{fmt(totalPrice)}</td>
+                      <td style={{ padding: "10px 0 6px", fontWeight: 800, fontSize: "16px", color: primaryColor }}>Total</td>
+                      <td style={{ padding: "10px 0 6px", textAlign: "right", fontWeight: 800, fontSize: "16px", color: primaryColor }}>{fmt(totalPrice)}</td>
                     </tr>
                   </tbody>
                 </table>
               </div>
             </div>
 
-            {/* ===== CONDIÇÕES ===== */}
-            <div style={sectionStyle}>
-              <div style={sectionHeaderStyle}>Condições</div>
-              <div style={sectionBodyStyle}>
-                <table style={{ width: "100%", fontSize: "13px", borderCollapse: "collapse" }}>
-                  <tbody>
+            {/* ===== CONDIÇÕES + LOJISTA ===== */}
+            <div style={{ display: "flex", flexWrap: "wrap", gap: "16px", marginBottom: "16px" }}>
+              <div style={{ ...sectionStyle, flex: "1 1 240px", marginBottom: 0 }}>
+                <div style={sectionHeaderStyle}>Condições</div>
+                <div style={{ ...sectionBodyStyle, padding: "12px 16px" }}>
+                  <div style={{ fontSize: "12px", display: "flex", flexDirection: "column", gap: "4px" }}>
                     {[
                       ["Pagamento", model.payment_terms || "À vista"],
                       ["Entrega", `${model.delivery_days} dias`],
                       ["Instalação", `${model.installation_days} dias`],
-                      ["Validade", `${validUntil} (3 dias)`],
                     ].map(([label, value], i) => (
-                      <tr key={i} style={{ borderBottom: i < 3 ? "1px solid #f3f4f6" : "none" }}>
-                        <td style={{ fontWeight: 700, color: "#374151", padding: "8px 16px 8px 0", width: "140px" }}>{label}</td>
-                        <td style={{ padding: "8px 0", color: "#111827" }}>{value}</td>
-                      </tr>
+                      <div key={i} style={{ display: "flex", gap: "8px" }}>
+                        <span style={{ fontWeight: 700, color: "#374151", minWidth: "80px" }}>{label}</span>
+                        <span style={{ color: "#111827" }}>{value}</span>
+                      </div>
                     ))}
-                  </tbody>
-                </table>
+                  </div>
+                </div>
+              </div>
+
+              <div style={{ ...sectionStyle, flex: "1 1 240px", marginBottom: 0 }}>
+                <div style={sectionHeaderStyle}>Dados do Lojista</div>
+                <div style={{ ...sectionBodyStyle, padding: "12px 16px" }}>
+                  <div style={{ fontSize: "12px", display: "flex", flexDirection: "column", gap: "4px" }}>
+                    <div style={{ display: "flex", gap: "8px" }}>
+                      <span style={{ fontWeight: 700, color: "#374151", minWidth: "80px" }}>Empresa</span>
+                      <span style={{ color: "#111827" }}>{storeName || "-"}</span>
+                    </div>
+                    <div style={{ display: "flex", gap: "8px" }}>
+                      <span style={{ fontWeight: 700, color: "#374151", minWidth: "80px" }}>Cidade</span>
+                      <span style={{ color: "#111827" }}>{storeLocation || "-"}</span>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
-
-            {/* ===== DADOS DO LOJISTA ===== */}
-            <div style={sectionStyle}>
-              <div style={sectionHeaderStyle}>Dados do Lojista</div>
-              <div style={sectionBodyStyle}>
-                <table style={{ width: "100%", fontSize: "13px", borderCollapse: "collapse" }}>
-                  <tbody>
-                    {[
-                      ["Empresa", storeName || "-"],
-                      ["Cidade", storeLocation || "-"],
-                    ].map(([label, value], i) => (
-                      <tr key={i} style={{ borderBottom: i < 1 ? "1px solid #f3f4f6" : "none" }}>
-                        <td style={{ fontWeight: 700, color: "#374151", padding: "8px 16px 8px 0", width: "140px" }}>{label}</td>
-                        <td style={{ padding: "8px 0", color: "#111827" }}>{value}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-
 
             {/* ===== PARCEIROS ===== */}
             {partners.length > 0 && (
-              <div style={{ marginTop: "24px", paddingTop: "16px", borderTop: "1px solid #e5e7eb" }}>
-                <p style={{ textAlign: "center", fontSize: "10px", color: "#9ca3af", marginBottom: "12px", textTransform: "uppercase", letterSpacing: "1px" }}>
+              <div style={{ marginTop: "20px", paddingTop: "12px", borderTop: "1px solid #e5e7eb" }}>
+                <p style={{ textAlign: "center", fontSize: "10px", color: "#9ca3af", marginBottom: "10px", textTransform: "uppercase", letterSpacing: "1px" }}>
                   Parceiros oficiais
                 </p>
-                <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", alignItems: "center", gap: "20px" }}>
+                <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", alignItems: "center", gap: "16px" }}>
                   {partners.map((p) => (
                     <div key={p.id} style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
                       {p.logo_url ? (
-                        <img src={p.logo_url} alt={p.name} style={{ maxHeight: "36px", maxWidth: "100px", objectFit: "contain" }} crossOrigin="anonymous" />
+                        <img src={p.logo_url} alt={p.name} style={{ maxHeight: "32px", maxWidth: "80px", objectFit: "contain" }} crossOrigin="anonymous" />
                       ) : (
                         <span style={{ fontSize: "11px", fontWeight: 700, color: "#6b7280" }}>{p.name}</span>
                       )}
@@ -519,7 +498,7 @@ const ProposalView = ({
             )}
 
             {/* ===== FOOTER ===== */}
-            <div style={{ textAlign: "center", fontSize: "11px", color: "#9ca3af", marginTop: "16px", paddingTop: "12px", borderTop: "1px solid #e5e7eb" }}>
+            <div style={{ textAlign: "center", fontSize: "10px", color: "#9ca3af", marginTop: "14px", paddingTop: "10px", borderTop: "1px solid #e5e7eb" }}>
               Documento gerado por SimulaPool
             </div>
           </div>
