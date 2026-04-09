@@ -72,7 +72,7 @@ const AdminSidebarContent = ({ onNavigate, isMobile = false }: AdminSidebarConte
     if (items.length === 0) return null;
     return (
       <div className="mb-1">
-        <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground px-3 mt-4 mb-1.5">
+        <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground px-3 mt-4 mb-1.5 text-right">
           {label}
         </p>
         <div className="space-y-0.5 px-2">
@@ -128,10 +128,10 @@ const AdminSidebarContent = ({ onNavigate, isMobile = false }: AdminSidebarConte
         </div>
         <button
           onClick={handleLogout}
-          className="flex items-center gap-2 w-full text-[13px] text-muted-foreground hover:text-destructive px-2 py-2 rounded-lg transition-all duration-150"
+          className="flex items-center justify-end gap-2 w-full text-[13px] text-muted-foreground hover:text-destructive px-2 py-2 rounded-lg transition-all duration-150"
         >
-          <LogOut className="h-4 w-4 shrink-0" strokeWidth={1.5} />
           <span>Sair</span>
+          <LogOut className="h-4 w-4 shrink-0" strokeWidth={1.5} />
         </button>
       </div>
     </div>
