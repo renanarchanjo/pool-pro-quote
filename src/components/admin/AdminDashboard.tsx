@@ -314,33 +314,41 @@ const AdminDashboard = () => {
       </div>
 
       {/* Hidden proposal for PDF export */}
-      {exportingProposal?.pool_models && (
-        <div ref={proposalPdfRef} className="hidden">
-          <ProposalView
-            model={exportingProposal.pool_models as any}
-            selectedOptionals={
-              Array.isArray(exportingProposal.selected_optionals)
-                ? exportingProposal.selected_optionals.map((o: any) =>
-                    typeof o === "object" && o !== null
-                      ? { name: o.name || "Item", price: o.price || 0 }
-                      : { name: String(o), price: 0 }
-                  )
-                : []
-            }
-            customerData={{
-              name: exportingProposal.customer_name,
-              city: exportingProposal.customer_city,
-              whatsapp: exportingProposal.customer_whatsapp,
-            }}
-            category={exportingProposal.pool_models.name}
-            onBack={() => {}}
-            storeSettings={storeSettings}
-            storeName={store?.name}
-            storeCity={store?.city}
-            storeState={store?.state}
-          />
-        </div>
-      )}
+      {exportingProposal?.pool_models && (() => {
+        const pm = exportingProposal.pool_models as any;
+        const brand = pm?.categories?.brands;
+        return (
+          <div ref={proposalPdfRef} className="hidden">
+            <ProposalView
+              model={pm}
+              selectedOptionals={
+                Array.isArray(exportingProposal.selected_optionals)
+                  ? exportingProposal.selected_optionals.map((o: any) =>
+                      typeof o === "object" && o !== null
+                        ? { name: o.name || "Item", price: o.price || 0 }
+                        : { name: String(o), price: 0 }
+                    )
+                  : []
+              }
+              customerData={{
+                name: exportingProposal.customer_name,
+                city: exportingProposal.customer_city,
+                whatsapp: exportingProposal.customer_whatsapp,
+              }}
+              category={pm?.categories?.name || pm.name}
+              onBack={() => {}}
+              storeSettings={storeSettings}
+              storeName={store?.name}
+              storeCity={store?.city}
+              storeState={store?.state}
+              brandLogoUrl={brand?.logo_url}
+              brandName={brand?.name}
+              brandPartnerId={brand?.partner_id}
+              partners={partners}
+            />
+          </div>
+        );
+      })()}
 
       {/* Proposal Preview Overlay (same as Leads) */}
       {viewingProposal && (
@@ -384,31 +392,39 @@ const AdminDashboard = () => {
                   transition: 'transform 250ms ease, width 250ms ease, margin 250ms ease',
                 }}
               >
-                {viewingProposal?.pool_models && (
-                  <ProposalView
-                    model={viewingProposal.pool_models as any}
-                    selectedOptionals={
-                      Array.isArray(viewingProposal.selected_optionals)
-                        ? viewingProposal.selected_optionals.map((o: any) =>
-                            typeof o === "object" && o !== null
-                              ? { name: o.name || "Item", price: o.price || 0 }
-                              : { name: String(o), price: 0 }
-                          )
-                        : []
-                    }
-                    customerData={{
-                      name: viewingProposal.customer_name,
-                      city: viewingProposal.customer_city,
-                      whatsapp: viewingProposal.customer_whatsapp,
-                    }}
-                    category={viewingProposal.pool_models.name}
-                    onBack={() => { setViewingProposal(null); setPreviewZoomed(false); }}
-                    storeSettings={storeSettings}
-                    storeName={store?.name}
-                    storeCity={store?.city}
-                    storeState={store?.state}
-                  />
-                )}
+                {viewingProposal?.pool_models && (() => {
+                  const pm = viewingProposal.pool_models as any;
+                  const brand = pm?.categories?.brands;
+                  return (
+                    <ProposalView
+                      model={pm}
+                      selectedOptionals={
+                        Array.isArray(viewingProposal.selected_optionals)
+                          ? viewingProposal.selected_optionals.map((o: any) =>
+                              typeof o === "object" && o !== null
+                                ? { name: o.name || "Item", price: o.price || 0 }
+                                : { name: String(o), price: 0 }
+                            )
+                          : []
+                      }
+                      customerData={{
+                        name: viewingProposal.customer_name,
+                        city: viewingProposal.customer_city,
+                        whatsapp: viewingProposal.customer_whatsapp,
+                      }}
+                      category={pm?.categories?.name || pm.name}
+                      onBack={() => { setViewingProposal(null); setPreviewZoomed(false); }}
+                      storeSettings={storeSettings}
+                      storeName={store?.name}
+                      storeCity={store?.city}
+                      storeState={store?.state}
+                      brandLogoUrl={brand?.logo_url}
+                      brandName={brand?.name}
+                      brandPartnerId={brand?.partner_id}
+                      partners={partners}
+                    />
+                  );
+                })()}
               </div>
             </div>
           </div>
