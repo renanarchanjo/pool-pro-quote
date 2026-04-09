@@ -1354,6 +1354,13 @@ export type Database = {
           warning_note: string
         }[]
       }
+      get_platform_settings_public: {
+        Args: never
+        Returns: {
+          key: string
+          value: string
+        }[]
+      }
       get_pool_models_public: {
         Args: { _store_id?: string }
         Returns: {
