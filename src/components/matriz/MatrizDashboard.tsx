@@ -265,7 +265,7 @@ const MatrizDashboard = () => {
   };
 
   return (
-    <div className="space-y-6 p-4 md:p-8">
+    <div className="space-y-4 md:space-y-6">
       {/* HEADER */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
@@ -426,27 +426,27 @@ const MatrizDashboard = () => {
       </div>
 
       {/* BLOCO 6 — MAPA */}
-      <div className="bg-card border border-border rounded-xl p-6">
+      <div className="bg-card border border-border rounded-xl p-3 md:p-6">
         <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">DISTRIBUIÇÃO GEOGRÁFICA</span>
-        <h3 className="text-[15px] font-semibold text-foreground mt-1 mb-4">Lojistas por estado</h3>
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <h3 className="text-[14px] md:text-[15px] font-semibold text-foreground mt-1 mb-3 md:mb-4">Lojistas por estado</h3>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
           <div className="lg:col-span-2">
             <BrazilMap stateData={Object.fromEntries(metrics.stateMap)} stores={data.stores.map(s => ({ id: s.id, name: s.name, city: s.city, state: s.state }))} />
           </div>
-          <div className="space-y-3">
-            <h4 className="text-[13px] font-semibold text-foreground">Top 5 Estados</h4>
+          <div className="space-y-2 md:space-y-3">
+            <h4 className="text-[12px] md:text-[13px] font-semibold text-foreground">Top 5 Estados</h4>
             {metrics.topStates.map(ts => (
               <div key={ts.state}>
-                <div className="flex justify-between text-[14px] mb-1">
+                <div className="flex justify-between text-[13px] md:text-[14px] mb-1">
                   <span className="font-medium text-foreground">{ts.state}</span>
                   <span className="font-semibold text-primary">{ts.count}</span>
                 </div>
-                <div className="w-full h-2 bg-muted rounded-full overflow-hidden">
+                <div className="w-full h-1.5 md:h-2 bg-muted rounded-full overflow-hidden">
                   <div className="h-full bg-primary rounded-full transition-all" style={{ width: `${(ts.count / metrics.maxStateCount) * 100}%` }} />
                 </div>
               </div>
             ))}
-            {metrics.topStates.length === 0 && <p className="text-[13px] text-muted-foreground">Nenhum dado</p>}
+            {metrics.topStates.length === 0 && <p className="text-[12px] md:text-[13px] text-muted-foreground">Nenhum dado</p>}
           </div>
         </div>
       </div>
