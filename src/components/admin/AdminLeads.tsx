@@ -851,15 +851,6 @@ const AdminLeads = () => {
                                 <Badge variant="secondary" className="text-[10px]">
                                   {lead.assigned_to_profile.full_name}
                                 </Badge>
-                              ) : isPending ? (
-                                <Button
-                                  size="sm"
-                                  variant="ghost"
-                                  className="h-7 text-[11px] text-muted-foreground hover:text-primary"
-                                  onClick={() => openAssignDialog(lead.id)}
-                                >
-                                  <Send className="w-3 h-3 mr-1" /> Atribuir
-                                </Button>
                               ) : (
                                 <span className="text-xs text-muted-foreground">—</span>
                               )}
