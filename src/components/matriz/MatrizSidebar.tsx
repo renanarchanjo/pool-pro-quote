@@ -1,6 +1,6 @@
 import { useNavigate, useLocation } from "react-router-dom";
 import {
-  TrendingUp, Users, Calculator, CreditCard, AlertTriangle,
+  TrendingUp, Users, CreditCard, AlertTriangle,
   Store, Handshake, Tag, MapPin, FileBarChart, Filter, LogOut,
 } from "lucide-react";
 import ThemeToggle from "@/components/ThemeToggle";
@@ -37,7 +37,6 @@ const MatrizSidebar = () => {
   const gestaoItems = [
     { title: "Dashboard Financeiro", url: "/matriz", icon: TrendingUp },
     { title: "Lojistas Ativos", url: "/matriz/lojistas", icon: Users },
-    { title: "Simulações", url: "/matriz/simulacoes", icon: Calculator },
     { title: "Pagamentos", url: "/matriz/pagamentos", icon: CreditCard },
     { title: "Inadimplência", url: "/matriz/inadimplencia", icon: AlertTriangle },
   ];

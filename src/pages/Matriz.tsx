@@ -10,6 +10,8 @@ import MatrizPayments from "@/components/matriz/MatrizPayments";
 import PartnersManager from "@/components/matriz/PartnersManager";
 import MatrizLeads from "@/components/matriz/MatrizLeads";
 import MatrizPlans from "@/components/matriz/MatrizPlans";
+import MatrizMapPage from "@/components/matriz/MatrizMapPage";
+import MatrizReports from "@/components/matriz/MatrizReports";
 
 const Matriz = () => {
   const [loading, setLoading] = useState(true);
@@ -56,6 +58,8 @@ const Matriz = () => {
               <Route path="parceiros" element={<PartnersManager />} />
               <Route path="leads" element={<MatrizLeads />} />
               <Route path="planos" element={<MatrizPlans />} />
+              <Route path="mapa" element={<MatrizMapPage />} />
+              <Route path="relatorios" element={<MatrizReports />} />
             </Routes>
           </main>
         </div>
