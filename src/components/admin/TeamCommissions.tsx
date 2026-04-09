@@ -192,17 +192,48 @@ const TeamCommissions = () => {
         </Card>
       ) : (
         <div className="space-y-3">
-          {commissionData.map((m) => (
-            <Card key={m.memberId} className="border border-border rounded-xl">
+          {commissionData.map((m, idx) => {
+            const rank = idx + 1;
+            const medal = rank === 1
+              ? { emoji: "🥇", bg: "bg-amber-50 dark:bg-amber-950/30", ring: "ring-amber-300/50" }
+              : rank === 2
+              ? { emoji: "🥈", bg: "bg-slate-50 dark:bg-slate-900/30", ring: "ring-slate-300/50" }
+              : rank === 3
+              ? { emoji: "🥉", bg: "bg-orange-50 dark:bg-orange-950/30", ring: "ring-orange-300/50" }
+              : null;
+
+            return (
+            <Card
+              key={m.memberId}
+              className={cn(
+                "border border-border rounded-xl transition-all duration-300",
+                medal && "ring-1 " + medal.ring
+              )}
+              style={{ animationDelay: `${idx * 80}ms` }}
+            >
               <CardContent className="p-4">
                 {/* Seller row */}
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-full bg-accent flex items-center justify-center shrink-0">
-                      <span className="text-[13px] font-semibold text-accent-foreground">{getInitials(m.name)}</span>
+                    <div className="relative shrink-0">
+                      <div className={cn(
+                        "w-10 h-10 rounded-full flex items-center justify-center",
+                        medal ? medal.bg : "bg-accent"
+                      )}>
+                        {medal ? (
+                          <span className="text-[20px] leading-none">{medal.emoji}</span>
+                        ) : (
+                          <span className="text-[13px] font-semibold text-muted-foreground">{rank}º</span>
+                        )}
+                      </div>
                     </div>
                     <div>
-                      <p className="text-[14px] font-semibold text-foreground">{m.name}</p>
+                      <div className="flex items-center gap-2">
+                        <p className="text-[14px] font-semibold text-foreground">{m.name}</p>
+                        {rank <= 3 && (
+                          <span className="text-[11px] font-semibold text-muted-foreground">#{rank}</span>
+                        )}
+                      </div>
                       <span
                         className="inline-flex items-center text-[12px] font-semibold rounded-md px-2.5 py-0.5 mt-0.5"
                         style={{ background: "#F0FDF4", color: "#166534" }}
@@ -280,7 +311,8 @@ const TeamCommissions = () => {
                 )}
               </CardContent>
             </Card>
-          ))}
+            );
+          })}
         </div>
       )}
     </div>

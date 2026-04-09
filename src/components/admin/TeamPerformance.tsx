@@ -244,75 +244,107 @@ const TeamPerformance = () => {
         </Card>
       ) : (
         <div className="space-y-3">
-          {filteredMetrics.map((m) => (
-            <Card key={m.memberId} className="border border-border rounded-xl">
-              <CardContent className="p-4">
-                {/* Seller row */}
-                <div className="flex items-start justify-between gap-3">
-                  <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-full bg-accent flex items-center justify-center shrink-0">
-                      <span className="text-[13px] font-semibold text-accent-foreground">{getInitials(m.name)}</span>
+          {filteredMetrics.map((m, idx) => {
+            const rank = idx + 1;
+            const medal = rank === 1
+              ? { emoji: "🥇", bg: "bg-amber-50 dark:bg-amber-950/30", ring: "ring-amber-300/50" }
+              : rank === 2
+              ? { emoji: "🥈", bg: "bg-slate-50 dark:bg-slate-900/30", ring: "ring-slate-300/50" }
+              : rank === 3
+              ? { emoji: "🥉", bg: "bg-orange-50 dark:bg-orange-950/30", ring: "ring-orange-300/50" }
+              : null;
+
+            return (
+              <Card
+                key={m.memberId}
+                className={cn(
+                  "border border-border rounded-xl transition-all duration-300",
+                  medal && "ring-1 " + medal.ring
+                )}
+                style={{ animationDelay: `${idx * 80}ms` }}
+              >
+                <CardContent className="p-4">
+                  {/* Seller row */}
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex items-center gap-3">
+                      <div className="relative shrink-0">
+                        <div className={cn(
+                          "w-10 h-10 rounded-full flex items-center justify-center",
+                          medal ? medal.bg : "bg-accent"
+                        )}>
+                          {medal ? (
+                            <span className="text-[20px] leading-none">{medal.emoji}</span>
+                          ) : (
+                            <span className="text-[13px] font-semibold text-muted-foreground">{rank}º</span>
+                          )}
+                        </div>
+                      </div>
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <p className="text-[14px] font-semibold text-foreground">{m.name}</p>
+                          {rank <= 3 && (
+                            <span className="text-[11px] font-semibold text-muted-foreground">#{rank}</span>
+                          )}
+                        </div>
+                        <p className="text-[13px] text-muted-foreground">
+                          {m.leadsAccepted} leads aceitos · {m.closed} fechados · {m.lost} perdidos
+                        </p>
+                      </div>
+                    </div>
+                    <div className="text-right shrink-0">
+                      <p className="text-[16px] font-bold text-foreground">{formatCurrency(m.revenueClosed)}</p>
+                      <p className="text-[11px] text-muted-foreground">receita fechada</p>
+                    </div>
+                  </div>
+
+                  {/* Separator */}
+                  <div className="border-t border-border my-3" />
+
+                  {/* Metrics grid 2x2 */}
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <p className="text-[11px] font-semibold uppercase tracking-[0.06em] text-muted-foreground">Conversão</p>
+                      <p className="text-[18px] font-bold text-foreground">{m.conversionRate.toFixed(1)}%</p>
                     </div>
                     <div>
-                      <p className="text-[14px] font-semibold text-foreground">{m.name}</p>
-                      <p className="text-[13px] text-muted-foreground">
-                        {m.leadsAccepted} leads aceitos · {m.closed} fechados · {m.lost} perdidos
+                      <p className="text-[11px] font-semibold uppercase tracking-[0.06em] text-muted-foreground">Ticket Médio</p>
+                      <p className="text-[18px] font-bold text-foreground">{formatCurrency(m.ticketMedio)}</p>
+                    </div>
+                    <div>
+                      <p className="text-[11px] font-semibold uppercase tracking-[0.06em] text-muted-foreground">Tempo Resposta</p>
+                      <p className="text-[18px] font-bold text-foreground">
+                        {m.avgResponseTimeHours < 1
+                          ? `${Math.round(m.avgResponseTimeHours * 60)}min`
+                          : `${m.avgResponseTimeHours.toFixed(1)}h`}
                       </p>
                     </div>
+                    <div>
+                      <p className="text-[11px] font-semibold uppercase tracking-[0.06em] text-muted-foreground">Receita Prevista</p>
+                      <p className="text-[18px] font-bold text-primary">{formatCurrency(m.revenuePredicted)}</p>
+                    </div>
                   </div>
-                  <div className="text-right shrink-0">
-                    <p className="text-[16px] font-bold text-foreground">{formatCurrency(m.revenueClosed)}</p>
-                    <p className="text-[11px] text-muted-foreground">receita fechada</p>
-                  </div>
-                </div>
 
-                {/* Separator */}
-                <div className="border-t border-border my-3" />
-
-                {/* Metrics grid 2x2 */}
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <p className="text-[11px] font-semibold uppercase tracking-[0.06em] text-muted-foreground">Conversão</p>
-                    <p className="text-[18px] font-bold text-foreground">{m.conversionRate.toFixed(1)}%</p>
+                  {/* Funnel badges */}
+                  <div className="mt-3 pt-3 border-t border-border flex items-center gap-2 flex-wrap">
+                    <span className="inline-flex items-center text-[12px] font-semibold rounded-md px-2.5 py-1" style={{ background: "#E0F2FE", color: "#0369A1" }}>
+                      {m.leadsAccepted} aceitos
+                    </span>
+                    <span className="text-[13px] text-muted-foreground">→</span>
+                    <span className="inline-flex items-center text-[12px] font-semibold rounded-md px-2.5 py-1" style={{ background: "#FEF3C7", color: "#92400E" }}>
+                      {m.inNegotiation} negociando
+                    </span>
+                    <span className="text-[13px] text-muted-foreground">→</span>
+                    <span className="inline-flex items-center text-[12px] font-semibold rounded-md px-2.5 py-1" style={{ background: "#F0FDF4", color: "#166534" }}>
+                      {m.closed} fechados
+                    </span>
+                    <span className="inline-flex items-center text-[12px] font-semibold rounded-md px-2.5 py-1" style={{ background: "#FEF2F2", color: "#991B1B" }}>
+                      {m.lost} perdidos
+                    </span>
                   </div>
-                  <div>
-                    <p className="text-[11px] font-semibold uppercase tracking-[0.06em] text-muted-foreground">Ticket Médio</p>
-                    <p className="text-[18px] font-bold text-foreground">{formatCurrency(m.ticketMedio)}</p>
-                  </div>
-                  <div>
-                    <p className="text-[11px] font-semibold uppercase tracking-[0.06em] text-muted-foreground">Tempo Resposta</p>
-                    <p className="text-[18px] font-bold text-foreground">
-                      {m.avgResponseTimeHours < 1
-                        ? `${Math.round(m.avgResponseTimeHours * 60)}min`
-                        : `${m.avgResponseTimeHours.toFixed(1)}h`}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-[11px] font-semibold uppercase tracking-[0.06em] text-muted-foreground">Receita Prevista</p>
-                    <p className="text-[18px] font-bold text-primary">{formatCurrency(m.revenuePredicted)}</p>
-                  </div>
-                </div>
-
-                {/* Funnel badges */}
-                <div className="mt-3 pt-3 border-t border-border flex items-center gap-2 flex-wrap">
-                  <span className="inline-flex items-center text-[12px] font-semibold rounded-md px-2.5 py-1" style={{ background: "#E0F2FE", color: "#0369A1" }}>
-                    {m.leadsAccepted} aceitos
-                  </span>
-                  <span className="text-[13px] text-muted-foreground">→</span>
-                  <span className="inline-flex items-center text-[12px] font-semibold rounded-md px-2.5 py-1" style={{ background: "#FEF3C7", color: "#92400E" }}>
-                    {m.inNegotiation} negociando
-                  </span>
-                  <span className="text-[13px] text-muted-foreground">→</span>
-                  <span className="inline-flex items-center text-[12px] font-semibold rounded-md px-2.5 py-1" style={{ background: "#F0FDF4", color: "#166534" }}>
-                    {m.closed} fechados
-                  </span>
-                  <span className="inline-flex items-center text-[12px] font-semibold rounded-md px-2.5 py-1" style={{ background: "#FEF2F2", color: "#991B1B" }}>
-                    {m.lost} perdidos
-                  </span>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+                </CardContent>
+              </Card>
+            );
+          })}
         </div>
       )}
     </div>
