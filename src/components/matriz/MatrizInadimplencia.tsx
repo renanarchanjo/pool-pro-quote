@@ -317,6 +317,98 @@ const MatrizInadimplencia = () => {
         </>
       )}
     </div>
+
+      {/* Hidden PDF content for remarketing */}
+      <div ref={pdfRef} className="hidden" aria-hidden="true">
+        <div style={{ fontFamily: "sans-serif", padding: "32px", color: "#111" }}>
+          <h1 style={{ fontSize: "22px", fontWeight: 700, marginBottom: "4px" }}>
+            Relatório de Inadimplência — Remarketing
+          </h1>
+          <p style={{ fontSize: "12px", color: "#666", marginBottom: "24px" }}>
+            Gerado em {new Date().toLocaleDateString("pt-BR")} · SimulaPool
+          </p>
+
+          {/* Summary */}
+          <div style={{ display: "flex", gap: "16px", marginBottom: "24px" }}>
+            {[
+              { label: "Inadimplentes", value: String(inadimplentes.length) },
+              { label: "Em Risco", value: String(atRisk.length) },
+              { label: "Receita Perdida", value: fmt(receitaPerdida) },
+            ].map((k) => (
+              <div key={k.label} style={{ background: "#f9fafb", border: "1px solid #e5e7eb", borderRadius: "8px", padding: "12px 20px", minWidth: "140px" }}>
+                <div style={{ fontSize: "10px", fontWeight: 600, textTransform: "uppercase", color: "#888", letterSpacing: "0.05em" }}>{k.label}</div>
+                <div style={{ fontSize: "20px", fontWeight: 700, marginTop: "4px" }}>{k.value}</div>
+              </div>
+            ))}
+          </div>
+
+          {/* Inadimplentes table */}
+          {inadimplentes.length > 0 && (
+            <div style={{ marginBottom: "24px" }}>
+              <h2 style={{ fontSize: "14px", fontWeight: 600, marginBottom: "8px", color: "#dc2626" }}>🔴 Lojistas Inadimplentes</h2>
+              <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "12px" }}>
+                <thead>
+                  <tr style={{ background: "#f3f4f6" }}>
+                    {["Loja", "Cidade/UF", "Plano", "Valor/mês", "Status", "Dias atraso"].map(h => (
+                      <th key={h} style={{ textAlign: "left", padding: "8px 10px", fontWeight: 600, fontSize: "10px", textTransform: "uppercase", color: "#666", borderBottom: "1px solid #e5e7eb" }}>{h}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {inadimplentes.map(s => (
+                    <tr key={s.id} style={{ borderBottom: "1px solid #f3f4f6" }}>
+                      <td style={{ padding: "8px 10px", fontWeight: 600 }}>{s.name}</td>
+                      <td style={{ padding: "8px 10px", color: "#666" }}>{s.city || "—"}/{s.state || "—"}</td>
+                      <td style={{ padding: "8px 10px", color: "#666" }}>{s.subscription_plans?.name || "—"}</td>
+                      <td style={{ padding: "8px 10px", fontWeight: 600 }}>{fmt(s.subscription_plans?.price_monthly || 0)}</td>
+                      <td style={{ padding: "8px 10px" }}>
+                        <span style={{ background: "#fef2f2", color: "#dc2626", padding: "2px 8px", borderRadius: "99px", fontSize: "10px", fontWeight: 600 }}>{statusLabel(s.plan_status)}</span>
+                      </td>
+                      <td style={{ padding: "8px 10px", fontWeight: 700 }}>{daysOverdue(s)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+
+          {/* At risk table */}
+          {atRisk.length > 0 && (
+            <div style={{ marginBottom: "24px" }}>
+              <h2 style={{ fontSize: "14px", fontWeight: 600, marginBottom: "8px", color: "#d97706" }}>🟡 Lojistas em Risco (vencendo em 7 dias)</h2>
+              <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "12px" }}>
+                <thead>
+                  <tr style={{ background: "#f3f4f6" }}>
+                    {["Loja", "Cidade/UF", "Plano", "Valor/mês", "Vencimento"].map(h => (
+                      <th key={h} style={{ textAlign: "left", padding: "8px 10px", fontWeight: 600, fontSize: "10px", textTransform: "uppercase", color: "#666", borderBottom: "1px solid #e5e7eb" }}>{h}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {atRisk.map(s => (
+                    <tr key={s.id} style={{ borderBottom: "1px solid #f3f4f6" }}>
+                      <td style={{ padding: "8px 10px", fontWeight: 600 }}>{s.name}</td>
+                      <td style={{ padding: "8px 10px", color: "#666" }}>{s.city || "—"}/{s.state || "—"}</td>
+                      <td style={{ padding: "8px 10px", color: "#666" }}>{s.subscription_plans?.name || "—"}</td>
+                      <td style={{ padding: "8px 10px", fontWeight: 600 }}>{fmt(s.subscription_plans?.price_monthly || 0)}</td>
+                      <td style={{ padding: "8px 10px" }}>
+                        <span style={{ background: "#fffbeb", color: "#d97706", padding: "2px 8px", borderRadius: "99px", fontSize: "10px", fontWeight: 600 }}>
+                          {fmtDate(s.plan_expires_at)}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+
+          <p style={{ fontSize: "10px", color: "#999", marginTop: "20px", borderTop: "1px solid #e5e7eb", paddingTop: "12px" }}>
+            Documento gerado automaticamente pela plataforma SimulaPool para fins de remarketing e recuperação de clientes.
+          </p>
+        </div>
+      </div>
+    </div>
   );
 };
 
