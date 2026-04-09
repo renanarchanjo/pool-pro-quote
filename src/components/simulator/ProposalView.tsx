@@ -1,8 +1,7 @@
 import { useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { FileDown, ArrowLeft } from "lucide-react";
-import { toast } from "sonner";
-
+import { exportPDF } from "@/lib/exportPDF";
 
 interface PoolModel {
   name: string;
@@ -88,22 +87,21 @@ const ProposalView = ({
 
   const fmt = (v: number) => `R$ ${v.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`;
 
-  // Banner logic
   const matchedPartner = brandPartnerId
-    ? partners.find(p => p.id === brandPartnerId)
+    ? partners.find((p) => p.id === brandPartnerId)
     : brandName
-      ? partners.find(p => p.name.toLowerCase().trim() === brandName.toLowerCase().trim())
+      ? partners.find((p) => p.name.toLowerCase().trim() === brandName.toLowerCase().trim())
       : null;
 
   const selectWeightedPartner = (): Partner | null => {
-    const eligible = partners.filter(p => p.banner_1_url && (p.display_percent || 0) > 0);
+    const eligible = partners.filter((p) => p.banner_1_url && (p.display_percent || 0) > 0);
     if (eligible.length === 0) return null;
     const totalWeight = eligible.reduce((sum, p) => sum + (p.display_percent || 0), 0);
     if (totalWeight <= 0) return eligible[0];
     const rand = Math.random() * totalWeight;
     let cumulative = 0;
     for (const p of eligible) {
-      cumulative += (p.display_percent || 0);
+      cumulative += p.display_percent || 0;
       if (rand <= cumulative) return p;
     }
     return eligible[eligible.length - 1];
@@ -111,147 +109,27 @@ const ProposalView = ({
 
   const bannersToShow = matchedPartner
     ? [matchedPartner]
-    : (() => { const selected = selectWeightedPartner(); return selected ? [selected] : partners; })();
-  const banner1Urls = bannersToShow.filter(p => p.banner_1_url).map(p => ({ url: p.banner_1_url!, name: p.name }));
+    : (() => {
+        const selected = selectWeightedPartner();
+        return selected ? [selected] : partners;
+      })();
+  const banner1Urls = bannersToShow
+    .filter((p) => p.banner_1_url)
+    .map((p) => ({ url: p.banner_1_url!, name: p.name }));
 
   const handleDownloadPDF = async () => {
     const element = document.getElementById("proposal-content");
     if (!element) return;
 
-    const sections = Array.from(element.querySelectorAll<HTMLElement>("[data-pdf-section]"));
-    if (sections.length === 0) return;
+    const filename = `Proposta-${customerData.name.trim().replace(/\s+/g, "-")}-${today.replace(/\//g, "-")}.pdf`;
 
-    const nameSlug = customerData.name.trim().replace(/\s+/g, "-");
-    const filename = `Proposta-${nameSlug}-${today.replace(/\//g, "-")}.pdf`;
-    const width = 800;
-
-    const interactiveEls = element.querySelectorAll<HTMLElement>("button, [data-no-pdf], select");
-    const hiddenOriginals: { el: HTMLElement; display: string }[] = [];
-    let pdfOnlyOriginals: { el: HTMLElement; display: string }[] = [];
-    const origWidth = element.style.width;
-    const origMaxWidth = element.style.maxWidth;
-    const origPadding = element.style.padding;
-
-    // Temporarily reset transforms on all ancestors to prevent layout distortion
-    const ancestorResets: { el: HTMLElement; transform: string; width: string; marginLeft: string; minHeight: string }[] = [];
-    let ancestor = element.parentElement;
-    while (ancestor) {
-      const computed = getComputedStyle(ancestor);
-      if (computed.transform !== "none") {
-        ancestorResets.push({
-          el: ancestor,
-          transform: ancestor.style.transform,
-          width: ancestor.style.width,
-          marginLeft: ancestor.style.marginLeft,
-          minHeight: ancestor.style.minHeight,
-        });
-        ancestor.style.transform = "none";
-        ancestor.style.width = "100%";
-        ancestor.style.marginLeft = "0";
-        ancestor.style.minHeight = "auto";
-      }
-      ancestor = ancestor.parentElement;
-    }
-
-    try {
-      toast.info("Gerando PDF...", { duration: 3000 });
-
-      interactiveEls.forEach((el) => {
-        hiddenOriginals.push({ el, display: el.style.display });
-        el.style.display = "none";
-      });
-
-      const pdfOnlyEls = element.querySelectorAll<HTMLElement>("[data-pdf-only]");
-      pdfOnlyEls.forEach((el) => {
-        pdfOnlyOriginals.push({ el, display: el.style.display });
-        el.style.display = "flex";
-      });
-
-      element.style.width = `${width}px`;
-      element.style.maxWidth = `${width}px`;
-      element.style.padding = "32px";
-
-      // Force a reflow so html2canvas sees the correct layout
-      element.getBoundingClientRect();
-
-      // Wait for all images (including partner logos) to load
-      const allImages = Array.from(element.querySelectorAll("img"));
-      await Promise.all(
-        allImages.map(
-          (img) =>
-            new Promise<void>((resolve) => {
-              if (img.complete) return resolve();
-              img.onload = () => resolve();
-              img.onerror = () => resolve();
-            })
-        )
-      );
-
-      // Additional wait for mobile browsers to apply layout
-      await new Promise(r => setTimeout(r, 300));
-
-      const [{ default: html2canvas }, { jsPDF }] = await Promise.all([
-        import("html2canvas"),
-        import("jspdf"),
-      ]);
-
-      const pdf = new jsPDF({ unit: "mm", format: "a4", orientation: "portrait" });
-      const margin = 10;
-      const pageWidth = 210;
-      const pageHeight = 297;
-      const contentWidth = pageWidth - margin * 2;
-      const sectionGap = 2;
-
-      let currentY = margin;
-
-      for (const section of sections) {
-        // Force reflow per section on mobile
-        section.getBoundingClientRect();
-        const canvas = await html2canvas(section, {
-          scale: 2,
-          useCORS: true,
-          width,
-          windowWidth: width,
-          backgroundColor: "#ffffff",
-          logging: false,
-          scrollX: 0,
-          scrollY: -window.scrollY,
-        });
-
-        const imgHeightMm = (canvas.height * contentWidth) / canvas.width;
-
-        if (currentY > margin && currentY + imgHeightMm > pageHeight - margin) {
-          pdf.addPage("a4", "portrait");
-          currentY = margin;
-        }
-
-        pdf.addImage(canvas.toDataURL("image/png"), "PNG", margin, currentY, contentWidth, imgHeightMm);
-        currentY += imgHeightMm + sectionGap;
-      }
-
-      pdf.save(filename);
-      toast.success("PDF exportado com sucesso!");
-    } catch (error) {
-      console.error("Erro ao gerar PDF:", error);
-      toast.error("Erro ao gerar PDF. Tente novamente.");
-    } finally {
-      element.style.width = origWidth;
-      element.style.maxWidth = origMaxWidth;
-      element.style.padding = origPadding;
-      hiddenOriginals.forEach(({ el, display }) => {
-        el.style.display = display;
-      });
-      pdfOnlyOriginals.forEach(({ el, display }) => {
-        el.style.display = display;
-      });
-      // Restore ancestor transforms
-      ancestorResets.forEach(({ el, transform, width, marginLeft, minHeight }) => {
-        el.style.transform = transform;
-        el.style.width = width;
-        el.style.marginLeft = marginLeft;
-        el.style.minHeight = minHeight;
-      });
-    }
+    await exportPDF({
+      element,
+      filename,
+      orientation: "portrait",
+      captureWidth: 800,
+      sectionSelector: "[data-pdf-section]",
+    });
   };
 
   const storeLocation = [storeCity, storeState].filter(Boolean).join(" / ");
