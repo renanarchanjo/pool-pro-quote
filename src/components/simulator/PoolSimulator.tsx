@@ -352,9 +352,11 @@ const PoolSimulator = ({ onBack }: PoolSimulatorProps) => {
             <span className="hidden md:inline">Voltar</span>
           </Button>
 
-          {/* Logo — centered */}
-          <div className="absolute left-1/2 -translate-x-1/2">
-            <BrandLogo size="sm" />
+          {/* Logo — centered absolutely relative to full nav width */}
+          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+            <div className="pointer-events-auto">
+              <BrandLogo size="sm" />
+            </div>
           </div>
 
           {/* Step indicator — right */}
