@@ -130,7 +130,7 @@ const Parceiros = () => {
           <motion.p
             variants={fadeUp} initial="hidden" animate="visible" custom={2}
             className="text-[15px] md:text-[18px] max-w-[540px] mx-auto mb-10 md:mb-12 leading-relaxed"
-            style={{ color: "rgba(255,255,255,0.55)" }}
+            style={{ color: "rgba(255,255,255,0.75)" }}
           >
             Seja exibido dentro de milhares de simulações reais todos os meses e influencie diretamente quem já está pronto para comprar uma piscina.
           </motion.p>
