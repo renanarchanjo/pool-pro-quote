@@ -1,24 +1,41 @@
-import logoIcon from "@/assets/logo-icon.png";
+import logoIcon from "@/assets/logo-icon-v2.png";
 
 interface BrandLogoProps {
   size?: "sm" | "md" | "lg";
   className?: string;
+  showSlogan?: boolean;
+  variant?: "light" | "dark" | "auto";
 }
 
 const sizes = {
-  sm: { img: "h-9 w-auto", text: "text-[17px]" },
-  md: { img: "h-11 w-auto", text: "text-[22px]" },
-  lg: { img: "h-14 w-auto", text: "text-[26px]" },
+  sm: { img: "h-9 w-auto", text: "text-[17px]", slogan: "text-[9px]" },
+  md: { img: "h-11 w-auto", text: "text-[22px]", slogan: "text-[10px]" },
+  lg: { img: "h-14 w-auto", text: "text-[26px]", slogan: "text-[11px]" },
 };
 
-const BrandLogo = ({ size = "md", className = "" }: BrandLogoProps) => {
+const BrandLogo = ({ size = "md", className = "", showSlogan = false, variant = "auto" }: BrandLogoProps) => {
   const s = sizes[size];
+
+  const simulaColor = variant === "light"
+    ? "text-white"
+    : variant === "dark"
+      ? "text-foreground"
+      : "text-foreground";
+
   return (
-    <div className={`flex items-center gap-2 ${className}`}>
-      <img src={logoIcon} alt="SimulaPool" className={s.img} />
-      <span className={`${s.text} font-bold tracking-[-0.01em] text-foreground`}>
-        SimulaPool
-      </span>
+    <div className={`flex items-center gap-2.5 ${className}`}>
+      <img src={logoIcon} alt="SimulaPool" className={`${s.img} shrink-0`} />
+      <div className="flex flex-col">
+        <span className={`${s.text} font-bold tracking-[-0.02em] leading-tight`}>
+          <span className={simulaColor}>Simula</span>
+          <span className="bg-gradient-to-r from-sky-400 via-cyan-400 to-blue-500 bg-clip-text text-transparent drop-shadow-sm">Pool</span>
+        </span>
+        {showSlogan && (
+          <span className={`${s.slogan} font-medium tracking-[0.08em] uppercase text-muted-foreground leading-tight mt-0.5`}>
+            Orçamentos em Minutos!
+          </span>
+        )}
+      </div>
     </div>
   );
 };
