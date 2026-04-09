@@ -174,6 +174,40 @@ const MatrizPlans = () => {
     else { toast.success(`${plan.name} ${!plan.active ? "ativado" : "desativado"}`); loadData(); }
   };
 
+  const openEditLeadPlan = (lp: LeadPlan) => {
+    setEditingLeadPlan(lp);
+    setLeadForm({
+      name: lp.name,
+      price_monthly: lp.price_monthly.toString(),
+      lead_limit: lp.lead_limit.toString(),
+      excess_price: lp.excess_price.toString(),
+      active: lp.active,
+    });
+  };
+
+  const handleSaveLeadPlan = async () => {
+    if (!editingLeadPlan) return;
+    setSaving(true);
+    try {
+      const { error } = await (supabase as any).from("lead_plans").update({
+        name: leadForm.name,
+        price_monthly: parseFloat(leadForm.price_monthly) || 0,
+        lead_limit: parseInt(leadForm.lead_limit) || 0,
+        excess_price: parseFloat(leadForm.excess_price) || 0,
+        active: leadForm.active,
+        updated_at: new Date().toISOString(),
+      }).eq("id", editingLeadPlan.id);
+      if (error) throw error;
+      toast.success("Plano de leads atualizado!");
+      setEditingLeadPlan(null);
+      loadData();
+    } catch (error: any) {
+      toast.error(error.message || "Erro ao salvar plano de leads");
+    } finally {
+      setSaving(false);
+    }
+  };
+
   const formatCurrency = (v: number) => v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 
   if (loading) return (
