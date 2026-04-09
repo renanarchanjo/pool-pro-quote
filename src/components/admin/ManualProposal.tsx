@@ -547,25 +547,35 @@ const ManualProposal = () => {
   );
 
   const renderSummaryStep = () => (
-    <div className="space-y-5">
+    <div className="space-y-4">
       {/* Customer summary */}
-      <div className="rounded-lg border border-border p-4 space-y-1">
-        <h4 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">Cliente</h4>
-        <p className="font-medium">{customerName || "—"}</p>
+      <div className="rounded-2xl border border-border/60 bg-muted/30 p-4 space-y-1.5">
+        <div className="flex items-center gap-2 mb-1">
+          <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center">
+            <User className="w-3.5 h-3.5 text-primary" />
+          </div>
+          <h4 className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Cliente</h4>
+        </div>
+        <p className="font-semibold text-foreground">{customerName || "—"}</p>
         <p className="text-sm text-muted-foreground">{customerCity ? `${customerCity} / ${customerUf}` : "—"}</p>
         <p className="text-sm text-muted-foreground">{customerWhatsapp || "—"}</p>
       </div>
 
       {/* Model summary */}
-      <div className="rounded-lg border border-border p-4 space-y-1">
-        <h4 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">Modelo</h4>
+      <div className="rounded-2xl border border-border/60 bg-muted/30 p-4 space-y-1.5">
+        <div className="flex items-center gap-2 mb-1">
+          <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center">
+            <Waves className="w-3.5 h-3.5 text-primary" />
+          </div>
+          <h4 className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Modelo</h4>
+        </div>
         {selectedModel ? (
           <>
-            <p className="font-medium">{selectedModel.name}</p>
+            <p className="font-semibold text-foreground">{selectedModel.name}</p>
             {selectedModel.length && selectedModel.width && (
               <p className="text-sm text-muted-foreground">{selectedModel.length}m × {selectedModel.width}m{selectedModel.depth ? ` × ${selectedModel.depth}m` : ""}</p>
             )}
-            <p className="text-sm">Base: R$ {selectedModel.base_price.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</p>
+            <p className="text-sm text-muted-foreground">Base: R$ {selectedModel.base_price.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</p>
           </>
         ) : (
           <p className="text-muted-foreground">Nenhum modelo selecionado</p>
@@ -574,43 +584,47 @@ const ManualProposal = () => {
 
       {/* Optionals summary */}
       {(selectedOptionalsList.length > 0 || selectedModelOptsList.length > 0) && (
-        <div className="rounded-lg border border-border p-4 space-y-2">
-          <h4 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">Opcionais</h4>
+        <div className="rounded-2xl border border-border/60 bg-muted/30 p-4 space-y-2">
+          <div className="flex items-center gap-2 mb-1">
+            <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center">
+              <Settings className="w-3.5 h-3.5 text-primary" />
+            </div>
+            <h4 className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Opcionais</h4>
+          </div>
           {selectedOptionalsList.map((o) => (
             <div key={o.id} className="flex justify-between text-sm">
-              <span>{o.name}</span>
-              <span className="text-primary font-medium">+ R$ {o.price.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</span>
+              <span className="text-foreground">{o.name}</span>
+              <span className="text-primary font-semibold">+ R$ {o.price.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</span>
             </div>
           ))}
           {selectedModelOptsList.map((o: any) => (
             <div key={o.id} className="flex justify-between text-sm">
-              <span>{o.name}</span>
-              <span className="text-primary font-medium">+ R$ {o.price.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</span>
+              <span className="text-foreground">{o.name}</span>
+              <span className="text-primary font-semibold">+ R$ {o.price.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</span>
             </div>
           ))}
         </div>
       )}
 
       {/* Total */}
-      <div className="rounded-lg bg-primary/5 border border-primary/20 p-4 text-center">
-        <p className="text-sm text-muted-foreground mb-1">Total da Proposta</p>
-        <p className="text-2xl font-bold text-primary">
+      <div className="rounded-2xl bg-primary/10 border border-primary/20 p-5 text-center">
+        <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2">Total da Proposta</p>
+        <p className="text-3xl font-extrabold text-primary tracking-tight">
           R$ {totalPrice.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
         </p>
       </div>
 
-      <Button
-        size="lg"
-        className="w-full gradient-primary text-white"
+      <button
         onClick={handleSubmit}
         disabled={submitting || !selectedModel}
+        className="w-full h-14 rounded-2xl bg-primary text-primary-foreground font-bold text-base flex items-center justify-center gap-2 active:scale-[0.97] transition-all duration-150 shadow-lg shadow-primary/25 disabled:opacity-50 disabled:pointer-events-none"
       >
         {submitting ? (
-          <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Gerando...</>
+          <><Loader2 className="w-5 h-5 animate-spin" /> Gerando...</>
         ) : (
-          <><FileText className="w-4 h-4 mr-2" /> Gerar Proposta</>
+          <><Sparkles className="w-5 h-5" /> Gerar Proposta</>
         )}
-      </Button>
+      </button>
     </div>
   );
 
