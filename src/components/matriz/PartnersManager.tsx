@@ -377,15 +377,15 @@ const PartnersManager = () => {
 
               return (
                 <div key={partner.id} className="space-y-0">
+                  {/* ── Desktop layout ── */}
                   <div
-                    className={`flex items-start gap-4 p-4 rounded-xl border ${
+                    className={`hidden sm:flex items-start gap-4 p-4 rounded-xl border ${
                       animating ? "transition-all duration-500 ease-in-out" : "transition-colors duration-200"
                     } ${
                       isEditing ? "bg-primary/5 border-primary/30 ring-1 ring-primary/20" :
                       partner.active ? "bg-background border-border/50" : "bg-muted/30 border-border/20 opacity-60"
                     }`}
                   >
-                    {/* Ranking badge */}
                     <div className="shrink-0 flex flex-col items-center gap-1">
                       <div className={`w-10 h-10 rounded-lg flex items-center justify-center font-bold text-sm ${
                         partner.ranking === 1 ? "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400" :
@@ -396,8 +396,6 @@ const PartnersManager = () => {
                         #{partner.ranking}
                       </div>
                     </div>
-
-                    {/* Logo */}
                     <div className="w-14 h-14 rounded-xl bg-background border border-border/50 flex items-center justify-center overflow-hidden p-1.5 shrink-0">
                       {partner.logo_url ? (
                         <img src={partner.logo_url} alt={partner.name} className="max-w-full max-h-full object-contain" />
@@ -405,18 +403,12 @@ const PartnersManager = () => {
                         <ImageIcon className="w-5 h-5 text-muted-foreground/40" />
                       )}
                     </div>
-
-                    {/* Info */}
                     <div className="flex-1 min-w-0">
                       {isEditing ? (
                         <>
                           <div className="mb-2">
                             <Label className="text-xs">Nome</Label>
-                            <Input
-                              value={partner.name}
-                              onChange={(e) => updatePartnerField(partner.id, "name", e.target.value)}
-                              className="h-8 text-sm mt-0.5"
-                            />
+                            <Input value={partner.name} onChange={(e) => updatePartnerField(partner.id, "name", e.target.value)} className="h-8 text-sm mt-0.5" />
                           </div>
                           <div className="flex items-center gap-2 mb-2">
                             <div>
@@ -446,43 +438,126 @@ const PartnersManager = () => {
                           <p className="text-xs text-muted-foreground">
                             {RANKING_LABELS[partner.ranking] || `${partner.ranking}º Lugar`} · {partner.active ? "Ativo" : "Oculto"} · {partner.display_percent}%
                           </p>
-                          {partner.banner_1_url && (
-                            <p className="text-[10px] text-muted-foreground mt-1 truncate">🖼 Banner configurado</p>
-                          )}
-                          <button
-                            onClick={() => setExpandedPartner(isExpanded ? null : partner.id)}
-                            className="mt-1 text-xs text-primary hover:underline flex items-center gap-1"
-                          >
-                            <Tag className="w-3 h-3" />
-                            {partnerCats.length} categoria{partnerCats.length !== 1 ? "s" : ""}
-                            <span className="text-[10px]">{isExpanded ? "▲" : "▼"}</span>
+                          {partner.banner_1_url && <p className="text-[10px] text-muted-foreground mt-1 truncate">🖼 Banner configurado</p>}
+                          <button onClick={() => setExpandedPartner(isExpanded ? null : partner.id)} className="mt-1 text-xs text-primary hover:underline flex items-center gap-1">
+                            <Tag className="w-3 h-3" /> {partnerCats.length} categoria{partnerCats.length !== 1 ? "s" : ""} <span className="text-[10px]">{isExpanded ? "▲" : "▼"}</span>
                           </button>
                         </>
                       )}
                     </div>
-
-                    {/* Actions */}
                     <div className="flex items-center gap-1 shrink-0">
                       {isEditing ? (
-                        <Button variant="outline" size="sm" onClick={() => setEditingId(null)} className="text-xs gap-1">
-                          <Check className="w-3.5 h-3.5" /> OK
-                        </Button>
+                        <Button variant="outline" size="sm" onClick={() => setEditingId(null)} className="text-xs gap-1"><Check className="w-3.5 h-3.5" /> OK</Button>
                       ) : (
-                        <Button variant="ghost" size="icon" onClick={() => setEditingId(partner.id)} className="h-8 w-8">
-                          <Pencil className="w-4 h-4 text-muted-foreground" />
-                        </Button>
+                        <Button variant="ghost" size="icon" onClick={() => setEditingId(partner.id)} className="h-8 w-8"><Pencil className="w-4 h-4 text-muted-foreground" /></Button>
                       )}
                       <div>
                         <input type="file" accept="image/*" className="hidden" id={`replace-logo-${partner.id}`}
                           onChange={(e) => { const file = e.target.files?.[0]; if (file) handleReplaceLogo(partner, file); }} />
-                        <Button variant="ghost" size="sm" onClick={() => document.getElementById(`replace-logo-${partner.id}`)?.click()} disabled={saving}>
-                          <Upload className="w-4 h-4" />
-                        </Button>
+                        <Button variant="ghost" size="sm" onClick={() => document.getElementById(`replace-logo-${partner.id}`)?.click()} disabled={saving}><Upload className="w-4 h-4" /></Button>
                       </div>
                       <Switch checked={partner.active} onCheckedChange={() => handleToggleActive(partner)} />
-                      <Button variant="ghost" size="icon" onClick={() => handleDelete(partner)} className="text-destructive hover:text-destructive hover:bg-destructive/10">
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
+                      <Button variant="ghost" size="icon" onClick={() => handleDelete(partner)} className="text-destructive hover:text-destructive hover:bg-destructive/10"><Trash2 className="w-4 h-4" /></Button>
+                    </div>
+                  </div>
+
+                  {/* ── Mobile layout ── */}
+                  <div className={`sm:hidden rounded-xl border overflow-hidden ${
+                    isEditing ? "bg-primary/5 border-primary/30" :
+                    partner.active ? "border-border" : "border-border/20 opacity-60"
+                  }`}>
+                    {/* Header */}
+                    <div className="flex items-center gap-2.5 p-3 pb-0">
+                      <div className={`w-9 h-9 rounded-lg flex items-center justify-center font-bold text-[12px] shrink-0 ${
+                        partner.ranking === 1 ? "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400" :
+                        partner.ranking === 2 ? "bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-300" :
+                        partner.ranking === 3 ? "bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400" :
+                        "bg-muted text-muted-foreground"
+                      }`}>
+                        #{partner.ranking}
+                      </div>
+                      <div className="w-11 h-11 rounded-lg bg-background border border-border/50 flex items-center justify-center overflow-hidden p-1 shrink-0">
+                        {partner.logo_url ? (
+                          <img src={partner.logo_url} alt={partner.name} className="max-w-full max-h-full object-contain" />
+                        ) : (
+                          <ImageIcon className="w-4 h-4 text-muted-foreground/40" />
+                        )}
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <h3 className="text-[13px] font-semibold text-foreground truncate">{partner.name}</h3>
+                        <p className="text-[11px] text-muted-foreground">
+                          {partner.active ? "Ativo" : "Oculto"} · {partner.display_percent}%
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Info rows */}
+                    {isEditing ? (
+                      <div className="px-3 pt-2.5 pb-2 space-y-2">
+                        <div>
+                          <Label className="text-[10px]">Nome</Label>
+                          <Input value={partner.name} onChange={(e) => updatePartnerField(partner.id, "name", e.target.value)} className="h-8 text-sm mt-0.5" />
+                        </div>
+                        <div className="grid grid-cols-2 gap-2">
+                          <div>
+                            <Label className="text-[10px]">Ranking</Label>
+                            <Input type="number" min={1} max={99} value={partner.ranking}
+                              onChange={(e) => { const val = parseInt(e.target.value); if (!isNaN(val)) updatePartnerField(partner.id, "ranking", val); }}
+                              className="h-8 text-xs text-center mt-0.5" />
+                          </div>
+                          <div>
+                            <Label className="text-[10px]">Frequência (%)</Label>
+                            <Input type="number" min={0} max={100} value={partner.display_percent}
+                              onChange={(e) => { const val = parseFloat(e.target.value); if (!isNaN(val)) updatePartnerField(partner.id, "display_percent", val); }}
+                              className="h-8 text-xs text-center mt-0.5" />
+                          </div>
+                        </div>
+                        <div>
+                          <Label className="text-[10px]">Banner (URL)</Label>
+                          <Input className="h-8 text-xs mt-0.5" placeholder="URL do banner"
+                            value={partner.banner_1_url || ""}
+                            onChange={(e) => updatePartnerField(partner.id, "banner_1_url", e.target.value.trim() || null)} />
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="px-3 pt-2 pb-2 space-y-1">
+                        <div className="flex items-center justify-between">
+                          <span className="text-[11px] text-muted-foreground">Ranking</span>
+                          <span className="text-[12px] font-medium text-foreground">{RANKING_LABELS[partner.ranking] || `${partner.ranking}º Lugar`}</span>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <span className="text-[11px] text-muted-foreground">Frequência</span>
+                          <span className="text-[12px] font-semibold text-foreground">{partner.display_percent}%</span>
+                        </div>
+                        {partner.banner_1_url && (
+                          <div className="flex items-center justify-between">
+                            <span className="text-[11px] text-muted-foreground">Banner</span>
+                            <span className="text-[11px] text-foreground">🖼 Configurado</span>
+                          </div>
+                        )}
+                        <button onClick={() => setExpandedPartner(isExpanded ? null : partner.id)} className="mt-0.5 text-[11px] text-primary hover:underline flex items-center gap-1">
+                          <Tag className="w-3 h-3" /> {partnerCats.length} categoria{partnerCats.length !== 1 ? "s" : ""} <span className="text-[10px]">{isExpanded ? "▲" : "▼"}</span>
+                        </button>
+                      </div>
+                    )}
+
+                    {/* Actions footer */}
+                    <div className="flex items-center justify-between px-3 py-2 border-t border-border bg-muted/30">
+                      <div className="flex items-center gap-1.5">
+                        <Switch checked={partner.active} onCheckedChange={() => handleToggleActive(partner)} className="scale-90" />
+                        <span className="text-[10px] text-muted-foreground">{partner.active ? "Ativo" : "Oculto"}</span>
+                      </div>
+                      <div className="flex items-center gap-0.5">
+                        {isEditing ? (
+                          <Button variant="outline" size="sm" onClick={() => setEditingId(null)} className="h-7 text-[11px] gap-1"><Check className="w-3 h-3" /> OK</Button>
+                        ) : (
+                          <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setEditingId(partner.id)}><Pencil className="w-3.5 h-3.5" /></Button>
+                        )}
+                        <input type="file" accept="image/*" className="hidden" id={`replace-logo-mob-${partner.id}`}
+                          onChange={(e) => { const file = e.target.files?.[0]; if (file) handleReplaceLogo(partner, file); }} />
+                        <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => document.getElementById(`replace-logo-mob-${partner.id}`)?.click()} disabled={saving}><Upload className="w-3.5 h-3.5" /></Button>
+                        <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive hover:text-destructive hover:bg-destructive/10" onClick={() => handleDelete(partner)}><Trash2 className="w-3.5 h-3.5" /></Button>
+                      </div>
                     </div>
                   </div>
 
