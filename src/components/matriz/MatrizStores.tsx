@@ -249,6 +249,7 @@ const MatrizStores = () => {
                 <div className="flex gap-4 mt-1.5 text-sm text-muted-foreground flex-wrap">
                   {store.city && <span>{store.city}/{store.state}</span>}
                   {store.cnpj && <span>CNPJ: {store.cnpj}</span>}
+                  {(store as any).whatsapp && <span>📱 {(store as any).whatsapp}</span>}
                   <span>Cadastro: {formatDate(store.created_at)}</span>
                   <span className="font-mono text-xs">/{store.slug}</span>
                 </div>
