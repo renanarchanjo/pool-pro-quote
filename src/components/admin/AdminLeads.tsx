@@ -670,16 +670,7 @@ const AdminLeads = () => {
                       className={`p-3 space-y-2 transition-colors ${isPending ? "cursor-pointer active:scale-[0.98]" : ""} ${selectedIds.has(lead.id) ? "bg-primary/5" : ""}`}
                     >
                       <div className="flex items-start justify-between gap-2">
-                        <div className="flex items-start gap-2 min-w-0 flex-1">
-                          {isPending && (
-                            <Checkbox
-                              checked={selectedIds.has(lead.id)}
-                              onCheckedChange={() => toggleSelect(lead.id)}
-                              onClick={(e) => e.stopPropagation()}
-                              className="mt-0.5 pointer-events-none"
-                            />
-                          )}
-                          <div className="min-w-0 flex-1">
+                        <div className="min-w-0 flex-1">
                             <p className="font-semibold text-sm truncate">
                               {isPending ? maskName(p.customer_name) : p.customer_name}
                             </p>
