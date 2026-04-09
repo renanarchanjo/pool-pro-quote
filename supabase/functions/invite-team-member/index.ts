@@ -1,4 +1,5 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { checkRateLimit } from "../_shared/rateLimiter.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -45,6 +46,18 @@ Deno.serve(async (req) => {
       .single();
 
     if (!callerProfile?.store_id) throw new Error("Loja não encontrada");
+
+    // Rate limiting: 10 requests per IP per hour
+    const clientIp = req.headers.get("x-forwarded-for") ||
+                     req.headers.get("cf-connecting-ip") ||
+                     "unknown";
+    const { allowed } = await checkRateLimit(supabaseAdmin, clientIp, "invite-team-member", 10, 60);
+    if (!allowed) {
+      return new Response(
+        JSON.stringify({ error: "Muitas tentativas. Aguarde." }),
+        { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
 
     const body = await req.json();
 
