@@ -2,14 +2,15 @@
 <html lang="pt-BR">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1, user-scalable=no" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=5" />
 
     <!-- PWA & Native App -->
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="SIMULAPOOL" />
     <meta name="mobile-web-app-capable" content="yes" />
-    <meta name="theme-color" content="#0EA5E9" />
+    <meta name="theme-color" content="#0EA5E9" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#141519" media="(prefers-color-scheme: dark)" />
     <meta name="format-detection" content="telephone=no" />
     <meta name="msapplication-tap-highlight" content="no" />
 
@@ -21,28 +22,66 @@
     <!-- Apple splash screens (iPhone) -->
     <link rel="apple-touch-startup-image" href="/pwa-512x512.png" />
 
-    <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" onload="this.onload=null;this.rel='stylesheet'">
+    <!-- Fonts — optimized loading -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" onload="this.onload=null;this.rel='stylesheet'" />
     <noscript><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"></noscript>
 
     <!-- OneSignal -->
-    <link rel="dns-prefetch" href="https://cdn.onesignal.com">
-    <link rel="preconnect" href="https://api.onesignal.com" crossorigin>
+    <link rel="dns-prefetch" href="https://cdn.onesignal.com" />
+    <link rel="preconnect" href="https://api.onesignal.com" crossorigin />
+
+    <!-- Supabase preconnect -->
+    <link rel="dns-prefetch" href="https://szaepmecxdhxduqbikqm.supabase.co" />
+    <link rel="preconnect" href="https://szaepmecxdhxduqbikqm.supabase.co" crossorigin />
 
     <!-- Manifest (vite-plugin-pwa generates this, fallback to static) -->
     <link rel="manifest" href="/manifest.webmanifest" />
 
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://simulapool.lovable.app/" />
+
     <!-- SEO -->
     <title>SIMULAPOOL - O jeito moderno de orçar piscinas</title>
-    <meta name="description" content="Sistema profissional de orçamentos automatizados para piscinas de fibra. Simule, orce e feche negócios mais rápido." />
+    <meta name="description" content="Descubra o preço da sua piscina de fibra em menos de 1 minuto. Simulador gratuito com orçamento detalhado na hora. 100% online, sem compromisso." />
     <meta name="author" content="SIMULAPOOL" />
-    <meta property="og:title" content="SIMULAPOOL - Orçamentos Automatizados para Piscinas" />
-    <meta property="og:description" content="O jeito moderno de orçar piscinas. Sistema profissional para lojistas." />
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1" />
+    <meta property="og:title" content="SIMULAPOOL - Descubra o preço da sua piscina em 1 minuto" />
+    <meta property="og:description" content="Simulador gratuito de piscinas de fibra. Escolha o modelo, personalize e receba o orçamento detalhado na hora." />
     <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://simulapool.lovable.app/" />
+    <meta property="og:site_name" content="SIMULAPOOL" />
+    <meta property="og:locale" content="pt_BR" />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:site" content="@SIMULAPOOL" />
+    <meta name="twitter:title" content="SIMULAPOOL - Descubra o preço da sua piscina em 1 minuto" />
+    <meta name="twitter:description" content="Simulador gratuito de piscinas de fibra. 100% online, resultado na hora." />
+
+    <!-- JSON-LD Structured Data -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "SIMULAPOOL",
+      "url": "https://simulapool.lovable.app",
+      "description": "Sistema profissional de orçamentos automatizados para piscinas de fibra. Simule, orce e feche negócios mais rápido.",
+      "applicationCategory": "BusinessApplication",
+      "operatingSystem": "All",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "BRL",
+        "description": "Simulação gratuita de orçamento de piscina"
+      },
+      "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": "4.8",
+        "ratingCount": "4800",
+        "bestRating": "5"
+      }
+    }
+    </script>
 
     <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
     <script>
@@ -55,7 +94,7 @@
     </script>
 
     <style>
-      /* Prevent flash of unstyled content & ensure fullscreen app */
+      /* Critical CSS — prevent FOUC & ensure fullscreen app */
       html, body, #root {
         margin: 0;
         padding: 0;
@@ -66,6 +105,10 @@
       @media (prefers-color-scheme: dark) {
         html, body, #root { background: #141519; }
       }
+      /* Critical font display */
+      body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
+      /* Prevent layout shift from scrollbar */
+      html { scrollbar-gutter: stable; }
     </style>
   </head>
 

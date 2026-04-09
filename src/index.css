@@ -2,53 +2,36 @@
 @tailwind components;
 @tailwind utilities;
 
-/* SIMULAPOOL — Premium SaaS Design System
-   Inspired by Linear, Vercel, Stripe, Raycast
-   Clean, professional, zero-gradient aesthetic
-*/
+/* SIMULAPOOL — Premium SaaS Design System */
 
 @layer base {
   :root {
-    /* Core surfaces */
     --background: 0 0% 100%;
     --foreground: 0 0% 5%;
-
     --card: 0 0% 100%;
     --card-foreground: 0 0% 5%;
-
     --popover: 0 0% 100%;
     --popover-foreground: 0 0% 5%;
-
-    /* Accent: Pool Blue #0EA5E9 */
     --primary: 199 89% 48%;
     --primary-foreground: 0 0% 100%;
-
-    /* Secondary surface */
     --secondary: 210 17% 98%;
     --secondary-foreground: 0 0% 5%;
-
-    /* Accent token */
     --accent: 210 17% 95%;
     --accent-foreground: 0 0% 5%;
-
     --muted: 210 17% 98%;
     --muted-foreground: 220 9% 46%;
-
     --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
-
     --border: 220 13% 91%;
     --input: 220 13% 91%;
     --ring: 199 89% 48%;
     --radius: 0.5rem;
 
-    /* Extended palette */
     --pool-light: 199 100% 95%;
     --pool-medium: 199 89% 48%;
     --pool-deep: 222 47% 35%;
     --cyan-bright: 188 95% 50%;
 
-    /* Status colors as HSL */
     --success: 142 72% 29%;
     --success-bg: 138 76% 97%;
     --warning: 32 95% 44%;
@@ -56,7 +39,6 @@
     --danger: 0 72% 51%;
     --danger-bg: 0 86% 97%;
 
-    /* Sidebar */
     --sidebar-background: 210 17% 98%;
     --sidebar-foreground: 0 0% 5%;
     --sidebar-primary: 199 89% 48%;
@@ -66,7 +48,6 @@
     --sidebar-border: 220 13% 91%;
     --sidebar-ring: 199 89% 48%;
 
-    /* Mobile app layout */
     --safe-area-top: env(safe-area-inset-top, 0px);
     --safe-area-bottom: env(safe-area-inset-bottom, 0px);
     --bottom-nav-height: 56px;
@@ -76,32 +57,23 @@
   .dark {
     --background: 220 13% 9%;
     --foreground: 210 20% 95%;
-
     --card: 220 13% 13%;
     --card-foreground: 210 20% 95%;
-
     --popover: 220 13% 13%;
     --popover-foreground: 210 20% 95%;
-
     --primary: 199 89% 48%;
     --primary-foreground: 0 0% 100%;
-
     --secondary: 220 13% 15%;
     --secondary-foreground: 210 20% 95%;
-
     --accent: 220 13% 18%;
     --accent-foreground: 210 20% 95%;
-
     --muted: 220 13% 18%;
     --muted-foreground: 215 15% 65%;
-
     --destructive: 0 72% 51%;
     --destructive-foreground: 210 20% 95%;
-
     --border: 220 13% 22%;
     --input: 220 13% 16%;
     --ring: 199 89% 48%;
-
     --sidebar-background: 220 13% 9%;
     --sidebar-foreground: 210 20% 95%;
     --sidebar-primary: 199 89% 48%;
@@ -118,11 +90,11 @@
     @apply border-border;
   }
 
-  /* ── Native app viewport ── */
   html {
     height: 100%;
     -webkit-text-size-adjust: 100%;
     -webkit-tap-highlight-color: transparent;
+    text-rendering: optimizeSpeed;
   }
 
   body {
@@ -145,10 +117,15 @@
     font-weight: 600;
     letter-spacing: -0.02em;
   }
+
+  /* GPU-accelerate images for smoother scrolling */
+  img, video {
+    content-visibility: auto;
+  }
 }
 
 @layer utilities {
-  /* Legacy compat classes — minimal fallbacks */
+  /* Legacy compat classes */
   .gradient-hero { background: hsl(var(--background)); }
   .bg-gradient-hero { background: hsl(var(--background)); }
   .gradient-primary { background: hsl(var(--primary)); }
@@ -166,80 +143,54 @@
   .animate-wave-delayed { }
   .animate-ripple { }
 
-  /* Estilos de Impressão para PDF */
+  /* Print */
   @media print {
-    @page {
-      margin: 2cm;
-      size: A4;
-    }
-
-    body {
-      print-color-adjust: exact;
-      -webkit-print-color-adjust: exact;
-    }
-
-    .print\:hidden {
-      display: none !important;
-    }
-
-    .print\:bg-white {
-      background: white !important;
-    }
-
-    .print\:shadow-none {
-      box-shadow: none !important;
-    }
+    @page { margin: 2cm; size: A4; }
+    body { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+    .print\:hidden { display: none !important; }
+    .print\:bg-white { background: white !important; }
+    .print\:shadow-none { box-shadow: none !important; }
   }
 }
 
-/* ============================
-   MOBILE APP — NATIVE FEEL
-   ============================ */
-
+/* ── MOBILE APP — NATIVE FEEL ── */
 @media (max-width: 767px) {
-  /* Dynamic viewport height fix for mobile browsers */
   html, body, #root {
     height: 100dvh;
     height: -webkit-fill-available;
   }
 
-  /* Prevent text selection on non-input elements */
   body {
     -webkit-user-select: none;
     user-select: none;
   }
 
-  /* Allow text selection only on inputs */
   input, textarea, [contenteditable="true"] {
     -webkit-user-select: text;
     user-select: text;
   }
 
-  /* Prevent zoom on inputs */
   input, select, textarea {
     font-size: 16px !important;
   }
 
-  /* Touch-friendly tap targets */
   button:not([data-compact]),
   [role="button"]:not([data-compact]),
   a:not([data-compact]) {
     min-height: 44px;
   }
 
-  /* Disable text selection on buttons */
   button, [role="button"] {
     -webkit-user-select: none;
     user-select: none;
+    touch-action: manipulation;
   }
 
-  /* Smooth momentum scrolling */
   .overflow-auto, .overflow-y-auto {
     -webkit-overflow-scrolling: touch;
     overscroll-behavior-y: contain;
   }
 
-  /* No scrollbars on mobile */
   .scrollbar-none,
   ::-webkit-scrollbar {
     display: none;
@@ -248,14 +199,12 @@
     scrollbar-width: none;
   }
 
-  /* Hardware acceleration for sidebar/sheets */
   [data-sidebar],
   [data-state] {
     will-change: transform;
     transform: translateZ(0);
   }
 
-  /* Constrain tables */
   table {
     max-width: 100%;
     display: block;
@@ -263,7 +212,6 @@
     font-size: 0.8125rem;
   }
 
-  /* Safe area for dialogs */
   [role="dialog"] {
     max-height: calc(100dvh - var(--safe-area-top) - var(--safe-area-bottom) - 2rem) !important;
   }
@@ -277,28 +225,23 @@
   }
 }
 
-/* ============================
-   KEYBOARD HANDLING
-   ============================ */
-
-/* When virtual keyboard is open, hide the bottom nav */
+/* ── KEYBOARD HANDLING ── */
 @media (max-width: 767px) {
   .keyboard-open .mobile-bottom-nav {
     display: none !important;
   }
-
   .keyboard-open main {
     padding-bottom: 0 !important;
   }
 }
 
-/* Popover shadow — only place we use shadow */
+/* Popover shadow */
 [data-radix-popper-content-wrapper] [role="dialog"],
 [data-radix-popper-content-wrapper] [data-state] {
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
 }
 
-/* Marquee animation */
+/* Animations */
 @keyframes marquee {
   0% { transform: translateX(0); }
   100% { transform: translateX(-50%); }
@@ -309,7 +252,6 @@
   100% { background-position: 200% center; }
 }
 
-/* CTA pulse glow */
 @keyframes cta-pulse {
   0%, 100% { box-shadow: 0 0 20px rgba(14,165,233,0.3), 0 4px 12px rgba(14,165,233,0.2); }
   50% { box-shadow: 0 0 40px rgba(14,165,233,0.5), 0 4px 20px rgba(14,165,233,0.35); }
@@ -324,11 +266,23 @@
   background-color: #0284C7 !important;
 }
 
-
 @media (prefers-reduced-motion: reduce) {
   * {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+  }
+}
+
+/* Focus visible for keyboard accessibility */
+:focus-visible {
+  outline: 2px solid hsl(var(--ring));
+  outline-offset: 2px;
+}
+
+/* Smooth scrolling only when not reduced motion */
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
   }
 }

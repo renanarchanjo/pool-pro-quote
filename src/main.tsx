@@ -8,7 +8,7 @@ function setAppVh() {
   document.documentElement.style.setProperty("--app-vh", `${vh}px`);
 }
 setAppVh();
-window.addEventListener("resize", setAppVh);
+window.addEventListener("resize", setAppVh, { passive: true });
 
 // ── Detect virtual keyboard open/close ──
 if ("visualViewport" in window && window.visualViewport) {
@@ -17,7 +17,7 @@ if ("visualViewport" in window && window.visualViewport) {
     const keyboardOpen = vv.height < window.innerHeight * 0.75;
     document.body.classList.toggle("keyboard-open", keyboardOpen);
   };
-  vv.addEventListener("resize", onResize);
+  vv.addEventListener("resize", onResize, { passive: true });
 }
 
 // ── PWA: unregister service workers in iframe/preview context ──
@@ -34,10 +34,13 @@ if (isPreviewHost || isInIframe) {
     regs.forEach((r) => r.unregister());
   });
 } else if ("serviceWorker" in navigator) {
-  // Check for updates every 5 minutes in production
   navigator.serviceWorker.ready.then((registration) => {
     setInterval(() => registration.update(), 5 * 60 * 1000);
   });
 }
+
+// ── Passive touch listeners for smoother scrolling ──
+document.addEventListener("touchstart", () => {}, { passive: true });
+document.addEventListener("touchmove", () => {}, { passive: true });
 
 createRoot(document.getElementById("root")!).render(<App />);
