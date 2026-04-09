@@ -7,7 +7,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import {
   TrendingUp, TrendingDown, Users, DollarSign, AlertTriangle,
   BarChart3, Activity, FileDown, Eye, Phone,
-  CheckCircle2, XCircle, ArrowUpRight, ArrowDownRight, RefreshCw,
+  CheckCircle2, XCircle, ArrowUpRight, ArrowDownRight, RefreshCw, CalendarIcon,
 } from "lucide-react";
 import {
   BarChart, Bar, PieChart, Pie, Cell,
@@ -17,6 +17,9 @@ import { Button } from "@/components/ui/button";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { cn } from "@/lib/utils";
 import BrazilMap from "./BrazilMap";
 import { toast } from "sonner";
 
