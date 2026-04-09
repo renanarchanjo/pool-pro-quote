@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/sidebar";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import simulapoolIcon from "@/assets/simulapool-icon.png";
+import logoIcon from "@/assets/logo-icon.png";
 
 const MatrizSidebar = () => {
   const navigate = useNavigate();
@@ -54,12 +54,12 @@ const MatrizSidebar = () => {
   ];
 
   const renderGroup = (label: string, items: typeof gestaoItems) => (
-    <SidebarGroup>
-      <SidebarGroupLabel className="text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground px-3 mt-4 mb-1">
+    <SidebarGroup className="py-0">
+      <SidebarGroupLabel className="text-[10px] font-semibold uppercase tracking-[0.1em] text-muted-foreground/70 px-3 pt-5 pb-1.5">
         {label}
       </SidebarGroupLabel>
       <SidebarGroupContent>
-        <SidebarMenu>
+        <SidebarMenu className="gap-0.5">
           {items.map((item) => {
             const active = isActive(item.url);
             return (
@@ -68,14 +68,14 @@ const MatrizSidebar = () => {
                   onClick={() => handleNav(item.url)}
                   isActive={active}
                   tooltip={item.title}
-                  className={`cursor-pointer h-9 text-[13px] rounded-lg transition-all duration-150 ${
+                  className={`cursor-pointer h-8 text-[13px] rounded-lg transition-all duration-150 ${
                     active
-                      ? "bg-background border border-border font-semibold text-foreground"
-                      : "text-muted-foreground hover:bg-accent font-normal border border-transparent"
+                      ? "bg-primary/10 font-semibold text-primary border border-primary/20"
+                      : "text-muted-foreground hover:bg-accent hover:text-foreground font-normal border border-transparent"
                   }`}
                 >
-                  <item.icon className={`h-4 w-4 shrink-0 ${active ? "text-primary" : "text-muted-foreground"}`} strokeWidth={1.5} />
-                  <span>{item.title}</span>
+                  <item.icon className={`h-[15px] w-[15px] shrink-0 ${active ? "text-primary" : "text-muted-foreground"}`} strokeWidth={1.8} />
+                  <span className="truncate">{item.title}</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
             );
@@ -86,33 +86,33 @@ const MatrizSidebar = () => {
   );
 
   return (
-    <Sidebar collapsible="none" className="!w-[220px] !bg-sidebar !border-r !border-sidebar-border">
-      <SidebarHeader className="border-b border-border p-4">
-        <div className="flex items-center gap-3">
-          <img src={simulapoolIcon} alt="SimulaPool" className="h-8 w-8 object-contain rounded-lg shrink-0" />
+    <Sidebar collapsible="none" className="!w-[230px] !bg-sidebar !border-r !border-sidebar-border">
+      <SidebarHeader className="border-b border-border px-4 py-3.5">
+        <div className="flex items-center gap-2.5">
+          <img src={logoIcon} alt="SimulaPool" className="h-7 w-auto shrink-0" />
           <div className="flex flex-col min-w-0">
-            <span className="text-[13px] font-semibold text-foreground truncate">SimulaPool</span>
-            <span className="text-xs text-muted-foreground">Painel Matriz</span>
+            <span className="text-[14px] font-bold text-foreground leading-tight tracking-[-0.01em]">SimulaPool</span>
+            <span className="text-[11px] text-muted-foreground leading-tight">Painel Matriz</span>
           </div>
         </div>
       </SidebarHeader>
 
-      <SidebarContent className="px-2">
+      <SidebarContent className="px-2 overflow-y-auto">
         {renderGroup("Gestão", gestaoItems)}
         {renderGroup("Cadastro", cadastroItems)}
         {renderGroup("Análise", analiseItems)}
       </SidebarContent>
 
-      <SidebarFooter className="p-3 border-t border-border shrink-0 safe-area-bottom">
-        <div className="flex items-center justify-between mb-2">
-          <span className="text-xs text-muted-foreground">Tema</span>
+      <SidebarFooter className="mt-auto shrink-0 p-3 border-t border-border safe-area-bottom">
+        <div className="flex items-center justify-between mb-1.5">
+          <span className="text-[11px] text-muted-foreground">Tema</span>
           <ThemeToggle />
         </div>
         <button
           onClick={handleLogout}
-          className="flex items-center gap-2 w-full text-[13px] text-muted-foreground hover:text-destructive px-2 py-2 rounded-lg transition-all duration-150"
+          className="flex items-center gap-2 w-full text-[13px] text-muted-foreground hover:text-destructive px-2 py-1.5 rounded-lg transition-all duration-150"
         >
-          <LogOut className="h-4 w-4 shrink-0" strokeWidth={1.5} />
+          <LogOut className="h-3.5 w-3.5 shrink-0" strokeWidth={1.8} />
           <span>Sair</span>
         </button>
       </SidebarFooter>
