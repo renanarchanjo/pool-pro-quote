@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import BrandLogo from "@/components/BrandLogo";
 import { useForceLightTheme } from "@/hooks/useForceLightTheme";
+import PwaInstallBanner from "@/components/PwaInstallBanner";
 
 type View = "login" | "forgot" | "forgot-sent";
 
