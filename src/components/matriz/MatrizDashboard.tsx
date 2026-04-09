@@ -24,17 +24,17 @@ const pct = (v: number) => (v ?? 0).toFixed(1) + "%";
 const LIM_PISCINAS_ID = "5e8165c0-64b6-4d06-b274-8eeb261a79c4";
 
 const PLAN_BADGE: Record<string, { bg: string; text: string }> = {
-  basico: { bg: "bg-[#F3F4F6]", text: "text-[#6B7280]" },
-  pro: { bg: "bg-[#E0F2FE]", text: "text-[#0369A1]" },
-  premium: { bg: "bg-[#EDE9FE]", text: "text-[#5B21B6]" },
+  basico: { bg: "bg-muted", text: "text-muted-foreground" },
+  pro: { bg: "bg-primary/10", text: "text-primary" },
+  premium: { bg: "bg-purple-100 dark:bg-purple-900/30", text: "text-purple-700 dark:text-purple-300" },
 };
 
 const STATUS_BADGE: Record<string, { bg: string; text: string; label: string }> = {
-  active: { bg: "bg-[#F0FDF4]", text: "text-[#16A34A]", label: "Ativo" },
-  past_due: { bg: "bg-[#FEF2F2]", text: "text-[#DC2626]", label: "Inadimplente" },
-  trial: { bg: "bg-[#FFFBEB]", text: "text-[#D97706]", label: "Trial" },
-  canceled: { bg: "bg-[#FEF2F2]", text: "text-[#DC2626]", label: "Cancelado" },
-  cancelled: { bg: "bg-[#FEF2F2]", text: "text-[#DC2626]", label: "Cancelado" },
+  active: { bg: "bg-green-50 dark:bg-green-900/20", text: "text-green-600 dark:text-green-400", label: "Ativo" },
+  past_due: { bg: "bg-red-50 dark:bg-red-900/20", text: "text-red-600 dark:text-red-400", label: "Inadimplente" },
+  trial: { bg: "bg-amber-50 dark:bg-amber-900/20", text: "text-amber-600 dark:text-amber-400", label: "Trial" },
+  canceled: { bg: "bg-red-50 dark:bg-red-900/20", text: "text-red-600 dark:text-red-400", label: "Cancelado" },
+  cancelled: { bg: "bg-red-50 dark:bg-red-900/20", text: "text-red-600 dark:text-red-400", label: "Cancelado" },
 };
 
 const MONTHS_PT = ["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"];
@@ -91,7 +91,6 @@ const MatrizDashboard = () => {
       return d.getMonth() === thisMonth && d.getFullYear() === thisYear;
     }).length;
 
-    // MRR from subscription_plans join
     let mrr = 0;
     activeStores.forEach(s => {
       if (s.subscription_plans) mrr += s.subscription_plans.price_monthly;
@@ -235,7 +234,7 @@ const MatrizDashboard = () => {
     const positive = value >= 0;
     return (
       <span className={`inline-flex items-center gap-1 text-[11px] font-medium px-2 py-0.5 rounded-full ${
-        positive ? "bg-[#F0FDF4] text-[#16A34A]" : "bg-[#FEF2F2] text-[#DC2626]"
+        positive ? "bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400" : "bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400"
       }`}>
         {positive ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
         {positive ? "+" : ""}{pct(value)} {suffix}
@@ -248,8 +247,8 @@ const MatrizDashboard = () => {
       {/* HEADER */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
-          <h1 className="text-[18px] font-semibold text-[#0D0D0D]">Dashboard Financeiro</h1>
-          <p className="text-[13px] text-[#6B7280]">Visão completa do sistema SimulaPool</p>
+          <h1 className="text-[18px] font-semibold text-foreground">Dashboard Financeiro</h1>
+          <p className="text-[13px] text-muted-foreground">Visão completa do sistema SimulaPool</p>
         </div>
         <div className="flex items-center gap-3">
           <Select value={period} onValueChange={setPeriod}>
@@ -274,36 +273,36 @@ const MatrizDashboard = () => {
         <KPICard label="MRR" value={fmt(metrics.mrr)} icon={DollarSign} badge={<VariationBadge value={metrics.mrrGrowth} />} />
         <KPICard label="CRESCIMENTO MRR" value={pct(metrics.mrrGrowth)} icon={TrendingUp} badge={<VariationBadge value={metrics.mrrGrowth} />} />
         <KPICard label="CHURN MENSAL" value={pct(metrics.churnRate)} icon={Activity}
-          badge={<span className={`inline-flex items-center text-[11px] font-medium px-2 py-0.5 rounded-full ${metrics.churnRate > 5 ? "bg-[#FEF2F2] text-[#DC2626]" : "bg-[#F0FDF4] text-[#16A34A]"}`}>{metrics.churnRate > 5 ? "⚠ Acima de 5%" : "✓ Saudável"}</span>} />
+          badge={<span className={`inline-flex items-center text-[11px] font-medium px-2 py-0.5 rounded-full ${metrics.churnRate > 5 ? "bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400" : "bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400"}`}>{metrics.churnRate > 5 ? "⚠ Acima de 5%" : "✓ Saudável"}</span>} />
         <KPICard label="LOJISTAS ATIVOS" value={String(metrics.activeCount)} icon={Users}
-          badge={<span className="inline-flex items-center text-[11px] font-medium px-2 py-0.5 rounded-full bg-[#F0FDF4] text-[#16A34A]">+{metrics.newThisMonth} novos este mês</span>} />
+          badge={<span className="inline-flex items-center text-[11px] font-medium px-2 py-0.5 rounded-full bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400">+{metrics.newThisMonth} novos este mês</span>} />
       </div>
 
       {/* BLOCO 2 */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <KPICard label="ARPU" value={fmt(metrics.arpu)} icon={DollarSign} />
         <KPICard label="LTV MÉDIO" value={fmt(metrics.ltv)} icon={BarChart3} />
-        <KPICard label="RECEITA PERDIDA" value={fmt(metrics.lostRevenue)} icon={XCircle} valueColor={metrics.lostRevenue > 0 ? "text-[#DC2626]" : undefined} />
+        <KPICard label="RECEITA PERDIDA" value={fmt(metrics.lostRevenue)} icon={XCircle} valueColor={metrics.lostRevenue > 0 ? "text-destructive" : undefined} />
         <KPICard label="SIMULAÇÕES NO MÊS" value={String(metrics.simsThisMonth)} icon={Activity} badge={<VariationBadge value={metrics.simsGrowth} />} />
       </div>
 
       {/* BLOCO 3 — ALERTAS */}
-      <div className="bg-[#FFFBEB] border border-[#FCD34D] rounded-xl p-6">
-        <h3 className="text-[14px] font-semibold text-[#92400E] mb-4 flex items-center gap-2">
+      <div className="bg-amber-50 dark:bg-amber-900/10 border border-amber-300 dark:border-amber-700 rounded-xl p-6">
+        <h3 className="text-[14px] font-semibold text-amber-800 dark:text-amber-300 mb-4 flex items-center gap-2">
           <AlertTriangle className="w-4 h-4" /> Alertas do Sistema
         </h3>
         {metrics.alerts.length === 0 ? (
-          <span className="inline-flex items-center gap-2 text-[13px] font-medium px-3 py-1.5 rounded-full bg-[#F0FDF4] text-[#16A34A]">
+          <span className="inline-flex items-center gap-2 text-[13px] font-medium px-3 py-1.5 rounded-full bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400">
             <CheckCircle2 className="w-4 h-4" /> Todos os sistemas normais
           </span>
         ) : (
           <div className="space-y-3">
             {metrics.alerts.map((a, i) => (
               <div key={i} className="flex items-center gap-3 text-[13px]">
-                <span className={`w-2 h-2 rounded-full shrink-0 ${a.type === "red" ? "bg-[#DC2626]" : a.type === "yellow" ? "bg-[#D97706]" : "bg-[#0EA5E9]"}`} />
-                <span className="flex-1 text-[#92400E]">{a.text}</span>
-                <span className="text-[11px] text-[#92400E]/60">{a.date}</span>
-                <Button variant="ghost" size="sm" className="h-7 text-[11px] text-[#92400E] hover:bg-[#FCD34D]/20">Ver</Button>
+                <span className={`w-2 h-2 rounded-full shrink-0 ${a.type === "red" ? "bg-destructive" : a.type === "yellow" ? "bg-amber-500" : "bg-primary"}`} />
+                <span className="flex-1 text-amber-800 dark:text-amber-300">{a.text}</span>
+                <span className="text-[11px] text-amber-700/60 dark:text-amber-400/60">{a.date}</span>
+                <Button variant="ghost" size="sm" className="h-7 text-[11px] text-amber-800 dark:text-amber-300">Ver</Button>
               </div>
             ))}
           </div>
@@ -312,41 +311,41 @@ const MatrizDashboard = () => {
 
       {/* BLOCO 4 — GRÁFICOS */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-white border border-[#E5E7EB] rounded-xl p-6">
-          <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[#9CA3AF]">CRESCIMENTO</span>
-          <h3 className="text-[15px] font-semibold text-[#0D0D0D] mt-1 mb-4">Crescimento de Lojistas Ativos</h3>
+        <div className="bg-card border border-border rounded-xl p-6">
+          <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">CRESCIMENTO</span>
+          <h3 className="text-[15px] font-semibold text-foreground mt-1 mb-4">Crescimento de Lojistas Ativos</h3>
           {metrics.monthlyActive.every(m => m.count === 0) ? <EmptyChart /> : (
             <ResponsiveContainer width="100%" height={260}>
               <AreaChart data={metrics.monthlyActive}>
                 <defs>
                   <linearGradient id="areaFill" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#0EA5E9" stopOpacity={0.08} />
-                    <stop offset="100%" stopColor="#0EA5E9" stopOpacity={0} />
+                    <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity={0.08} />
+                    <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity={0} />
                   </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="#F3F4F6" />
-                <XAxis dataKey="month" tick={{ fontSize: 11, fill: "#9CA3AF" }} axisLine={false} tickLine={false} />
-                <YAxis tick={{ fontSize: 11, fill: "#9CA3AF" }} axisLine={false} tickLine={false} />
-                <Tooltip contentStyle={{ borderRadius: 8, border: "1px solid #E5E7EB", fontSize: 12 }} />
-                <Area type="monotone" dataKey="count" stroke="#0EA5E9" strokeWidth={2} fill="url(#areaFill)" name="Lojistas" />
+                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                <XAxis dataKey="month" tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} axisLine={false} tickLine={false} />
+                <YAxis tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} axisLine={false} tickLine={false} />
+                <Tooltip contentStyle={{ borderRadius: 8, border: "1px solid hsl(var(--border))", fontSize: 12, background: "hsl(var(--card))", color: "hsl(var(--foreground))" }} />
+                <Area type="monotone" dataKey="count" stroke="hsl(var(--primary))" strokeWidth={2} fill="url(#areaFill)" name="Lojistas" />
               </AreaChart>
             </ResponsiveContainer>
           )}
         </div>
 
-        <div className="bg-white border border-[#E5E7EB] rounded-xl p-6">
-          <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[#9CA3AF]">ATIVIDADE</span>
-          <h3 className="text-[15px] font-semibold text-[#0D0D0D] mt-1 mb-4">Simulações por Dia</h3>
+        <div className="bg-card border border-border rounded-xl p-6">
+          <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">ATIVIDADE</span>
+          <h3 className="text-[15px] font-semibold text-foreground mt-1 mb-4">Simulações por Dia</h3>
           {metrics.dailySims.every(d => d.count === 0) ? <EmptyChart /> : (
             <ResponsiveContainer width="100%" height={260}>
               <BarChart data={metrics.dailySims}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#F3F4F6" />
-                <XAxis dataKey="day" tick={{ fontSize: 10, fill: "#9CA3AF" }} axisLine={false} tickLine={false} interval={4} />
-                <YAxis tick={{ fontSize: 11, fill: "#9CA3AF" }} axisLine={false} tickLine={false} />
-                <Tooltip contentStyle={{ borderRadius: 8, border: "1px solid #E5E7EB", fontSize: 12 }} />
+                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                <XAxis dataKey="day" tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }} axisLine={false} tickLine={false} interval={4} />
+                <YAxis tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} axisLine={false} tickLine={false} />
+                <Tooltip contentStyle={{ borderRadius: 8, border: "1px solid hsl(var(--border))", fontSize: 12, background: "hsl(var(--card))", color: "hsl(var(--foreground))" }} />
                 <Bar dataKey="count" name="Simulações" radius={[4, 4, 0, 0]}>
                   {metrics.dailySims.map((entry, idx) => (
-                    <Cell key={idx} fill={entry.isToday ? "#0284C7" : "#0EA5E9"} />
+                    <Cell key={idx} fill={entry.isToday ? "#0284C7" : "hsl(var(--primary))"} />
                   ))}
                 </Bar>
               </BarChart>
@@ -356,15 +355,15 @@ const MatrizDashboard = () => {
       </div>
 
       {/* BLOCO 5 — RANKING */}
-      <div className="bg-white border border-[#E5E7EB] rounded-xl p-6">
-        <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[#9CA3AF]">TOP LOJISTAS POR FATURAMENTO</span>
-        <h3 className="text-[15px] font-semibold text-[#0D0D0D] mt-1 mb-4">Ranking do mês</h3>
+      <div className="bg-card border border-border rounded-xl p-6">
+        <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">TOP LOJISTAS POR FATURAMENTO</span>
+        <h3 className="text-[15px] font-semibold text-foreground mt-1 mb-4">Ranking do mês</h3>
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
-              <tr className="bg-[#F8F9FA]">
+              <tr className="bg-muted">
                 {["#", "Loja", "Plano", "Propostas", "Faturamento", "Status", "Ações"].map(h => (
-                  <th key={h} className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[#9CA3AF] px-4 py-3 text-left first:rounded-tl-lg last:rounded-tr-lg">{h}</th>
+                  <th key={h} className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground px-4 py-3 text-left first:rounded-tl-lg last:rounded-tr-lg">{h}</th>
                 ))}
               </tr>
             </thead>
@@ -375,15 +374,15 @@ const MatrizDashboard = () => {
                 const statusKey = s.plan_status || "active";
                 const statusStyle = STATUS_BADGE[statusKey] || STATUS_BADGE.active;
                 return (
-                  <tr key={s.id} className="border-b border-[#F3F4F6] hover:bg-[#FAFAFA] h-[52px]">
-                    <td className="px-4 text-[14px]">{medal}</td>
+                  <tr key={s.id} className="border-b border-border hover:bg-muted/50 h-[52px]">
+                    <td className="px-4 text-[14px] text-foreground">{medal}</td>
                     <td className="px-4">
-                      <div className="text-[14px] font-medium text-[#0D0D0D]">{s.name}</div>
-                      <div className="text-[12px] text-[#9CA3AF]">{s.city || "—"}</div>
+                      <div className="text-[14px] font-medium text-foreground">{s.name}</div>
+                      <div className="text-[12px] text-muted-foreground">{s.city || "—"}</div>
                     </td>
                     <td className="px-4"><span className={`inline-flex text-[11px] font-medium px-2 py-0.5 rounded-full ${planStyle.bg} ${planStyle.text}`}>{s.planName}</span></td>
-                    <td className="px-4 text-[14px] text-[#0D0D0D]">{s.proposalCount}</td>
-                    <td className="px-4 text-[14px] font-semibold text-[#0D0D0D]">{fmt(s.revenue)}</td>
+                    <td className="px-4 text-[14px] text-foreground">{s.proposalCount}</td>
+                    <td className="px-4 text-[14px] font-semibold text-foreground">{fmt(s.revenue)}</td>
                     <td className="px-4"><span className={`inline-flex text-[11px] font-medium px-2 py-0.5 rounded-full ${statusStyle.bg} ${statusStyle.text}`}>{statusStyle.label}</span></td>
                     <td className="px-4">
                       <div className="flex gap-2">
@@ -395,7 +394,7 @@ const MatrizDashboard = () => {
                 );
               })}
               {metrics.ranking.length === 0 && (
-                <tr><td colSpan={7} className="text-center py-8 text-[13px] text-[#9CA3AF]">Nenhum lojista encontrado</td></tr>
+                <tr><td colSpan={7} className="text-center py-8 text-[13px] text-muted-foreground">Nenhum lojista encontrado</td></tr>
               )}
             </tbody>
           </table>
@@ -403,46 +402,46 @@ const MatrizDashboard = () => {
       </div>
 
       {/* BLOCO 6 — MAPA */}
-      <div className="bg-white border border-[#E5E7EB] rounded-xl p-6">
-        <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[#9CA3AF]">DISTRIBUIÇÃO GEOGRÁFICA</span>
-        <h3 className="text-[15px] font-semibold text-[#0D0D0D] mt-1 mb-4">Lojistas por estado</h3>
+      <div className="bg-card border border-border rounded-xl p-6">
+        <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">DISTRIBUIÇÃO GEOGRÁFICA</span>
+        <h3 className="text-[15px] font-semibold text-foreground mt-1 mb-4">Lojistas por estado</h3>
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2">
             <BrazilMap stateData={Object.fromEntries(metrics.stateMap)} />
-            <div className="flex items-center gap-4 mt-4 text-[11px] text-[#9CA3AF]">
+            <div className="flex items-center gap-4 mt-4 text-[11px] text-muted-foreground">
               {[{ label: "1", color: "#E0F2FE" }, { label: "2–5", color: "#7DD3FC" }, { label: "6–10", color: "#0EA5E9" }, { label: "10+", color: "#0284C7" }].map(l => (
                 <div key={l.label} className="flex items-center gap-1.5"><div className="w-3 h-3 rounded-sm" style={{ backgroundColor: l.color }} /><span>{l.label}</span></div>
               ))}
-              <div className="flex items-center gap-1.5"><div className="w-3 h-3 rounded-sm bg-[#F3F4F6]" /><span>Sem lojistas</span></div>
+              <div className="flex items-center gap-1.5"><div className="w-3 h-3 rounded-sm bg-muted" /><span>Sem lojistas</span></div>
             </div>
           </div>
           <div className="space-y-3">
-            <h4 className="text-[13px] font-semibold text-[#0D0D0D]">Top 5 Estados</h4>
+            <h4 className="text-[13px] font-semibold text-foreground">Top 5 Estados</h4>
             {metrics.topStates.map(ts => (
               <div key={ts.state}>
                 <div className="flex justify-between text-[14px] mb-1">
-                  <span className="font-medium text-[#0D0D0D]">{ts.state}</span>
+                  <span className="font-medium text-foreground">{ts.state}</span>
                   <span className="font-semibold text-primary">{ts.count}</span>
                 </div>
-                <div className="w-full h-2 bg-[#F3F4F6] rounded-full overflow-hidden">
+                <div className="w-full h-2 bg-muted rounded-full overflow-hidden">
                   <div className="h-full bg-primary rounded-full transition-all" style={{ width: `${(ts.count / metrics.maxStateCount) * 100}%` }} />
                 </div>
               </div>
             ))}
-            {metrics.topStates.length === 0 && <p className="text-[13px] text-[#9CA3AF]">Nenhum dado</p>}
+            {metrics.topStates.length === 0 && <p className="text-[13px] text-muted-foreground">Nenhum dado</p>}
           </div>
         </div>
       </div>
 
       {/* BLOCO 7 — PROJEÇÃO */}
-      <div className="bg-white border border-[#E5E7EB] rounded-xl p-6">
-        <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[#9CA3AF]">PROJEÇÃO DE FATURAMENTO</span>
-        <p className="text-[12px] text-[#6B7280] mt-1 mb-4">Base: MRR {fmt(metrics.mrr)} · Crescimento: {pct(metrics.mrrGrowth)} · Churn: {pct(metrics.churnRate)}</p>
+      <div className="bg-card border border-border rounded-xl p-6">
+        <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">PROJEÇÃO DE FATURAMENTO</span>
+        <p className="text-[12px] text-muted-foreground mt-1 mb-4">Base: MRR {fmt(metrics.mrr)} · Crescimento: {pct(metrics.mrrGrowth)} · Churn: {pct(metrics.churnRate)}</p>
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
           {metrics.projections.map(p => (
             <div key={p.label} className="text-center">
-              <div className="text-[12px] font-medium text-[#6B7280]">{p.label}</div>
-              <div className="text-[20px] font-bold text-[#0D0D0D] mt-1">{fmt(p.value)}</div>
+              <div className="text-[12px] font-medium text-muted-foreground">{p.label}</div>
+              <div className="text-[20px] font-bold text-foreground mt-1">{fmt(p.value)}</div>
               <VariationBadge value={p.pctChange} suffix="" />
             </div>
           ))}
@@ -451,30 +450,30 @@ const MatrizDashboard = () => {
 
       {/* BLOCO 8 — COMPOSIÇÃO */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-white border border-[#E5E7EB] rounded-xl p-6">
-          <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[#9CA3AF]">COMPOSIÇÃO DA RECEITA</span>
+        <div className="bg-card border border-border rounded-xl p-6">
+          <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">COMPOSIÇÃO DA RECEITA</span>
           <div className="mt-4 space-y-4">
-            <RevenueRow label="Recorrente (Planos)" value={metrics.recorrente} pctVal={metrics.recPct} color="#0EA5E9" />
+            <RevenueRow label="Recorrente (Planos)" value={metrics.recorrente} pctVal={metrics.recPct} color="hsl(var(--primary))" />
             <RevenueRow label="Excedente (Uso)" value={metrics.excedente} pctVal={metrics.exPct} color="#22C55E" />
-            <div className="border-t border-[#E5E7EB] pt-3 flex justify-between items-center">
-              <span className="text-[14px] font-semibold text-[#0D0D0D]">Receita Total</span>
-              <span className="text-[16px] font-bold text-[#0D0D0D]">{fmt(metrics.totalRev)}</span>
+            <div className="border-t border-border pt-3 flex justify-between items-center">
+              <span className="text-[14px] font-semibold text-foreground">Receita Total</span>
+              <span className="text-[16px] font-bold text-foreground">{fmt(metrics.totalRev)}</span>
             </div>
           </div>
         </div>
-        <div className="bg-white border border-[#E5E7EB] rounded-xl p-6 flex flex-col items-center justify-center">
+        <div className="bg-card border border-border rounded-xl p-6 flex flex-col items-center justify-center">
           <ResponsiveContainer width="100%" height={220}>
             <PieChart>
               <Pie data={[{ name: "Recorrente", value: metrics.recorrente || 0.01 }, { name: "Excedente", value: metrics.excedente || 0.01 }]}
                 cx="50%" cy="50%" innerRadius={60} outerRadius={90} dataKey="value" paddingAngle={2}>
-                <Cell fill="#0EA5E9" /><Cell fill="#22C55E" />
+                <Cell fill="hsl(var(--primary))" /><Cell fill="#22C55E" />
               </Pie>
-              <Tooltip formatter={(v: number) => fmt(v)} contentStyle={{ borderRadius: 8, border: "1px solid #E5E7EB", fontSize: 12 }} />
+              <Tooltip formatter={(v: number) => fmt(v)} contentStyle={{ borderRadius: 8, border: "1px solid hsl(var(--border))", fontSize: 12, background: "hsl(var(--card))", color: "hsl(var(--foreground))" }} />
             </PieChart>
           </ResponsiveContainer>
-          <div className="flex gap-6 text-[12px]">
-            <div className="flex items-center gap-2"><div className="w-3 h-3 rounded-sm bg-[#0EA5E9]" /> Recorrente</div>
-            <div className="flex items-center gap-2"><div className="w-3 h-3 rounded-sm bg-[#22C55E]" /> Excedente</div>
+          <div className="flex gap-6 text-[12px] text-foreground">
+            <div className="flex items-center gap-2"><div className="w-3 h-3 rounded-sm bg-primary" /> Recorrente</div>
+            <div className="flex items-center gap-2"><div className="w-3 h-3 rounded-sm bg-green-500" /> Excedente</div>
           </div>
         </div>
       </div>
@@ -487,14 +486,14 @@ function KPICard({ label, value, icon: Icon, badge, valueColor }: {
   label: string; value: string; icon: any; badge?: React.ReactNode; valueColor?: string;
 }) {
   return (
-    <div className="bg-white border border-[#E5E7EB] rounded-xl p-5">
+    <div className="bg-card border border-border rounded-xl p-5">
       <div className="flex items-center gap-2 mb-3">
-        <div className="w-8 h-8 rounded-lg bg-[#F0F9FF] flex items-center justify-center">
+        <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
           <Icon className="w-4 h-4 text-primary" strokeWidth={1.5} />
         </div>
-        <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[#9CA3AF]">{label}</span>
+        <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">{label}</span>
       </div>
-      <div className={`text-[24px] font-bold ${valueColor || "text-[#0D0D0D]"}`}>{value}</div>
+      <div className={`text-[24px] font-bold ${valueColor || "text-foreground"}`}>{value}</div>
       {badge && <div className="mt-2">{badge}</div>}
     </div>
   );
@@ -504,10 +503,10 @@ function RevenueRow({ label, value, pctVal, color }: { label: string; value: num
   return (
     <div>
       <div className="flex justify-between text-[13px] mb-1">
-        <span className="text-[#6B7280]">{label}</span>
-        <span className="font-semibold text-[#0D0D0D]">{fmt(value)} <span className="text-[#9CA3AF] font-normal">({pct(pctVal)})</span></span>
+        <span className="text-muted-foreground">{label}</span>
+        <span className="font-semibold text-foreground">{fmt(value)} <span className="text-muted-foreground font-normal">({pct(pctVal)})</span></span>
       </div>
-      <div className="w-full h-2 bg-[#F3F4F6] rounded-full overflow-hidden">
+      <div className="w-full h-2 bg-muted rounded-full overflow-hidden">
         <div className="h-full rounded-full transition-all" style={{ width: `${pctVal}%`, backgroundColor: color }} />
       </div>
     </div>
@@ -516,7 +515,7 @@ function RevenueRow({ label, value, pctVal, color }: { label: string; value: num
 
 function EmptyChart() {
   return (
-    <div className="flex flex-col items-center justify-center h-[260px] text-[#9CA3AF]">
+    <div className="flex flex-col items-center justify-center h-[260px] text-muted-foreground">
       <BarChart3 className="w-10 h-10 mb-2 opacity-30" />
       <span className="text-[13px]">Nenhum dado ainda</span>
     </div>
