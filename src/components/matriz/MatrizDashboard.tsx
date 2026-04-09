@@ -110,7 +110,7 @@ const MatrizDashboard = () => {
     const churnRate = activeCount > 0 ? (canceledThisMonth / (activeCount + canceledThisMonth)) * 100 : 0;
 
     const arpu = activeCount > 0 ? mrr / activeCount : 0;
-    const ltv = churnRate > 0 ? arpu * (1 / (churnRate / 100)) : arpu * 24;
+    const ltv = churnRate > 0 ? arpu * (1 / (churnRate / 100)) : arpu * 12;
     const lostRevenue = canceledThisMonth * arpu;
 
     const simsThisMonth = proposals.filter(p => {
