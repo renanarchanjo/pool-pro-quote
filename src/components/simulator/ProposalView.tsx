@@ -142,7 +142,6 @@ const ProposalView = ({
 
       // Force-show elements hidden on mobile (e.g. partner banners)
       const pdfOnlyEls = element.querySelectorAll<HTMLElement>("[data-pdf-only]");
-      const pdfOnlyOriginals: { el: HTMLElement; display: string }[] = [];
       pdfOnlyEls.forEach((el) => {
         pdfOnlyOriginals.push({ el, display: el.style.display });
         el.style.display = "flex";
