@@ -55,7 +55,7 @@ const MatrizStores = () => {
 
   // Edit state
   const [editingStore, setEditingStore] = useState<StoreRow | null>(null);
-  const [editForm, setEditForm] = useState<EditForm>({ name: "", slug: "", city: "", state: "", cnpj: "", razao_social: "", nome_fantasia: "", plan_status: "" });
+  const [editForm, setEditForm] = useState<EditForm>({ name: "", slug: "", city: "", state: "", cnpj: "", razao_social: "", nome_fantasia: "", whatsapp: "", plan_status: "" });
   const [saving, setSaving] = useState(false);
 
   // Delete state
@@ -86,6 +86,7 @@ const MatrizStores = () => {
       cnpj: store.cnpj || "",
       razao_social: store.razao_social || "",
       nome_fantasia: store.nome_fantasia || "",
+      whatsapp: store.whatsapp || "",
       plan_status: store.plan_status || "active",
     });
   };
