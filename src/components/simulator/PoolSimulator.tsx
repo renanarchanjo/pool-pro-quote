@@ -293,18 +293,18 @@ const PoolSimulator = ({ onBack }: PoolSimulatorProps) => {
     return (
       <>
         <Dialog open={showCongrats} onOpenChange={setShowCongrats}>
-          <DialogContent className="sm:max-w-md text-center">
+          <DialogContent className="max-w-[300px] sm:max-w-md text-center p-5 sm:p-6">
             <DialogHeader className="items-center">
-              <div className="mx-auto mb-3 flex h-16 w-16 items-center justify-center rounded-full bg-primary/10">
-                <PartyPopper className="h-8 w-8 text-primary" />
+              <div className="mx-auto mb-2 flex h-12 w-12 sm:h-16 sm:w-16 items-center justify-center rounded-full bg-primary/10">
+                <PartyPopper className="h-6 w-6 sm:h-8 sm:w-8 text-primary" />
               </div>
-              <DialogTitle className="text-xl">Parabéns! 🎉</DialogTitle>
-              <DialogDescription className="text-base mt-2">
+              <DialogTitle className="text-lg sm:text-xl">Parabéns! 🎉</DialogTitle>
+              <DialogDescription className="text-sm sm:text-base mt-1.5 sm:mt-2">
                 Em breve, um de nossos parceiros lojistas, o mais próximo possível de você, irá entrar em contato!
               </DialogDescription>
             </DialogHeader>
             <DialogClose asChild>
-              <Button className="mt-4 w-full gradient-primary text-white">Ver Proposta</Button>
+              <Button className="mt-3 sm:mt-4 w-full gradient-primary text-white text-sm sm:text-base">Ver Proposta</Button>
             </DialogClose>
           </DialogContent>
         </Dialog>
