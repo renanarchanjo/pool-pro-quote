@@ -114,7 +114,7 @@ const ProposalView = ({
         const selected = selectWeightedPartner();
         return selected ? [selected] : partners;
       })();
-  const finalPartner = matchedPartner || bannersToShow[0] || null;
+
   const banner1Urls = bannersToShow
     .filter((p) => p.banner_1_url)
     .map((p) => ({ url: p.banner_1_url!, name: p.name }));
@@ -130,7 +130,7 @@ const ProposalView = ({
       filename,
       orientation: "portrait",
       captureWidth: 800,
-      sectionSelector: "[data-pdf-section]",
+      sectionSelector: "[data-pdf-page]",
     });
   };
 
@@ -144,13 +144,13 @@ const ProposalView = ({
     }
   }, [autoDownload]);
 
-  // Reusable section card style
   const sectionStyle: React.CSSProperties = {
     border: "1px solid #e5e7eb",
     borderRadius: "8px",
     marginBottom: "16px",
     overflow: "hidden",
   };
+
   const sectionHeaderStyle: React.CSSProperties = {
     borderBottom: "1px solid #e5e7eb",
     borderLeft: `4px solid ${primaryColor}`,
@@ -160,17 +160,41 @@ const ProposalView = ({
     color: "#111827",
     background: "#f9fafb",
   };
+
   const sectionBodyStyle: React.CSSProperties = {
     padding: "16px",
   };
 
-  // Separate included items
-  const materiais = model.included_items.filter(item => !item.includes("[MO]"));
-  const maoDeObra = model.included_items.filter(item => item.includes("[MO]")).map(item => item.replace("[MO] ", "").replace("[MO]", ""));
+  const pageStyle: React.CSSProperties = {
+    width: "100%",
+    minHeight: "1166px",
+    background: "#ffffff",
+    boxSizing: "border-box",
+    padding: "28px 24px 24px",
+    display: "flex",
+    flexDirection: "column",
+    breakInside: "avoid",
+    pageBreakInside: "avoid",
+  };
+
+  const footerStyle: React.CSSProperties = {
+    textAlign: "center",
+    marginTop: "auto",
+    paddingTop: "12px",
+    borderTop: "1px solid #e5e7eb",
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    gap: "6px",
+  };
+
+  const materiais = model.included_items.filter((item) => !item.includes("[MO]"));
+  const maoDeObra = model.included_items
+    .filter((item) => item.includes("[MO]"))
+    .map((item) => item.replace("[MO] ", "").replace("[MO]", ""));
 
   return (
     <div style={{ minHeight: "100vh", background: "#f3f4f6" }} className="print:bg-white">
-      {/* Action bar */}
       <nav className="border-b border-border/50 bg-background/80 backdrop-blur-sm print:hidden sticky top-0 z-50">
         <div className="container mx-auto px-3 sm:px-4 py-3 sm:py-4 flex justify-between items-center">
           <Button variant="ghost" size="sm" onClick={onBack}>
@@ -190,7 +214,6 @@ const ProposalView = ({
         </div>
       </nav>
 
-      {/* PDF Content */}
       <main className="container mx-auto px-2 sm:px-4 py-4 sm:py-8 print:p-0">
         <div
           id="proposal-content"
@@ -198,16 +221,17 @@ const ProposalView = ({
             maxWidth: "800px",
             width: "100%",
             margin: "0 auto",
-            background: "white",
+            display: "flex",
+            flexDirection: "column",
+            gap: "18px",
+            background: "transparent",
             fontFamily: "'Inter', 'Segoe UI', sans-serif",
             color: "#111827",
-            padding: "20px",
             boxSizing: "border-box",
           }}
-          className="sm:!p-8"
         >
-            {/* ===== HEADER ===== */}
-            <div data-pdf-section style={{ marginBottom: "20px", borderBottom: "2px solid #e5e7eb", paddingBottom: "16px" }}>
+          <div data-pdf-page style={pageStyle}>
+            <div style={{ marginBottom: "20px", borderBottom: "2px solid #e5e7eb", paddingBottom: "16px" }}>
               <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "space-between", alignItems: "center", gap: "12px" }}>
                 <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
                   {storeSettings?.logo_url ? (
@@ -238,8 +262,7 @@ const ProposalView = ({
               </div>
             </div>
 
-            {/* ===== CLIENTE ===== */}
-            <div data-pdf-section style={sectionStyle}>
+            <div style={sectionStyle}>
               <div style={sectionHeaderStyle}>Cliente</div>
               <div style={{ ...sectionBodyStyle, padding: "12px 16px" }}>
                 <div style={{ display: "flex", flexWrap: "wrap", gap: "8px 24px", fontSize: "13px" }}>
@@ -250,28 +273,36 @@ const ProposalView = ({
               </div>
             </div>
 
-            {/* ===== PISCINA ===== */}
-            <div data-pdf-section style={sectionStyle}>
+            <div style={sectionStyle}>
               <div style={sectionHeaderStyle}>Piscina</div>
               <div style={{ ...sectionBodyStyle, padding: "12px 16px" }}>
                 <div style={{ display: "flex", alignItems: "center", gap: "12px", flexWrap: "wrap" }}>
                   {brandLogoUrl && (
-                    <img src={brandLogoUrl} alt="Marca" loading="eager" referrerPolicy="no-referrer" style={{ width: "48px", height: "48px", objectFit: "contain", flexShrink: 0 }} crossOrigin="anonymous" />
+                    <img
+                      src={brandLogoUrl}
+                      alt="Marca"
+                      loading="eager"
+                      referrerPolicy="no-referrer"
+                      style={{ width: "48px", height: "48px", objectFit: "contain", flexShrink: 0 }}
+                      crossOrigin="anonymous"
+                    />
                   )}
                   <div style={{ flex: 1, minWidth: "180px" }}>
                     <div style={{ display: "flex", alignItems: "center", gap: "8px", flexWrap: "wrap", marginBottom: "4px" }}>
                       <span style={{ fontSize: "16px", fontWeight: 800, color: "#111827" }}>{model.name}</span>
-                      <span style={{
-                        display: "inline-block",
-                        background: `${primaryColor}18`,
-                        color: primaryColor,
-                        fontSize: "10px",
-                        fontWeight: 700,
-                        padding: "2px 8px",
-                        borderRadius: "10px",
-                        textTransform: "uppercase",
-                        letterSpacing: "0.5px",
-                      }}>
+                      <span
+                        style={{
+                          display: "inline-block",
+                          background: `${primaryColor}18`,
+                          color: primaryColor,
+                          fontSize: "10px",
+                          fontWeight: 700,
+                          padding: "2px 8px",
+                          borderRadius: "10px",
+                          textTransform: "uppercase",
+                          letterSpacing: "0.5px",
+                        }}
+                      >
                         {category}
                       </span>
                     </div>
@@ -288,9 +319,8 @@ const ProposalView = ({
               </div>
             </div>
 
-            {/* ===== ITENS INCLUSOS + BANNER ===== */}
             {model.included_items.length > 0 && (
-              <div data-pdf-section style={{ display: "flex", gap: "16px", marginBottom: "16px" }}>
+              <div style={{ display: "flex", gap: "16px", marginBottom: "16px", alignItems: "stretch" }}>
                 <div style={{ ...sectionStyle, flex: 1, marginBottom: 0 }}>
                   <div style={sectionHeaderStyle}>Itens Inclusos</div>
                   <div style={{ ...sectionBodyStyle, padding: "12px 16px" }}>
@@ -317,9 +347,19 @@ const ProposalView = ({
                   </div>
                 </div>
 
-                {/* Banner parceiro ao lado dos itens inclusos */}
                 {banner1Urls.length > 0 && (
-                  <div className="hidden sm:flex" data-pdf-only style={{ width: "220px", flexShrink: 0, flexDirection: "column", justifyContent: "center", alignItems: "center", gap: "8px" }}>
+                  <div
+                    className="hidden sm:flex"
+                    data-pdf-only
+                    style={{
+                      width: "220px",
+                      flexShrink: 0,
+                      flexDirection: "column",
+                      justifyContent: "center",
+                      alignItems: "center",
+                      gap: "8px",
+                    }}
+                  >
                     {banner1Urls.map((b, i) => (
                       <img
                         key={i}
@@ -336,8 +376,7 @@ const ProposalView = ({
               </div>
             )}
 
-            {/* ===== OPCIONAIS ===== */}
-            <div data-pdf-section style={sectionStyle}>
+            <div style={{ ...sectionStyle, marginBottom: 0 }}>
               <div style={sectionHeaderStyle}>Opcionais</div>
               <div style={{ ...sectionBodyStyle, padding: "12px 16px" }}>
                 {selectedOptionals.length === 0 ? (
@@ -356,125 +395,123 @@ const ProposalView = ({
                 )}
               </div>
             </div>
+          </div>
 
+          <div data-pdf-page style={pageStyle}>
+            <div>
+              {model.not_included_items && model.not_included_items.length > 0 && (
+                <div style={{ ...sectionStyle, marginBottom: "16px" }}>
+                  <div style={{ ...sectionHeaderStyle, borderLeft: "4px solid #ef4444" }}>Não Inclusos</div>
+                  <div style={{ ...sectionBodyStyle, padding: "12px 16px" }}>
+                    <ul style={{ margin: 0, paddingLeft: "16px", fontSize: "12px", lineHeight: "1.7", columns: 2 }} className="!columns-1 sm:!columns-2">
+                      {model.not_included_items.map((item, i) => (
+                        <li key={i} style={{ color: "#6b7280" }}>{item}</li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+              )}
 
-            {/* ===== NÃO INCLUSOS ===== */}
-            {model.not_included_items && model.not_included_items.length > 0 && (
-              <div data-pdf-section style={{ ...sectionStyle, marginBottom: "16px" }}>
-                <div style={{ ...sectionHeaderStyle, borderLeft: `4px solid #ef4444` }}>Não Inclusos</div>
+              <div style={sectionStyle}>
+                <div style={sectionHeaderStyle}>Resumo Financeiro</div>
                 <div style={{ ...sectionBodyStyle, padding: "12px 16px" }}>
-                  <ul style={{ margin: 0, paddingLeft: "16px", fontSize: "12px", lineHeight: "1.7", columns: 2 }} className="!columns-1 sm:!columns-2">
-                    {model.not_included_items.map((item, i) => (
-                      <li key={i} style={{ color: "#6b7280" }}>{item}</li>
-                    ))}
-                  </ul>
+                  <table style={{ width: "100%", fontSize: "13px", borderCollapse: "collapse" }}>
+                    <tbody>
+                      <tr style={{ borderBottom: "1px solid #f3f4f6" }}>
+                        <td style={{ padding: "6px 0", color: "#6b7280" }}>Valor base</td>
+                        <td style={{ padding: "6px 0", textAlign: "right", color: "#111827" }}>{fmt(displayBasePrice)}</td>
+                      </tr>
+                      {optionalsTotal > 0 && (
+                        <tr style={{ borderBottom: "1px solid #f3f4f6" }}>
+                          <td style={{ padding: "6px 0", color: "#6b7280" }}>Opcionais</td>
+                          <td style={{ padding: "6px 0", textAlign: "right", color: "#111827" }}>{fmt(optionalsTotal)}</td>
+                        </tr>
+                      )}
+                      <tr>
+                        <td style={{ padding: "10px 0 6px", fontWeight: 800, fontSize: "16px", color: primaryColor }}>Total</td>
+                        <td style={{ padding: "10px 0 6px", textAlign: "right", fontWeight: 800, fontSize: "16px", color: primaryColor }}>{fmt(totalPrice)}</td>
+                      </tr>
+                    </tbody>
+                  </table>
                 </div>
               </div>
-            )}
 
-            {/* ===== RESUMO FINANCEIRO ===== */}
-            <div data-pdf-section style={sectionStyle}>
-              <div style={sectionHeaderStyle}>Resumo Financeiro</div>
-              <div style={{ ...sectionBodyStyle, padding: "12px 16px" }}>
-                <table style={{ width: "100%", fontSize: "13px", borderCollapse: "collapse" }}>
-                  <tbody>
-                    <tr style={{ borderBottom: "1px solid #f3f4f6" }}>
-                      <td style={{ padding: "6px 0", color: "#6b7280" }}>Valor base</td>
-                      <td style={{ padding: "6px 0", textAlign: "right", color: "#111827" }}>{fmt(displayBasePrice)}</td>
-                    </tr>
-                    {optionalsTotal > 0 && (
-                      <tr style={{ borderBottom: "1px solid #f3f4f6" }}>
-                        <td style={{ padding: "6px 0", color: "#6b7280" }}>Opcionais</td>
-                        <td style={{ padding: "6px 0", textAlign: "right", color: "#111827" }}>{fmt(optionalsTotal)}</td>
-                      </tr>
-                    )}
-                    <tr>
-                      <td style={{ padding: "10px 0 6px", fontWeight: 800, fontSize: "16px", color: primaryColor }}>Total</td>
-                      <td style={{ padding: "10px 0 6px", textAlign: "right", fontWeight: 800, fontSize: "16px", color: primaryColor }}>{fmt(totalPrice)}</td>
-                    </tr>
-                  </tbody>
-                </table>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: "16px", marginBottom: "16px" }}>
+                <div style={{ ...sectionStyle, flex: "1 1 240px", marginBottom: 0 }}>
+                  <div style={sectionHeaderStyle}>Condições</div>
+                  <div style={{ ...sectionBodyStyle, padding: "12px 16px" }}>
+                    <div style={{ fontSize: "12px", display: "flex", flexDirection: "column", gap: "4px" }}>
+                      {[
+                        ["Pagamento", model.payment_terms || "À vista"],
+                        ["Entrega", `${model.delivery_days} dias`],
+                        ["Instalação", `${model.installation_days} dias`],
+                      ].map(([label, value], i) => (
+                        <div key={i} style={{ display: "flex", gap: "8px" }}>
+                          <span style={{ fontWeight: 700, color: "#374151", minWidth: "80px" }}>{label}</span>
+                          <span style={{ color: "#111827" }}>{value}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                <div style={{ ...sectionStyle, flex: "1 1 240px", marginBottom: 0 }}>
+                  <div style={sectionHeaderStyle}>Dados do Lojista</div>
+                  <div style={{ ...sectionBodyStyle, padding: "12px 16px" }}>
+                    <div style={{ fontSize: "12px", display: "flex", flexDirection: "column", gap: "4px" }}>
+                      <div style={{ display: "flex", gap: "8px" }}>
+                        <span style={{ fontWeight: 700, color: "#374151", minWidth: "80px" }}>Empresa</span>
+                        <span style={{ color: "#111827" }}>{storeName || "-"}</span>
+                      </div>
+                      <div style={{ display: "flex", gap: "8px" }}>
+                        <span style={{ fontWeight: 700, color: "#374151", minWidth: "80px" }}>Cidade</span>
+                        <span style={{ color: "#111827" }}>{storeLocation || "-"}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
-            </div>
 
-            {/* ===== CONDIÇÕES + LOJISTA ===== */}
-            <div data-pdf-section style={{ display: "flex", flexWrap: "wrap", gap: "16px", marginBottom: "16px" }}>
-              <div style={{ ...sectionStyle, flex: "1 1 240px", marginBottom: 0 }}>
-                <div style={sectionHeaderStyle}>Condições</div>
-                <div style={{ ...sectionBodyStyle, padding: "12px 16px" }}>
-                  <div style={{ fontSize: "12px", display: "flex", flexDirection: "column", gap: "4px" }}>
-                    {[
-                      ["Pagamento", model.payment_terms || "À vista"],
-                      ["Entrega", `${model.delivery_days} dias`],
-                      ["Instalação", `${model.installation_days} dias`],
-                    ].map(([label, value], i) => (
-                      <div key={i} style={{ display: "flex", gap: "8px" }}>
-                        <span style={{ fontWeight: 700, color: "#374151", minWidth: "80px" }}>{label}</span>
-                        <span style={{ color: "#111827" }}>{value}</span>
+              {partners.length > 0 && (
+                <div style={{ marginTop: "20px", paddingTop: "12px", borderTop: "1px solid #e5e7eb" }}>
+                  <p style={{ textAlign: "center", fontSize: "10px", color: "#9ca3af", marginBottom: "10px", textTransform: "uppercase", letterSpacing: "1px" }}>
+                    Parceiros oficiais
+                  </p>
+                  <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", alignItems: "center", gap: "16px" }}>
+                    {partners.map((p) => (
+                      <div key={p.id} style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
+                        {p.logo_url ? (
+                          <img
+                            src={p.logo_url}
+                            alt={p.name}
+                            loading="eager"
+                            referrerPolicy="no-referrer"
+                            style={{ maxHeight: "32px", maxWidth: "80px", objectFit: "contain" }}
+                            crossOrigin="anonymous"
+                            onError={(e) => {
+                              const target = e.currentTarget;
+                              target.style.display = "none";
+                              const fallback = document.createElement("span");
+                              fallback.textContent = p.name;
+                              fallback.style.cssText = "font-size:11px;font-weight:700;color:#6b7280";
+                              target.parentElement?.appendChild(fallback);
+                            }}
+                          />
+                        ) : (
+                          <span style={{ fontSize: "11px", fontWeight: 700, color: "#6b7280" }}>{p.name}</span>
+                        )}
                       </div>
                     ))}
                   </div>
                 </div>
-              </div>
-
-              <div style={{ ...sectionStyle, flex: "1 1 240px", marginBottom: 0 }}>
-                <div style={sectionHeaderStyle}>Dados do Lojista</div>
-                <div style={{ ...sectionBodyStyle, padding: "12px 16px" }}>
-                  <div style={{ fontSize: "12px", display: "flex", flexDirection: "column", gap: "4px" }}>
-                    <div style={{ display: "flex", gap: "8px" }}>
-                      <span style={{ fontWeight: 700, color: "#374151", minWidth: "80px" }}>Empresa</span>
-                      <span style={{ color: "#111827" }}>{storeName || "-"}</span>
-                    </div>
-                    <div style={{ display: "flex", gap: "8px" }}>
-                      <span style={{ fontWeight: 700, color: "#374151", minWidth: "80px" }}>Cidade</span>
-                      <span style={{ color: "#111827" }}>{storeLocation || "-"}</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
+              )}
             </div>
 
-            {/* ===== PARCEIROS ===== */}
-            {partners.length > 0 && (
-              <div data-pdf-section style={{ marginTop: "20px", paddingTop: "12px", borderTop: "1px solid #e5e7eb" }}>
-                <p style={{ textAlign: "center", fontSize: "10px", color: "#9ca3af", marginBottom: "10px", textTransform: "uppercase", letterSpacing: "1px" }}>
-                  Parceiros oficiais
-                </p>
-                <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", alignItems: "center", gap: "16px" }}>
-                  {partners.map((p) => (
-                    <div key={p.id} style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
-                      {p.logo_url ? (
-                        <img
-                          src={p.logo_url}
-                          alt={p.name}
-                          loading="eager"
-                          referrerPolicy="no-referrer"
-                          style={{ maxHeight: "32px", maxWidth: "80px", objectFit: "contain" }}
-                          crossOrigin="anonymous"
-                          onError={(e) => {
-                            const target = e.currentTarget;
-                            target.style.display = "none";
-                            const fallback = document.createElement("span");
-                            fallback.textContent = p.name;
-                            fallback.style.cssText = "font-size:11px;font-weight:700;color:#6b7280";
-                            target.parentElement?.appendChild(fallback);
-                          }}
-                        />
-                      ) : (
-                        <span style={{ fontSize: "11px", fontWeight: 700, color: "#6b7280" }}>{p.name}</span>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-
-            {/* ===== FOOTER ===== */}
-            <div data-pdf-section style={{ textAlign: "center", marginTop: "14px", paddingTop: "10px", borderTop: "1px solid #e5e7eb", display: "flex", flexDirection: "column", alignItems: "center", gap: "6px" }}>
+            <div style={footerStyle}>
               <img src={simulapoolLogoFooter} alt="SimulaPool" style={{ height: "28px", width: "auto", objectFit: "contain" }} />
               <p style={{ fontSize: "9px", color: "#9ca3af", margin: 0 }}>Documento gerado por SimulaPool</p>
             </div>
+          </div>
         </div>
       </main>
     </div>
