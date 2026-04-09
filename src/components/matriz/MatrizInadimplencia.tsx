@@ -108,6 +108,24 @@ const MatrizInadimplencia = () => {
     return Math.max(0, Math.floor(diff));
   };
 
+  const statusLabel = (status: string | null) => {
+    if (status === "past_due") return "Inadimplente";
+    if (status === "canceled") return "Cancelado";
+    if (status === "inactive") return "Inativo";
+    if (status === "active") return "Risco";
+    return status || "—";
+  };
+
+  const handleExportPDF = () => {
+    if (!pdfRef.current) return;
+    exportPDF({
+      element: pdfRef.current,
+      filename: `inadimplencia-remarketing-${new Date().toISOString().slice(0, 10)}.pdf`,
+      orientation: "portrait",
+      captureWidth: 800,
+    });
+  };
+
   const statusBadge = (status: string | null) => {
     if (status === "past_due")
       return <span className="text-[11px] font-medium px-2 py-0.5 rounded-full bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400">Inadimplente</span>;
