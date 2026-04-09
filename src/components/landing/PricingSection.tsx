@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, useCallback } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Check, X, Users, BarChart3, Shield, Rocket, Crown, Star, Zap, ArrowRight, MessageSquare, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -154,13 +154,14 @@ const PricingSection = ({ hideLeadPlans = false, hideFinalCta = false }: { hideL
         </p>
       </div>
 
-      {/* Plans Grid */}
+      {/* Plans Grid — asymmetric layout */}
       <div
         ref={plansGridRef}
-        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto mb-10 items-start"
+        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-0 lg:gap-0 max-w-[1100px] mx-auto mb-10 items-end lg:px-2"
       >
         {plans.map((plan) => {
           const isHighlighted = plan.slug === highlightedSlug;
+          const isFree = plan.slug === "gratuito";
           const icon = planIcons[plan.slug] || <Star className="w-5 h-5" />;
           const features = planFeatures[plan.slug] || [];
           const description = planDescriptions[plan.slug] || "";
@@ -172,14 +173,21 @@ const PricingSection = ({ hideLeadPlans = false, hideFinalCta = false }: { hideL
           return (
             <div
               key={plan.id}
-              className={`relative flex flex-col stagger-card transition-all duration-300 ${
-                isHighlighted ? "lg:-mt-3 lg:mb-3" : ""
+              className={`relative flex flex-col stagger-card transition-all duration-300 px-2 mb-4 lg:mb-0 ${
+                isHighlighted ? "lg:z-10" : "lg:z-0"
               }`}
+              style={isHighlighted ? { transform: "scale(1.08)", transformOrigin: "center bottom" } : undefined}
             >
-              {/* Badge "Mais vendido" */}
+              {/* Badge */}
               {isHighlighted && (
-                <div className="absolute -top-3 left-1/2 -translate-x-1/2 z-10">
-                  <span className="inline-flex items-center gap-1.5 bg-primary text-primary-foreground text-[11px] font-bold uppercase tracking-wider px-4 py-1 rounded-full">
+                <div className="absolute -top-4 left-1/2 -translate-x-1/2 z-20">
+                  <span
+                    className="inline-flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-[0.08em] px-5 py-1.5 rounded-full text-primary-foreground"
+                    style={{
+                      background: "linear-gradient(135deg, hsl(199 89% 48%), hsl(188 95% 42%))",
+                      boxShadow: "0 4px 14px -2px hsla(199, 89%, 48%, 0.4)",
+                    }}
+                  >
                     <span className="w-1.5 h-1.5 rounded-full bg-primary-foreground/80 animate-pulse" />
                     Mais vendido
                   </span>
@@ -187,37 +195,88 @@ const PricingSection = ({ hideLeadPlans = false, hideFinalCta = false }: { hideL
               )}
 
               <div
-                className={`flex-1 flex flex-col rounded-2xl border transition-all duration-300 group ${
+                className={`flex-1 flex flex-col rounded-2xl border overflow-hidden transition-all duration-300 group ${
                   isHighlighted
-                    ? "border-primary/40 bg-card shadow-[0_8px_40px_-12px_hsl(var(--primary)/0.15)] hover:shadow-[0_12px_48px_-8px_hsl(var(--primary)/0.22)] hover:-translate-y-1"
-                    : "border-border bg-card hover:border-border hover:shadow-[0_4px_24px_-8px_rgba(0,0,0,0.06)] hover:-translate-y-0.5"
+                    ? "border-primary/50 bg-card"
+                    : isFree
+                    ? "border-border/60 bg-card/80"
+                    : "border-border bg-card"
                 }`}
+                style={
+                  isHighlighted
+                    ? {
+                        boxShadow: "0 20px 60px -15px hsla(199, 89%, 48%, 0.22), 0 8px 24px -8px rgba(0,0,0,0.08)",
+                      }
+                    : {
+                        boxShadow: "0 1px 3px rgba(0,0,0,0.04)",
+                      }
+                }
+                onMouseEnter={(e) => {
+                  if (!isHighlighted) {
+                    e.currentTarget.style.boxShadow = "0 8px 32px -8px rgba(0,0,0,0.1)";
+                    e.currentTarget.style.transform = "translateY(-4px)";
+                  } else {
+                    e.currentTarget.style.boxShadow = "0 24px 72px -15px hsla(199, 89%, 48%, 0.3), 0 12px 32px -8px rgba(0,0,0,0.1)";
+                    e.currentTarget.style.transform = "translateY(-6px)";
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (!isHighlighted) {
+                    e.currentTarget.style.boxShadow = "0 1px 3px rgba(0,0,0,0.04)";
+                    e.currentTarget.style.transform = "translateY(0)";
+                  } else {
+                    e.currentTarget.style.boxShadow = "0 20px 60px -15px hsla(199, 89%, 48%, 0.22), 0 8px 24px -8px rgba(0,0,0,0.08)";
+                    e.currentTarget.style.transform = "translateY(0)";
+                  }
+                }}
               >
+                {/* Accent top bar for highlighted */}
+                {isHighlighted && (
+                  <div
+                    className="h-1 w-full"
+                    style={{ background: "linear-gradient(90deg, hsl(199 89% 48%), hsl(188 95% 42%))" }}
+                  />
+                )}
+
                 {/* Plan Header */}
-                <div className="px-6 pt-7 pb-5">
-                  <div className="flex items-center gap-2.5 mb-2.5">
-                    <div className={`w-9 h-9 rounded-lg flex items-center justify-center ${
+                <div className={`px-6 pt-7 pb-4 ${isHighlighted ? "bg-primary/[0.03]" : ""}`}>
+                  <div className="flex items-center gap-2.5 mb-2">
+                    <div className={`w-9 h-9 rounded-lg flex items-center justify-center transition-colors ${
                       isHighlighted
                         ? "bg-primary text-primary-foreground"
+                        : isFree
+                        ? "bg-muted text-muted-foreground/60"
                         : "bg-muted text-muted-foreground"
                     }`}>
                       {icon}
                     </div>
-                    <h3 className="text-lg font-bold tracking-tight text-foreground">{plan.name}</h3>
+                    <h3 className={`text-lg font-bold tracking-tight ${
+                      isFree ? "text-foreground/70" : "text-foreground"
+                    }`}>{plan.name}</h3>
                   </div>
-                  <p className="text-[13px] text-muted-foreground leading-relaxed">{description}</p>
+                  <p className={`text-[13px] leading-relaxed ${
+                    isFree ? "text-muted-foreground/60" : "text-muted-foreground"
+                  }`}>{description}</p>
                 </div>
 
-                {/* Price */}
-                <div className="px-6 pb-5">
+                {/* Price — dominant for highlighted */}
+                <div className={`px-6 ${isHighlighted ? "pb-5 pt-1" : "pb-4"}`}>
                   <div className="flex items-baseline gap-0.5">
-                    <span className="text-[13px] font-medium text-muted-foreground">R$</span>
-                    <span className={`text-[40px] font-extrabold leading-none tracking-tight ${
-                      isHighlighted ? "text-primary" : "text-foreground"
+                    <span className={`font-medium ${
+                      isHighlighted ? "text-[14px] text-primary/70" : "text-[13px] text-muted-foreground"
+                    }`}>R$</span>
+                    <span className={`font-extrabold leading-none tracking-tight ${
+                      isHighlighted
+                        ? "text-[48px] text-primary"
+                        : isFree
+                        ? "text-[36px] text-foreground/60"
+                        : "text-[38px] text-foreground"
                     }`}>
                       {formatCurrency(plan.price_monthly)}
                     </span>
-                    <span className="text-[13px] text-muted-foreground ml-1">/mês</span>
+                    <span className={`ml-1 ${
+                      isHighlighted ? "text-[13px] text-primary/50" : "text-[12px] text-muted-foreground/50"
+                    }`}>/mês</span>
                   </div>
                 </div>
 
@@ -225,16 +284,16 @@ const PricingSection = ({ hideLeadPlans = false, hideFinalCta = false }: { hideL
                 <div className="px-6 pb-4 flex flex-wrap gap-1.5">
                   <span className={`inline-flex items-center gap-1.5 text-[11px] font-semibold rounded-md px-2.5 py-1 ${
                     isHighlighted
-                      ? "bg-primary/8 text-primary"
-                      : "bg-muted text-muted-foreground"
+                      ? "bg-primary/10 text-primary"
+                      : "bg-muted text-muted-foreground/70"
                   }`}>
                     <Users className="w-3 h-3" />
                     {usersLabel}
                   </span>
                   <span className={`inline-flex items-center gap-1.5 text-[11px] font-semibold rounded-md px-2.5 py-1 ${
                     isHighlighted
-                      ? "bg-primary/8 text-primary"
-                      : "bg-muted text-muted-foreground"
+                      ? "bg-primary/10 text-primary"
+                      : "bg-muted text-muted-foreground/70"
                   }`}>
                     <BarChart3 className="w-3 h-3" />
                     {proposalsLabel}
@@ -242,7 +301,7 @@ const PricingSection = ({ hideLeadPlans = false, hideFinalCta = false }: { hideL
                 </div>
 
                 {/* Divider */}
-                <div className="mx-6 border-t border-border" />
+                <div className={`mx-6 border-t ${isHighlighted ? "border-primary/15" : "border-border"}`} />
 
                 {/* Features */}
                 <div className="px-6 py-5 flex-1">
@@ -250,14 +309,19 @@ const PricingSection = ({ hideLeadPlans = false, hideFinalCta = false }: { hideL
                     {features.map((feature, idx) => (
                       <li key={idx} className="flex items-start gap-2.5 text-[13px] leading-snug">
                         {feature.included ? (
-                          <Check className="w-4 h-4 text-primary shrink-0 mt-0.5" strokeWidth={2.5} />
+                          <Check
+                            className={`w-4 h-4 shrink-0 mt-0.5 ${
+                              isHighlighted ? "text-primary" : "text-primary/60"
+                            }`}
+                            strokeWidth={2.5}
+                          />
                         ) : (
-                          <X className="w-4 h-4 text-muted-foreground/30 shrink-0 mt-0.5" strokeWidth={2} />
+                          <X className="w-4 h-4 text-muted-foreground/25 shrink-0 mt-0.5" strokeWidth={2} />
                         )}
                         <span className={
                           feature.included
-                            ? "text-foreground"
-                            : "text-muted-foreground/40 line-through"
+                            ? isFree ? "text-foreground/70" : "text-foreground"
+                            : "text-muted-foreground/35 line-through"
                         }>
                           {feature.text}
                         </span>
@@ -266,21 +330,40 @@ const PricingSection = ({ hideLeadPlans = false, hideFinalCta = false }: { hideL
                   </ul>
                 </div>
 
-                {/* CTA */}
+                {/* CTA — aggressive for highlighted */}
                 <div className="px-6 pb-6 pt-1 space-y-2">
                   <Link to="/auth">
-                    <Button
-                      className={`w-full font-semibold h-11 transition-all duration-200 ${
-                        isHighlighted
-                          ? "bg-primary hover:bg-primary/90 text-primary-foreground shadow-[0_2px_12px_-2px_hsl(var(--primary)/0.35)] hover:shadow-[0_4px_16px_-2px_hsl(var(--primary)/0.45)] hover:scale-[1.02]"
-                          : "hover:scale-[1.02]"
-                      }`}
-                      variant={isHighlighted ? "default" : "outline"}
-                      size="lg"
-                    >
-                      {plan.price_monthly === 0 ? "Começar grátis" : "Assinar agora"}
-                      <ArrowRight className="w-4 h-4 ml-2" />
-                    </Button>
+                    {isHighlighted ? (
+                      <button
+                        className="w-full font-bold text-[15px] h-12 rounded-xl text-primary-foreground transition-all duration-200 hover:scale-[1.03] active:scale-[0.98] cursor-pointer"
+                        style={{
+                          background: "linear-gradient(135deg, hsl(199 89% 48%), hsl(188 95% 42%))",
+                          boxShadow: "0 4px 20px -4px hsla(199, 89%, 48%, 0.45)",
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.boxShadow = "0 6px 28px -4px hsla(199, 89%, 48%, 0.55)";
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.boxShadow = "0 4px 20px -4px hsla(199, 89%, 48%, 0.45)";
+                        }}
+                      >
+                        <span className="flex items-center justify-center gap-2">
+                          {plan.price_monthly === 0 ? "Começar grátis" : "Assinar agora"}
+                          <ArrowRight className="w-4 h-4" />
+                        </span>
+                      </button>
+                    ) : (
+                      <Button
+                        className={`w-full font-semibold h-11 transition-all duration-200 hover:scale-[1.02] ${
+                          isFree ? "text-muted-foreground" : ""
+                        }`}
+                        variant="outline"
+                        size="lg"
+                      >
+                        {plan.price_monthly === 0 ? "Começar grátis" : "Assinar agora"}
+                        <ArrowRight className="w-4 h-4 ml-2" />
+                      </Button>
+                    )}
                   </Link>
                   <Link to="/login">
                     <Button
@@ -299,12 +382,12 @@ const PricingSection = ({ hideLeadPlans = false, hideFinalCta = false }: { hideL
 
       {/* Extra info */}
       <div className="max-w-3xl mx-auto mb-20">
-        <div className="border-t border-border/60 pt-5">
-          <p className="text-center text-[13px] text-muted-foreground/70 leading-relaxed">
-            * Orçamentos extras além do limite do plano: <strong className="text-muted-foreground">R$ {extraProposalCost}</strong> por proposta gerada.
+        <div className="border-t border-border/50 pt-6">
+          <p className="text-center text-[13px] text-muted-foreground/60 leading-relaxed">
+            * Orçamentos extras além do limite do plano: <strong className="text-muted-foreground/80">R$ {extraProposalCost}</strong> por proposta gerada.
             Todos os planos incluem atualizações automáticas e sem fidelidade.
             <br />
-            Colaboradores extras: <strong className="text-muted-foreground">R$ {extraUserCost}/mês</strong> por vaga adicional.
+            Colaboradores extras: <strong className="text-muted-foreground/80">R$ {extraUserCost}/mês</strong> por vaga adicional.
           </p>
         </div>
       </div>
@@ -331,11 +414,16 @@ const PricingSection = ({ hideLeadPlans = false, hideFinalCta = false }: { hideL
               return (
                 <div
                   key={lp.id}
-                  className={`rounded-2xl border p-6 text-center transition-all duration-300 w-full sm:w-[280px] group ${
+                  className={`rounded-2xl border p-6 text-center transition-all duration-300 w-full sm:w-[280px] group hover:-translate-y-1 ${
                     isBest
-                      ? "border-orange-300/60 bg-card shadow-[0_6px_32px_-8px_rgba(249,115,22,0.12)] hover:shadow-[0_8px_40px_-8px_rgba(249,115,22,0.18)] hover:-translate-y-1"
-                      : "border-border bg-card hover:shadow-[0_4px_24px_-8px_rgba(0,0,0,0.06)] hover:-translate-y-0.5"
+                      ? "border-orange-300/60 bg-card"
+                      : "border-border bg-card"
                   }`}
+                  style={isBest ? {
+                    boxShadow: "0 12px 40px -10px rgba(249,115,22,0.15)",
+                  } : {
+                    boxShadow: "0 1px 3px rgba(0,0,0,0.04)",
+                  }}
                 >
                   {isBest && (
                     <Badge className="mb-3 bg-orange-500 text-white border-0 text-[11px] font-bold uppercase tracking-wider">
@@ -350,21 +438,21 @@ const PricingSection = ({ hideLeadPlans = false, hideFinalCta = false }: { hideL
                     }`}>
                       {formatCurrency(lp.price_monthly)}
                     </span>
-                    <span className="text-[13px] text-muted-foreground ml-1">/mês</span>
+                    <span className="text-[13px] text-muted-foreground/50 ml-1">/mês</span>
                   </div>
                   <div className="bg-orange-50 rounded-lg py-2 px-3 mb-3">
                     <span className="text-orange-700 font-bold text-lg lead-number-pulse inline-block">{lp.lead_limit}</span>
                     <span className="text-orange-600 text-[13px] ml-1">leads/mês</span>
                   </div>
-                  <p className="text-[12px] text-muted-foreground">
-                    Lead excedente: <strong>R$ {formatCurrency(lp.excess_price)}</strong>/lead
+                  <p className="text-[12px] text-muted-foreground/60">
+                    Lead excedente: <strong className="text-muted-foreground/80">R$ {formatCurrency(lp.excess_price)}</strong>/lead
                   </p>
                 </div>
               );
             })}
           </div>
 
-          <p className="text-center text-[13px] text-muted-foreground/70 mt-6 max-w-2xl mx-auto">
+          <p className="text-center text-[13px] text-muted-foreground/60 mt-6 max-w-2xl mx-auto">
             Os planos de Gestão de Leads são add-ons opcionais e podem ser ativados em qualquer plano de assinatura.
           </p>
         </div>
@@ -387,7 +475,11 @@ const PricingSection = ({ hideLeadPlans = false, hideFinalCta = false }: { hideL
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                <Button size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold shadow-[0_2px_12px_-2px_hsl(var(--primary)/0.35)] w-full sm:w-auto">
+                <Button
+                  size="lg"
+                  className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold w-full sm:w-auto"
+                  style={{ boxShadow: "0 4px 16px -4px hsla(199, 89%, 48%, 0.35)" }}
+                >
                   <MessageSquare className="w-5 h-5 mr-2" />
                   Falar no WhatsApp
                 </Button>
