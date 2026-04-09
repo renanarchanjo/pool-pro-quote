@@ -418,9 +418,8 @@ const MatrizPlans = () => {
               </div>
             </div>
           </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setEditingPlan(null)}>Cancelar</Button>
-            <Button onClick={handleSavePlan} disabled={saving}>
+          <DialogFooter className="sm:justify-stretch">
+            <Button onClick={handleSavePlan} disabled={saving} className="w-full">
               {saving ? <Loader2 className="w-4 h-4 animate-spin mr-1" /> : <Save className="w-4 h-4 mr-1" />}
               Salvar
             </Button>
