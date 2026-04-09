@@ -68,45 +68,49 @@ const SiteHeader = ({ onSimulate }: SiteHeaderProps) => {
           {/* Mobile hamburger */}
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="flex md:hidden items-center justify-center w-10 h-10 rounded-lg text-white transition-all duration-150"
-            style={{ background: 'rgba(255,255,255,0.1)' }}
+            className="flex md:hidden items-center justify-center w-9 h-9 rounded-full text-white/80 transition-all duration-200"
+            style={{ background: 'rgba(255,255,255,0.08)' }}
           >
-            {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            {mobileMenuOpen ? <X className="w-[18px] h-[18px]" /> : <Menu className="w-[18px] h-[18px]" />}
           </button>
         </div>
       </nav>
 
-      {/* Mobile dropdown menu */}
+      {/* Mobile overlay menu */}
       {mobileMenuOpen && (
-        <div
-          className="md:hidden absolute top-14 left-0 right-0 z-50 px-5 py-4 flex flex-col gap-3"
-          style={{
-            background: 'rgba(10,22,40,0.95)',
-            backdropFilter: 'blur(12px)',
-            borderBottom: '1px solid rgba(255,255,255,0.1)',
-          }}
-        >
-          {isHome && (
-            <Link
-              to="/parceiros"
-              onClick={() => setMobileMenuOpen(false)}
-              className="text-[15px] font-medium text-white/70 py-2"
-            >
-              Parceiros
-            </Link>
-          )}
-          <button
-            onClick={() => { handleCtaClick(); setMobileMenuOpen(false); }}
-            className="h-10 px-5 text-[14px] font-semibold rounded-lg text-white transition-all duration-150 inline-flex items-center justify-center gap-2"
-            style={{ background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.2)' }}
+        <>
+          {/* Backdrop */}
+          <div
+            className="md:hidden fixed inset-0 z-40"
+            onClick={() => setMobileMenuOpen(false)}
+          />
+          {/* Menu */}
+          <div
+            className="md:hidden absolute top-14 right-5 z-50 w-48 rounded-xl py-2 flex flex-col"
+            style={{
+              background: 'rgba(10,22,40,0.92)',
+              backdropFilter: 'blur(16px)',
+              border: '1px solid rgba(255,255,255,0.08)',
+              boxShadow: '0 8px 32px rgba(0,0,0,0.3)',
+            }}
           >
-            {isHome ? (
-              <>Ver Preços →</>
-            ) : (
-              <><ArrowLeft className="w-4 h-4" /> Voltar</>
+            {isHome && (
+              <Link
+                to="/parceiros"
+                onClick={() => setMobileMenuOpen(false)}
+                className="text-[14px] font-medium text-white/70 hover:text-white px-4 py-2.5 transition-colors"
+              >
+                Parceiros
+              </Link>
             )}
-          </button>
-        </div>
+            <button
+              onClick={() => { handleCtaClick(); setMobileMenuOpen(false); }}
+              className="text-[14px] font-medium text-white/70 hover:text-white px-4 py-2.5 text-left transition-colors"
+            >
+              {isHome ? "Ver Preços" : "← Voltar"}
+            </button>
+          </div>
+        </>
       )}
     </>
   );
