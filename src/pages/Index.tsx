@@ -44,7 +44,7 @@ const Index = () => {
         className="hero-gradient relative overflow-hidden"
         style={{
           background:
-            "linear-gradient(180deg, #0A1628 0%, #0C1A33 30%, #0D1F3C 50%, #0F2847 65%, #1A3A5C 78%, #3D6B8D 86%, #7AADCB 91%, #C5E2F0 95%, #FFFFFF 100%)",
+            "linear-gradient(180deg, #0A1628 0%, #0C1A33 25%, #0D1F3C 42%, #0F2847 55%, #1A3A5C 68%, #3D6B8D 78%, #7AADCB 88%, #C5E2F0 96%, #FFFFFF 100%)",
         }}
       >
         <SiteHeader onSimulate={() => setShowSimulator(true)} />
@@ -66,7 +66,7 @@ const Index = () => {
         />
 
         {/* ─── Hero Content ─── */}
-        <div className="relative max-w-[720px] mx-auto text-center z-10 px-5 md:px-4 pt-12 pb-20 md:pt-24 md:pb-36">
+        <div className="relative max-w-[720px] mx-auto text-center z-10 px-5 md:px-4 pt-12 pb-28 md:pt-24 md:pb-36">
           <motion.p
             variants={fadeUp} initial="hidden" animate="visible" custom={0}
             className="text-[12px] md:text-[13px] font-medium tracking-[0.08em] uppercase mb-5 md:mb-6"
@@ -91,7 +91,7 @@ const Index = () => {
           <motion.p
             variants={fadeUp} initial="hidden" animate="visible" custom={2}
             className="text-[15px] md:text-[18px] max-w-[480px] mx-auto mb-10 md:mb-12 leading-relaxed"
-            style={{ color: "rgba(255,255,255,0.6)" }}
+            style={{ color: "rgba(255,255,255,0.75)" }}
           >
             Escolha o modelo, personalize do seu jeito e veja o valor na hora — sem precisar falar com vendedor.
           </motion.p>
