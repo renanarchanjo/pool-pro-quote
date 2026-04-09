@@ -297,6 +297,18 @@ const TeamCommissions = () => {
                   </span>
                 </div>
 
+                {/* Sales Funnel */}
+                <MemberSalesFunnel
+                  stages={[
+                    { label: "Novas", count: m.nova, revenue: m.revenueNova, color: "#0EA5E9" },
+                    { label: "Enviadas", count: m.enviada, revenue: m.revenueEnviada, color: "#8B5CF6" },
+                    { label: "Em Negociação", count: m.inNegotiation, revenue: m.revenueNeg, color: "#F59E0B" },
+                    { label: "Fechadas", count: m.closed, revenue: m.revenueClosed, color: "#22C55E" },
+                    { label: "Perdidas", count: m.lost, revenue: m.revenueLost, color: "#EF4444" },
+                  ]}
+                  total={m.totalProposals}
+                />
+
                 {/* Closed proposals detail */}
                 {m.closedProposals.length > 0 && (
                   <div className="pt-3 mt-3 border-t border-border">
