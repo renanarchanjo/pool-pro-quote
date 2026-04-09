@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/sidebar";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import logoIcon from "@/assets/logo-icon.png";
+import logoIcon from "@/assets/logo-icon-v2.png";
 
 const MatrizSidebar = () => {
   const navigate = useNavigate();
