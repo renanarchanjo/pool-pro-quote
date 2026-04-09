@@ -37,8 +37,8 @@ const DATE_PRESETS = [
 ];
 
 const formatDaysStyled = (days: number): { text: string; color: string } => {
-  if (days === 0) return { text: "Hoje", color: "#16A34A" };
-  if (days < 10) return { text: `${days}d`, color: "#6B7280" };
+  if (days === 0) return { text: "Hoje", color: "hsl(var(--primary))" };
+  if (days < 10) return { text: `${days}d`, color: "hsl(var(--muted-foreground))" };
   if (days < 20) return { text: `${days}d`, color: "#D97706" };
   return { text: `${days}d`, color: "#DC2626" };
 };
