@@ -279,7 +279,7 @@ const ProposalView = ({
         >
           <div>
             {/* ===== HEADER ===== */}
-            <div style={{ marginBottom: "20px", borderBottom: "2px solid #e5e7eb", paddingBottom: "16px" }}>
+            <div data-pdf-section style={{ marginBottom: "20px", borderBottom: "2px solid #e5e7eb", paddingBottom: "16px" }}>
               <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "space-between", alignItems: "center", gap: "12px" }}>
                 <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
                   {storeSettings?.logo_url ? (
