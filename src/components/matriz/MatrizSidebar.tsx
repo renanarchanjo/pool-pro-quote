@@ -45,7 +45,7 @@ const MatrizSidebar = () => {
     { title: "Leads", url: "/matriz/leads", icon: Filter },
     { title: "Planos e Preços", url: "/matriz/planos", icon: Tag },
     { title: "Inadimplência", url: "/matriz/inadimplencia", icon: AlertTriangle },
-    { title: "Relatórios", url: "/matriz/relatorios", icon: FileBarChart },
+    
   ];
 
   const renderGroup = (label: string, items: typeof mainItems) => (
