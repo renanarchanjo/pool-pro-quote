@@ -1,9 +1,11 @@
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Skeleton } from "@/components/ui/skeleton";
-import { AlertTriangle, CheckCircle2, Store, Search, Calendar, DollarSign, TrendingDown, Clock } from "lucide-react";
+import { AlertTriangle, CheckCircle2, Store, Search, Calendar, DollarSign, TrendingDown, Clock, FileDown } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Button } from "@/components/ui/button";
+import { exportPDF } from "@/lib/exportPDF";
 
 
 
