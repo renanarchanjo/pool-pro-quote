@@ -279,23 +279,6 @@ const TeamCommissions = () => {
                   </div>
                 </div>
 
-                {/* Funnel badges */}
-                <div className="mt-3 pt-3 border-t border-border flex items-center gap-2 flex-wrap">
-                  <span className="inline-flex items-center text-[12px] font-semibold rounded-md px-2.5 py-1" style={{ background: "#E0F2FE", color: "#0369A1" }}>
-                    {m.totalProposals} propostas
-                  </span>
-                  <span className="text-[13px] text-muted-foreground">→</span>
-                  <span className="inline-flex items-center text-[12px] font-semibold rounded-md px-2.5 py-1" style={{ background: "#FEF3C7", color: "#92400E" }}>
-                    {m.inNegotiation} negociando
-                  </span>
-                  <span className="text-[13px] text-muted-foreground">→</span>
-                  <span className="inline-flex items-center text-[12px] font-semibold rounded-md px-2.5 py-1" style={{ background: "#F0FDF4", color: "#166534" }}>
-                    {m.closed} fechados
-                  </span>
-                  <span className="inline-flex items-center text-[12px] font-semibold rounded-md px-2.5 py-1" style={{ background: "#FEF2F2", color: "#991B1B" }}>
-                    {m.lost} perdidos
-                  </span>
-                </div>
 
                 {/* Sales Funnel */}
                 <MemberSalesFunnel
