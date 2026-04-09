@@ -128,6 +128,7 @@ const ProposalView = ({
     const interactiveEls = element.querySelectorAll<HTMLElement>("button, [data-no-pdf], select");
     const hiddenOriginals: { el: HTMLElement; display: string }[] = [];
     let pdfOnlyOriginals: { el: HTMLElement; display: string }[] = [];
+    const origWidth = element.style.width;
     const origMaxWidth = element.style.maxWidth;
     const origPadding = element.style.padding;
 
