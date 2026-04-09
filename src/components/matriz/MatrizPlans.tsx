@@ -50,6 +50,8 @@ const MatrizPlans = () => {
   const [editForm, setEditForm] = useState({ name: "", price_monthly: "", max_proposals_per_month: "", max_users: "", active: true });
   const [settingsForm, setSettingsForm] = useState<Record<string, string>>({});
   const [leadPlans, setLeadPlans] = useState<LeadPlan[]>([]);
+  const [editingLeadPlan, setEditingLeadPlan] = useState<LeadPlan | null>(null);
+  const [leadForm, setLeadForm] = useState({ name: "", price_monthly: "", lead_limit: "", excess_price: "", active: true });
 
   const loadData = async () => {
     setLoading(true);
@@ -172,6 +174,40 @@ const MatrizPlans = () => {
     else { toast.success(`${plan.name} ${!plan.active ? "ativado" : "desativado"}`); loadData(); }
   };
 
+  const openEditLeadPlan = (lp: LeadPlan) => {
+    setEditingLeadPlan(lp);
+    setLeadForm({
+      name: lp.name,
+      price_monthly: lp.price_monthly.toString(),
+      lead_limit: lp.lead_limit.toString(),
+      excess_price: lp.excess_price.toString(),
+      active: lp.active,
+    });
+  };
+
+  const handleSaveLeadPlan = async () => {
+    if (!editingLeadPlan) return;
+    setSaving(true);
+    try {
+      const { error } = await (supabase as any).from("lead_plans").update({
+        name: leadForm.name,
+        price_monthly: parseFloat(leadForm.price_monthly) || 0,
+        lead_limit: parseInt(leadForm.lead_limit) || 0,
+        excess_price: parseFloat(leadForm.excess_price) || 0,
+        active: leadForm.active,
+        updated_at: new Date().toISOString(),
+      }).eq("id", editingLeadPlan.id);
+      if (error) throw error;
+      toast.success("Plano de leads atualizado!");
+      setEditingLeadPlan(null);
+      loadData();
+    } catch (error: any) {
+      toast.error(error.message || "Erro ao salvar plano de leads");
+    } finally {
+      setSaving(false);
+    }
+  };
+
   const formatCurrency = (v: number) => v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 
   if (loading) return (
@@ -252,7 +288,12 @@ const MatrizPlans = () => {
               <div key={lp.id} className={`p-4 rounded-lg border transition-all ${lp.active ? "border-primary/30 bg-primary/5" : "border-border/50 bg-muted/30 opacity-60"}`}>
                 <div className="flex items-center justify-between mb-3">
                   <span className="text-sm font-semibold">{lp.name}</span>
-                  <Switch checked={lp.active} onCheckedChange={() => handleToggleLeadPlan(lp)} />
+                  <div className="flex items-center gap-1">
+                    <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => openEditLeadPlan(lp)}>
+                      <Pencil className="w-3.5 h-3.5" />
+                    </Button>
+                    <Switch checked={lp.active} onCheckedChange={() => handleToggleLeadPlan(lp)} />
+                  </div>
                 </div>
                 <p className="text-2xl font-bold">{formatCurrency(lp.price_monthly)}</p>
                 <p className="text-xs text-muted-foreground mt-0.5">por mês</p>
@@ -283,54 +324,41 @@ const MatrizPlans = () => {
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {settings.map(setting => {
-              const isEditable = setting.key === "lead_expiration_hours";
               const isHours = setting.key === "lead_expiration_hours";
-              const displayValue = isHours
-                ? `${parseFloat(setting.value) || 0}h`
-                : formatCurrency(parseFloat(setting.value) || 0);
-
-              return isEditable ? (
+              return (
                 <div key={setting.id} className="p-4 rounded-lg border border-primary/30 bg-primary/5">
-                  <Label htmlFor={setting.key} className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                  <Label htmlFor={setting.key} className="text-xs font-medium text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">
+                    {setting.key === "extra_user_cost" && <Users className="w-3.5 h-3.5" />}
+                    {setting.key === "extra_proposal_cost" && <FileText className="w-3.5 h-3.5" />}
                     {setting.label || setting.key}
                   </Label>
                   <div className="flex items-center gap-2 mt-2">
+                    {!isHours && <span className="text-sm text-muted-foreground">R$</span>}
                     <Input
                       id={setting.key}
                       type="number"
-                      step="1"
+                      step={isHours ? "1" : "0.01"}
                       value={settingsForm[setting.key] || ""}
                       onChange={e => setSettingsForm(prev => ({ ...prev, [setting.key]: e.target.value }))}
                       className="max-w-[120px]"
                     />
-                    <span className="text-sm text-muted-foreground">horas</span>
+                    {isHours && <span className="text-sm text-muted-foreground">horas</span>}
                   </div>
-                  <p className="text-xs text-muted-foreground mt-1">Tempo para o lojista aceitar antes de expirar</p>
-                </div>
-              ) : (
-                <div key={setting.id} className="p-4 rounded-lg border border-border/50 bg-muted/30">
-                  <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">
-                    {setting.key === "extra_user_cost" && <Users className="w-3.5 h-3.5" />}
-                    {setting.key === "extra_proposal_cost" && <FileText className="w-3.5 h-3.5" />}
-                    {setting.label || setting.key}
-                  </p>
-                  <p className="text-2xl font-bold mt-1">{displayValue}</p>
                   <p className="text-xs text-muted-foreground mt-1">
                     {setting.key === "extra_user_cost" && "Por colaborador além do limite"}
                     {setting.key === "extra_proposal_cost" && "Por proposta além do limite"}
+                    {isHours && "Tempo para o lojista aceitar antes de expirar"}
                   </p>
                 </div>
               );
             })}
           </div>
-          {settings.some(s => s.key === "lead_expiration_hours") && (
-            <div className="mt-4">
-              <Button onClick={handleSaveSettings} disabled={saving} size="sm">
-                {saving ? <Loader2 className="w-4 h-4 animate-spin mr-1" /> : <Save className="w-4 h-4 mr-1" />}
-                Salvar Configurações
-              </Button>
-            </div>
-          )}
+          <div className="mt-4">
+            <Button onClick={handleSaveSettings} disabled={saving} size="sm">
+              {saving ? <Loader2 className="w-4 h-4 animate-spin mr-1" /> : <Save className="w-4 h-4 mr-1" />}
+              Salvar Configurações
+            </Button>
+          </div>
         </CardContent>
       </Card>
 
@@ -368,6 +396,46 @@ const MatrizPlans = () => {
           <DialogFooter>
             <Button variant="outline" onClick={() => setEditingPlan(null)}>Cancelar</Button>
             <Button onClick={handleSavePlan} disabled={saving}>
+              {saving ? <Loader2 className="w-4 h-4 animate-spin mr-1" /> : <Save className="w-4 h-4 mr-1" />}
+              Salvar
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      {/* Edit Lead Plan Dialog */}
+      <Dialog open={!!editingLeadPlan} onOpenChange={() => setEditingLeadPlan(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Editar Plano de Leads: {editingLeadPlan?.name}</DialogTitle>
+            <DialogDescription>Altere os valores e limites do plano de distribuição</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label>Nome do Plano</Label>
+              <Input value={leadForm.name} onChange={e => setLeadForm(prev => ({ ...prev, name: e.target.value }))} />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label>Preço Mensal (R$)</Label>
+                <Input type="number" step="0.01" value={leadForm.price_monthly} onChange={e => setLeadForm(prev => ({ ...prev, price_monthly: e.target.value }))} />
+              </div>
+              <div className="space-y-2">
+                <Label>Limite de Leads/mês</Label>
+                <Input type="number" value={leadForm.lead_limit} onChange={e => setLeadForm(prev => ({ ...prev, lead_limit: e.target.value }))} />
+              </div>
+              <div className="space-y-2">
+                <Label>Preço Excedente (R$)</Label>
+                <Input type="number" step="0.01" value={leadForm.excess_price} onChange={e => setLeadForm(prev => ({ ...prev, excess_price: e.target.value }))} />
+              </div>
+              <div className="flex items-center gap-3 pt-6">
+                <Switch checked={leadForm.active} onCheckedChange={v => setLeadForm(prev => ({ ...prev, active: v }))} />
+                <Label>Plano ativo</Label>
+              </div>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setEditingLeadPlan(null)}>Cancelar</Button>
+            <Button onClick={handleSaveLeadPlan} disabled={saving}>
               {saving ? <Loader2 className="w-4 h-4 animate-spin mr-1" /> : <Save className="w-4 h-4 mr-1" />}
               Salvar
             </Button>
