@@ -1,11 +1,13 @@
 import { useEffect, useState, useMemo, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
+import { format } from "date-fns";
+import { ptBR } from "date-fns/locale";
 import { supabase } from "@/integrations/supabase/client";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   TrendingUp, TrendingDown, Users, DollarSign, AlertTriangle,
   BarChart3, Activity, FileDown, Eye, Phone,
-  CheckCircle2, XCircle, ArrowUpRight, ArrowDownRight, RefreshCw,
+  CheckCircle2, XCircle, ArrowUpRight, ArrowDownRight, RefreshCw, CalendarIcon,
 } from "lucide-react";
 import {
   BarChart, Bar, PieChart, Pie, Cell,
@@ -15,6 +17,9 @@ import { Button } from "@/components/ui/button";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { cn } from "@/lib/utils";
 import BrazilMap from "./BrazilMap";
 import { toast } from "sonner";
 
@@ -63,6 +68,7 @@ const MatrizDashboard = () => {
   const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
   const [period, setPeriod] = useState("month");
+  const [customRange, setCustomRange] = useState<{ from?: Date; to?: Date }>({});
 
   const handleViewStore = () => navigate(`/matriz/lojas`);
 
@@ -180,12 +186,12 @@ const MatrizDashboard = () => {
           <h1 className="text-[17px] font-semibold text-foreground tracking-tight">Visão geral</h1>
           <p className="text-[12px] text-muted-foreground mt-0.5">Atualizado em tempo real</p>
         </div>
-        <div className="flex items-center gap-1.5">
+        <div className="flex items-center gap-1.5 flex-wrap justify-end">
           <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground" onClick={() => { loadAll(); toast.success("Dashboard atualizado"); }}>
             <RefreshCw className="w-4 h-4" />
           </Button>
-          <Select value={period} onValueChange={setPeriod}>
-            <SelectTrigger className="h-8 w-[120px] text-[12px] rounded-lg bg-card border-border">
+          <Select value={period} onValueChange={(v) => { setPeriod(v); if (v !== "custom") setCustomRange({}); }}>
+            <SelectTrigger className="h-8 w-[130px] text-[12px] rounded-lg bg-card border-border">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -193,8 +199,33 @@ const MatrizDashboard = () => {
               <SelectItem value="7d">7 dias</SelectItem>
               <SelectItem value="month">Este mês</SelectItem>
               <SelectItem value="12m">12 meses</SelectItem>
+              <SelectItem value="custom">Personalizado</SelectItem>
             </SelectContent>
           </Select>
+          {period === "custom" && (
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button variant="outline" size="sm" className="h-8 gap-1.5 text-[12px] rounded-lg">
+                  <CalendarIcon className="w-3.5 h-3.5" />
+                  {customRange.from
+                    ? customRange.to
+                      ? `${format(customRange.from, "dd/MM", { locale: ptBR })} – ${format(customRange.to, "dd/MM", { locale: ptBR })}`
+                      : format(customRange.from, "dd/MM/yy", { locale: ptBR })
+                    : "Selecionar datas"}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="end">
+                <Calendar
+                  mode="range"
+                  selected={customRange.from ? { from: customRange.from, to: customRange.to } : undefined}
+                  onSelect={(range) => setCustomRange({ from: range?.from, to: range?.to })}
+                  numberOfMonths={1}
+                  locale={ptBR}
+                  className={cn("p-3 pointer-events-auto")}
+                />
+              </PopoverContent>
+            </Popover>
+          )}
           <Button variant="outline" size="sm" className="h-8 gap-1.5 text-[12px]">
             <FileDown className="w-3.5 h-3.5" /> PDF
           </Button>
