@@ -127,6 +127,7 @@ const ProposalView = ({
 
     const interactiveEls = element.querySelectorAll<HTMLElement>("button, [data-no-pdf], select");
     const hiddenOriginals: { el: HTMLElement; display: string }[] = [];
+    let pdfOnlyOriginals: { el: HTMLElement; display: string }[] = [];
     const origWidth = element.style.width;
     const origMaxWidth = element.style.maxWidth;
     const origPadding = element.style.padding;
@@ -137,6 +138,13 @@ const ProposalView = ({
       interactiveEls.forEach((el) => {
         hiddenOriginals.push({ el, display: el.style.display });
         el.style.display = "none";
+      });
+
+      // Force-show elements hidden on mobile (e.g. partner banners)
+      const pdfOnlyEls = element.querySelectorAll<HTMLElement>("[data-pdf-only]");
+      pdfOnlyEls.forEach((el) => {
+        pdfOnlyOriginals.push({ el, display: el.style.display });
+        el.style.display = "flex";
       });
 
       element.style.width = `${width}px`;
@@ -182,6 +190,9 @@ const ProposalView = ({
       element.style.maxWidth = origMaxWidth;
       element.style.padding = origPadding;
       hiddenOriginals.forEach(({ el, display }) => {
+        el.style.display = display;
+      });
+      pdfOnlyOriginals.forEach(({ el, display }) => {
         el.style.display = display;
       });
     }
@@ -365,7 +376,7 @@ const ProposalView = ({
 
                 {/* Banner parceiro ao lado dos itens inclusos */}
                 {banner1Urls.length > 0 && (
-                  <div className="hidden sm:flex" style={{ width: "220px", flexShrink: 0, flexDirection: "column", justifyContent: "center", alignItems: "center", gap: "8px" }}>
+                  <div className="hidden sm:flex" data-pdf-only style={{ width: "220px", flexShrink: 0, flexDirection: "column", justifyContent: "center", alignItems: "center", gap: "8px" }}>
                     {banner1Urls.map((b, i) => (
                       <img
                         key={i}
