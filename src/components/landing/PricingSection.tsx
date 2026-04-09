@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState, useCallback } from "react";
-import { Check, X, Zap, Users, BarChart3, Shield, Rocket, Crown, Star, ArrowRight, MessageSquare, Loader2 } from "lucide-react";
+import { Check, X, Users, BarChart3, Shield, Rocket, Crown, Star, Zap, ArrowRight, MessageSquare, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -26,10 +25,10 @@ interface LeadPlan {
 }
 
 const planIcons: Record<string, React.ReactNode> = {
-  gratuito: <Zap className="w-6 h-6" />,
-  premium: <Star className="w-6 h-6" />,
-  avancado: <Rocket className="w-6 h-6" />,
-  escala: <Crown className="w-6 h-6" />,
+  gratuito: <Zap className="w-5 h-5" />,
+  premium: <Star className="w-5 h-5" />,
+  avancado: <Rocket className="w-5 h-5" />,
+  escala: <Crown className="w-5 h-5" />,
 };
 
 const planDescriptions: Record<string, string> = {
@@ -83,18 +82,15 @@ const PricingSection = ({ hideLeadPlans = false, hideFinalCta = false }: { hideL
   const [loading, setLoading] = useState(true);
   const plansGridRef = useRef<HTMLDivElement>(null);
 
-  // Stagger animation via IntersectionObserver
   useEffect(() => {
     if (loading) return;
     const grid = plansGridRef.current;
     if (!grid) return;
-
     const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     if (prefersReducedMotion) {
       grid.querySelectorAll(".stagger-card").forEach((el) => el.classList.add("stagger-visible"));
       return;
     }
-
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
@@ -140,7 +136,7 @@ const PricingSection = ({ hideLeadPlans = false, hideFinalCta = false }: { hideL
 
   return (
     <section className="py-12 md:py-20">
-      {/* Hero Pricing Header */}
+      {/* Header */}
       <div className="text-center mb-16">
         <Badge variant="secondary" className="mb-4 bg-primary/10 text-primary border-primary/20 px-4 py-1.5 text-sm font-semibold">
           💰 Planos & Preços
@@ -158,11 +154,14 @@ const PricingSection = ({ hideLeadPlans = false, hideFinalCta = false }: { hideL
         </p>
       </div>
 
-      {/* Subscription Plans */}
-      <div ref={plansGridRef} className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-${Math.min(plans.length, 4)} gap-5 max-w-6xl mx-auto mb-8`}>
+      {/* Plans Grid */}
+      <div
+        ref={plansGridRef}
+        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto mb-10 items-start"
+      >
         {plans.map((plan) => {
           const isHighlighted = plan.slug === highlightedSlug;
-          const icon = planIcons[plan.slug] || <Star className="w-6 h-6" />;
+          const icon = planIcons[plan.slug] || <Star className="w-5 h-5" />;
           const features = planFeatures[plan.slug] || [];
           const description = planDescriptions[plan.slug] || "";
           const usersLabel = plan.max_users >= 999 ? "Usuários ilimitados" : `${plan.max_users} usuário${plan.max_users > 1 ? "s" : ""}`;
@@ -171,84 +170,95 @@ const PricingSection = ({ hideLeadPlans = false, hideFinalCta = false }: { hideL
             : `${plan.max_proposals_per_month.toLocaleString("pt-BR")} orçamentos/mês`;
 
           return (
-            <div key={plan.id} className="relative flex flex-col group stagger-card">
+            <div
+              key={plan.id}
+              className={`relative flex flex-col stagger-card transition-all duration-300 ${
+                isHighlighted ? "lg:-mt-3 lg:mb-3" : ""
+              }`}
+            >
+              {/* Badge "Mais vendido" */}
               {isHighlighted && (
-                <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 z-10">
-                  <span className="gradient-primary text-white text-xs font-bold px-5 py-1.5 rounded-full shadow-lg whitespace-nowrap">
-                    🔥 Mais vendido
+                <div className="absolute -top-3 left-1/2 -translate-x-1/2 z-10">
+                  <span className="inline-flex items-center gap-1.5 bg-primary text-primary-foreground text-[11px] font-bold uppercase tracking-wider px-4 py-1 rounded-full">
+                    <span className="w-1.5 h-1.5 rounded-full bg-primary-foreground/80 animate-pulse" />
+                    Mais vendido
                   </span>
                 </div>
               )}
-              <Card
-                className={`flex-1 flex flex-col p-0 overflow-hidden transition-all duration-300 ${
+
+              <div
+                className={`flex-1 flex flex-col rounded-2xl border transition-all duration-300 group ${
                   isHighlighted
-                    ? "border-primary shadow-pool ring-2 ring-primary/20 scale-[1.03]"
-                    : "border-border/50 hover:shadow-card hover:border-primary/30"
+                    ? "border-primary/40 bg-card shadow-[0_8px_40px_-12px_hsl(var(--primary)/0.15)] hover:shadow-[0_12px_48px_-8px_hsl(var(--primary)/0.22)] hover:-translate-y-1"
+                    : "border-border bg-card hover:border-border hover:shadow-[0_4px_24px_-8px_rgba(0,0,0,0.06)] hover:-translate-y-0.5"
                 }`}
               >
                 {/* Plan Header */}
-                <div className={`px-6 pt-6 pb-4 ${isHighlighted ? "bg-primary/5" : ""}`}>
-                  <div className="flex items-center gap-3 mb-3">
-                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
+                <div className="px-6 pt-7 pb-5">
+                  <div className="flex items-center gap-2.5 mb-2.5">
+                    <div className={`w-9 h-9 rounded-lg flex items-center justify-center ${
                       isHighlighted
-                        ? "gradient-primary text-white"
-                        : "bg-primary/10 text-primary"
+                        ? "bg-primary text-primary-foreground"
+                        : "bg-muted text-muted-foreground"
                     }`}>
                       {icon}
                     </div>
-                    <h3 className="text-xl font-display font-bold">{plan.name}</h3>
+                    <h3 className="text-lg font-bold tracking-tight text-foreground">{plan.name}</h3>
                   </div>
-                  <p className="text-sm text-muted-foreground">{description}</p>
+                  <p className="text-[13px] text-muted-foreground leading-relaxed">{description}</p>
                 </div>
 
                 {/* Price */}
-                <div className="px-6 py-4 border-y border-border/30">
-                  <div className="flex items-baseline gap-1">
-                    <span className="text-sm text-muted-foreground">R$</span>
-                    <span className={`text-4xl font-display font-extrabold ${
+                <div className="px-6 pb-5">
+                  <div className="flex items-baseline gap-0.5">
+                    <span className="text-[13px] font-medium text-muted-foreground">R$</span>
+                    <span className={`text-[40px] font-extrabold leading-none tracking-tight ${
                       isHighlighted ? "text-primary" : "text-foreground"
                     }`}>
                       {formatCurrency(plan.price_monthly)}
                     </span>
-                    <span className="text-muted-foreground text-sm">/mês</span>
+                    <span className="text-[13px] text-muted-foreground ml-1">/mês</span>
                   </div>
                 </div>
 
-                {/* Key Metrics */}
-                <div className="px-6 py-3 flex flex-wrap gap-2">
-                  <div className="flex items-center gap-1.5 text-xs font-medium bg-primary/5 text-primary rounded-full px-3 py-1.5">
-                    <Users className="w-3.5 h-3.5" />
+                {/* Metrics pills */}
+                <div className="px-6 pb-4 flex flex-wrap gap-1.5">
+                  <span className={`inline-flex items-center gap-1.5 text-[11px] font-semibold rounded-md px-2.5 py-1 ${
+                    isHighlighted
+                      ? "bg-primary/8 text-primary"
+                      : "bg-muted text-muted-foreground"
+                  }`}>
+                    <Users className="w-3 h-3" />
                     {usersLabel}
-                  </div>
-                  <div className="flex items-center gap-1.5 text-xs font-medium bg-primary/5 text-primary rounded-full px-3 py-1.5">
-                    <BarChart3 className="w-3.5 h-3.5" />
+                  </span>
+                  <span className={`inline-flex items-center gap-1.5 text-[11px] font-semibold rounded-md px-2.5 py-1 ${
+                    isHighlighted
+                      ? "bg-primary/8 text-primary"
+                      : "bg-muted text-muted-foreground"
+                  }`}>
+                    <BarChart3 className="w-3 h-3" />
                     {proposalsLabel}
-                  </div>
+                  </span>
                 </div>
+
+                {/* Divider */}
+                <div className="mx-6 border-t border-border" />
 
                 {/* Features */}
-                <div className="px-6 py-4 flex-1">
-                  <ul className="space-y-2.5">
+                <div className="px-6 py-5 flex-1">
+                  <ul className="space-y-3">
                     {features.map((feature, idx) => (
-                      <li key={idx} className="flex items-start gap-2.5 text-sm">
+                      <li key={idx} className="flex items-start gap-2.5 text-[13px] leading-snug">
                         {feature.included ? (
-                          <div className="w-5 h-5 rounded-full bg-emerald-100 flex items-center justify-center flex-shrink-0 mt-0.5">
-                            <Check className="w-3 h-3 text-emerald-600" />
-                          </div>
+                          <Check className="w-4 h-4 text-primary shrink-0 mt-0.5" strokeWidth={2.5} />
                         ) : (
-                          <div className="w-5 h-5 rounded-full bg-muted flex items-center justify-center flex-shrink-0 mt-0.5">
-                            <X className="w-3 h-3 text-muted-foreground/40" />
-                          </div>
+                          <X className="w-4 h-4 text-muted-foreground/30 shrink-0 mt-0.5" strokeWidth={2} />
                         )}
-                        <span
-                          className={
-                            feature.included
-                              ? feature.bold
-                                ? "font-semibold text-foreground"
-                                : "text-foreground/80"
-                              : "text-muted-foreground/50 line-through"
-                          }
-                        >
+                        <span className={
+                          feature.included
+                            ? "text-foreground"
+                            : "text-muted-foreground/40 line-through"
+                        }>
                           {feature.text}
                         </span>
                       </li>
@@ -257,13 +267,13 @@ const PricingSection = ({ hideLeadPlans = false, hideFinalCta = false }: { hideL
                 </div>
 
                 {/* CTA */}
-                <div className="px-6 pb-6 pt-2 space-y-2">
+                <div className="px-6 pb-6 pt-1 space-y-2">
                   <Link to="/auth">
                     <Button
-                      className={`w-full font-display font-semibold text-base h-12 ${
+                      className={`w-full font-semibold h-11 transition-all duration-200 ${
                         isHighlighted
-                          ? "gradient-primary text-white shadow-pool hover:shadow-lg transition-shadow"
-                          : ""
+                          ? "bg-primary hover:bg-primary/90 text-primary-foreground shadow-[0_2px_12px_-2px_hsl(var(--primary)/0.35)] hover:shadow-[0_4px_16px_-2px_hsl(var(--primary)/0.45)] hover:scale-[1.02]"
+                          : "hover:scale-[1.02]"
                       }`}
                       variant={isHighlighted ? "default" : "outline"}
                       size="lg"
@@ -275,25 +285,29 @@ const PricingSection = ({ hideLeadPlans = false, hideFinalCta = false }: { hideL
                   <Link to="/login">
                     <Button
                       variant="ghost"
-                      className="w-full text-sm text-muted-foreground hover:text-primary font-medium"
+                      className="w-full text-[13px] text-muted-foreground hover:text-primary font-medium h-9"
                     >
                       Já tenho conta → Entrar
                     </Button>
                   </Link>
                 </div>
-              </Card>
+              </div>
             </div>
           );
         })}
       </div>
 
       {/* Extra info */}
-      <p className="text-center text-sm text-muted-foreground mb-20 max-w-3xl mx-auto">
-        * Orçamentos extras além do limite do plano: <strong>R$ {extraProposalCost}</strong> por proposta gerada.
-        Todos os planos incluem atualizações automáticas e sem fidelidade.
-        <br />
-        Colaboradores extras: <strong>R$ {extraUserCost}/mês</strong> por vaga adicional.
-      </p>
+      <div className="max-w-3xl mx-auto mb-20">
+        <div className="border-t border-border/60 pt-5">
+          <p className="text-center text-[13px] text-muted-foreground/70 leading-relaxed">
+            * Orçamentos extras além do limite do plano: <strong className="text-muted-foreground">R$ {extraProposalCost}</strong> por proposta gerada.
+            Todos os planos incluem atualizações automáticas e sem fidelidade.
+            <br />
+            Colaboradores extras: <strong className="text-muted-foreground">R$ {extraUserCost}/mês</strong> por vaga adicional.
+          </p>
+        </div>
+      </div>
 
       {/* Lead Plans Section */}
       {!hideLeadPlans && leadPlans.length > 0 && (
@@ -311,46 +325,46 @@ const PricingSection = ({ hideLeadPlans = false, hideFinalCta = false }: { hideL
             </p>
           </div>
 
-          <div className={`flex flex-wrap justify-center gap-4 max-w-4xl mx-auto`}>
+          <div className="flex flex-wrap justify-center gap-5 max-w-4xl mx-auto">
             {leadPlans.map((lp, idx) => {
               const isBest = leadPlans.length > 1 && idx === 1;
               return (
-                <Card
+                <div
                   key={lp.id}
-                  className={`p-6 text-center transition-all duration-300 w-full sm:w-[280px] ${
+                  className={`rounded-2xl border p-6 text-center transition-all duration-300 w-full sm:w-[280px] group ${
                     isBest
-                      ? "border-orange-400 shadow-lg ring-2 ring-orange-200 scale-[1.03]"
-                      : "border-border/50 hover:shadow-card hover:border-orange-300"
+                      ? "border-orange-300/60 bg-card shadow-[0_6px_32px_-8px_rgba(249,115,22,0.12)] hover:shadow-[0_8px_40px_-8px_rgba(249,115,22,0.18)] hover:-translate-y-1"
+                      : "border-border bg-card hover:shadow-[0_4px_24px_-8px_rgba(0,0,0,0.06)] hover:-translate-y-0.5"
                   }`}
                 >
                   {isBest && (
-                    <Badge className="mb-3 bg-orange-500 text-white border-0 text-xs">
+                    <Badge className="mb-3 bg-orange-500 text-white border-0 text-[11px] font-bold uppercase tracking-wider">
                       Melhor custo-benefício
                     </Badge>
                   )}
-                  <h4 className="font-display font-bold text-lg mb-1">{lp.name}</h4>
-                  <div className="flex items-baseline justify-center gap-1 mb-2">
-                    <span className="text-sm text-muted-foreground">R$</span>
-                    <span className={`text-3xl font-display font-extrabold ${
+                  <h4 className="font-bold text-lg mb-1 text-foreground">{lp.name}</h4>
+                  <div className="flex items-baseline justify-center gap-0.5 mb-3">
+                    <span className="text-[13px] font-medium text-muted-foreground">R$</span>
+                    <span className={`text-[32px] font-extrabold leading-none tracking-tight ${
                       isBest ? "text-orange-600" : "text-foreground"
                     }`}>
                       {formatCurrency(lp.price_monthly)}
                     </span>
-                    <span className="text-muted-foreground text-sm">/mês</span>
+                    <span className="text-[13px] text-muted-foreground ml-1">/mês</span>
                   </div>
                   <div className="bg-orange-50 rounded-lg py-2 px-3 mb-3">
                     <span className="text-orange-700 font-bold text-lg lead-number-pulse inline-block">{lp.lead_limit}</span>
-                    <span className="text-orange-600 text-sm ml-1">leads/mês</span>
+                    <span className="text-orange-600 text-[13px] ml-1">leads/mês</span>
                   </div>
-                  <p className="text-xs text-muted-foreground">
+                  <p className="text-[12px] text-muted-foreground">
                     Lead excedente: <strong>R$ {formatCurrency(lp.excess_price)}</strong>/lead
                   </p>
-                </Card>
+                </div>
               );
             })}
           </div>
 
-          <p className="text-center text-sm text-muted-foreground mt-6 max-w-2xl mx-auto">
+          <p className="text-center text-[13px] text-muted-foreground/70 mt-6 max-w-2xl mx-auto">
             Os planos de Gestão de Leads são add-ons opcionais e podem ser ativados em qualquer plano de assinatura.
           </p>
         </div>
@@ -358,35 +372,35 @@ const PricingSection = ({ hideLeadPlans = false, hideFinalCta = false }: { hideL
 
       {/* CTA Final */}
       {!hideFinalCta && (
-      <div className="max-w-3xl mx-auto mt-20 text-center">
-        <Card className="p-8 md:p-12 border-primary/20 bg-gradient-to-br from-primary/5 via-background to-cyan-500/5">
-          <Shield className="w-10 h-10 text-primary mx-auto mb-4" />
-          <h3 className="text-2xl md:text-3xl font-display font-extrabold mb-3">
-            Ainda tem dúvidas?
-          </h3>
-          <p className="text-muted-foreground mb-6 max-w-md mx-auto">
-            Fale com nossa equipe e descubra o plano ideal para o seu negócio. Sem compromisso.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-3 justify-center">
-            <a
-              href="https://wa.me/5543999913065?text=Ol%C3%A1%2C%20quero%20saber%20mais%20sobre%20os%20planos%20do%20SimulaPool!"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <Button size="lg" className="gradient-primary text-white font-display font-semibold shadow-pool w-full sm:w-auto">
-                <MessageSquare className="w-5 h-5 mr-2" />
-                Falar no WhatsApp
-              </Button>
-            </a>
-            <Link to="/">
-              <Button size="lg" variant="outline" className="font-display font-semibold w-full sm:w-auto">
-                Testar grátis
-                <ArrowRight className="w-4 h-4 ml-2" />
-              </Button>
-            </Link>
+        <div className="max-w-3xl mx-auto mt-20 text-center">
+          <div className="rounded-2xl border border-primary/15 bg-gradient-to-br from-primary/[0.03] via-card to-cyan-500/[0.03] p-8 md:p-12">
+            <Shield className="w-10 h-10 text-primary mx-auto mb-4" />
+            <h3 className="text-2xl md:text-3xl font-display font-extrabold mb-3">
+              Ainda tem dúvidas?
+            </h3>
+            <p className="text-muted-foreground mb-6 max-w-md mx-auto">
+              Fale com nossa equipe e descubra o plano ideal para o seu negócio. Sem compromisso.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-3 justify-center">
+              <a
+                href="https://wa.me/5543999913065?text=Ol%C3%A1%2C%20quero%20saber%20mais%20sobre%20os%20planos%20do%20SimulaPool!"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <Button size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold shadow-[0_2px_12px_-2px_hsl(var(--primary)/0.35)] w-full sm:w-auto">
+                  <MessageSquare className="w-5 h-5 mr-2" />
+                  Falar no WhatsApp
+                </Button>
+              </a>
+              <Link to="/">
+                <Button size="lg" variant="outline" className="font-semibold w-full sm:w-auto">
+                  Testar grátis
+                  <ArrowRight className="w-4 h-4 ml-2" />
+                </Button>
+              </Link>
+            </div>
           </div>
-        </Card>
-      </div>
+        </div>
       )}
     </section>
   );
