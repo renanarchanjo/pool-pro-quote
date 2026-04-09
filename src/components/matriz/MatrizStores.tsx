@@ -335,7 +335,7 @@ const MatrizStores = () => {
 
       {/* ── Edit Dialog ── */}
       <Dialog open={!!editingStore} onOpenChange={(open) => !open && setEditingStore(null)}>
-        <DialogContent className="max-w-lg">
+        <DialogContent className="max-w-lg sm:max-w-lg max-sm:!max-w-[100vw] max-sm:!w-screen max-sm:!h-screen max-sm:!max-h-screen max-sm:!rounded-none max-sm:!top-0 max-sm:!left-0 max-sm:!translate-x-0 max-sm:!translate-y-0 max-sm:overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Editar Loja</DialogTitle>
             <DialogDescription>Altere os dados da loja e clique em salvar.</DialogDescription>
