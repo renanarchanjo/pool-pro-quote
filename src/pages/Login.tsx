@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { Eye, EyeOff, Loader2, Mail, ArrowLeft } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -28,15 +28,37 @@ const Login = () => {
   const [resetEmail, setResetEmail] = useState("");
   const navigate = useNavigate();
 
+  const redirectByRole = useCallback(async (userId: string) => {
+    const { data: roleData } = await supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", userId);
+
+    const isSuperAdmin = roleData?.some((r: any) => r.role === "super_admin");
+    navigate(isSuperAdmin ? "/matriz" : "/admin", { replace: true });
+  }, [navigate]);
+
   useEffect(() => {
     // Clear history so back button can't return to admin/matriz after logout
     window.history.replaceState(null, "", "/login");
 
     supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session) navigate("/admin", { replace: true });
+      if (session) {
+        void redirectByRole(session.user.id);
+      }
       else setCheckingSession(false);
     });
-  }, [navigate]);
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session) {
+        void redirectByRole(session.user.id);
+      } else {
+        setCheckingSession(false);
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, [redirectByRole]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -48,11 +70,14 @@ const Login = () => {
     const { error } = await supabase.auth.signInWithPassword({ email, password });
     setLoading(false);
     if (error) {
+      if (error.message?.toLowerCase().includes("email not confirmed")) {
+        toast.error("Confirme seu e-mail antes de entrar. Verifique também a caixa de spam.");
+        return;
+      }
       toast.error("Credenciais inválidas ou conta não aprovada.");
       return;
     }
     toast.success("Login realizado!");
-    navigate("/admin");
   };
 
   const handleForgotPassword = async (e: React.FormEvent) => {

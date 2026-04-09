@@ -140,7 +140,11 @@ const MatrizReports = () => {
 
   const handleExportPDF = async () => {
     if (!reportRef.current) return;
-    await exportPDF({ element: reportRef.current, filename: `relatorio-matriz-${new Date().toISOString().slice(0, 10)}` });
+    await exportPDF({
+      element: reportRef.current,
+      filename: `relatorio-matriz-${new Date().toISOString().slice(0, 10)}.pdf`,
+      sectionSelector: "[data-pdf-section]",
+    });
   };
 
   if (loading) {
@@ -187,14 +191,14 @@ const MatrizReports = () => {
 
       <div ref={reportRef} className="space-y-6">
         {/* KPIs */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div data-pdf-section className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <MiniKPI icon={Store} label="Lojas Cadastradas" value={String(metrics.storeCount)} />
           <MiniKPI icon={Users} label="Lojistas Ativos" value={String(metrics.activeCount)} />
           <MiniKPI icon={DollarSign} label="MRR" value={fmt(metrics.mrr)} />
           <MiniKPI icon={Activity} label="Total Simulações" value={String(metrics.totalProposals)} />
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div data-pdf-section className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <MiniKPI icon={DollarSign} label="Fat. Bruto Lojistas" value={fmt(metrics.totalRevenue)} />
           <MiniKPI icon={TrendingUp} label="Taxa Conversão" value={pct(metrics.conversionRate)} />
           <MiniKPI icon={DollarSign} label="Ticket Médio" value={fmt(metrics.avgTicket)} />
@@ -202,7 +206,7 @@ const MatrizReports = () => {
         </div>
 
         {/* Charts row 1 */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div data-pdf-section className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <div className="bg-card border border-border rounded-xl p-6">
             <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">FATURAMENTO MENSAL</span>
             <h3 className="text-[15px] font-semibold text-foreground mt-1 mb-4">Receita dos lojistas (fechadas)</h3>
@@ -243,7 +247,7 @@ const MatrizReports = () => {
         </div>
 
         {/* Charts row 2 */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div data-pdf-section className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <div className="bg-card border border-border rounded-xl p-6">
             <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">FUNIL DE VENDAS</span>
             <h3 className="text-[15px] font-semibold text-foreground mt-1 mb-4">Distribuição por status</h3>
@@ -286,7 +290,7 @@ const MatrizReports = () => {
         </div>
 
         {/* Top stores table */}
-        <div className="bg-card border border-border rounded-xl p-6">
+        <div data-pdf-section className="bg-card border border-border rounded-xl p-6">
           <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">PERFORMANCE</span>
           <h3 className="text-[15px] font-semibold text-foreground mt-1 mb-4">Top 10 Lojistas por Faturamento</h3>
           <div className="overflow-x-auto">

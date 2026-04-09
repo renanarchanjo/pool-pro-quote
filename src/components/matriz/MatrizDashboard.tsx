@@ -266,6 +266,7 @@ const MatrizDashboard = () => {
               filename: `dashboard-matriz-${new Date().toISOString().split("T")[0]}.pdf`,
               orientation: "portrait",
               captureWidth: 900,
+              sectionSelector: "[data-pdf-section]",
             });
           }}>
             <FileDown className="w-3.5 h-3.5" /> PDF
@@ -274,7 +275,7 @@ const MatrizDashboard = () => {
       </div>
 
       {/* ── KPIs ROW 1 ── */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+      <div data-pdf-section className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         <MetricCard label="MRR" value={fmt(metrics.mrr)} change={metrics.mrrGrowth} />
         <MetricCard label="Lojistas ativos" value={String(metrics.activeCount)} subtitle={`+${metrics.newThisMonth} este mês`} />
         <MetricCard label="Churn" value={pct(metrics.churnRate)} status={metrics.churnRate > 5 ? "danger" : "success"} />
@@ -282,7 +283,7 @@ const MatrizDashboard = () => {
       </div>
 
       {/* ── KPIs ROW 2 ── */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+      <div data-pdf-section className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         <MetricCard label="ARPU" value={fmt(metrics.arpu)} />
         <MetricCard label="LTV médio" value={fmt(metrics.ltv)} />
         <MetricCard label="Receita perdida" value={fmt(metrics.lostRevenue)} status={metrics.lostRevenue > 0 ? "danger" : undefined} />
@@ -291,7 +292,7 @@ const MatrizDashboard = () => {
 
       {/* ── ALERTAS (inline, sem card amarelo gritante) ── */}
       {metrics.alerts.length > 0 && (
-        <div className="flex flex-wrap gap-2">
+        <div data-pdf-section className="flex flex-wrap gap-2">
           {metrics.alerts.map((a, i) => (
             <span key={i} className="inline-flex items-center gap-1.5 text-[11px] font-medium px-2.5 py-1 rounded-full bg-destructive/10 text-destructive">
               <AlertTriangle className="w-3 h-3" />
@@ -301,14 +302,14 @@ const MatrizDashboard = () => {
         </div>
       )}
       {metrics.alerts.length === 0 && (
-        <div className="flex items-center gap-2 text-[12px] text-muted-foreground">
+        <div data-pdf-section className="flex items-center gap-2 text-[12px] text-muted-foreground">
           <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
           <span>Nenhum alerta ativo</span>
         </div>
       )}
 
       {/* ── GRÁFICOS ── */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+      <div data-pdf-section className="grid grid-cols-1 lg:grid-cols-2 gap-3">
         <ChartCard title="Lojistas ativos" subtitle="Últimos 12 meses">
           {metrics.monthlyActive.every(m => m.count === 0) ? <EmptyChart /> : (
             <ResponsiveContainer width="100%" height={200}>
@@ -347,7 +348,7 @@ const MatrizDashboard = () => {
       </div>
 
       {/* ── PROJEÇÃO (compact) ── */}
-      <div className="bg-card border border-border rounded-2xl p-4">
+      <div data-pdf-section className="bg-card border border-border rounded-2xl p-4">
         <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground mb-4">Projeção de receita</p>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {metrics.projections.map(p => (
@@ -360,7 +361,7 @@ const MatrizDashboard = () => {
       </div>
 
       {/* ── COMPOSIÇÃO RECEITA (desktop only) ── */}
-      <div className="hidden md:grid grid-cols-1 lg:grid-cols-5 gap-3">
+      <div data-pdf-section className="hidden md:grid grid-cols-1 lg:grid-cols-5 gap-3">
         <div className="lg:col-span-3 bg-card border border-border rounded-2xl p-4">
           <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground mb-4">Composição da receita</p>
           <div className="flex items-center gap-3 mb-3">
@@ -391,7 +392,7 @@ const MatrizDashboard = () => {
       </div>
 
       {/* ── RANKING ── */}
-      <div className="bg-card border border-border rounded-2xl p-4">
+      <div data-pdf-section className="bg-card border border-border rounded-2xl p-4">
         <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground mb-3">Top lojistas</p>
         <div className="space-y-0">
           {metrics.ranking.map((s, i) => {
@@ -422,7 +423,7 @@ const MatrizDashboard = () => {
       </div>
 
       {/* ── MAPA ── */}
-      <div className="bg-card border border-border rounded-2xl p-4">
+      <div data-pdf-section className="bg-card border border-border rounded-2xl p-4">
         <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground mb-3">Distribuição geográfica</p>
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
           <div className="lg:col-span-2">

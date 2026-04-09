@@ -19,9 +19,10 @@ interface CustomerFormProps {
   model: any;
   optionals: any[];
   includedItemsTotal?: number;
+  hidePricing?: boolean;
 }
 
-const CustomerForm = ({ onSubmit, onBack, model, optionals, includedItemsTotal = 0 }: CustomerFormProps) => {
+const CustomerForm = ({ onSubmit, onBack, model, optionals, includedItemsTotal = 0, hidePricing = false }: CustomerFormProps) => {
   const [loading, setLoading] = useState(false);
   const [uf, setUf] = useState("");
   const [city, setCity] = useState("");
@@ -193,7 +194,7 @@ const CustomerForm = ({ onSubmit, onBack, model, optionals, includedItemsTotal =
               <div className="flex justify-between pt-2 border-t">
                 <span className="font-semibold">Total:</span>
                 <span className="text-xl font-bold text-primary">
-                  R$ {totalPrice.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                  {hidePricing ? "Liberado após gerar proposta" : `R$ ${totalPrice.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`}
                 </span>
               </div>
             </div>

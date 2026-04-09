@@ -48,6 +48,7 @@ const Auth = () => {
   const [resendLoading, setResendLoading] = useState(false);
   const [resendCooldown, setResendCooldown] = useState(0);
   const navigate = useNavigate();
+  const emailRedirectTo = `${window.location.origin}/login`;
 
   const brazilStates = [
     "AC","AL","AP","AM","BA","CE","DF","ES","GO","MA","MT","MS","MG",
@@ -75,7 +76,7 @@ const Auth = () => {
       const { error } = await supabase.auth.resend({
         type: "signup",
         email: pendingEmail,
-        options: { emailRedirectTo: `${window.location.origin}/admin` },
+        options: { emailRedirectTo },
       });
       if (error) throw error;
       toast.success("E-mail de confirmação reenviado! Verifique sua caixa de entrada e spam.");
@@ -158,7 +159,7 @@ const Auth = () => {
 
       const { data: authData, error: signUpError } = await supabase.auth.signUp({
         email, password,
-        options: { emailRedirectTo: `${window.location.origin}/admin` }
+        options: { emailRedirectTo }
       });
 
       if (signUpError) throw signUpError;

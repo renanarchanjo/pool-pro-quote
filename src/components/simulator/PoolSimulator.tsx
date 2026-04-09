@@ -407,6 +407,7 @@ const PoolSimulator = ({ onBack }: PoolSimulatorProps) => {
             onBack={() => setStep(1)}
             model={selectedModel}
             includedItemsTotal={includedItemsTotal}
+            hidePricing
           />
         )}
 
@@ -420,6 +421,7 @@ const PoolSimulator = ({ onBack }: PoolSimulatorProps) => {
               ...modelOptionals.filter((opt: any) => selectedOptionals.includes(opt.id)).map((o: any) => ({ name: o.name, price: o.price, id: o.id, description: "", group_id: "", warning_note: null })),
             ]}
             includedItemsTotal={includedItemsTotal}
+            hidePricing
           />
         )}
       </main>

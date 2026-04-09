@@ -113,6 +113,7 @@ const ProposalView = ({
         const selected = selectWeightedPartner();
         return selected ? [selected] : partners;
       })();
+  const finalPartner = matchedPartner || bannersToShow[0] || null;
   const banner1Urls = bannersToShow
     .filter((p) => p.banner_1_url)
     .map((p) => ({ url: p.banner_1_url!, name: p.name }));
@@ -212,6 +213,8 @@ const ProposalView = ({
                     <img
                       src={storeSettings.logo_url}
                       alt="Logo"
+                      loading="eager"
+                      referrerPolicy="no-referrer"
                       style={{ maxHeight: "56px", maxWidth: "140px", width: "auto", height: "auto", objectFit: "contain" }}
                       crossOrigin="anonymous"
                     />
@@ -252,7 +255,7 @@ const ProposalView = ({
               <div style={{ ...sectionBodyStyle, padding: "12px 16px" }}>
                 <div style={{ display: "flex", alignItems: "center", gap: "12px", flexWrap: "wrap" }}>
                   {brandLogoUrl && (
-                    <img src={brandLogoUrl} alt="Marca" style={{ width: "48px", height: "48px", objectFit: "contain", flexShrink: 0 }} crossOrigin="anonymous" />
+                    <img src={brandLogoUrl} alt="Marca" loading="eager" referrerPolicy="no-referrer" style={{ width: "48px", height: "48px", objectFit: "contain", flexShrink: 0 }} crossOrigin="anonymous" />
                   )}
                   <div style={{ flex: 1, minWidth: "180px" }}>
                     <div style={{ display: "flex", alignItems: "center", gap: "8px", flexWrap: "wrap", marginBottom: "4px" }}>
@@ -321,6 +324,8 @@ const ProposalView = ({
                         key={i}
                         src={b.url}
                         alt={`Banner ${b.name}`}
+                        loading="eager"
+                        referrerPolicy="no-referrer"
                         style={{ width: "100%", height: "auto", borderRadius: "8px", objectFit: "contain" }}
                         crossOrigin="anonymous"
                       />
@@ -441,6 +446,8 @@ const ProposalView = ({
                         <img
                           src={p.logo_url}
                           alt={p.name}
+                          loading="eager"
+                          referrerPolicy="no-referrer"
                           style={{ maxHeight: "32px", maxWidth: "80px", objectFit: "contain" }}
                           crossOrigin="anonymous"
                           onError={(e) => {
@@ -457,6 +464,38 @@ const ProposalView = ({
                       )}
                     </div>
                   ))}
+                </div>
+              </div>
+            )}
+
+            {finalPartner && (finalPartner.banner_1_url || finalPartner.banner_2_url || finalPartner.logo_url) && (
+              <div data-pdf-section style={{ marginTop: "16px", padding: "16px", border: "1px solid #e5e7eb", borderRadius: "8px", background: "#f9fafb" }}>
+                <p style={{ textAlign: "center", fontSize: "10px", color: "#6b7280", marginBottom: "12px", textTransform: "uppercase", letterSpacing: "1px", fontWeight: 700 }}>
+                  Marca parceira desta proposta
+                </p>
+                <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "12px" }}>
+                  {(finalPartner.banner_1_url || finalPartner.banner_2_url) && (
+                    <img
+                      src={finalPartner.banner_1_url || finalPartner.banner_2_url || ""}
+                      alt={`Banner ${finalPartner.name}`}
+                      loading="eager"
+                      referrerPolicy="no-referrer"
+                      style={{ width: "100%", maxWidth: "240px", height: "auto", borderRadius: "10px", objectFit: "contain" }}
+                      crossOrigin="anonymous"
+                    />
+                  )}
+                  {finalPartner.logo_url ? (
+                    <img
+                      src={finalPartner.logo_url}
+                      alt={finalPartner.name}
+                      loading="eager"
+                      referrerPolicy="no-referrer"
+                      style={{ maxHeight: "42px", maxWidth: "140px", objectFit: "contain" }}
+                      crossOrigin="anonymous"
+                    />
+                  ) : (
+                    <span style={{ fontSize: "12px", fontWeight: 700, color: "#374151" }}>{finalPartner.name}</span>
+                  )}
                 </div>
               </div>
             )}

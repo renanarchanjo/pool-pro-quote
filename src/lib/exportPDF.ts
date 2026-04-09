@@ -101,6 +101,12 @@ const restoreAncestorTransforms = (ancestorResets: AncestorSnapshot[]) => {
   });
 };
 
+const waitForStablePaint = async (delay = 700) => {
+  await new Promise((resolve) => requestAnimationFrame(() => resolve(undefined)));
+  await new Promise((resolve) => requestAnimationFrame(() => resolve(undefined)));
+  await new Promise((resolve) => setTimeout(resolve, delay));
+};
+
 const exportSectionedPDF = async ({
   element,
   filename,
@@ -129,9 +135,12 @@ const exportSectionedPDF = async ({
     const canvas = await html2canvas(section, {
       scale: 2,
       useCORS: true,
+      allowTaint: false,
       backgroundColor: "#ffffff",
       logging: false,
+      imageTimeout: 15000,
       windowWidth: section.scrollWidth,
+      windowHeight: section.scrollHeight,
       scrollX: 0,
       scrollY: -window.scrollY,
     });
@@ -242,7 +251,7 @@ export const exportPDF = async ({
 
     restoreImages = await inlineImagesForPdf(element);
 
-    await new Promise((r) => setTimeout(r, 350));
+    await waitForStablePaint();
 
     if (sectionSelector) {
       await exportSectionedPDF({ element, filename, orientation, sectionSelector });
@@ -255,10 +264,13 @@ export const exportPDF = async ({
           html2canvas: {
             scale: 2,
             useCORS: true,
+            allowTaint: false,
             width,
             windowWidth: width,
+            windowHeight: element.scrollHeight,
             backgroundColor: "#ffffff",
             logging: false,
+            imageTimeout: 15000,
             scrollX: 0,
             scrollY: -window.scrollY,
           },
