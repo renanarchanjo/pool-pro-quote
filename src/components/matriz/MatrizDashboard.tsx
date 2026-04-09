@@ -92,6 +92,29 @@ const MatrizDashboard = () => {
 
   useEffect(() => { loadAll(); const i = setInterval(loadAll, 30000); return () => clearInterval(i); }, [loadAll]);
 
+  /* ── date range helper ── */
+  const dateRange = useMemo(() => {
+    const now = new Date();
+    if (period === "custom" && customRange.from) {
+      const from = new Date(customRange.from); from.setHours(0, 0, 0, 0);
+      const to = customRange.to ? new Date(customRange.to) : new Date(from);
+      to.setHours(23, 59, 59, 999);
+      return { from, to };
+    }
+    const to = new Date(now); to.setHours(23, 59, 59, 999);
+    const from = new Date(now); from.setHours(0, 0, 0, 0);
+    if (period === "7d") from.setDate(from.getDate() - 6);
+    else if (period === "month") from.setDate(1);
+    else if (period === "12m") { from.setMonth(from.getMonth() - 11); from.setDate(1); }
+    return { from, to };
+  }, [period, customRange]);
+
+  const inRange = useCallback((dateStr: string | null) => {
+    if (!dateStr) return false;
+    const d = new Date(dateStr);
+    return d >= dateRange.from && d <= dateRange.to;
+  }, [dateRange]);
+
   const metrics = useMemo(() => {
     if (!data) return null;
     const { stores, proposals, payments } = data;
@@ -99,9 +122,13 @@ const MatrizDashboard = () => {
     const thisMonth = now.getMonth();
     const thisYear = now.getFullYear();
 
+    /* filter proposals & payments by selected period */
+    const filteredProposals = proposals.filter(p => inRange(p.created_at));
+    const filteredPayments = payments.filter(p => inRange(p.payment_date));
+
     const activeStores = stores.filter(s => s.plan_status === "active" || s.stripe_subscription_id);
     const activeCount = activeStores.length;
-    const newThisMonth = stores.filter(s => { if (!s.created_at) return false; const d = new Date(s.created_at); return d.getMonth() === thisMonth && d.getFullYear() === thisYear; }).length;
+    const newThisMonth = stores.filter(s => inRange(s.created_at)).length;
 
     let mrr = 0;
     activeStores.forEach(s => { if (s.subscription_plans) mrr += s.subscription_plans.price_monthly; });
@@ -123,20 +150,22 @@ const MatrizDashboard = () => {
     const ltv = churnRate > 0 ? arpu * (1 / (churnRate / 100)) : arpu * 24;
     const lostRevenue = canceledThisMonth * arpu;
 
-    const simsThisMonth = proposals.filter(p => { if (!p.created_at) return false; const d = new Date(p.created_at); return d.getMonth() === thisMonth && d.getFullYear() === thisYear; }).length;
+    const simsThisMonth = filteredProposals.length;
     const lastMonthSims = proposals.filter(p => { if (!p.created_at) return false; const d = new Date(p.created_at); const lm = thisMonth === 0 ? 11 : thisMonth - 1; const ly = thisMonth === 0 ? thisYear - 1 : thisYear; return d.getMonth() === lm && d.getFullYear() === ly; }).length;
     const simsGrowth = lastMonthSims > 0 ? ((simsThisMonth - lastMonthSims) / lastMonthSims) * 100 : 0;
 
     const storeRevenue = new Map<string, number>();
     const storeProposalCount = new Map<string, number>();
-    proposals.filter(p => p.status === "fechada").forEach(p => { if (p.store_id) { storeRevenue.set(p.store_id, (storeRevenue.get(p.store_id) || 0) + p.total_price); storeProposalCount.set(p.store_id, (storeProposalCount.get(p.store_id) || 0) + 1); } });
+    filteredProposals.filter(p => p.status === "fechada").forEach(p => { if (p.store_id) { storeRevenue.set(p.store_id, (storeRevenue.get(p.store_id) || 0) + p.total_price); storeProposalCount.set(p.store_id, (storeProposalCount.get(p.store_id) || 0) + 1); } });
     const ranking = stores.map(s => ({ ...s, revenue: storeRevenue.get(s.id) || 0, proposalCount: storeProposalCount.get(s.id) || 0, planName: s.subscription_plans?.name || "—", planSlug: s.subscription_plans?.slug || "" })).sort((a, b) => b.revenue - a.revenue).slice(0, 10);
 
     const monthlyActive: { month: string; count: number }[] = [];
     for (let i = 11; i >= 0; i--) { const d = new Date(thisYear, thisMonth - i, 1); const label = MONTHS_PT[d.getMonth()] + "/" + String(d.getFullYear()).slice(2); const count = stores.filter(s => { if (!s.created_at) return false; const cd = new Date(s.created_at); return cd <= new Date(d.getFullYear(), d.getMonth() + 1, 0) && (s.plan_status === "active" || s.stripe_subscription_id); }).length; monthlyActive.push({ month: label, count }); }
 
+    /* daily sims scoped to the selected range */
+    const rangeDays = Math.max(1, Math.round((dateRange.to.getTime() - dateRange.from.getTime()) / 86400000) + 1);
     const dailySims: { day: string; count: number; isToday: boolean }[] = [];
-    for (let i = 29; i >= 0; i--) { const d = new Date(); d.setDate(d.getDate() - i); const dayStr = `${d.getDate()}/${d.getMonth() + 1}`; const count = proposals.filter(p => { if (!p.created_at) return false; const pd = new Date(p.created_at); return pd.getDate() === d.getDate() && pd.getMonth() === d.getMonth() && pd.getFullYear() === d.getFullYear(); }).length; dailySims.push({ day: dayStr, count, isToday: i === 0 }); }
+    for (let i = rangeDays - 1; i >= 0; i--) { const d = new Date(dateRange.to); d.setDate(d.getDate() - i); const dayStr = `${d.getDate()}/${d.getMonth() + 1}`; const count = filteredProposals.filter(p => { if (!p.created_at) return false; const pd = new Date(p.created_at); return pd.getDate() === d.getDate() && pd.getMonth() === d.getMonth() && pd.getFullYear() === d.getFullYear(); }).length; const today = new Date(); dailySims.push({ day: dayStr, count, isToday: d.getDate() === today.getDate() && d.getMonth() === today.getMonth() && d.getFullYear() === today.getFullYear() }); }
 
     const alerts: { type: "red" | "yellow"; text: string }[] = [];
     if (churnRate > 5) alerts.push({ type: "red", text: `Churn elevado: ${pct(churnRate)}` });
@@ -155,14 +184,15 @@ const MatrizDashboard = () => {
       { label: "1a", value: mrr * Math.pow(netRate, 12) },
     ];
 
+    const paidInRange = filteredPayments.filter(p => p.status === "paid").reduce((a, p) => a + p.amount, 0);
     const recorrente = mrr;
-    const excedente = Math.max(payments.filter(p => p.status === "paid").reduce((a, p) => a + p.amount, 0) - mrr, 0);
+    const excedente = Math.max(paidInRange - mrr, 0);
     const totalRev = recorrente + excedente;
     const recPct = totalRev > 0 ? (recorrente / totalRev) * 100 : 100;
     const exPct = totalRev > 0 ? (excedente / totalRev) * 100 : 0;
 
     return { mrr, mrrGrowth, churnRate, activeCount, newThisMonth, arpu, ltv, lostRevenue, simsThisMonth, simsGrowth, ranking, monthlyActive, dailySims, alerts, stateMap, topStates, maxStateCount, projections, recorrente, excedente, totalRev, recPct, exPct };
-  }, [data]);
+  }, [data, inRange, dateRange]);
 
   if (loading || !metrics) {
     return (
