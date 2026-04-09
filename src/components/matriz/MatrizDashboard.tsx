@@ -335,22 +335,22 @@ const MatrizDashboard = () => {
       </div>
 
       {/* BLOCO 4 — GRÁFICOS */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-card border border-border rounded-xl p-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
+        <div className="bg-card border border-border rounded-xl p-3 md:p-6">
           <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">CRESCIMENTO</span>
-          <h3 className="text-[15px] font-semibold text-foreground mt-1 mb-4">Crescimento de Lojistas Ativos</h3>
+          <h3 className="text-[14px] md:text-[15px] font-semibold text-foreground mt-1 mb-3 md:mb-4">Crescimento de Lojistas Ativos</h3>
           {metrics.monthlyActive.every(m => m.count === 0) ? <EmptyChart /> : (
-            <ResponsiveContainer width="100%" height={260}>
-              <AreaChart data={metrics.monthlyActive}>
+            <ResponsiveContainer width="100%" height={220}>
+              <AreaChart data={metrics.monthlyActive} margin={{ top: 5, right: 5, left: -20, bottom: 0 }}>
                 <defs>
                   <linearGradient id="areaFill" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity={0.08} />
+                    <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity={0.15} />
                     <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity={0} />
                   </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                <XAxis dataKey="month" tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} axisLine={false} tickLine={false} />
-                <YAxis tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} axisLine={false} tickLine={false} />
+                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
+                <XAxis dataKey="month" tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }} axisLine={false} tickLine={false} interval="preserveStartEnd" tickMargin={8} />
+                <YAxis tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }} axisLine={false} tickLine={false} width={30} allowDecimals={false} />
                 <Tooltip contentStyle={{ borderRadius: 8, border: "1px solid hsl(var(--border))", fontSize: 12, background: "hsl(var(--card))", color: "hsl(var(--foreground))" }} />
                 <Area type="monotone" dataKey="count" stroke="hsl(var(--primary))" strokeWidth={2} fill="url(#areaFill)" name="Lojistas" />
               </AreaChart>
@@ -358,17 +358,17 @@ const MatrizDashboard = () => {
           )}
         </div>
 
-        <div className="bg-card border border-border rounded-xl p-6">
+        <div className="bg-card border border-border rounded-xl p-3 md:p-6">
           <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">ATIVIDADE</span>
-          <h3 className="text-[15px] font-semibold text-foreground mt-1 mb-4">Simulações por Dia</h3>
+          <h3 className="text-[14px] md:text-[15px] font-semibold text-foreground mt-1 mb-3 md:mb-4">Simulações por Dia</h3>
           {metrics.dailySims.every(d => d.count === 0) ? <EmptyChart /> : (
-            <ResponsiveContainer width="100%" height={260}>
-              <BarChart data={metrics.dailySims}>
-                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                <XAxis dataKey="day" tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }} axisLine={false} tickLine={false} interval={4} />
-                <YAxis tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} axisLine={false} tickLine={false} />
+            <ResponsiveContainer width="100%" height={220}>
+              <BarChart data={metrics.dailySims} margin={{ top: 5, right: 5, left: -20, bottom: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
+                <XAxis dataKey="day" tick={{ fontSize: 9, fill: "hsl(var(--muted-foreground))" }} axisLine={false} tickLine={false} interval={6} tickMargin={8} angle={-35} textAnchor="end" height={40} />
+                <YAxis tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }} axisLine={false} tickLine={false} width={30} allowDecimals={false} />
                 <Tooltip contentStyle={{ borderRadius: 8, border: "1px solid hsl(var(--border))", fontSize: 12, background: "hsl(var(--card))", color: "hsl(var(--foreground))" }} />
-                <Bar dataKey="count" name="Simulações" radius={[4, 4, 0, 0]}>
+                <Bar dataKey="count" name="Simulações" radius={[3, 3, 0, 0]} maxBarSize={16}>
                   {metrics.dailySims.map((entry, idx) => (
                     <Cell key={idx} fill={entry.isToday ? "#0284C7" : "hsl(var(--primary))"} />
                   ))}
