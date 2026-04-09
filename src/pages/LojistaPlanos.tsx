@@ -7,25 +7,23 @@ const LojistaPlanos = () => {
   useForceLightTheme();
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
+    <div className="min-h-screen flex flex-col" style={{ background: "#0B1929" }}>
       <div
         className="relative"
         style={{
           background:
-            "linear-gradient(180deg, #0A1628 0%, #0C1A33 40%, #1A3A5C 70%, #7AADCB 88%, #FFFFFF 100%)",
+            "linear-gradient(180deg, #0A1628 0%, #0B1929 100%)",
         }}
       >
         <LojistaHeader />
-        <div className="h-16 md:h-24" />
+        <div className="h-8 md:h-12" />
       </div>
 
-      <section className="px-4 bg-background -mt-4">
-        <div className="container mx-auto">
-          <PricingSection hideLeadPlans hideFinalCta />
-        </div>
-      </section>
+      <PricingSection hideLeadPlans hideFinalCta />
 
-      <SiteFooter />
+      <div className="bg-background">
+        <SiteFooter />
+      </div>
     </div>
   );
 };
