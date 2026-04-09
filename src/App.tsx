@@ -1,4 +1,4 @@
-import { lazy, Suspense } from "react";
+import { lazy, Suspense, useEffect } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -6,6 +6,9 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "next-themes";
 import PageTransition from "@/components/PageTransition";
+import ProtectedRoute from "@/components/ProtectedRoute";
+import SuspenseFallback from "@/components/SuspenseFallback";
+import { supabase } from "@/integrations/supabase/client";
 
 // Eager load landing page for instant first paint
 import Index from "./pages/Index";
@@ -35,33 +38,78 @@ const queryClient = new QueryClient({
   },
 });
 
+/** Redirect to /login on session expiry (global listener) */
+function useAuthRedirect() {
+  useEffect(() => {
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((event) => {
+      if (event === "SIGNED_OUT") {
+        // Only redirect if currently on a protected route
+        const path = window.location.pathname;
+        if (path.startsWith("/admin") || path.startsWith("/matriz")) {
+          window.location.href = "/login";
+        }
+      }
+    });
+    return () => subscription.unsubscribe();
+  }, []);
+}
+
+const AppInner = () => {
+  useAuthRedirect();
+
+  return (
+    <BrowserRouter>
+      <Suspense fallback={<SuspenseFallback />}>
+        <PageTransition>
+          <Routes>
+            <Route path="/" element={<Index />} />
+
+            <Route path="/parceiros" element={<Parceiros />} />
+            <Route path="/lojista" element={<Lojista />} />
+            <Route path="/lojista/planos" element={<LojistaPlanos />} />
+            <Route path="/auth" element={<Auth />} />
+
+            {/* Protected: requires owner or seller role (Admin page handles role internally) */}
+            <Route
+              path="/admin/*"
+              element={
+                <ProtectedRoute forbiddenRedirect="/login">
+                  <Admin />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Protected: requires super_admin role */}
+            <Route
+              path="/matriz/*"
+              element={
+                <ProtectedRoute requiredRole="super_admin" forbiddenRedirect="/">
+                  <Matriz />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route path="/login" element={<Login />} />
+            <Route path="/login/app" element={<MobileApp />} />
+            <Route path="/loginmatriz" element={<LoginMatriz />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </PageTransition>
+      </Suspense>
+    </BrowserRouter>
+  );
+};
+
 const App = () => (
   <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false}>
     <QueryClientProvider client={queryClient}>
       <TooltipProvider delayDuration={300}>
         <Toaster />
         <Sonner />
-        <BrowserRouter>
-          <Suspense fallback={null}>
-            <PageTransition>
-              <Routes>
-                <Route path="/" element={<Index />} />
-                
-                <Route path="/parceiros" element={<Parceiros />} />
-                <Route path="/lojista" element={<Lojista />} />
-                <Route path="/lojista/planos" element={<LojistaPlanos />} />
-                <Route path="/auth" element={<Auth />} />
-                <Route path="/admin/*" element={<Admin />} />
-                <Route path="/matriz/*" element={<Matriz />} />
-                <Route path="/login" element={<Login />} />
-                <Route path="/login/app" element={<MobileApp />} />
-                <Route path="/loginmatriz" element={<LoginMatriz />} />
-                <Route path="/reset-password" element={<ResetPassword />} />
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-            </PageTransition>
-          </Suspense>
-        </BrowserRouter>
+        <AppInner />
       </TooltipProvider>
     </QueryClientProvider>
   </ThemeProvider>
