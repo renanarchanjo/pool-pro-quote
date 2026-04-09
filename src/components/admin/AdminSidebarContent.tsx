@@ -82,14 +82,14 @@ const AdminSidebarContent = ({ onNavigate, isMobile = false }: AdminSidebarConte
               <button
                 key={item.title}
                 onClick={() => handleNav(item.url)}
-                className={`flex items-center gap-2.5 w-full h-9 text-[13px] rounded-lg px-2.5 transition-all duration-150 ${
+                className={`flex items-center justify-end gap-2.5 w-full h-9 text-[13px] rounded-lg px-2.5 transition-all duration-150 ${
                   active
                     ? "bg-background border border-border font-semibold text-foreground"
                     : "text-muted-foreground hover:bg-accent font-normal border border-transparent"
                 }`}
               >
-                <item.icon className={`h-4 w-4 shrink-0 ${active ? "text-primary" : "text-muted-foreground"}`} strokeWidth={1.5} />
                 <span className="truncate">{item.title}</span>
+                <item.icon className={`h-4 w-4 shrink-0 ${active ? "text-primary" : "text-muted-foreground"}`} strokeWidth={1.5} />
               </button>
             );
           })}
