@@ -57,9 +57,36 @@ interface DashboardData {
 
 /* ─── component ─── */
 const MatrizDashboard = () => {
+  const navigate = useNavigate();
   const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
   const [period, setPeriod] = useState("month");
+
+  const handleViewStore = (storeId: string) => {
+    navigate(`/matriz/lojas`);
+  };
+
+  const handleContact = async (storeId: string) => {
+    const { data: owner } = await supabase
+      .from("profiles")
+      .select("full_name, id")
+      .eq("store_id", storeId)
+      .limit(1)
+      .maybeSingle();
+    if (!owner) {
+      toast.error("Nenhum proprietário encontrado para esta loja");
+      return;
+    }
+    const { data: authUser } = await supabase.rpc("has_role", { _user_id: owner.id, _role: "owner" });
+    // Fetch email via edge or just open mailto with store info
+    // For now, copy store info and show toast
+    const store = data?.stores.find(s => s.id === storeId);
+    if (store) {
+      const info = `${store.name} — ${store.city || ""}/${store.state || ""}`;
+      await navigator.clipboard.writeText(info);
+      toast.success(`Informações copiadas: ${info}`, { description: "Proprietário: " + (owner.full_name || "—") });
+    }
+  };
 
   const loadAll = useCallback(async () => {
     const [storesRes, proposalsRes, paymentsRes] = await Promise.all([
