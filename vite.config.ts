@@ -20,10 +20,11 @@ export default defineConfig(({ mode }) => ({
       includeAssets: ["favicon.png", "pwa-192x192.png", "pwa-512x512.png"],
       workbox: {
         navigateFallbackDenylist: [/^\/~oauth/],
-        globPatterns: ["**/*.{js,css,html,ico,png,svg,woff2}"],
+        globPatterns: ["**/*.{js,css,html,ico,png,svg,webp,woff2}"],
         skipWaiting: true,
         clientsClaim: true,
         dontCacheBustURLsMatching: /\.[0-9a-f]{8}\./,
+        maximumFileSizeToCacheInBytes: 3 * 1024 * 1024,
         runtimeCaching: [
           {
             urlPattern: /^https:\/\/fonts\.(googleapis|gstatic)\.com\/.*/i,
@@ -40,6 +41,14 @@ export default defineConfig(({ mode }) => ({
           {
             urlPattern: /\/rest\/v1\//,
             handler: "NetworkOnly",
+          },
+          {
+            urlPattern: /\.(png|jpg|jpeg|webp|svg|gif)$/i,
+            handler: "CacheFirst",
+            options: {
+              cacheName: "images",
+              expiration: { maxEntries: 60, maxAgeSeconds: 60 * 60 * 24 * 30 },
+            },
           },
         ],
       },
@@ -88,6 +97,7 @@ export default defineConfig(({ mode }) => ({
   ].filter(Boolean),
   build: {
     target: "es2020",
+    cssMinify: true,
     rollupOptions: {
       output: {
         manualChunks: {
@@ -95,6 +105,7 @@ export default defineConfig(({ mode }) => ({
           ui: ["@radix-ui/react-dialog", "@radix-ui/react-popover", "@radix-ui/react-tooltip", "@radix-ui/react-dropdown-menu"],
           query: ["@tanstack/react-query"],
           supabase: ["@supabase/supabase-js"],
+          motion: ["framer-motion"],
         },
       },
     },

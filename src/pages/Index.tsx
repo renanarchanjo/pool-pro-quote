@@ -1,4 +1,4 @@
-import { lazy, Suspense, useState } from "react";
+import { lazy, Suspense, useState, useCallback } from "react";
 import { Loader2, ArrowRight } from "lucide-react";
 import { motion } from "framer-motion";
 import SiteHeader from "@/components/landing/SiteHeader";
@@ -10,7 +10,7 @@ import { useForceLightTheme } from "@/hooks/useForceLightTheme";
 const PoolSimulator = lazy(() => import("@/components/simulator/PoolSimulator"));
 
 const SimulatorLoader = () => (
-  <div className="min-h-screen flex items-center justify-center bg-background">
+  <div className="min-h-screen flex items-center justify-center bg-background" role="status" aria-label="Carregando simulador">
     <Loader2 className="w-8 h-8 animate-spin text-primary" />
   </div>
 );
@@ -28,31 +28,35 @@ const fadeUp = {
 const Index = () => {
   useForceLightTheme();
   const [showSimulator, setShowSimulator] = useState(false);
+  const handleSimulate = useCallback(() => setShowSimulator(true), []);
+  const handleBack = useCallback(() => setShowSimulator(false), []);
 
   if (showSimulator) {
     return (
       <Suspense fallback={<SimulatorLoader />}>
-        <PoolSimulator onBack={() => setShowSimulator(false)} />
+        <PoolSimulator onBack={handleBack} />
       </Suspense>
     );
   }
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
-      {/* ─── Unified Navbar + Hero Block ─── */}
-      <div
+      {/* ─── Hero Block ─── */}
+      <header
         className="relative overflow-hidden"
         style={{
           background:
             "linear-gradient(180deg, #0A1628 0%, #0C1A33 30%, #0D1F3C 50%, #0F2847 65%, #1A3A5C 80%, #3D6B8D 90%, #7AADCB 96%, #FFFFFF 100%)",
           minHeight: "100svh",
+          contain: "layout style",
         }}
       >
-        <SiteHeader onSimulate={() => setShowSimulator(true)} />
+        <SiteHeader onSimulate={handleSimulate} />
 
         {/* Subtle blobs — desktop only */}
         <div
           className="hidden md:block absolute pointer-events-none rounded-full"
+          aria-hidden="true"
           style={{
             width: 500, height: 500, top: -80, left: -120,
             background: "radial-gradient(circle, rgba(14,165,233,0.15) 0%, transparent 70%)",
@@ -60,6 +64,7 @@ const Index = () => {
         />
         <div
           className="hidden md:block absolute pointer-events-none rounded-full"
+          aria-hidden="true"
           style={{
             width: 400, height: 400, bottom: 60, right: -80,
             background: "radial-gradient(circle, rgba(56,189,248,0.1) 0%, transparent 70%)",
@@ -76,7 +81,6 @@ const Index = () => {
             Mais de 4.800 simulações reais por mês
           </motion.p>
 
-          {/* Headline — biggest element, clear hierarchy */}
           <motion.h1
             variants={fadeUp} initial="hidden" animate="visible" custom={1}
             className="text-[36px] leading-[1.1] md:text-[56px] md:leading-[1.08] font-bold text-white tracking-[-0.025em] mb-5 md:mb-6"
@@ -88,7 +92,6 @@ const Index = () => {
             {" "}em menos de 1 minuto
           </motion.h1>
 
-          {/* Subheadline */}
           <motion.p
             variants={fadeUp} initial="hidden" animate="visible" custom={2}
             className="text-[15px] md:text-[18px] max-w-[480px] mx-auto mb-10 md:mb-12 leading-relaxed"
@@ -97,22 +100,18 @@ const Index = () => {
             Escolha o modelo, personalize do seu jeito e veja o valor na hora — sem precisar falar com vendedor.
           </motion.p>
 
-          {/* CTA — heavy, prominent */}
           <motion.div variants={fadeUp} initial="hidden" animate="visible" custom={3}>
             <button
-              onClick={() => setShowSimulator(true)}
+              onClick={handleSimulate}
               className="group w-full md:w-auto inline-flex items-center justify-center h-[52px] px-10 text-[16px] font-semibold rounded-xl transition-all duration-300 hover:scale-[1.03] active:scale-[0.98] animate-cta-pulse"
-              style={{
-                backgroundColor: "#FFFFFF",
-                color: "#0A1628",
-              }}
+              style={{ backgroundColor: "#FFFFFF", color: "#0A1628" }}
+              aria-label="Iniciar simulação de piscina"
             >
               Simular Minha Piscina
-              <ArrowRight className="ml-2 w-5 h-5 transition-transform group-hover:translate-x-0.5" />
+              <ArrowRight className="ml-2 w-5 h-5 transition-transform group-hover:translate-x-0.5" aria-hidden="true" />
             </button>
           </motion.div>
 
-          {/* Trust line */}
           <motion.p
             variants={fadeUp} initial="hidden" animate="visible" custom={4}
             className="mt-5 text-[13px] md:text-[14px] font-medium tracking-wide"
@@ -121,45 +120,46 @@ const Index = () => {
             Sem compromisso · Resultado na hora · 100% online
           </motion.p>
         </div>
-      </div>
+      </header>
 
-      {/* ─── How It Works ─── */}
-      <HowItWorks onSimulate={() => setShowSimulator(true)} />
+      {/* ─── Main Content ─── */}
+      <main>
+        <HowItWorks onSimulate={handleSimulate} />
+        <PartnersMarquee />
 
-      {/* ─── Partners Marquee ─── */}
-      <PartnersMarquee />
-
-      {/* ─── Final CTA ─── */}
-      <section className="py-20 md:py-28 px-4" style={{ background: "linear-gradient(180deg, #FFFFFF 0%, #F0F9FF 100%)" }}>
-        <motion.div
-          initial={{ opacity: 0, y: 32 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.3 }}
-          transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-          className="max-w-[560px] mx-auto text-center"
-        >
-          <h2 className="text-[24px] md:text-[32px] font-bold text-foreground mb-3 md:mb-4 tracking-[-0.02em]">
-            Sua piscina pode estar pronta
-            <br />
-            <span className="text-primary">antes do verão</span>
-          </h2>
-          <p className="text-[15px] text-muted-foreground mb-10 md:mb-12 leading-relaxed max-w-[420px] mx-auto">
-            Simule agora, sem compromisso. É grátis e leva menos de 1 minuto.
-          </p>
-
-          <button
-            onClick={() => setShowSimulator(true)}
-            className="group w-full md:w-auto inline-flex items-center justify-center h-12 px-8 text-[15px] font-semibold rounded-xl bg-primary text-primary-foreground transition-all duration-300 hover:scale-[1.03] active:scale-[0.98] mb-6 animate-cta-pulse"
+        {/* ─── Final CTA ─── */}
+        <section className="py-20 md:py-28 px-4" style={{ background: "linear-gradient(180deg, #FFFFFF 0%, #F0F9FF 100%)" }}>
+          <motion.div
+            initial={{ opacity: 0, y: 32 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.3 }}
+            transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+            className="max-w-[560px] mx-auto text-center"
           >
-            Simular Minha Piscina
-            <ArrowRight className="ml-2 w-4 h-4 transition-transform group-hover:translate-x-0.5" />
-          </button>
+            <h2 className="text-[24px] md:text-[32px] font-bold text-foreground mb-3 md:mb-4 tracking-[-0.02em]">
+              Sua piscina pode estar pronta
+              <br />
+              <span className="text-primary">antes do verão</span>
+            </h2>
+            <p className="text-[15px] text-muted-foreground mb-10 md:mb-12 leading-relaxed max-w-[420px] mx-auto">
+              Simule agora, sem compromisso. É grátis e leva menos de 1 minuto.
+            </p>
 
-          <p className="text-[13px] text-muted-foreground">
-            Sem cadastro · Sem compromisso · 100% gratuito
-          </p>
-        </motion.div>
-      </section>
+            <button
+              onClick={handleSimulate}
+              className="group w-full md:w-auto inline-flex items-center justify-center h-12 px-8 text-[15px] font-semibold rounded-xl bg-primary text-primary-foreground transition-all duration-300 hover:scale-[1.03] active:scale-[0.98] mb-6 animate-cta-pulse"
+              aria-label="Iniciar simulação de piscina"
+            >
+              Simular Minha Piscina
+              <ArrowRight className="ml-2 w-4 h-4 transition-transform group-hover:translate-x-0.5" aria-hidden="true" />
+            </button>
+
+            <p className="text-[13px] text-muted-foreground">
+              Sem cadastro · Sem compromisso · 100% gratuito
+            </p>
+          </motion.div>
+        </section>
+      </main>
 
       <SiteFooter />
     </div>

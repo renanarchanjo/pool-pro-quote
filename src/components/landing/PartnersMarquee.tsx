@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { motion } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -25,14 +25,17 @@ const PartnersMarquee = () => {
       });
   }, []);
 
+  const track = useMemo(() => {
+    if (partners.length === 0) return [];
+    const base = [...partners];
+    while (base.length < 12) base.push(...partners);
+    return [...base, ...base];
+  }, [partners]);
+
   if (partners.length === 0) return null;
 
-  const base = [...partners];
-  while (base.length < 12) base.push(...partners);
-  const track = [...base, ...base];
-
   return (
-    <section className="bg-background py-14 md:py-20">
+    <section className="bg-background py-14 md:py-20" aria-label="Parceiros">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         whileInView={{ opacity: 1, y: 0 }}
@@ -48,13 +51,15 @@ const PartnersMarquee = () => {
         </h2>
       </motion.div>
 
-      <div className="relative overflow-hidden group">
+      <div className="relative overflow-hidden group" role="marquee" aria-label="Logos de parceiros">
         <div
           className="absolute left-0 top-0 bottom-0 w-16 md:w-24 z-10 pointer-events-none"
+          aria-hidden="true"
           style={{ background: "linear-gradient(to right, hsl(var(--background)), transparent)" }}
         />
         <div
           className="absolute right-0 top-0 bottom-0 w-16 md:w-24 z-10 pointer-events-none"
+          aria-hidden="true"
           style={{ background: "linear-gradient(to left, hsl(var(--background)), transparent)" }}
         />
 
@@ -63,6 +68,7 @@ const PartnersMarquee = () => {
           style={{
             width: `${track.length * 136}px`,
             animation: "marquee 30s linear infinite",
+            willChange: "transform",
           }}
         >
           {track.map((p, i) => (
@@ -71,7 +77,15 @@ const PartnersMarquee = () => {
               className="w-[120px] h-[120px] flex flex-col items-center justify-center gap-2.5 bg-secondary border border-border rounded-2xl shrink-0 transition-all duration-300 hover:border-primary/20 hover:shadow-[0_4px_20px_-8px_rgba(14,165,233,0.12)]"
             >
               {p.logo_url ? (
-                <img src={p.logo_url} alt={p.name} className="w-12 h-12 object-contain" />
+                <img
+                  src={p.logo_url}
+                  alt={p.name}
+                  className="w-12 h-12 object-contain"
+                  loading="lazy"
+                  decoding="async"
+                  width={48}
+                  height={48}
+                />
               ) : (
                 <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center">
                   <span className="text-[16px] font-semibold text-primary">{getInitials(p.name)}</span>
