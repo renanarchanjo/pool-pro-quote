@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import logoIcon from "@/assets/logo-icon-v3.png";
+import logoIcon from "@/assets/logo-icon-v3.webp";
 import { User } from "lucide-react";
 
 const LojistaHeader = () => {
