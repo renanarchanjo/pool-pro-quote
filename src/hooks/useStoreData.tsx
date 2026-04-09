@@ -13,6 +13,10 @@ interface Store {
   slug: string;
   city: string | null;
   state: string | null;
+  whatsapp: string | null;
+  plan_status: string | null;
+  plan_expires_at: string | null;
+  nome_fantasia: string | null;
 }
 
 interface StoreSettings {
@@ -20,8 +24,6 @@ interface StoreSettings {
   primary_color: string;
   secondary_color: string;
 }
-
-const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 export const useStoreData = () => {
   const [profile, setProfile] = useState<Profile | null>(null);
@@ -39,6 +41,12 @@ export const useStoreData = () => {
 
   const fetchStoreData = useCallback(async (attempt = 0, silent = false) => {
     try {
+      if (attempt >= 5) {
+        resetState();
+        setLoading(false);
+        return;
+      }
+
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
         resetState();
@@ -48,27 +56,33 @@ export const useStoreData = () => {
 
       const { data: profileData, error: profileError } = await supabase
         .from("profiles")
-        .select("*")
+        .select("id, store_id, full_name")
         .eq("id", user.id)
         .maybeSingle();
 
       if (profileError) throw profileError;
 
       if (!profileData?.store_id) {
-        if (attempt < 8) {
-          await wait(500);
-          return fetchStoreData(attempt + 1, silent);
-        }
-
-        resetState();
-        setLoading(false);
-        return;
+        await new Promise(r => setTimeout(r, 600 * (attempt + 1)));
+        return fetchStoreData(attempt + 1, silent);
       }
 
       const [{ data: storeData, error: storeError }, { data: settingsData, error: settingsError }, { data: roleData, error: roleError }] = await Promise.all([
-        supabase.from("stores").select("*").eq("id", profileData.store_id).maybeSingle(),
-        supabase.from("store_settings").select("*").eq("store_id", profileData.store_id).maybeSingle(),
-        supabase.from("user_roles").select("role").eq("user_id", user.id).maybeSingle(),
+        supabase
+          .from("stores")
+          .select("id, name, slug, city, state, whatsapp, plan_status, plan_expires_at, nome_fantasia")
+          .eq("id", profileData.store_id)
+          .maybeSingle(),
+        supabase
+          .from("store_settings")
+          .select("logo_url, primary_color, secondary_color")
+          .eq("store_id", profileData.store_id)
+          .maybeSingle(),
+        supabase
+          .from("user_roles")
+          .select("role")
+          .eq("user_id", user.id)
+          .maybeSingle(),
       ]);
 
       if (storeError) throw storeError;
@@ -76,10 +90,8 @@ export const useStoreData = () => {
       if (roleError) throw roleError;
 
       if (!storeData || !roleData?.role) {
-        if (attempt < 8) {
-          await wait(500);
-          return fetchStoreData(attempt + 1, silent);
-        }
+        await new Promise(r => setTimeout(r, 600 * (attempt + 1)));
+        return fetchStoreData(attempt + 1, silent);
       }
 
       setProfile(profileData);
@@ -116,7 +128,6 @@ export const useStoreData = () => {
 
     const onVisibilityChange = () => {
       if (document.visibilityState === "visible") {
-        // Silent refresh — don't show loading spinner
         void fetchStoreData(0, true);
       }
     };
@@ -134,5 +145,19 @@ export const useStoreData = () => {
     void fetchStoreData();
   }, [fetchStoreData]);
 
-  return { profile, store, storeSettings, role, loading, refetch };
+  /** Re-verify role from DB before critical actions */
+  const verifyRole = useCallback(async (requiredRole: string): Promise<boolean> => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return false;
+
+    const { data } = await supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", user.id)
+      .single();
+
+    return data?.role === requiredRole;
+  }, []);
+
+  return { profile, store, storeSettings, role, loading, refetch, verifyRole };
 };

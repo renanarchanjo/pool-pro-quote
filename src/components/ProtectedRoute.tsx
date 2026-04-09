@@ -39,12 +39,22 @@ const ProtectedRoute = ({
           .from("user_roles")
           .select("role")
           .eq("user_id", session.user.id)
-          .eq("role", requiredRole)
           .maybeSingle();
 
         if (cancelled) return;
 
         if (!data) {
+          setStatus("forbidden");
+          return;
+        }
+
+        // super_admin can access any protected route
+        if (data.role === "super_admin") {
+          setStatus("ok");
+          return;
+        }
+
+        if (data.role !== requiredRole) {
           setStatus("forbidden");
           return;
         }
