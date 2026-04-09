@@ -8,7 +8,7 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
-import { Sheet, SheetContent } from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
@@ -156,9 +156,10 @@ const Sidebar = React.forwardRef<
         <SheetContent
           data-sidebar="sidebar"
           data-mobile="true"
-          className="!w-[80vw] !max-w-[80vw] bg-sidebar !p-0 !pl-0 !ml-0 !left-0 !inset-y-0 text-sidebar-foreground [&>button]:hidden !rounded-none"
+          className="!w-[80vw] !max-w-[300px] bg-sidebar !p-0 text-sidebar-foreground [&>button]:hidden"
           side={side}
         >
+          <SheetTitle className="sr-only">Menu de navegação</SheetTitle>
           <div className="flex h-full w-full flex-col">{children}</div>
         </SheetContent>
       </Sheet>
