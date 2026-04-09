@@ -284,7 +284,6 @@ const TeamPerformance = () => {
               <FileDown className="w-3 h-3 text-white" />
             </span>
           </button>
-          </Button>
           <Select value={datePreset} onValueChange={applyPreset}>
             <SelectTrigger className="h-8 w-[140px] text-xs">
               <SelectValue />

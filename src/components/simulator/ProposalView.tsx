@@ -251,7 +251,6 @@ const ProposalView = ({
               </span>
             </button>
           </div>
-          </div>
         </div>
       </nav>
 
