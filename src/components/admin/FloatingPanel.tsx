@@ -50,7 +50,7 @@ const FloatingPanel = ({ open, onClose, children }: FloatingPanelProps) => {
           "fixed z-[61] flex flex-col",
           "right-3 md:right-5",
           "top-1/2 -translate-y-1/2",
-          "w-[85vw] max-w-[360px] md:w-[340px]",
+          "w-[55vw] max-w-[220px] md:w-[220px]",
           "max-h-[calc(100dvh-80px)]",
           "bg-background border border-border",
           "rounded-2xl",
