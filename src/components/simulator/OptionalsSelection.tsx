@@ -4,6 +4,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Loader2, AlertCircle, Check } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import BlurredPrice from "./BlurredPrice";
 import { Badge } from "@/components/ui/badge";
 
 interface Optional {
@@ -217,7 +218,7 @@ const OptionalsSelection = ({ optionals, modelOptionals = [], selectedOptionals:
                               <p className="text-[13px] text-muted-foreground mt-1 leading-relaxed">{optional.description}</p>
                             )}
                             <p className="font-bold text-primary text-[15px] mt-2">
-                              {hidePricing ? "Valor liberado na proposta" : `+ R$ ${optional.price.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`}
+                              {hidePricing ? <BlurredPrice value={optional.price} prefix="+ R$" /> : `+ R$ ${optional.price.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`}
                             </p>
                           </div>
                         </div>
@@ -258,7 +259,7 @@ const OptionalsSelection = ({ optionals, modelOptionals = [], selectedOptionals:
                               <p className="text-[13px] text-muted-foreground mt-1 leading-relaxed">{optional.description}</p>
                             )}
                             <p className="font-bold text-primary text-[15px] mt-2">
-                              {hidePricing ? "Valor liberado na proposta" : `+ R$ ${optional.price.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`}
+                              {hidePricing ? <BlurredPrice value={optional.price} prefix="+ R$" /> : `+ R$ ${optional.price.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`}
                             </p>
                           </div>
                         </div>
@@ -307,7 +308,7 @@ const OptionalsSelection = ({ optionals, modelOptionals = [], selectedOptionals:
                         <p className="text-[13px] text-muted-foreground mt-1 leading-relaxed">{mOpt.description}</p>
                       )}
                       <p className="font-bold text-primary text-[15px] mt-2">
-                        {hidePricing ? "Valor liberado na proposta" : `+ R$ ${mOpt.price.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`}
+                        {hidePricing ? <BlurredPrice value={mOpt.price} prefix="+ R$" /> : `+ R$ ${mOpt.price.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`}
                       </p>
                     </div>
                   </div>
@@ -323,7 +324,7 @@ const OptionalsSelection = ({ optionals, modelOptionals = [], selectedOptionals:
           <div className="min-w-0">
             <p className="text-xs md:text-sm text-muted-foreground">Total do Orçamento</p>
             <p className="text-xl md:text-3xl font-display font-bold text-primary truncate">
-              {hidePricing ? "Valor liberado após envio" : `R$ ${calculateTotal().toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`}
+              {hidePricing ? <BlurredPrice value={calculateTotal()} className="text-xl md:text-3xl" /> : `R$ ${calculateTotal().toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`}
             </p>
           </div>
           <Button className="gradient-primary text-white px-5 md:px-8 shrink-0" size="lg" onClick={handleContinue}>
