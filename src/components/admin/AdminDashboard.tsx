@@ -259,10 +259,12 @@ const AdminDashboard = () => {
               />
             </PopoverContent>
           </Popover>
-          <Button onClick={handleExportPDF} variant="outline" size="sm" className="h-8 shrink-0 text-[13px] bg-input border-border rounded-md gap-1.5 text-foreground">
-            <Download className="w-3.5 h-3.5" />
+          <button onClick={handleExportPDF} className="inline-flex items-center gap-2 h-8 pl-3 pr-2 text-[12px] font-semibold text-white bg-[#2d2d2d] rounded-full transition-all duration-150 hover:bg-[#1a1a1a] active:scale-95 shrink-0">
             PDF
-          </Button>
+            <span className="flex items-center justify-center w-6 h-6 rounded-full bg-[#dc2626]">
+              <Download className="w-3 h-3 text-white" />
+            </span>
+          </button>
         </div>
       </div>
 
