@@ -1,6 +1,6 @@
 import { useNavigate, useLocation } from "react-router-dom";
 import {
-  TrendingUp, Users, CreditCard, AlertTriangle,
+  TrendingUp, AlertTriangle,
   Store, Handshake, Tag, MapPin, FileBarChart, Filter, LogOut,
 } from "lucide-react";
 import ThemeToggle from "@/components/ThemeToggle";
