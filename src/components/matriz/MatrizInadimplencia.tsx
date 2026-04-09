@@ -78,6 +78,7 @@ const MatrizInadimplencia = () => {
   const atRisk = useMemo(() => {
     const now = new Date();
     return stores.filter((s) => {
+      if (s.id === LIM_PISCINAS_ID) return false;
       if (s.plan_status !== "active" || !s.plan_expires_at) return false;
       const exp = new Date(s.plan_expires_at);
       const diff = (exp.getTime() - now.getTime()) / (1000 * 60 * 60 * 24);
