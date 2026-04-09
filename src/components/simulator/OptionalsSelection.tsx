@@ -2,8 +2,6 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { RadioGroup } from "@/components/ui/radio-group";
-import { Label } from "@/components/ui/label";
 import { Loader2, AlertCircle, Check } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
@@ -194,51 +192,44 @@ const OptionalsSelection = ({ optionals, modelOptionals = [], selectedOptionals:
               )}
 
               {group.selection_type === "single" ? (
-                <RadioGroup
-                  value={selected[group.id]?.[0] || ""}
-                  onValueChange={(value) => handleRadioChange(group.id, value)}
-                >
-                  <div className="grid gap-2.5">
-                    {groupOptionals.map((optional) => {
-                      const isSelected = selected[group.id]?.[0] === optional.id;
-                      return (
-                        <div key={optional.id} className="space-y-2">
-                          <div
-                            onClick={() => handleRadioChange(group.id, optional.id)}
-                            className={`relative p-4 rounded-xl border-2 cursor-pointer transition-all duration-200 active:scale-[0.98] ${
-                              isSelected
-                                ? "border-primary bg-primary/10 shadow-md shadow-primary/10"
-                                : "border-border hover:border-primary/40 hover:bg-muted/30"
-                            }`}
-                          >
-                            {isSelected && (
-                              <div className="absolute top-3 right-3 w-5 h-5 rounded-full bg-primary flex items-center justify-center">
-                                <Check className="w-3 h-3 text-primary-foreground" />
-                              </div>
-                            )}
-                            <div className="flex-1 min-w-0 pr-6">
-                              <div className="flex items-start justify-between gap-2">
-                                <p className="font-semibold text-[15px] leading-snug">{optional.name}</p>
-                              </div>
-                              {optional.description && (
-                                <p className="text-[13px] text-muted-foreground mt-1 leading-relaxed">{optional.description}</p>
-                              )}
-                              <p className="font-bold text-primary text-[15px] mt-2">
-                                + R$ {optional.price.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
-                              </p>
+                <div className="grid gap-2.5">
+                  {groupOptionals.map((optional) => {
+                    const isSelected = selected[group.id]?.[0] === optional.id;
+                    return (
+                      <div key={optional.id} className="space-y-2">
+                        <div
+                          onClick={() => handleRadioChange(group.id, optional.id)}
+                          className={`relative p-4 rounded-xl border-2 cursor-pointer transition-all duration-200 active:scale-[0.98] ${
+                            isSelected
+                              ? "border-primary bg-primary/10 shadow-md shadow-primary/10"
+                              : "border-border hover:border-primary/40 hover:bg-muted/30"
+                          }`}
+                        >
+                          {isSelected && (
+                            <div className="absolute top-3 right-3 w-5 h-5 rounded-full bg-primary flex items-center justify-center">
+                              <Check className="w-3 h-3 text-primary-foreground" />
                             </div>
-                          </div>
-                          {optional.warning_note && isSelected && (
-                            <Alert variant="destructive" className="ml-2">
-                              <AlertCircle className="h-4 w-4" />
-                              <AlertDescription>{optional.warning_note}</AlertDescription>
-                            </Alert>
                           )}
+                          <div className="flex-1 min-w-0 pr-6">
+                            <p className="font-semibold text-[15px] leading-snug">{optional.name}</p>
+                            {optional.description && (
+                              <p className="text-[13px] text-muted-foreground mt-1 leading-relaxed">{optional.description}</p>
+                            )}
+                            <p className="font-bold text-primary text-[15px] mt-2">
+                              + R$ {optional.price.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                            </p>
+                          </div>
                         </div>
-                      );
-                    })}
-                  </div>
-                </RadioGroup>
+                        {optional.warning_note && isSelected && (
+                          <Alert variant="destructive" className="ml-2">
+                            <AlertCircle className="h-4 w-4" />
+                            <AlertDescription>{optional.warning_note}</AlertDescription>
+                          </Alert>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
               ) : (
                 <div className="grid gap-2.5">
                   {groupOptionals.map((optional) => {
