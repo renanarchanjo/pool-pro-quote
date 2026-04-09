@@ -264,7 +264,7 @@ const PricingSection = ({
                       boxShadow: cardShadow,
                       backdropFilter: isHero ? "none" : "blur(12px)",
                       WebkitBackdropFilter: isHero ? "none" : "blur(12px)",
-                      transform: isHero ? "scale(1.06)" : "scale(1)",
+                      transform: "scale(1)",
                       transformOrigin: "center bottom",
                     }}
                     onMouseEnter={(e) => {
