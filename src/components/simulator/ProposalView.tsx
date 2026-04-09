@@ -139,6 +139,14 @@ const ProposalView = ({
         el.style.display = "none";
       });
 
+      // Force-show elements hidden on mobile (e.g. partner banners)
+      const pdfOnlyEls = element.querySelectorAll<HTMLElement>("[data-pdf-only]");
+      const pdfOnlyOriginals: { el: HTMLElement; display: string }[] = [];
+      pdfOnlyEls.forEach((el) => {
+        pdfOnlyOriginals.push({ el, display: el.style.display });
+        el.style.display = "flex";
+      });
+
       element.style.width = `${width}px`;
       element.style.maxWidth = `${width}px`;
       element.style.padding = "32px";
