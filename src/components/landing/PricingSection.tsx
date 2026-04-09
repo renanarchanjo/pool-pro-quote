@@ -227,7 +227,7 @@ const PricingSection = ({
               return (
                 <div
                   key={plan.id}
-                  className="plan-card relative flex flex-col transition-all duration-500 ease-out"
+                  className={`plan-card relative flex flex-col transition-all duration-500 ease-out ${isHero ? "lg:-my-4 lg:-mx-2" : ""}`}
                   style={{
                     opacity: 0,
                     transform: "translateY(24px)",
@@ -264,13 +264,13 @@ const PricingSection = ({
                       boxShadow: cardShadow,
                       backdropFilter: isHero ? "none" : "blur(12px)",
                       WebkitBackdropFilter: isHero ? "none" : "blur(12px)",
-                      transform: isHero ? "scale(1.06)" : "scale(1)",
+                      transform: "scale(1)",
                       transformOrigin: "center bottom",
                     }}
                     onMouseEnter={(e) => {
                       const t = e.currentTarget;
                       if (isHero) {
-                        t.style.transform = "scale(1.06) translateY(-8px)";
+                        t.style.transform = "translateY(-8px)";
                         t.style.boxShadow = "0 32px 100px -16px hsla(199,89%,48%,0.35), 0 0 0 1px hsla(199,89%,48%,0.12)";
                       } else {
                         t.style.transform = "translateY(-6px)";
@@ -281,7 +281,7 @@ const PricingSection = ({
                     onMouseLeave={(e) => {
                       const t = e.currentTarget;
                       if (isHero) {
-                        t.style.transform = "scale(1.06)";
+                        t.style.transform = "scale(1)";
                         t.style.boxShadow = cardShadow;
                       } else {
                         t.style.transform = "scale(1)";
