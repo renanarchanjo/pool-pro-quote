@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
+import { Skeleton } from "@/components/ui/skeleton";
 import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -264,8 +265,10 @@ const PartnersManager = () => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-20">
-        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      <div className="space-y-6 p-4 md:p-8">
+        <Skeleton className="h-8 w-64 rounded-lg" />
+        <Skeleton className="h-[200px] rounded-xl" />
+        <Skeleton className="h-[400px] rounded-xl" />
       </div>
     );
   }
@@ -273,11 +276,11 @@ const PartnersManager = () => {
   const hasDirtyChanges = isDirty();
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 p-4 md:p-8">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Parceiros</h1>
-          <p className="text-muted-foreground mt-1">
+          <h1 className="text-[18px] font-semibold text-foreground">Parceiros</h1>
+          <p className="text-[13px] text-muted-foreground">
             Gerencie os parceiros, categorias e rankings de exibição nas propostas
           </p>
         </div>

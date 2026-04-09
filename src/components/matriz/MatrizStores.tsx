@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Loader2, Search, Pencil, Trash2, Save, X, Store, Radio } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {
@@ -189,17 +190,20 @@ const MatrizStores = () => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-20">
-        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      <div className="space-y-6 p-4 md:p-8">
+        <Skeleton className="h-8 w-64 rounded-lg" />
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {Array.from({ length: 6 }).map((_, i) => <Skeleton key={i} className="h-[180px] rounded-xl" />)}
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 p-4 md:p-8">
       <div>
-        <h1 className="text-2xl font-display font-bold">Lojas Cadastradas</h1>
-        <p className="text-muted-foreground">{stores.length} lojas no total</p>
+        <h1 className="text-[18px] font-semibold text-foreground">Lojas Cadastradas</h1>
+        <p className="text-[13px] text-muted-foreground">{stores.length} lojas no total</p>
       </div>
 
       <div className="flex gap-3">

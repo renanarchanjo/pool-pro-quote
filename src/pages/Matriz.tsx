@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { useNavigate, Routes, Route } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2 } from "lucide-react";
-import { SidebarProvider } from "@/components/ui/sidebar";
+import { Loader2, PanelLeftClose, PanelLeft } from "lucide-react";
+import { SidebarProvider, useSidebar } from "@/components/ui/sidebar";
 import MatrizSidebar from "@/components/matriz/MatrizSidebar";
 import MatrizDashboard from "@/components/matriz/MatrizDashboard";
 import MatrizStores from "@/components/matriz/MatrizStores";
@@ -50,6 +50,7 @@ const Matriz = () => {
       <div className="min-h-screen flex w-full bg-background overflow-x-hidden">
         <MatrizSidebar />
         <div className="flex-1 flex flex-col min-w-0">
+          <MatrizTopBar />
           <main className="flex-1 overflow-x-hidden overflow-y-auto safe-area-bottom">
             <Routes>
               <Route index element={<MatrizDashboard />} />
@@ -67,6 +68,21 @@ const Matriz = () => {
         </div>
       </div>
     </SidebarProvider>
+  );
+};
+
+const MatrizTopBar = () => {
+  const { toggleSidebar, open } = useSidebar();
+  return (
+    <header className="h-11 flex items-center border-b border-border px-3 shrink-0">
+      <button
+        onClick={toggleSidebar}
+        className="p-1.5 rounded-md hover:bg-accent text-muted-foreground hover:text-foreground transition-colors"
+        title={open ? "Fechar sidebar" : "Abrir sidebar"}
+      >
+        {open ? <PanelLeftClose className="h-4 w-4" /> : <PanelLeft className="h-4 w-4" />}
+      </button>
+    </header>
   );
 };
 

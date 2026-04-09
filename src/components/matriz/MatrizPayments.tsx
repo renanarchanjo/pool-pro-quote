@@ -3,6 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Loader2, Users, FileText, CreditCard, TrendingUp, MapPin } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Separator } from "@/components/ui/separator";
 
 interface Payment {
@@ -65,17 +66,21 @@ const MatrizPayments = () => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-20">
-        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      <div className="space-y-6 p-4 md:p-8">
+        <Skeleton className="h-8 w-64 rounded-lg" />
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          {Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="h-[180px] rounded-xl" />)}
+        </div>
+        <Skeleton className="h-[300px] rounded-xl" />
       </div>
     );
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6 p-4 md:p-8">
       <div>
-        <h1 className="text-2xl font-display font-bold">Cobranças e Pagamentos</h1>
-        <p className="text-muted-foreground">Visão geral dos planos, custos adicionais e histórico de pagamentos</p>
+        <h1 className="text-[18px] font-semibold text-foreground">Cobranças e Pagamentos</h1>
+        <p className="text-[13px] text-muted-foreground">Visão geral dos planos, custos adicionais e histórico de pagamentos</p>
       </div>
 
       {/* Planos Recorrentes */}
