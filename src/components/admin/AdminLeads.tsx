@@ -8,7 +8,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Loader2, Lock, CheckCircle, AlertTriangle, Copy, Package, XCircle, CheckCheck, Eye, FileDown, ExternalLink, Check, Radio, CreditCard, Users, UserPlus, Send } from "lucide-react";
+import { Loader2, Lock, CheckCircle, AlertTriangle, Copy, Package, XCircle, CheckCheck, Eye, FileDown, ExternalLink, Check, Radio, CreditCard, Users, UserPlus, Send, ZoomIn, ZoomOut, X } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -54,6 +54,7 @@ const AdminLeads = () => {
   const [storeInfo, setStoreInfo] = useState<{ lead_limit_monthly: number; lead_price_excess: number; lead_plan_active: boolean } | null>(null);
   const [viewingProposal, setViewingProposal] = useState<any>(null);
   const [loadingProposal, setLoadingProposal] = useState(false);
+  const [previewZoomed, setPreviewZoomed] = useState(false);
   const [leadSubActive, setLeadSubActive] = useState<boolean | null>(null);
   const [checkoutLoading, setCheckoutLoading] = useState(false);
   const [filterUser, setFilterUser] = useState<string>("all");
@@ -775,44 +776,85 @@ const AdminLeads = () => {
         </CardContent>
       </Card>
 
-      {/* Proposal View Dialog */}
-      <Dialog open={!!viewingProposal} onOpenChange={(open) => !open && setViewingProposal(null)}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto p-0">
-          {viewingProposal && (
-            <ProposalView
-              model={{
-                name: viewingProposal.pool_models?.name || "Modelo",
-                length: viewingProposal.pool_models?.length,
-                width: viewingProposal.pool_models?.width,
-                depth: viewingProposal.pool_models?.depth,
-                differentials: viewingProposal.pool_models?.differentials || [],
-                included_items: viewingProposal.pool_models?.included_items || [],
-                not_included_items: viewingProposal.pool_models?.not_included_items || [],
-                base_price: viewingProposal.pool_models?.base_price || 0,
-                delivery_days: viewingProposal.pool_models?.delivery_days || 30,
-                installation_days: viewingProposal.pool_models?.installation_days || 5,
-                payment_terms: viewingProposal.pool_models?.payment_terms,
-              }}
-              selectedOptionals={
-                Array.isArray(viewingProposal.selected_optionals)
-                  ? viewingProposal.selected_optionals.map((o: any) => ({ name: o.name || o, price: o.price || 0 }))
-                  : []
-              }
-              customerData={{
-                name: viewingProposal.customer_name,
-                city: viewingProposal.customer_city,
-                whatsapp: viewingProposal.customer_whatsapp,
-              }}
-              category={viewingProposal.pool_models?.categories?.name || ""}
-              onBack={() => setViewingProposal(null)}
-              storeSettings={storeSettings}
-              storeName={store?.name}
-              storeCity={store?.city}
-              storeState={store?.state}
-            />
-          )}
-        </DialogContent>
-      </Dialog>
+      {/* Proposal Preview Overlay */}
+      {viewingProposal && (
+        <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/40 backdrop-blur-[2px]" onClick={() => { setViewingProposal(null); setPreviewZoomed(false); }}>
+          <div
+            className="relative bg-background rounded-xl shadow-2xl border border-border flex flex-col"
+            style={{
+              width: previewZoomed ? 'min(95vw, 900px)' : 'min(85vw, 420px)',
+              height: previewZoomed ? '90dvh' : 'min(70dvh, 520px)',
+              transition: 'width 250ms ease, height 250ms ease',
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Toolbar */}
+            <div className="flex items-center justify-between px-3 py-2 border-b border-border shrink-0">
+              <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Proposta</span>
+              <div className="flex items-center gap-1">
+                <button
+                  onClick={() => setPreviewZoomed(!previewZoomed)}
+                  className="p-1.5 rounded-lg hover:bg-muted transition-colors"
+                  title={previewZoomed ? "Reduzir" : "Ampliar"}
+                >
+                  {previewZoomed ? <ZoomOut className="w-4 h-4 text-muted-foreground" /> : <ZoomIn className="w-4 h-4 text-muted-foreground" />}
+                </button>
+                <button
+                  onClick={() => { setViewingProposal(null); setPreviewZoomed(false); }}
+                  className="p-1.5 rounded-lg hover:bg-muted transition-colors"
+                >
+                  <X className="w-4 h-4 text-muted-foreground" />
+                </button>
+              </div>
+            </div>
+
+            {/* Scaled proposal content */}
+            <div className="flex-1 overflow-auto overscroll-contain">
+              <div
+                style={{
+                  transform: previewZoomed ? 'scale(1)' : 'scale(0.55)',
+                  transformOrigin: 'top center',
+                  width: previewZoomed ? '100%' : '182%',
+                  minHeight: previewZoomed ? 'auto' : '180%',
+                }}
+                className="transition-transform duration-250"
+              >
+                <ProposalView
+                  model={{
+                    name: viewingProposal.pool_models?.name || "Modelo",
+                    length: viewingProposal.pool_models?.length,
+                    width: viewingProposal.pool_models?.width,
+                    depth: viewingProposal.pool_models?.depth,
+                    differentials: viewingProposal.pool_models?.differentials || [],
+                    included_items: viewingProposal.pool_models?.included_items || [],
+                    not_included_items: viewingProposal.pool_models?.not_included_items || [],
+                    base_price: viewingProposal.pool_models?.base_price || 0,
+                    delivery_days: viewingProposal.pool_models?.delivery_days || 30,
+                    installation_days: viewingProposal.pool_models?.installation_days || 5,
+                    payment_terms: viewingProposal.pool_models?.payment_terms,
+                  }}
+                  selectedOptionals={
+                    Array.isArray(viewingProposal.selected_optionals)
+                      ? viewingProposal.selected_optionals.map((o: any) => ({ name: o.name || o, price: o.price || 0 }))
+                      : []
+                  }
+                  customerData={{
+                    name: viewingProposal.customer_name,
+                    city: viewingProposal.customer_city,
+                    whatsapp: viewingProposal.customer_whatsapp,
+                  }}
+                  category={viewingProposal.pool_models?.categories?.name || ""}
+                  onBack={() => { setViewingProposal(null); setPreviewZoomed(false); }}
+                  storeSettings={storeSettings}
+                  storeName={store?.name}
+                  storeCity={store?.city}
+                  storeState={store?.state}
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Assign Lead Dialog */}
       <Dialog open={assignDialogOpen} onOpenChange={setAssignDialogOpen}>
