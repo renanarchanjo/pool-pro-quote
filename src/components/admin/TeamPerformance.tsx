@@ -20,9 +20,11 @@ interface ProposalData { id: string; status: string; total_price: number; create
 
 interface SellerMetrics {
   memberId: string; name: string; leadsReceived: number; leadsAccepted: number;
-  inNegotiation: number; closed: number; lost: number; revenueClosed: number;
+  nova: number; enviada: number; inNegotiation: number; closed: number; lost: number;
+  revenueNova: number; revenueEnviada: number; revenueNeg: number; revenueClosed: number; revenueLost: number;
   revenuePredicted: number; ticketMedio: number; conversionRate: number;
   avgResponseTimeHours: number; avgClosingDays: number;
+  totalProposals: number;
 }
 
 const DATE_PRESETS = [
@@ -102,9 +104,11 @@ const TeamPerformance = () => {
       );
       const allIds = new Set([...acceptedIds, ...manualIds]);
       const memberProposals = Array.from(allIds).map(id => proposalMap.get(id)).filter(Boolean) as ProposalData[];
+      const nova = memberProposals.filter(p => p.status === "nova");
+      const enviada = memberProposals.filter(p => p.status === "enviada");
+      const inNeg = memberProposals.filter(p => p.status === "em_negociacao");
       const closed = memberProposals.filter(p => p.status === "fechada");
       const lost = memberProposals.filter(p => p.status === "perdida");
-      const inNeg = memberProposals.filter(p => p.status === "em_negociacao");
       const revenueClosed = closed.reduce((s, p) => s + p.total_price, 0);
       const revenuePredicted = memberProposals
         .filter(p => p.status !== "fechada" && p.status !== "perdida")
@@ -126,9 +130,15 @@ const TeamPerformance = () => {
       return {
         memberId: member.id, name: member.full_name || "Sem nome",
         leadsReceived: memberDists.length, leadsAccepted: acceptedDists.length,
+        nova: nova.length, enviada: enviada.length,
         inNegotiation: inNeg.length, closed: closed.length, lost: lost.length,
-        revenueClosed, revenuePredicted, ticketMedio, conversionRate,
+        revenueNova: nova.reduce((s, p) => s + p.total_price, 0),
+        revenueEnviada: enviada.reduce((s, p) => s + p.total_price, 0),
+        revenueNeg: inNeg.reduce((s, p) => s + p.total_price, 0),
+        revenueClosed, revenueLost: lost.reduce((s, p) => s + p.total_price, 0),
+        revenuePredicted, ticketMedio, conversionRate,
         avgResponseTimeHours, avgClosingDays,
+        totalProposals: memberProposals.length,
       };
     }).filter(m => m.leadsReceived > 0 || m.leadsAccepted > 0)
       .sort((a, b) => b.revenueClosed - a.revenueClosed);
