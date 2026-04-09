@@ -153,9 +153,16 @@ const MatrizInadimplencia = () => {
   return (
     <div className="space-y-6 p-4 md:p-8">
       {/* Header */}
-      <div>
-        <h1 className="text-[18px] font-semibold text-foreground">Inadimplência</h1>
-        <p className="text-[13px] text-muted-foreground">Monitoramento de pagamentos e lojistas em risco</p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-[18px] font-semibold text-foreground">Inadimplência</h1>
+          <p className="text-[13px] text-muted-foreground">Monitoramento de pagamentos e lojistas em risco</p>
+        </div>
+        {hasIssues && (
+          <Button variant="outline" size="sm" onClick={handleExportPDF} data-no-pdf>
+            <FileDown className="w-4 h-4 mr-1.5" /> Gerar PDF
+          </Button>
+        )}
       </div>
 
       {/* KPIs */}
