@@ -31,12 +31,12 @@ const LojistaHeader = () => {
               Planos e Preços
             </Link>
 
-            {/* Minha Conta — subtle pill */}
+            {/* Planos e Preços — pill CTA */}
             <Link
-              to="/login"
+              to="/lojista/planos"
               className="h-9 md:h-10 px-4 md:px-5 text-[13px] md:text-[14px] font-medium rounded-full text-white/80 hover:text-white transition-all duration-200 inline-flex items-center gap-2 border border-white/15 hover:border-white/30 hover:bg-white/[0.06]"
             >
-              <User className="w-3.5 h-3.5" /> Minha Conta
+              Planos e Preços
             </Link>
           </div>
         </div>
