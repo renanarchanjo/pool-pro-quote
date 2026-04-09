@@ -340,28 +340,34 @@ const PoolSimulator = ({ onBack }: PoolSimulatorProps) => {
   return (
     <div className="min-h-screen bg-gradient-hero">
       <nav className="border-b border-border/30 bg-background/95 backdrop-blur-md sticky top-0 z-50">
-        <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-          <div className="flex items-center gap-4">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={step === 0 ? onBack : () => setStep(step === 1 ? 0 : step - 1)}
-            >
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Voltar
-            </Button>
+        <div className="container mx-auto px-4 py-3 flex items-center justify-between relative">
+          {/* Voltar — left */}
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={step === 0 ? onBack : () => setStep(step === 1 ? 0 : step - 1)}
+            className="z-10"
+          >
+            <ArrowLeft className="w-4 h-4 mr-1" />
+            <span className="hidden md:inline">Voltar</span>
+          </Button>
+
+          {/* Logo — centered */}
+          <div className="absolute left-1/2 -translate-x-1/2">
             <BrandLogo size="sm" />
           </div>
-          {step > 0 && step < 4 && (
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <span className="font-medium">Etapa {step} de 3</span>
+
+          {/* Step indicator — right */}
+          {step > 0 && step < 4 ? (
+            <div className="flex items-center gap-2 text-sm text-muted-foreground z-10">
+              <span className="font-medium text-xs md:text-sm">Etapa {step} de 3</span>
               {selectedStoreName && (
                 <span className="hidden md:inline ml-2 text-xs bg-primary/10 text-primary px-2 py-1 rounded-full">
                   {selectedStoreName}
                 </span>
               )}
             </div>
-          )}
+          ) : <div />}
         </div>
       </nav>
 
