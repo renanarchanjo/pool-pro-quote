@@ -1,16 +1,37 @@
 {
-  "theme_color": "#0EA5E9",
-  "background_color": "#0EA5E9",
-  "description": "SIMULAPOOL - O jeito moderno de orçar piscinas",
+  "name": "SIMULAPOOL - Orçamentos de Piscinas",
+  "short_name": "SIMULAPOOL",
+  "description": "O jeito moderno de orçar piscinas. Simule, orce e feche negócios.",
+  "start_url": "/login",
+  "scope": "/",
   "display": "standalone",
+  "orientation": "portrait",
+  "theme_color": "#0EA5E9",
+  "background_color": "#ffffff",
+  "categories": ["business", "productivity"],
+  "lang": "pt-BR",
+  "dir": "ltr",
   "icons": [
     {
       "src": "/favicon.png",
+      "sizes": "64x64",
+      "type": "image/png"
+    },
+    {
+      "src": "/pwa-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/pwa-512x512.png",
       "sizes": "512x512",
       "type": "image/png"
+    },
+    {
+      "src": "/pwa-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
     }
-  ],
-  "name": "SIMULAPOOL",
-  "short_name": "SIMULAPOOL",
-  "start_url": "/login"
+  ]
 }

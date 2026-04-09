@@ -32,10 +32,13 @@ const MobileBottomNav = () => {
 
   return (
     <>
-      {/* Bottom Navigation Bar */}
+      {/* Bottom Navigation Bar — fixed, respects safe area */}
       <nav
-        className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-background border-t border-border flex items-center justify-around"
-        style={{ height: 'calc(56px + env(safe-area-inset-bottom, 0px))', paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
+        className="mobile-bottom-nav md:hidden fixed bottom-0 left-0 right-0 z-50 bg-background border-t border-border flex items-center justify-around"
+        style={{
+          height: `calc(var(--bottom-nav-height) + var(--safe-area-bottom))`,
+          paddingBottom: 'var(--safe-area-bottom)',
+        }}
       >
         {NAV_ITEMS.map((item) => {
           const active = isActive(item.url);
@@ -43,13 +46,15 @@ const MobileBottomNav = () => {
             <button
               key={item.url}
               onClick={() => navigate(item.url)}
-              className="flex flex-col items-center justify-center gap-0.5 flex-1 h-14 transition-colors duration-150"
+              className="flex flex-col items-center justify-center gap-0.5 flex-1 transition-colors duration-100 active:scale-95"
+              style={{ height: 'var(--bottom-nav-height)' }}
+              data-compact
             >
               <item.icon
-                className={`w-5 h-5 ${active ? "text-primary" : "text-muted-foreground"}`}
-                strokeWidth={active ? 2 : 1.5}
+                className={`w-5 h-5 transition-colors ${active ? "text-primary" : "text-muted-foreground"}`}
+                strokeWidth={active ? 2.2 : 1.5}
               />
-              <span className={`text-[10px] font-medium ${active ? "text-primary" : "text-muted-foreground"}`}>
+              <span className={`text-[10px] font-medium transition-colors ${active ? "text-primary" : "text-muted-foreground"}`}>
                 {item.label}
               </span>
             </button>
@@ -57,24 +62,26 @@ const MobileBottomNav = () => {
         })}
         <button
           onClick={() => setSheetOpen(true)}
-          className="flex flex-col items-center justify-center gap-0.5 flex-1 h-14 transition-colors duration-150"
+          className="flex flex-col items-center justify-center gap-0.5 flex-1 transition-colors duration-100 active:scale-95"
+          style={{ height: 'var(--bottom-nav-height)' }}
+          data-compact
         >
           <MenuIcon
-            className={`w-5 h-5 ${sheetOpen ? "text-primary" : "text-muted-foreground"}`}
-            strokeWidth={sheetOpen ? 2 : 1.5}
+            className={`w-5 h-5 transition-colors ${sheetOpen ? "text-primary" : "text-muted-foreground"}`}
+            strokeWidth={sheetOpen ? 2.2 : 1.5}
           />
-          <span className={`text-[10px] font-medium ${sheetOpen ? "text-primary" : "text-muted-foreground"}`}>
+          <span className={`text-[10px] font-medium transition-colors ${sheetOpen ? "text-primary" : "text-muted-foreground"}`}>
             Menu
           </span>
         </button>
       </nav>
 
-      {/* Right-side Sheet (banco digital style) */}
+      {/* Right-side Sheet */}
       <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
         <SheetContent side="right" className="w-[80%] max-w-[300px] p-0 bg-background">
           <SheetTitle className="sr-only">Menu</SheetTitle>
           <SidebarProvider>
-            <div className="w-full h-full overflow-y-auto">
+            <div className="w-full h-full overflow-y-auto overscroll-contain">
               <AdminSidebar />
             </div>
           </SidebarProvider>

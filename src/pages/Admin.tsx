@@ -61,7 +61,7 @@ const Admin = () => {
 
   if (authLoading || storeLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
+      <div className="h-full flex items-center justify-center bg-background">
         <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
       </div>
     );
@@ -74,7 +74,7 @@ const Admin = () => {
     };
 
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background px-4">
+      <div className="h-full flex items-center justify-center bg-background px-4">
         <div className="text-center max-w-md">
           <p className="text-base font-semibold text-foreground mb-2">Nenhuma loja vinculada</p>
           <p className="text-sm text-muted-foreground mb-6">Faça login com uma conta que possua uma loja cadastrada.</p>
@@ -91,47 +91,56 @@ const Admin = () => {
 
   return (
     <SidebarProvider>
-      <div className="min-h-screen flex w-full bg-secondary overflow-x-hidden">
-        {/* Desktop sidebar — hidden on mobile */}
+      <div className="h-full flex w-full bg-secondary overflow-hidden">
+        {/* Desktop sidebar */}
         <div className="hidden md:block">
           <AdminSidebar />
         </div>
 
-        <div className="flex-1 flex flex-col min-w-0">
-          {/* App Header — 56px */}
-          <header className="flex items-center border-b border-border bg-background px-4 h-14 pt-[env(safe-area-inset-top,0px)]">
+        <div className="flex-1 flex flex-col min-w-0 h-full">
+          {/* App Header */}
+          <header
+            className="flex items-center border-b border-border bg-background px-4 shrink-0"
+            style={{ height: 'calc(56px + var(--safe-area-top))', paddingTop: 'var(--safe-area-top)' }}
+          >
             <div className="flex-1 min-w-0">
               <h1 className="text-[16px] md:text-[18px] font-semibold text-foreground truncate">{pageTitle}</h1>
             </div>
           </header>
 
-          <main className="flex-1 p-4 md:p-6 overflow-x-hidden overflow-y-auto pb-20 md:pb-6">
-            <PendingLeadsAlert />
-            <Routes>
-              <Route index element={<AdminDashboard />} />
-              <Route path="gerar-proposta" element={<ManualProposal />} />
-              <Route path="leads" element={<AdminLeads />} />
-              <Route path="faturas" element={<InvoiceHistory />} />
-              <Route path="perfil" element={<AdminProfile />} />
-              {!isOwner && (
-                <>
-                  <Route path="performance" element={<TeamPerformance />} />
-                  <Route path="comissao" element={<TeamCommissions />} />
-                </>
-              )}
-              {isOwner && (
-                <>
-                  <Route path="marcas" element={<BrandCategoryManager mode="brands" />} />
-                  <Route path="categorias" element={<BrandCategoryManager mode="categories" />} />
-                  <Route path="modelos" element={<PoolModelManager />} />
-                  <Route path="opcionais" element={<OptionalManager />} />
-                  <Route path="equipe" element={<TeamManager />} />
-                  <Route path="lojistas" element={<StoresManager />} />
-                  <Route path="assinatura" element={<SubscriptionManager />} />
-                  <Route path="parceiros" element={<StorePartnersManager />} />
-                </>
-              )}
-            </Routes>
+          {/* Scrollable content area — only this scrolls */}
+          <main
+            className="flex-1 overflow-y-auto overflow-x-hidden overscroll-contain"
+            style={{ paddingBottom: 'calc(var(--bottom-nav-height) + var(--safe-area-bottom) + 8px)' }}
+          >
+            <div className="p-4 md:p-6">
+              <PendingLeadsAlert />
+              <Routes>
+                <Route index element={<AdminDashboard />} />
+                <Route path="gerar-proposta" element={<ManualProposal />} />
+                <Route path="leads" element={<AdminLeads />} />
+                <Route path="faturas" element={<InvoiceHistory />} />
+                <Route path="perfil" element={<AdminProfile />} />
+                {!isOwner && (
+                  <>
+                    <Route path="performance" element={<TeamPerformance />} />
+                    <Route path="comissao" element={<TeamCommissions />} />
+                  </>
+                )}
+                {isOwner && (
+                  <>
+                    <Route path="marcas" element={<BrandCategoryManager mode="brands" />} />
+                    <Route path="categorias" element={<BrandCategoryManager mode="categories" />} />
+                    <Route path="modelos" element={<PoolModelManager />} />
+                    <Route path="opcionais" element={<OptionalManager />} />
+                    <Route path="equipe" element={<TeamManager />} />
+                    <Route path="lojistas" element={<StoresManager />} />
+                    <Route path="assinatura" element={<SubscriptionManager />} />
+                    <Route path="parceiros" element={<StorePartnersManager />} />
+                  </>
+                )}
+              </Routes>
+            </div>
           </main>
         </div>
 

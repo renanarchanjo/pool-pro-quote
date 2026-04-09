@@ -37,7 +37,7 @@ const Matriz = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="h-full flex items-center justify-center">
         <Loader2 className="w-8 h-8 animate-spin text-primary" />
       </div>
     );
@@ -47,11 +47,11 @@ const Matriz = () => {
 
   return (
     <SidebarProvider>
-      <div className="min-h-screen flex w-full bg-background overflow-x-hidden">
+      <div className="h-full flex w-full bg-background overflow-hidden">
         <MatrizSidebar />
-        <div className="flex-1 flex flex-col min-w-0">
+        <div className="flex-1 flex flex-col min-w-0 h-full">
           <MatrizTopBar />
-          <main className="flex-1 overflow-x-hidden overflow-y-auto safe-area-bottom">
+          <main className="flex-1 overflow-y-auto overflow-x-hidden overscroll-contain">
             <Routes>
               <Route index element={<MatrizDashboard />} />
               <Route path="lojas" element={<MatrizStores />} />
@@ -74,7 +74,7 @@ const Matriz = () => {
 const MatrizTopBar = () => {
   const { toggleSidebar, open, isMobile } = useSidebar();
   return (
-    <header className="h-11 flex items-center border-b border-border px-3 shrink-0">
+    <header className="h-11 flex items-center border-b border-border px-3 shrink-0 bg-background">
       <button
         onClick={toggleSidebar}
         className="p-1.5 rounded-md hover:bg-accent text-muted-foreground hover:text-foreground transition-colors"
