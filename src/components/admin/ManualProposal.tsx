@@ -437,7 +437,7 @@ const ManualProposal = () => {
           {isEnabled ? <Eye className="w-3.5 h-3.5 text-primary" /> : <EyeOff className="w-3.5 h-3.5 text-muted-foreground" />}
         </button>
       )}
-      <Checkbox checked={isSelected} className="pointer-events-none mt-0.5" disabled={!isEnabled} />
+      {showToggle && <Checkbox checked={isSelected} className="pointer-events-none mt-0.5" disabled={!isEnabled} />}
       <div className={`flex-1 min-w-0 ${showToggle ? "pr-5" : ""}`}>
         <p className="text-sm font-medium leading-tight">{opt.name}</p>
         <p className="text-xs text-primary font-semibold mt-1">
