@@ -277,7 +277,7 @@ const ProposalView = ({
           }}
           className="sm:!p-8"
         >
-          <div data-pdf-page>
+          <div>
             {/* ===== HEADER ===== */}
             <div style={{ marginBottom: "20px", borderBottom: "2px solid #e5e7eb", paddingBottom: "16px" }}>
               <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "space-between", alignItems: "center", gap: "12px" }}>
