@@ -324,27 +324,44 @@ const MatrizLeads = () => {
         </div>
       </div>
 
-      {/* KPIs — 3 cols on mobile, tighter */}
+      {/* KPIs */}
       <div className="grid grid-cols-3 md:grid-cols-5 gap-2 md:gap-4">
-        {[
-          { label: "Captados", value: filtered.length, icon: Users, color: "text-muted-foreground" },
-          { label: "Aceitos", value: aceitosCount, icon: CheckCircle2, color: "text-cyan-600" },
-          { label: "Pendentes", value: pendentesCount, icon: Send, color: "text-amber-600" },
-          { label: "Distribuídos", value: distribuidosCount, icon: TrendingUp, color: "text-blue-600" },
-          { label: "Receita", value: formatCurrency(receitaPotencial), icon: DollarSign, color: "text-emerald-600", isLast: true },
-        ].map((kpi, i) => (
-          <Card key={i} className={kpi.isLast ? "col-span-3 md:col-span-1" : ""}>
-            <CardContent className="pt-2.5 pb-2 md:pt-4 md:pb-3 px-2.5 md:px-4">
-              <div className={`flex items-center gap-1 ${kpi.color} text-[10px] md:text-xs font-medium mb-0.5 md:mb-1`}>
-                <kpi.icon className="w-3 h-3 md:w-3.5 md:h-3.5" />
-                <span className="truncate">{kpi.label}</span>
-              </div>
-              <p className={`text-lg md:text-2xl font-bold ${kpi.color} leading-tight`}>
-                {typeof kpi.value === "number" ? kpi.value : kpi.value}
-              </p>
-            </CardContent>
-          </Card>
-        ))}
+        <Card>
+          <CardContent className="pt-2.5 pb-2 md:pt-4 md:pb-3 px-2.5 md:px-4">
+            <div className="flex items-center gap-1 text-muted-foreground text-[10px] md:text-xs font-medium mb-0.5 md:mb-1">
+              <Users className="w-3 h-3 md:w-3.5 md:h-3.5" />
+              <span>Captados</span>
+            </div>
+            <p className="text-lg md:text-2xl font-bold leading-tight">{filtered.length}</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="pt-2.5 pb-2 md:pt-4 md:pb-3 px-2.5 md:px-4">
+            <div className="flex items-center gap-1 text-cyan-600 text-[10px] md:text-xs font-medium mb-0.5 md:mb-1">
+              <CheckCircle2 className="w-3 h-3 md:w-3.5 md:h-3.5" />
+              <span>Aceitos</span>
+            </div>
+            <p className="text-lg md:text-2xl font-bold text-cyan-600 leading-tight">{aceitosCount}</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="pt-2.5 pb-2 md:pt-4 md:pb-3 px-2.5 md:px-4">
+            <div className="flex items-center gap-1 text-amber-600 text-[10px] md:text-xs font-medium mb-0.5 md:mb-1">
+              <Send className="w-3 h-3 md:w-3.5 md:h-3.5" />
+              <span>Pendentes</span>
+            </div>
+            <p className="text-lg md:text-2xl font-bold text-amber-600 leading-tight">{pendentesCount}</p>
+          </CardContent>
+        </Card>
+        <Card className="col-span-3 md:col-span-2">
+          <CardContent className="pt-2.5 pb-2 md:pt-4 md:pb-3 px-2.5 md:px-4">
+            <div className="flex items-center gap-1 text-emerald-600 text-[10px] md:text-xs font-medium mb-0.5 md:mb-1">
+              <DollarSign className="w-3 h-3 md:w-3.5 md:h-3.5" />
+              <span>Receita</span>
+            </div>
+            <p className="text-lg md:text-2xl font-bold text-emerald-600 leading-tight">{formatCurrency(receitaPotencial)}</p>
+          </CardContent>
+        </Card>
       </div>
 
       {/* Tabs */}
