@@ -1,15 +1,16 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Eye, EyeOff, Loader2, Mail, ArrowLeft } from "lucide-react";
+import { Eye, EyeOff, Loader2, Mail, ArrowLeft, ShieldCheck, Smartphone, Copy, Check } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 import { toast } from "sonner";
 import BrandLogo from "@/components/BrandLogo";
 import { useForceLightTheme } from "@/hooks/useForceLightTheme";
 
-type View = "login" | "forgot" | "forgot-sent";
+type View = "login" | "forgot" | "forgot-sent" | "mfa-setup" | "mfa-verify";
 
 const heroGradient = "#0A1628";
 
@@ -27,6 +28,14 @@ const LoginMatriz = () => {
   const [resetEmail, setResetEmail] = useState("");
   const navigate = useNavigate();
 
+  // MFA state
+  const [otpCode, setOtpCode] = useState("");
+  const [mfaFactorId, setMfaFactorId] = useState("");
+  const [mfaChallengeId, setMfaChallengeId] = useState("");
+  const [qrCodeUri, setQrCodeUri] = useState("");
+  const [totpSecret, setTotpSecret] = useState("");
+  const [secretCopied, setSecretCopied] = useState(false);
+
   useEffect(() => {
     window.history.replaceState(null, "", "/loginmatriz");
 
@@ -41,8 +50,29 @@ const LoginMatriz = () => {
           .single();
 
         if (roleData) {
-          navigate("/matriz", { replace: true });
-          return;
+          // Check if MFA is verified for this session
+          const { data: mfaData } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
+          if (mfaData?.currentLevel === "aal2" || mfaData?.nextLevel === "aal1") {
+            // Either already verified MFA or no MFA enrolled
+            navigate("/matriz", { replace: true });
+            return;
+          }
+          // MFA enrolled but not verified - need to verify
+          if (mfaData?.nextLevel === "aal2" && mfaData?.currentLevel === "aal1") {
+            const factors = mfaData.currentAuthenticationMethods;
+            const { data: factorsData } = await supabase.auth.mfa.listFactors();
+            if (factorsData?.totp && factorsData.totp.length > 0) {
+              const factor = factorsData.totp[0];
+              setMfaFactorId(factor.id);
+              const { data: challengeData } = await supabase.auth.mfa.challenge({ factorId: factor.id });
+              if (challengeData) {
+                setMfaChallengeId(challengeData.id);
+                setView("mfa-verify");
+                setCheckingSession(false);
+                return;
+              }
+            }
+          }
         }
       }
       setCheckingSession(false);
@@ -80,9 +110,81 @@ const LoginMatriz = () => {
       return;
     }
 
+    // Check MFA status
+    const { data: factorsData } = await supabase.auth.mfa.listFactors();
+    const totpFactors = factorsData?.totp ?? [];
+    const verifiedFactors = totpFactors.filter(f => f.status === "verified");
+
+    if (verifiedFactors.length > 0) {
+      // MFA already enrolled → challenge
+      const factor = verifiedFactors[0];
+      setMfaFactorId(factor.id);
+      const { data: challengeData, error: challengeError } = await supabase.auth.mfa.challenge({ factorId: factor.id });
+      if (challengeError || !challengeData) {
+        setLoading(false);
+        toast.error("Erro ao iniciar verificação 2FA.");
+        return;
+      }
+      setMfaChallengeId(challengeData.id);
+      setView("mfa-verify");
+      setLoading(false);
+    } else {
+      // No MFA enrolled → setup
+      const { data: enrollData, error: enrollError } = await supabase.auth.mfa.enroll({
+        factorType: "totp",
+        friendlyName: "SIMULAPOOL Matriz",
+      });
+      if (enrollError || !enrollData) {
+        setLoading(false);
+        toast.error("Erro ao configurar 2FA.");
+        return;
+      }
+      setMfaFactorId(enrollData.id);
+      setQrCodeUri(enrollData.totp.qr_code);
+      setTotpSecret(enrollData.totp.secret);
+      // Create challenge for verification
+      const { data: challengeData } = await supabase.auth.mfa.challenge({ factorId: enrollData.id });
+      if (challengeData) {
+        setMfaChallengeId(challengeData.id);
+      }
+      setView("mfa-setup");
+      setLoading(false);
+    }
+  };
+
+  const handleMfaVerify = async () => {
+    if (otpCode.length !== 6) {
+      toast.error("Digite o código de 6 dígitos.");
+      return;
+    }
+    setLoading(true);
+
+    const { error } = await supabase.auth.mfa.verify({
+      factorId: mfaFactorId,
+      challengeId: mfaChallengeId,
+      code: otpCode,
+    });
+
+    if (error) {
+      setLoading(false);
+      setOtpCode("");
+      toast.error("Código inválido. Tente novamente.");
+      // Create a new challenge
+      const { data: newChallenge } = await supabase.auth.mfa.challenge({ factorId: mfaFactorId });
+      if (newChallenge) setMfaChallengeId(newChallenge.id);
+      return;
+    }
+
     setLoading(false);
     toast.success("Bem-vindo à Matriz!");
-    navigate("/matriz");
+    navigate("/matriz", { replace: true });
+  };
+
+  const handleCopySecret = () => {
+    navigator.clipboard.writeText(totpSecret);
+    setSecretCopied(true);
+    toast.success("Chave copiada!");
+    setTimeout(() => setSecretCopied(false), 2000);
   };
 
   const handleForgotPassword = async (e: React.FormEvent) => {
@@ -107,6 +209,149 @@ const LoginMatriz = () => {
     return (
       <div className="min-h-screen flex items-center justify-center" style={{ background: heroGradient }}>
         <Loader2 className="w-8 h-8 animate-spin text-white/60" />
+      </div>
+    );
+  }
+
+  // ── MFA Setup (first time) ──
+  if (view === "mfa-setup") {
+    return (
+      <div className="min-h-screen flex items-center justify-center p-4" style={{ background: heroGradient }}>
+        <div className={cardClass}>
+          <div className="flex flex-col items-center mb-6">
+            <div className="w-14 h-14 rounded-full bg-[#38BDF8]/10 flex items-center justify-center mb-4">
+              <Smartphone className="h-7 w-7 text-[#38BDF8]" />
+            </div>
+            <h1 className="text-xl font-bold text-white font-display">Configurar 2FA</h1>
+            <p className="text-sm text-white/50 mt-2 text-center">
+              Escaneie o QR Code com o Google Authenticator
+            </p>
+          </div>
+
+          {/* QR Code */}
+          <div className="flex justify-center mb-4">
+            <div className="bg-white rounded-xl p-3">
+              <img src={qrCodeUri} alt="QR Code 2FA" className="w-48 h-48" />
+            </div>
+          </div>
+
+          {/* Manual secret */}
+          <div className="mb-6">
+            <p className="text-xs text-white/40 text-center mb-2">Ou insira a chave manualmente:</p>
+            <div className="flex items-center gap-2 bg-white/5 rounded-lg p-2.5 border border-white/10">
+              <code className="flex-1 text-xs text-white/70 font-mono break-all text-center select-all">
+                {totpSecret}
+              </code>
+              <button onClick={handleCopySecret} className="text-white/40 hover:text-white/80 shrink-0">
+                {secretCopied ? <Check className="w-4 h-4 text-green-400" /> : <Copy className="w-4 h-4" />}
+              </button>
+            </div>
+          </div>
+
+          {/* OTP input */}
+          <div className="mb-4">
+            <Label className="text-white/70 text-sm mb-2 block text-center">
+              Digite o código gerado pelo app
+            </Label>
+            <div className="flex justify-center">
+              <InputOTP
+                maxLength={6}
+                value={otpCode}
+                onChange={setOtpCode}
+                onComplete={handleMfaVerify}
+              >
+                <InputOTPGroup className="gap-2">
+                  {[0,1,2,3,4,5].map(i => (
+                    <InputOTPSlot
+                      key={i}
+                      index={i}
+                      className="w-11 h-12 text-lg bg-white/10 border-white/20 text-white rounded-lg"
+                    />
+                  ))}
+                </InputOTPGroup>
+              </InputOTP>
+            </div>
+          </div>
+
+          <Button
+            onClick={handleMfaVerify}
+            className="w-full bg-white text-[#0A1628] font-semibold hover:bg-white/90"
+            disabled={loading || otpCode.length !== 6}
+          >
+            {loading ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <ShieldCheck className="w-4 h-4 mr-2" />}
+            Ativar e Entrar
+          </Button>
+
+          <p className="text-xs text-white/30 text-center mt-4">
+            Guarde esta chave em local seguro. Você precisará do app autenticador para futuros acessos.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  // ── MFA Verify (returning user) ──
+  if (view === "mfa-verify") {
+    return (
+      <div className="min-h-screen flex items-center justify-center p-4" style={{ background: heroGradient }}>
+        <div className={cardClass}>
+          <div className="flex flex-col items-center mb-8">
+            <div className="w-14 h-14 rounded-full bg-[#38BDF8]/10 flex items-center justify-center mb-4">
+              <ShieldCheck className="h-7 w-7 text-[#38BDF8]" />
+            </div>
+            <h1 className="text-xl font-bold text-white font-display">Verificação 2FA</h1>
+            <p className="text-sm text-white/50 mt-2 text-center">
+              Abra o Google Authenticator e digite o código de 6 dígitos
+            </p>
+          </div>
+
+          <div className="mb-6">
+            <div className="flex justify-center">
+              <InputOTP
+                maxLength={6}
+                value={otpCode}
+                onChange={setOtpCode}
+                onComplete={handleMfaVerify}
+                autoFocus
+              >
+                <InputOTPGroup className="gap-2">
+                  {[0,1,2,3,4,5].map(i => (
+                    <InputOTPSlot
+                      key={i}
+                      index={i}
+                      className="w-11 h-12 text-lg bg-white/10 border-white/20 text-white rounded-lg"
+                    />
+                  ))}
+                </InputOTPGroup>
+              </InputOTP>
+            </div>
+          </div>
+
+          <Button
+            onClick={handleMfaVerify}
+            className="w-full bg-white text-[#0A1628] font-semibold hover:bg-white/90"
+            disabled={loading || otpCode.length !== 6}
+          >
+            {loading ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <ShieldCheck className="w-4 h-4 mr-2" />}
+            Verificar
+          </Button>
+
+          <div className="mt-4 pt-4 border-t border-white/10">
+            <Button
+              className="w-full bg-white/10 border border-white/20 text-white hover:bg-white/20"
+              onClick={async () => {
+                await supabase.auth.signOut();
+                setView("login");
+                setOtpCode("");
+                setMfaFactorId("");
+                setMfaChallengeId("");
+              }}
+            >
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Voltar ao login
+            </Button>
+          </div>
+        </div>
       </div>
     );
   }
