@@ -235,9 +235,7 @@ const PoolSimulator = ({ onBack }: PoolSimulatorProps) => {
 
       const { sanitizeText, sanitizePhone, sanitizeCurrency } = await import("@/lib/sanitize");
 
-      const { data: insertedRow, error } = await supabase
-        .from("proposals")
-        .insert({
+      const insertPayload = {
           customer_name: sanitizeText(data.name, 200),
           customer_city: sanitizeText(data.city, 200),
           customer_whatsapp: sanitizePhone(data.whatsapp),
@@ -245,7 +243,11 @@ const PoolSimulator = ({ onBack }: PoolSimulatorProps) => {
           selected_optionals: allSelectedOpts as any,
           total_price: sanitizeCurrency(totalPrice),
           store_id: targetStoreId,
-        })
+      };
+      console.log("INSERT payload:", JSON.stringify(insertPayload));
+      const { data: insertedRow, error } = await supabase
+        .from("proposals")
+        .insert(insertPayload)
         .select("id")
         .single();
 
