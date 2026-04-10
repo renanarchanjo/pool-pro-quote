@@ -198,6 +198,7 @@ const ProposalView = ({
 
     setWhatsAppState("sending");
     try {
+      console.log("1. Iniciando envio WhatsApp");
       await preparePdfAssets();
       await new Promise((resolve) => setTimeout(resolve, 800));
 
@@ -207,20 +208,35 @@ const ProposalView = ({
         captureWidth: 800,
         sectionSelector: "[data-pdf-section]",
       });
+      console.log("2. PDF gerado, tamanho:", pdfBlob.size);
 
       const publicUrl = await savePdfToStorage(proposalId, pdfBlob);
+      console.log("3. PDF salvo:", publicUrl);
 
-      await supabase.functions.invoke("send-whatsapp", {
+      // Format phone: ensure 55 country code
+      const formatPhone = (phone: string) => {
+        const digits = phone.replace(/\D/g, "");
+        if (digits.startsWith("55")) return digits;
+        if (digits.startsWith("0")) return "55" + digits.slice(1);
+        return "55" + digits;
+      };
+
+      const result = await supabase.functions.invoke("send-whatsapp", {
         body: {
           type: "enviar_proposta",
           data: {
-            customerPhone: customerData.whatsapp,
+            customerPhone: formatPhone(customerData.whatsapp),
             customerName: customerData.name,
             storeName: storeName || "SimulaPool",
             pdfUrl: publicUrl,
           },
         },
       });
+      console.log("4. Resultado:", result);
+
+      if (result.error) {
+        throw new Error(result.error.message || "Erro na Edge Function");
+      }
 
       setWhatsAppState("sent");
       toast.success("Proposta enviada para seu WhatsApp!");
