@@ -41,7 +41,7 @@ export async function savePdfToStorage(
       xhr.send(pdfBlob);
     });
   } else {
-    const { error } = await supabasePublic.storage
+    const { error } = await supabase.storage
       .from("proposals")
       .upload(fileName, pdfBlob, {
         contentType: "application/pdf",
