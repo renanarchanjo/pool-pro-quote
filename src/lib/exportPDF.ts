@@ -242,6 +242,10 @@ export const generatePDFBlob = async ({
   const hiddenOriginals: { el: HTMLElement; display: string }[] = [];
   let restoreImages = () => {};
 
+  const mobile = isMobileDevice();
+  const mobileWidth = getMobileCaptureWidth();
+  const savedStyles = { width: element.style.width, fontSize: element.style.fontSize };
+
   try {
     if (typeof document !== "undefined" && "fonts" in document) {
       await (document as Document & { fonts?: { ready?: Promise<unknown> } }).fonts?.ready;
@@ -260,6 +264,12 @@ export const generatePDFBlob = async ({
       el.style.display = "none";
     });
 
+    // Mobile: reduce element size before capture
+    if (mobile && mobileWidth) {
+      element.style.width = `${mobileWidth}px`;
+      element.style.fontSize = "10px";
+    }
+
     restoreImages = await inlineImagesForPdf(element);
     await waitForStablePaint();
 
@@ -274,11 +284,11 @@ export const generatePDFBlob = async ({
     }
 
     const scale = getHtml2canvasScale();
-    const width = captureWidth || element.scrollWidth;
+    const width = captureWidth || (mobile && mobileWidth ? mobileWidth : element.scrollWidth);
     const blob = await (html2pdf() as any)
       .set({
         margin: [10, 10, 10, 10],
-        image: { type: "jpeg", quality: 0.98 },
+        image: { type: "jpeg", quality: mobile ? 0.85 : 0.98 },
         html2canvas: {
           scale,
           useCORS: true,
@@ -300,6 +310,11 @@ export const generatePDFBlob = async ({
 
     return blob as Blob;
   } finally {
+    // Restore mobile styles
+    if (mobile && mobileWidth) {
+      element.style.width = savedStyles.width;
+      element.style.fontSize = savedStyles.fontSize;
+    }
     restoreImages();
     hiddenOriginals.forEach(({ el, display }) => {
       el.style.display = display;
