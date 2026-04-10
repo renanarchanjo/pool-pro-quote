@@ -248,14 +248,6 @@ const PoolSimulator = ({ onBack }: PoolSimulatorProps) => {
       const { data: insertedRow, error } = await supabase
         .from("proposals")
         .insert(insertPayload)
-          customer_name: sanitizeText(data.name, 200),
-          customer_city: sanitizeText(data.city, 200),
-          customer_whatsapp: sanitizePhone(data.whatsapp),
-          model_id: selectedModel.id,
-          selected_optionals: allSelectedOpts as any,
-          total_price: sanitizeCurrency(totalPrice),
-          store_id: targetStoreId,
-        })
         .select("id")
         .single();
 
