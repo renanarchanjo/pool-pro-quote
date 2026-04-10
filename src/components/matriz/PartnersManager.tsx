@@ -487,11 +487,16 @@ const PartnersManager = () => {
                       }`}>
                         #{partner.ranking}
                       </div>
-                      <div className="w-11 h-11 rounded-lg bg-background border border-border/50 flex items-center justify-center overflow-hidden p-1 shrink-0">
-                        {partner.logo_url ? (
-                          <img src={partner.logo_url} alt={partner.name} className="max-w-full max-h-full object-contain" />
-                        ) : (
-                          <ImageIcon className="w-4 h-4 text-muted-foreground/40" />
+                      <div className="flex flex-col items-center shrink-0 gap-0.5">
+                        <div className="w-11 h-11 rounded-lg bg-background border border-border/50 flex items-center justify-center overflow-hidden p-1">
+                          {partner.logo_url ? (
+                            <img src={partner.logo_url} alt={partner.name} className="max-w-full max-h-full object-contain" onLoad={(e) => handleLogoLoad(partner.id, e)} />
+                          ) : (
+                            <ImageIcon className="w-4 h-4 text-muted-foreground/40" />
+                          )}
+                        </div>
+                        {logoDims[partner.id] && (
+                          <span className="text-[8px] text-muted-foreground font-mono">{logoDims[partner.id]}px</span>
                         )}
                       </div>
                       <div className="min-w-0 flex-1">
