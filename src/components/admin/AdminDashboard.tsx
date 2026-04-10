@@ -107,8 +107,8 @@ const AdminDashboard = () => {
         .from("proposals")
         .select(`
           id, customer_name, customer_city, customer_whatsapp, created_by,
-          total_price, created_at, selected_optionals, store_id, status,
-          pool_models (name, length, width, depth, photo_url, differentials, included_items, not_included_items, base_price, cost, delivery_days, installation_days, payment_terms, notes, category_id, categories(name, brand_id, brands(name, logo_url, partner_id))),
+          total_price, created_at, selected_optionals, store_id, status, model_id,
+          pool_models (id, name, length, width, depth, photo_url, differentials, included_items, not_included_items, base_price, cost, delivery_days, installation_days, payment_terms, notes, category_id, categories(name, brand_id, brands(name, logo_url, partner_id))),
           stores (name)
         `)
         .eq("store_id", store.id)
