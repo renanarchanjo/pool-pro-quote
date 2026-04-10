@@ -129,18 +129,61 @@ const AdminDashboard = () => {
         !p.selected_optionals[0].includes("{")
       );
 
-      if (needsResolve.length > 0) {
-        const allIds = [...new Set(needsResolve.flatMap((p: any) => p.selected_optionals as string[]))] as string[];
+      // Resolve optionals: enrich with name, price and cost
+      const allOptionalIds = [
+        ...new Set(
+          rawProposals.flatMap((p: any) => {
+            if (!Array.isArray(p.selected_optionals)) return [];
+            return p.selected_optionals.map((o: any) =>
+              typeof o === "string" ? o : o?.id
+            ).filter(Boolean);
+          })
+        ),
+      ] as string[];
+
+      let optCostMap: Record<string, { name: string; price: number; cost: number }> = {};
+      if (allOptionalIds.length > 0) {
         const [{ data: generalOpts }, { data: modelOpts }] = await Promise.all([
-          supabase.from("optionals").select("id, name, price").in("id", allIds as string[]),
-          supabase.from("model_optionals").select("id, name, price").in("id", allIds as string[]),
+          supabase.from("optionals").select("id, name, price, cost").in("id", allOptionalIds),
+          supabase.from("model_optionals").select("id, name, price, cost").in("id", allOptionalIds),
         ]);
-        const allOpts = [...(generalOpts || []), ...(modelOpts || [])];
-        for (const p of needsResolve) {
-          p.selected_optionals = (p.selected_optionals as string[]).map((id: string) => {
-            const found = allOpts.find((o: any) => o.id === id);
-            return found ? { id: found.id, name: found.name, price: found.price } : { id, name: id, price: 0 };
-          });
+        for (const o of [...(generalOpts || []), ...(modelOpts || [])]) {
+          optCostMap[o.id] = { name: o.name, price: Number(o.price), cost: Number(o.cost || 0) };
+        }
+      }
+
+      // Enrich selected_optionals with cost data
+      for (const p of rawProposals) {
+        if (!Array.isArray(p.selected_optionals)) continue;
+        p.selected_optionals = p.selected_optionals.map((o: any) => {
+          const id = typeof o === "string" ? o : o?.id;
+          const found = id ? optCostMap[id] : null;
+          if (found) return { id, name: found.name, price: found.price, cost: found.cost };
+          if (typeof o === "object" && o !== null) return { ...o, cost: o.cost || 0 };
+          return { id: o, name: String(o), price: 0, cost: 0 };
+        });
+      }
+
+      // Load included items costs per model for net revenue calculation
+      const modelIds = [...new Set(rawProposals.map((p: any) => p.pool_models?.id || p.model_id).filter(Boolean))] as string[];
+      if (modelIds.length > 0) {
+        const { data: includedItems } = await supabase
+          .from("model_included_items")
+          .select("model_id, cost")
+          .in("model_id", modelIds)
+          .eq("active", true);
+
+        const includedCostByModel: Record<string, number> = {};
+        for (const item of (includedItems || [])) {
+          includedCostByModel[item.model_id] = (includedCostByModel[item.model_id] || 0) + Number(item.cost || 0);
+        }
+
+        // Attach included items cost to pool_models
+        for (const p of rawProposals) {
+          if (p.pool_models) {
+            const mid = (p.pool_models as any).id || p.model_id;
+            (p.pool_models as any)._included_items_cost = includedCostByModel[mid] || 0;
+          }
         }
       }
 
