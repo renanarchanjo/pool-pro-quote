@@ -267,24 +267,26 @@ const ProposalView = ({
             <ArrowLeft className="w-4 h-4 mr-1 sm:mr-2" /> Voltar
           </Button>
           <div className="flex gap-2">
-            <button
-              onClick={handleDownloadPDF}
-              disabled={isGeneratingPdf}
-              className="inline-flex items-center gap-2 h-9 sm:h-[48px] pl-4 pr-3 text-[13px] sm:text-[15px] font-semibold text-white bg-[#2d2d2d] rounded-full sm:rounded-[10px] transition-all duration-150 hover:bg-[#1a1a1a] active:scale-95 disabled:opacity-70 disabled:pointer-events-none"
-            >
-              {isGeneratingPdf && whatsAppState === "idle" ? (
-                <>
-                  <Loader2 className="w-4 h-4 animate-spin" /> Gerando...
-                </>
-              ) : (
-                <>
-                  📥 PDF
-                  <span className="flex items-center justify-center w-7 h-7 rounded-full bg-[#dc2626]">
-                    <FileDown className="w-3.5 h-3.5 text-white" />
-                  </span>
-                </>
-              )}
-            </button>
+            {!hideDownloadPdf && (
+              <button
+                onClick={handleDownloadPDF}
+                disabled={isGeneratingPdf}
+                className="inline-flex items-center gap-2 h-9 sm:h-[48px] pl-4 pr-3 text-[13px] sm:text-[15px] font-semibold text-white bg-[#2d2d2d] rounded-full sm:rounded-[10px] transition-all duration-150 hover:bg-[#1a1a1a] active:scale-95 disabled:opacity-70 disabled:pointer-events-none"
+              >
+                {isGeneratingPdf && whatsAppState === "idle" ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" /> Gerando...
+                  </>
+                ) : (
+                  <>
+                    📥 PDF
+                    <span className="flex items-center justify-center w-7 h-7 rounded-full bg-[#dc2626]">
+                      <FileDown className="w-3.5 h-3.5 text-white" />
+                    </span>
+                  </>
+                )}
+              </button>
+            )}
             {proposalId && !hideWhatsApp && (
               <button
                 onClick={handleSendWhatsApp}
