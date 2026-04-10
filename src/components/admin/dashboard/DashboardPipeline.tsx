@@ -268,6 +268,7 @@ const DashboardPipeline = ({ proposals, onUpdateStatus, onViewProposal, onExport
                           <span className="flex items-center justify-center w-6 h-6 rounded-full bg-[#dc2626]">
                             <Download className="w-3 h-3 text-white" />
                           </span>
+                        </button>
                         {onSendWhatsApp && (
                           <button
                             className="inline-flex items-center gap-1 h-7 px-2.5 text-[11px] font-semibold text-white rounded-md transition-all duration-150 active:scale-95 disabled:opacity-70"
