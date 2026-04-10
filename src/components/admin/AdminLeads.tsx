@@ -654,7 +654,7 @@ const AdminLeads = () => {
         <div className="flex items-center justify-between gap-3 bg-muted/50 border border-border rounded-lg px-3 py-2 animate-fade-in">
           <span className="text-xs text-muted-foreground">{selectedIds.size} selecionado(s)</span>
           {isOwner ? (
-            <Button size="sm" variant="outline" className="h-7 text-xs gap-1.5 border-emerald-500/30 text-emerald-700 hover:bg-emerald-50" onClick={() => openAssignDialog()} disabled={bulkProcessing}>
+            <Button size="sm" className="h-7 text-xs gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white" onClick={() => openAssignDialog()} disabled={bulkProcessing}>
               <Send className="w-3 h-3" />
               Atribuir
             </Button>
