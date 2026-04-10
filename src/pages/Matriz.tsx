@@ -7,6 +7,7 @@ import FloatingPanel from "@/components/admin/FloatingPanel";
 import MatrizMobileBottomNav from "@/components/matriz/MatrizMobileBottomNav";
 import MatrizDashboard from "@/components/matriz/MatrizDashboard";
 import MatrizStores from "@/components/matriz/MatrizStores";
+import MatrizCoverage from "@/components/matriz/MatrizCoverage";
 import MatrizPayments from "@/components/matriz/MatrizPayments";
 import PartnersManager from "@/components/matriz/PartnersManager";
 import MatrizLeads from "@/components/matriz/MatrizLeads";
@@ -24,6 +25,7 @@ const PAGE_TITLES: Record<string, string> = {
   "leads": "Leads",
   "planos": "Planos e Preços",
   "mapa": "Mapa de Lojistas",
+  "cobertura": "Cobertura de Lojas",
   "inadimplencia": "Inadimplência",
   "relatorios": "Relatórios",
 };
@@ -99,6 +101,7 @@ const Matriz = () => {
             <Route index element={<MatrizDashboard />} />
             <Route path="lojas" element={<MatrizStores />} />
             <Route path="lojistas" element={<MatrizStores />} />
+            <Route path="cobertura" element={<MatrizCoverage />} />
             <Route path="pagamentos" element={<MatrizPayments />} />
             <Route path="parceiros" element={<PartnersManager />} />
             <Route path="leads" element={<MatrizLeads />} />

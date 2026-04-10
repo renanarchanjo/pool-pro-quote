@@ -3,7 +3,7 @@ import ThemeToggle from "@/components/ThemeToggle";
 import BrandLogo from "@/components/BrandLogo";
 import {
   LayoutGrid, CircleAlert,
-  Building2, Users, Wallet, MapPinned, Filter, LogOut,
+  Building2, Users, Wallet, MapPinned, Filter, LogOut, Radar,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -37,6 +37,7 @@ const MatrizSidebarContent = ({ onNavigate, isMobile = false }: MatrizSidebarCon
   const mainItems = [
     { title: "Dashboard", url: "/matriz", icon: LayoutGrid },
     { title: "Lojas Ativas", url: "/matriz/lojistas", icon: Building2 },
+    { title: "Cobertura", url: "/matriz/cobertura", icon: Radar },
     { title: "Parceiros", url: "/matriz/parceiros", icon: Users },
     { title: "Mapa de Lojistas", url: "/matriz/mapa", icon: MapPinned },
   ];

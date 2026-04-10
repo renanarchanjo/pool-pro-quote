@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useGeolocation, STATES_LIST } from "@/hooks/useGeolocation";
 import { supabase } from "@/integrations/supabase/client";
+import NoStoresInRegion from "./NoStoresInRegion";
 
 interface Store {
   id: string;
@@ -15,6 +16,8 @@ interface Store {
   city: string | null;
   latitude?: number | null;
   longitude?: number | null;
+  coverage_radius_km?: number;
+  coverage_radius_active?: boolean;
   distance?: number;
 }
 
@@ -111,7 +114,13 @@ const LocationStep = ({ onSelectStore, onBack, onSkip }: LocationStepProps) => {
           ...s,
           distance: haversineDistance(userLat, userLon, s.latitude!, s.longitude!),
         }))
-        .filter((s) => s.distance <= 100)
+        .filter((s) => {
+          // If radius filter is disabled, show the store (test mode)
+          if (s.coverage_radius_active === false) return true;
+          // Otherwise filter by the store's configured radius
+          const radius = s.coverage_radius_km || 50;
+          return s.distance <= radius;
+        })
         .sort((a, b) => a.distance - b.distance);
 
       setStores(storesWithDistance);
@@ -190,20 +199,17 @@ const LocationStep = ({ onSelectStore, onBack, onSkip }: LocationStepProps) => {
       {/* Store Results */}
       {searched && !loadingStores && (
         <div className="space-y-3 animate-fade-in">
-          <h2 className="text-lg font-display font-semibold">
-            {stores.length > 0
-              ? `${stores.length} loja${stores.length !== 1 ? "s" : ""} encontrada${stores.length !== 1 ? "s" : ""}`
-              : radiusSearch
-              ? "Nenhuma loja encontrada em um raio de 100km"
-              : "Nenhuma loja encontrada nessa cidade"}
-          </h2>
-
-          {stores.length === 0 && (
-            <p className="text-sm text-muted-foreground">
-              {radiusSearch
-                ? "Tente selecionar um estado e cidade manualmente."
-                : "Tente usar o botão abaixo para buscar lojas próximas."}
-            </p>
+          {stores.length > 0 ? (
+            <h2 className="text-lg font-display font-semibold">
+              {`${stores.length} loja${stores.length !== 1 ? "s" : ""} encontrada${stores.length !== 1 ? "s" : ""}`}
+            </h2>
+          ) : radiusSearch ? (
+            <NoStoresInRegion />
+          ) : (
+            <>
+              <h2 className="text-lg font-display font-semibold">Nenhuma loja encontrada nessa cidade</h2>
+              <p className="text-sm text-muted-foreground">Tente usar o botão abaixo para buscar lojas próximas.</p>
+            </>
           )}
 
           {stores.map((store) => (
