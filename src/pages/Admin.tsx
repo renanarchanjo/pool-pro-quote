@@ -24,6 +24,7 @@ import PendingLeadsAlert from "@/components/admin/PendingLeadsAlert";
 import MobileBottomNav from "@/components/admin/MobileBottomNav";
 import PwaInstallBanner from "@/components/PwaInstallBanner";
 import { NotificationPrompt } from "@/components/NotificationPrompt";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 const PAGE_TITLES: Record<string, string> = {
   "": "Dashboard",
