@@ -150,14 +150,7 @@ const ProposalPdfTemplate = ({
           boxSizing: "border-box",
         }}
       >
-        <div
-          data-pdf-page
-          style={{
-            ...PAGE_STYLE,
-            position: "relative",
-            paddingBottom: `${PAD_Y + footerReservedHeight}px`,
-          }}
-        >
+        <div data-pdf-page style={PAGE_STYLE}>
           <div
             style={{
               display: "flex",
@@ -403,7 +396,14 @@ const ProposalPdfTemplate = ({
           )}
         </div>
 
-        <div data-pdf-page style={PAGE_STYLE}>
+        <div
+          data-pdf-page
+          style={{
+            ...PAGE_STYLE,
+            position: "relative",
+            paddingBottom: `${PAD_Y + footerReservedHeight}px`,
+          }}
+        >
           <div style={{ marginBottom: "18px" }}>
             <div style={{ background: "#F9FAFB", border: "1px solid #E5E7EB", borderRadius: "8px", padding: "20px 24px" }}>
               <table style={{ width: "100%", fontSize: "13px", borderCollapse: "collapse" }}>
