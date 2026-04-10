@@ -70,6 +70,7 @@ const MatrizLeads = () => {
   const [filterPeriod, setFilterPeriod] = useState("all");
   const [filterCity, setFilterCity] = useState("all");
   const [filterStore, setFilterStore] = useState("all");
+  const [showTestLeads, setShowTestLeads] = useState(false);
   const [activeTab, setActiveTab] = useState("pendentes");
   const [selectedLeads, setSelectedLeads] = useState<Set<string>>(new Set());
   const [viewingLead, setViewingLead] = useState<Lead | null>(null);
