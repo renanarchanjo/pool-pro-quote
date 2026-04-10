@@ -401,6 +401,7 @@ const AdminDashboard = () => {
               brandName={brand?.name}
               brandPartnerId={brand?.partner_id}
               partners={partners}
+              storeWhatsapp={store?.whatsapp}
             />
           </div>
         );
@@ -478,6 +479,7 @@ const AdminDashboard = () => {
                       brandName={brand?.name}
                       brandPartnerId={brand?.partner_id}
                       partners={partners}
+                      storeWhatsapp={store?.whatsapp}
                     />
                   );
                 })()}
