@@ -69,6 +69,7 @@ interface ProposalViewProps {
   includedItemsTotal?: number;
   proposalId?: string | null;
   hideWhatsApp?: boolean;
+  hideDownloadPdf?: boolean;
 }
 
 const ProposalView = ({
@@ -90,6 +91,7 @@ const ProposalView = ({
   includedItemsTotal = 0,
   proposalId,
   hideWhatsApp = false,
+  hideDownloadPdf = false,
 }: ProposalViewProps) => {
   const hasAutoDownloaded = useRef(false);
   const pdfAssetsPromiseRef = useRef<Promise<void> | null>(null);
