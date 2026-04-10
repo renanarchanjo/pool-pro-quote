@@ -991,6 +991,8 @@ const AdminLeads = () => {
                   brandPartnerId={viewingProposal.pool_models?.categories?.brands?.partner_id}
                   partners={partners}
                   storeWhatsapp={store?.whatsapp}
+                  hideDownloadPdf
+                  hideWhatsApp
                 />
               </div>
             </div>
