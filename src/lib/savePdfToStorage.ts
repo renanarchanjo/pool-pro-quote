@@ -22,6 +22,7 @@ export async function savePdfToStorage(
       xhr.open("POST", uploadUrl, true);
       xhr.setRequestHeader("Content-Type", "application/pdf");
       xhr.setRequestHeader("apikey", supabaseAnonKey);
+      xhr.setRequestHeader("Authorization", `Bearer ${supabaseAnonKey}`);
       xhr.setRequestHeader("x-upsert", "true");
 
       xhr.upload.onprogress = (e) => {
@@ -34,7 +35,12 @@ export async function savePdfToStorage(
         if (xhr.status >= 200 && xhr.status < 300) {
           resolve();
         } else {
-          reject(new Error(`Storage upload error: ${xhr.status} ${xhr.statusText}`));
+          const responseDetails = xhr.responseText?.trim();
+          reject(
+            new Error(
+              `Storage upload error: ${xhr.status} ${xhr.statusText}${responseDetails ? ` - ${responseDetails}` : ""}`,
+            ),
+          );
         }
       };
       xhr.onerror = () => reject(new Error("Network error during upload"));
