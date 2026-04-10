@@ -246,7 +246,7 @@ const AdminDashboard = () => {
         body: {
           type: "enviar_proposta",
           data: {
-            customerPhone: proposal.customer_whatsapp,
+            customerPhone: formatPhoneForWhatsApp(proposal.customer_whatsapp),
             customerName: proposal.customer_name,
             storeName: store?.name || "SimulaPool",
             pdfUrl: publicUrl,
