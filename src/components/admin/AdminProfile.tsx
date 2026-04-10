@@ -188,7 +188,7 @@ const AdminProfile = () => {
             className="rounded-lg px-4 py-3 mb-4 font-semibold text-base select-all break-all"
             style={{ background: "#F8F9FA", border: "1px solid #E5E7EB", color: "#0F172A" }}
           >
-            simulapool.com/s/{(store as any).slug || ""}
+            simulapool.com/s/{store.slug || ""}
           </div>
           <div className="flex flex-wrap gap-2">
             <Button
@@ -196,7 +196,7 @@ const AdminProfile = () => {
               variant="outline"
               className="gap-2"
               onClick={() => {
-                navigator.clipboard.writeText(`https://www.simulapool.com/s/${(store as any).slug || ""}`);
+                navigator.clipboard.writeText(`https://www.simulapool.com/s/${store.slug || ""}`);
                 toast.success("Link copiado!");
               }}
             >
@@ -209,7 +209,7 @@ const AdminProfile = () => {
               className="gap-2"
               onClick={() => {
                 const msg = encodeURIComponent(
-                  `Simule sua piscina de fibra pelo nosso simulador online! 👇\nhttps://www.simulapool.com/s/${(store as any).slug || ""}`
+                  `Simule sua piscina de fibra pelo nosso simulador online! 👇\nhttps://www.simulapool.com/s/${store.slug || ""}`
                 );
                 window.open(`https://wa.me/?text=${msg}`, "_blank");
               }}
@@ -221,7 +221,7 @@ const AdminProfile = () => {
               size="sm"
               variant="outline"
               className="gap-2"
-              onClick={() => window.open(`/s/${(store as any).slug || ""}`, "_blank")}
+              onClick={() => window.open(`/s/${store.slug || ""}`, "_blank")}
             >
               <ExternalLink className="w-4 h-4" />
               Ver simulador
