@@ -191,33 +191,43 @@ const ProposalView = ({
   };
 
   const handleDownloadPDF = async () => {
+    if (isGeneratingPdf) return;
     const element = document.getElementById("proposal-content");
     if (!element) return;
 
-    const filename = `Proposta-${customerData.name.trim().replace(/\s+/g, "-")}-${today.replace(/\//g, "-")}.pdf`;
+    setIsGeneratingPdf(true);
+    try {
+      const filename = `Proposta-${customerData.name.trim().replace(/\s+/g, "-")}-${today.replace(/\//g, "-")}.pdf`;
 
-    await preparePdfAssets();
-    await new Promise((resolve) => setTimeout(resolve, 2000));
+      await preparePdfAssets();
+      await document.fonts.ready;
+      await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
 
-    await exportPDF({
-      element,
-      filename,
-      orientation: "portrait",
-      captureWidth: 794,
-      sectionSelector: "[data-pdf-section]",
-    });
+      await exportPDF({
+        element,
+        filename,
+        orientation: "portrait",
+        captureWidth: 794,
+        sectionSelector: "[data-pdf-section]",
+      });
+    } finally {
+      setIsGeneratingPdf(false);
+    }
   };
 
   const handleSendWhatsApp = async () => {
-    if (!proposalId || whatsAppState !== "idle") return;
+    if (!proposalId || whatsAppState !== "idle" || isGeneratingPdf) return;
 
     const element = document.getElementById("proposal-content");
     if (!element) return;
 
     setWhatsAppState("sending");
+    setIsGeneratingPdf(true);
+    setUploadProgress(0);
     try {
       await preparePdfAssets();
-      await new Promise((resolve) => setTimeout(resolve, 2000));
+      await document.fonts.ready;
+      await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
 
       const pdfBlob = await generatePDFBlob({
         element,
@@ -226,7 +236,9 @@ const ProposalView = ({
         sectionSelector: "[data-pdf-section]",
       });
 
-      const publicUrl = await savePdfToStorage(proposalId, pdfBlob);
+      const signedUrl = await savePdfToStorage(proposalId, pdfBlob, (percent) => {
+        setUploadProgress(percent);
+      });
 
       const result = await supabase.functions.invoke("send-whatsapp", {
         body: {
@@ -235,7 +247,7 @@ const ProposalView = ({
             customerPhone: formatPhoneForWhatsApp(customerData.whatsapp),
             customerName: customerData.name,
             storeName: storeName || "SimulaPool",
-            pdfUrl: publicUrl,
+            pdfUrl: signedUrl,
           },
         },
       });
@@ -249,6 +261,9 @@ const ProposalView = ({
       console.error("Erro ao enviar WhatsApp:", err);
       toast.error("Erro ao enviar proposta. Tente novamente.");
       setWhatsAppState("idle");
+    } finally {
+      setIsGeneratingPdf(false);
+      setUploadProgress(0);
     }
   };
 
