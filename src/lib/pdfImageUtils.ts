@@ -41,7 +41,7 @@ const toBase64ViaFetch = async (url: string): Promise<string> => {
   return blobToDataUrl(blob);
 };
 
-const FALLBACK = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=";
+export const PDF_IMAGE_FALLBACK = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=";
 
 const RETRY_DELAYS = [0, 500, 1500]; // 3 attempts with exponential backoff
 
@@ -69,7 +69,7 @@ const toBase64ViaFetchWithRetry = async (url: string, fetchOptions?: RequestInit
 };
 
 export const toBase64Safe = async (url: string): Promise<string> => {
-  if (!url) return FALLBACK;
+  if (!url) return PDF_IMAGE_FALLBACK;
   if (url.startsWith("data:") || url.startsWith("blob:")) return url;
 
   // Check IndexedDB cache first
@@ -115,18 +115,18 @@ export const toBase64Safe = async (url: string): Promise<string> => {
           try {
             resolve(canvas.toDataURL("image/png"));
           } catch {
-            resolve(FALLBACK);
+            resolve(PDF_IMAGE_FALLBACK);
           }
         };
-        img.onerror = () => resolve(FALLBACK);
+        img.onerror = () => resolve(PDF_IMAGE_FALLBACK);
         img.src = url + (url.includes("?") ? "&" : "?") + "_t=" + Date.now();
       });
     }
 
-    if (result && result !== FALLBACK) {
+    if (result && result !== PDF_IMAGE_FALLBACK) {
       await pdfImageCacheSet(url, result);
     }
-    return result || FALLBACK;
+    return result || PDF_IMAGE_FALLBACK;
   }
 
   // ── Standard flow with retry ──
@@ -152,7 +152,7 @@ export const toBase64Safe = async (url: string): Promise<string> => {
 
   if (!result) {
     console.warn("[PDF] Imagem não carregou:", url);
-    return FALLBACK;
+    return PDF_IMAGE_FALLBACK;
   }
 
   await pdfImageCacheSet(url, result);
@@ -194,7 +194,7 @@ export const inlineImagesForPdf = async (root: HTMLElement): Promise<() => void>
 
       const base64 = await toBase64Safe(src);
       // Only replace src if we got a real base64, not the 1x1 fallback
-      if (base64 && base64 !== FALLBACK) {
+      if (base64 && base64 !== PDF_IMAGE_FALLBACK) {
         img.removeAttribute("srcset");
         img.removeAttribute("crossorigin");
         img.setAttribute("loading", "eager");

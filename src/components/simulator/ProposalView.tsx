@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { FileDown, ArrowLeft, Loader2, Check } from "lucide-react";
 import { exportPDF, generatePDFBlob } from "@/lib/exportPDF";
 import { savePdfToStorage } from "@/lib/savePdfToStorage";
-import { toBase64Safe } from "@/lib/pdfImageUtils";
+import { PDF_IMAGE_FALLBACK, toBase64Safe } from "@/lib/pdfImageUtils";
 import { formatPhoneForWhatsApp } from "@/lib/formatPhone";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -163,7 +163,9 @@ const ProposalView = ({
           batch.map(async (url) => [url, await toBase64Safe(url)] as const),
         );
         results.forEach((r) => {
-          if (r.status === "fulfilled") allResults.push([r.value[0], r.value[1]]);
+          if (r.status === "fulfilled" && r.value[1] !== PDF_IMAGE_FALLBACK) {
+            allResults.push([r.value[0], r.value[1]]);
+          }
         });
       }
       const nextAssets = Object.fromEntries(allResults);
