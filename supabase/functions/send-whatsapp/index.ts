@@ -13,16 +13,32 @@ const ZAPI_TOKEN = Deno.env.get("ZAPI_TOKEN");
 const ZAPI_CLIENT_TOKEN = Deno.env.get("ZAPI_CLIENT_TOKEN");
 
 async function sendText(phone: string, message: string) {
+  const digits = phone.replace(/\D/g, "");
+  const formattedPhone = digits.startsWith("55") ? digits : "55" + digits;
+  console.log("Enviando para:", formattedPhone);
+  console.log("Client-Token:", ZAPI_CLIENT_TOKEN ? "OK" : "VAZIO");
+
   const url = `https://api.z-api.io/instances/${ZAPI_INSTANCE_ID}/token/${ZAPI_TOKEN}/send-text`;
+
+  const body = {
+    phone: formattedPhone,
+    message: message,
+  };
+  console.log("URL:", url);
+  console.log("Body:", JSON.stringify(body));
+
   const res = await fetch(url, {
     method: "POST",
-    headers: { "Content-Type": "application/json", "Client-Token": ZAPI_CLIENT_TOKEN ?? "" },
-    body: JSON.stringify({
-      phone: phone.replace(/\D/g, ""),
-      message,
-    }),
+    headers: {
+      "Content-Type": "application/json",
+      "Client-Token": ZAPI_CLIENT_TOKEN ?? "",
+    },
+    body: JSON.stringify(body),
   });
-  return res.json();
+
+  const json = await res.json();
+  console.log("Z-API response:", JSON.stringify(json));
+  return json;
 }
 
 async function sendDocument(
@@ -31,18 +47,28 @@ async function sendDocument(
   filename: string,
   caption: string
 ) {
+  const digits = phone.replace(/\D/g, "");
+  const formattedPhone = digits.startsWith("55") ? digits : "55" + digits;
+
   const url = `https://api.z-api.io/instances/${ZAPI_INSTANCE_ID}/token/${ZAPI_TOKEN}/send-document/pdf`;
+
   const res = await fetch(url, {
     method: "POST",
-    headers: { "Content-Type": "application/json", "Client-Token": ZAPI_CLIENT_TOKEN ?? "" },
+    headers: {
+      "Content-Type": "application/json",
+      "Client-Token": ZAPI_CLIENT_TOKEN ?? "",
+    },
     body: JSON.stringify({
-      phone: phone.replace(/\D/g, ""),
+      phone: formattedPhone,
       document: documentUrl,
       fileName: filename,
-      caption,
+      caption: caption,
     }),
   });
-  return res.json();
+
+  const json = await res.json();
+  console.log("Z-API document response:", JSON.stringify(json));
+  return json;
 }
 
 // Types that can be called without user auth (public simulator)
