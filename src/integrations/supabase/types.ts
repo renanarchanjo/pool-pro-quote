@@ -1421,6 +1421,21 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      check_store_protected_fields_unchanged: {
+        Args: {
+          _lead_limit_monthly: number
+          _lead_plan_active: boolean
+          _lead_price_excess: number
+          _plan_expires_at: string
+          _plan_id: string
+          _plan_started_at: string
+          _plan_status: string
+          _store_id: string
+          _stripe_customer_id: string
+          _stripe_subscription_id: string
+        }
+        Returns: boolean
+      }
       get_lead_plans_public: {
         Args: never
         Returns: {
