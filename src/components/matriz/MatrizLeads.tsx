@@ -28,6 +28,7 @@ interface Lead {
   status: ProposalStatus;
   selected_optionals: any;
   store_id: string | null;
+  is_test: boolean;
   pool_models: { name: string } | null;
   stores: { name: string; city: string | null; state: string | null } | null;
 }
