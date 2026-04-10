@@ -384,9 +384,12 @@ const AdminDashboard = () => {
             style={{
               position: "fixed",
               top: 0,
-              left: "-99999px",
+              left: 0,
               width: "794px",
-              opacity: 0,
+              height: "auto",
+              overflow: "hidden",
+              clip: "rect(0,0,0,0)",
+              clipPath: "inset(50%)",
               pointerEvents: "none",
               zIndex: -1,
             }}
