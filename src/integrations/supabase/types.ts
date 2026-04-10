@@ -1460,6 +1460,25 @@ export type Database = {
           state: string
         }[]
       }
+      get_store_public_by_slug: {
+        Args: { _slug: string }
+        Returns: {
+          city: string
+          id: string
+          name: string
+          slug: string
+          state: string
+          whatsapp: string
+        }[]
+      }
+      get_store_settings_public: {
+        Args: { _store_id: string }
+        Returns: {
+          logo_url: string
+          primary_color: string
+          secondary_color: string
+        }[]
+      }
       get_stores_public: {
         Args: never
         Returns: {
