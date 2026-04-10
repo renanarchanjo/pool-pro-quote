@@ -9,13 +9,9 @@ interface CacheEntry {
 }
 
 const getKeyFromUrl = (url: string): string => {
-  try {
-    const parsed = new URL(url);
-    // Use origin + pathname as key (ignore query strings / cache-busting)
-    return parsed.origin + parsed.pathname;
-  } catch {
-    return url;
-  }
+  // Use the FULL URL as cache key to avoid collisions between different URLs
+  // that share the same origin+pathname but differ in query params
+  return url;
 };
 
 const openDb = (): Promise<IDBDatabase> =>
