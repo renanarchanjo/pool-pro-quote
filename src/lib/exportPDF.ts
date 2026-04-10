@@ -137,8 +137,9 @@ const exportSectionedPDF = async ({
   for (let index = 0; index < sections.length; index += 1) {
     const section = sections[index];
     section.getBoundingClientRect();
+    const scale = getHtml2canvasScale();
     const canvas = await html2canvas(section, {
-      scale: 2,
+      scale,
       useCORS: true,
       allowTaint: false,
       backgroundColor: "#ffffff",
@@ -262,13 +263,14 @@ export const exportPDF = async ({
       const pdf = await exportSectionedPDF({ element, filename, orientation, sectionSelector });
       pdf.save(filename);
     } else {
+      const scale = getHtml2canvasScale();
       await (html2pdf() as any)
         .set({
           margin: [10, 10, 10, 10],
           filename,
           image: { type: "jpeg", quality: 0.98 },
           html2canvas: {
-            scale: 2,
+            scale,
             useCORS: true,
             allowTaint: false,
             width,
@@ -356,12 +358,13 @@ export const generatePDFBlob = async ({
       });
       return pdf.output("blob") as Blob;
     } else {
+      const scale = getHtml2canvasScale();
       const blob = await (html2pdf() as any)
         .set({
           margin: [10, 10, 10, 10],
           image: { type: "jpeg", quality: 0.98 },
           html2canvas: {
-            scale: 2,
+            scale,
             useCORS: true,
             allowTaint: false,
             width,
