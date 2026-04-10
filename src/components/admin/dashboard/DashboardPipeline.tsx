@@ -22,7 +22,7 @@ interface Props {
   onUpdateStatus: (id: string, status: ProposalStatus) => void;
   onViewProposal: (p: Proposal) => void;
   onExportPDF: (p: Proposal) => void;
-  onSendWhatsApp?: (p: Proposal) => Promise<void>;
+  
 }
 
 const DATE_PRESETS = [

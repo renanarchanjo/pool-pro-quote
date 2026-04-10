@@ -369,7 +369,7 @@ const AdminDashboard = () => {
           onUpdateStatus={updateStatus}
           onViewProposal={setViewingProposal}
           onExportPDF={handleExportProposalPDF}
-          onSendWhatsApp={handleSendWhatsApp}
+          
         />
       </div>
 
