@@ -10,7 +10,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Loader2, Search, Users, TrendingUp, DollarSign, MapPin, Copy, Calendar, Filter, Download, Eye, Trash2, RefreshCw, Send, CheckCircle2, Bell } from "lucide-react";
+import { Loader2, Search, Users, TrendingUp, DollarSign, MapPin, Copy, Calendar, Filter, Download, Eye, Trash2, RefreshCw, Send, CheckCircle2, Bell, FlaskConical } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -27,6 +28,7 @@ interface Lead {
   status: ProposalStatus;
   selected_optionals: any;
   store_id: string | null;
+  is_test: boolean;
   pool_models: { name: string } | null;
   stores: { name: string; city: string | null; state: string | null } | null;
 }
@@ -68,6 +70,7 @@ const MatrizLeads = () => {
   const [filterPeriod, setFilterPeriod] = useState("all");
   const [filterCity, setFilterCity] = useState("all");
   const [filterStore, setFilterStore] = useState("all");
+  const [showTestLeads, setShowTestLeads] = useState(false);
   const [activeTab, setActiveTab] = useState("pendentes");
   const [selectedLeads, setSelectedLeads] = useState<Set<string>>(new Set());
   const [viewingLead, setViewingLead] = useState<Lead | null>(null);
@@ -81,7 +84,7 @@ const MatrizLeads = () => {
   const loadData = async () => {
     setLoading(true);
     const [leadsRes, distRes, storesRes] = await Promise.all([
-      supabase.from("proposals").select("*, pool_models(name), stores(name, city, state)").is("created_by", null).order("created_at", { ascending: false }).limit(3000),
+      supabase.from("proposals").select("*, pool_models(name), stores(name, city, state)").is("created_by", null).order("created_at", { ascending: false }).limit(3000) as any,
       (supabase as any).from("lead_distributions").select("*, stores(name, city)").limit(5000),
       (supabase as any).from("stores").select("id, name, city, state, lead_plan_active, lead_limit_monthly").order("name"),
     ]);
@@ -238,9 +241,18 @@ const MatrizLeads = () => {
     });
   };
 
+  const handleToggleTest = async (leadId: string, currentValue: boolean) => {
+    const { error } = await supabase.from("proposals").update({ is_test: !currentValue } as any).eq("id", leadId);
+    if (error) { toast.error("Erro ao marcar lead"); return; }
+    setLeads(prev => prev.map(l => l.id === leadId ? { ...l, is_test: !currentValue } : l));
+    toast.success(!currentValue ? "Lead marcado como teste" : "Lead desmarcado como teste");
+  };
+
   // --- Filters ---
   const now = new Date();
   const filtered = leads.filter(l => {
+    // Filter test leads unless showTestLeads is on
+    if (!showTestLeads && l.is_test) return false;
     if (search) {
       const s = search.toLowerCase();
       if (![l.customer_name, l.customer_city, l.customer_whatsapp, l.pool_models?.name || ""].some(v => v.toLowerCase().includes(s))) return false;
@@ -318,7 +330,12 @@ const MatrizLeads = () => {
           <h1 className="text-[15px] md:text-[18px] font-semibold text-foreground leading-tight">Gestão de Leads</h1>
           <p className="text-[11px] md:text-[13px] text-muted-foreground hidden md:block">Distribuição e controle centralizado</p>
         </div>
-        <div className="flex gap-1.5 md:gap-2 shrink-0">
+        <div className="flex gap-1.5 md:gap-2 shrink-0 items-center">
+          <div className="flex items-center gap-1.5 mr-1 md:mr-2">
+            <FlaskConical className={`w-3.5 h-3.5 ${showTestLeads ? "text-purple-500" : "text-muted-foreground"}`} />
+            <Switch checked={showTestLeads} onCheckedChange={setShowTestLeads} className="scale-75" />
+            <span className="text-[10px] md:text-xs text-muted-foreground hidden md:inline">Teste</span>
+          </div>
           {selectedLeads.size > 0 && activeTab === "pendentes" && (
             <Button size="sm" onClick={() => setShowDistributeDialog(true)} className="hidden md:flex bg-emerald-600 hover:bg-emerald-700 text-white h-8 text-xs px-3">
               <Send className="w-3.5 h-3.5 mr-1" /> Distribuir ({selectedLeads.size})
@@ -462,10 +479,15 @@ const MatrizLeads = () => {
                   <CardContent className="p-3">
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between gap-2 mb-1">
-                        <span className="text-sm font-semibold text-foreground truncate">{lead.customer_name}</span>
-                        <Badge variant="outline" className={`${statusConfig[lead.status].color} text-[10px] px-1.5 py-0 shrink-0`}>
-                          {statusConfig[lead.status].label}
-                        </Badge>
+                        <div className="flex items-center gap-1.5 min-w-0">
+                          <span className="text-sm font-semibold text-foreground truncate">{lead.customer_name}</span>
+                          {lead.is_test && <Badge className="bg-purple-500/10 text-purple-600 border-purple-500/20 text-[9px] px-1 py-0 shrink-0">TESTE</Badge>}
+                        </div>
+                        <div className="flex items-center gap-1 shrink-0">
+                          <Badge variant="outline" className={`${statusConfig[lead.status].color} text-[10px] px-1.5 py-0`}>
+                            {statusConfig[lead.status].label}
+                          </Badge>
+                        </div>
                       </div>
 
                       <div className="flex items-center gap-3 text-[11px] text-muted-foreground mb-1.5">
@@ -479,6 +501,9 @@ const MatrizLeads = () => {
                           <span className="text-xs font-semibold text-emerald-600">{formatCurrency(lead.total_price)}</span>
                         </div>
                         <div className="flex items-center gap-0.5" onClick={(e) => e.stopPropagation()}>
+                          <Button variant="ghost" size="icon" className={`h-7 w-7 ${lead.is_test ? "text-purple-500" : ""}`} onClick={() => handleToggleTest(lead.id, lead.is_test)} title={lead.is_test ? "Desmarcar teste" : "Marcar como teste"}>
+                            <FlaskConical className="w-3.5 h-3.5" />
+                          </Button>
                           <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleViewLead(lead)}>
                             <Eye className="w-3.5 h-3.5" />
                           </Button>
@@ -548,7 +573,10 @@ const MatrizLeads = () => {
                         )}
                         <TableCell>
                           <div>
-                            <span className="font-medium">{lead.customer_name}</span>
+                            <div className="flex items-center gap-1.5">
+                              <span className="font-medium">{lead.customer_name}</span>
+                              {lead.is_test && <Badge className="bg-purple-500/10 text-purple-600 border-purple-500/20 text-[9px] px-1 py-0">TESTE</Badge>}
+                            </div>
                             {expired && expired.length > 0 && (
                               <div className="flex items-center gap-1 mt-1">
                                 <Badge variant="outline" className="bg-orange-500/10 text-orange-600 border-orange-500/20 text-[10px] px-1.5 py-0">
@@ -585,6 +613,7 @@ const MatrizLeads = () => {
                         <TableCell className="text-sm text-muted-foreground">{lead.created_at ? format(new Date(lead.created_at), "dd/MM/yy HH:mm", { locale: ptBR }) : "-"}</TableCell>
                         <TableCell className="text-right">
                           <div className="flex items-center justify-end gap-1">
+                            <Button variant="ghost" size="icon" className={`h-8 w-8 ${lead.is_test ? "text-purple-500" : ""}`} onClick={() => handleToggleTest(lead.id, lead.is_test)} title={lead.is_test ? "Desmarcar teste" : "Marcar como teste"}><FlaskConical className="w-4 h-4" /></Button>
                             <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleViewLead(lead)}><Eye className="w-4 h-4" /></Button>
                             <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleCopyPhone(lead)}><Copy className="w-4 h-4 text-muted-foreground" /></Button>
                             <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => setDeletingLead(lead)}><Trash2 className="w-4 h-4" /></Button>

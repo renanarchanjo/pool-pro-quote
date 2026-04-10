@@ -1043,6 +1043,7 @@ export type Database = {
           customer_name: string
           customer_whatsapp: string
           id: string
+          is_test: boolean
           model_id: string | null
           selected_optionals: Json | null
           status: Database["public"]["Enums"]["proposal_status"]
@@ -1056,6 +1057,7 @@ export type Database = {
           customer_name: string
           customer_whatsapp: string
           id?: string
+          is_test?: boolean
           model_id?: string | null
           selected_optionals?: Json | null
           status?: Database["public"]["Enums"]["proposal_status"]
@@ -1069,6 +1071,7 @@ export type Database = {
           customer_name?: string
           customer_whatsapp?: string
           id?: string
+          is_test?: boolean
           model_id?: string | null
           selected_optionals?: Json | null
           status?: Database["public"]["Enums"]["proposal_status"]

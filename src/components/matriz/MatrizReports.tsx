@@ -38,7 +38,7 @@ const MatrizReports = () => {
     const load = async () => {
       const [s, p, pay] = await Promise.all([
         supabase.from("stores").select("id, name, city, state, plan_status, created_at, subscription_plans(name, price_monthly, slug)"),
-        supabase.from("proposals").select("id, store_id, total_price, created_at, status"),
+        supabase.from("proposals").select("id, store_id, total_price, created_at, status, is_test").eq("is_test", false),
         supabase.from("payment_history").select("id, store_id, amount, status, payment_date"),
       ]);
       setStores((s.data as any) || []);
