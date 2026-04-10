@@ -495,14 +495,26 @@ const ProposalPdfTemplate = ({
                 <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", alignItems: "center", gap: "10px 16px" }}>
                   {footerPartners.map((partner) => (
                     <div key={partner.id} style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: "24px" }}>
-                      <img
-                        src={resolveSrc(partner.logo_url) || undefined}
-                        alt={partner.name}
-                        loading="eager"
-                        referrerPolicy="no-referrer"
-                        crossOrigin="anonymous"
-                        style={{ height: "24px", width: "auto", objectFit: "contain", maxWidth: "84px" }}
-                      />
+                      {resolveSrc(partner.logo_url) ? (
+                        <img
+                          src={resolveSrc(partner.logo_url)!}
+                          alt={partner.name}
+                          loading="eager"
+                          referrerPolicy="no-referrer"
+                          crossOrigin="anonymous"
+                          style={{ height: "24px", width: "auto", objectFit: "contain", maxWidth: "84px" }}
+                          onError={(e) => {
+                            const t = e.currentTarget;
+                            t.style.display = "none";
+                            const fb = document.createElement("span");
+                            fb.textContent = partner.name;
+                            fb.style.cssText = "font-size:10px;font-weight:600;color:#6B7280";
+                            t.parentElement?.appendChild(fb);
+                          }}
+                        />
+                      ) : (
+                        <span style={{ fontSize: "10px", fontWeight: 600, color: "#6B7280" }}>{partner.name}</span>
+                      )}
                     </div>
                   ))}
                 </div>
