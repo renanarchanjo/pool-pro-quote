@@ -41,7 +41,7 @@ const toBase64ViaFetch = async (url: string): Promise<string> => {
   return blobToDataUrl(blob);
 };
 
-const FALLBACK = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=";
+export const PDF_IMAGE_FALLBACK = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=";
 
 const RETRY_DELAYS = [0, 500, 1500]; // 3 attempts with exponential backoff
 
