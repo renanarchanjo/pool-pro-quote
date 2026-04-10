@@ -155,7 +155,7 @@ const SimuladorLoja = () => {
       setCategories(catsRes.data || []);
       setOptionals(optionalsRes.data || []);
       setModelOptionals(modelOptsRes.data || []);
-      setStoreSettings(settingsRes.data || null);
+      setStoreSettings(settingsRes.data && settingsRes.data.length > 0 ? settingsRes.data[0] : null);
       setPartners(partnersRes.data || []);
     } catch (error) {
       console.error("Error loading store:", error);
