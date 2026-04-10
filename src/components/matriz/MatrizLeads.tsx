@@ -84,7 +84,7 @@ const MatrizLeads = () => {
   const loadData = async () => {
     setLoading(true);
     const [leadsRes, distRes, storesRes] = await Promise.all([
-      supabase.from("proposals").select("*, pool_models(name), stores(name, city, state)").is("created_by", null).order("created_at", { ascending: false }).limit(3000),
+      supabase.from("proposals").select("*, pool_models(name), stores(name, city, state)").is("created_by", null).order("created_at", { ascending: false }).limit(3000) as any,
       (supabase as any).from("lead_distributions").select("*, stores(name, city)").limit(5000),
       (supabase as any).from("stores").select("id, name, city, state, lead_plan_active, lead_limit_monthly").order("name"),
     ]);
@@ -241,9 +241,18 @@ const MatrizLeads = () => {
     });
   };
 
+  const handleToggleTest = async (leadId: string, currentValue: boolean) => {
+    const { error } = await supabase.from("proposals").update({ is_test: !currentValue } as any).eq("id", leadId);
+    if (error) { toast.error("Erro ao marcar lead"); return; }
+    setLeads(prev => prev.map(l => l.id === leadId ? { ...l, is_test: !currentValue } : l));
+    toast.success(!currentValue ? "Lead marcado como teste" : "Lead desmarcado como teste");
+  };
+
   // --- Filters ---
   const now = new Date();
   const filtered = leads.filter(l => {
+    // Filter test leads unless showTestLeads is on
+    if (!showTestLeads && l.is_test) return false;
     if (search) {
       const s = search.toLowerCase();
       if (![l.customer_name, l.customer_city, l.customer_whatsapp, l.pool_models?.name || ""].some(v => v.toLowerCase().includes(s))) return false;
