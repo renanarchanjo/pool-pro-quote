@@ -193,13 +193,23 @@ export const inlineImagesForPdf = async (root: HTMLElement): Promise<() => void>
       });
 
       const base64 = await toBase64Safe(src);
-      img.removeAttribute("srcset");
-      img.removeAttribute("crossorigin");
-      img.setAttribute("loading", "eager");
-      img.src = base64;
-      await waitForImageReady(img);
+      // Only replace src if we got a real base64, not the 1x1 fallback
+      if (base64 && base64 !== FALLBACK) {
+        img.removeAttribute("srcset");
+        img.removeAttribute("crossorigin");
+        img.setAttribute("loading", "eager");
+        img.src = base64;
+        await waitForImageReady(img);
+      } else {
+        // Keep original src but ensure CORS and eager loading for html2canvas
+        img.setAttribute("crossorigin", "anonymous");
+        img.setAttribute("loading", "eager");
+        console.warn("[PDF] Keeping original src (base64 failed):", src);
+      }
       img.style.visibility = "visible";
-      img.style.display = img.style.display || "inline";
+      if (!img.style.display || img.style.display === "none") {
+        img.style.display = "inline";
+      }
     }),
   );
 
