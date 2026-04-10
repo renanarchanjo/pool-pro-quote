@@ -254,7 +254,8 @@ export const exportPDF = async ({
     await waitForStablePaint();
 
     if (sectionSelector) {
-      await exportSectionedPDF({ element, filename, orientation, sectionSelector });
+      const pdf = await exportSectionedPDF({ element, filename, orientation, sectionSelector });
+      pdf.save(filename);
     } else {
       await (html2pdf() as any)
         .set({
