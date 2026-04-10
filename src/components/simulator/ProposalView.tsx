@@ -190,6 +190,48 @@ const ProposalView = ({
     });
   };
 
+  const handleSendWhatsApp = async () => {
+    if (!proposalId || whatsAppState !== "idle") return;
+
+    const element = document.getElementById("proposal-content");
+    if (!element) return;
+
+    setWhatsAppState("sending");
+    try {
+      await preparePdfAssets();
+      await new Promise((resolve) => setTimeout(resolve, 800));
+
+      const pdfBlob = await generatePDFBlob({
+        element,
+        orientation: "portrait",
+        captureWidth: 800,
+        sectionSelector: "[data-pdf-section]",
+      });
+
+      const publicUrl = await savePdfToStorage(proposalId, pdfBlob);
+
+      await supabase.functions.invoke("send-whatsapp", {
+        body: {
+          type: "enviar_proposta",
+          data: {
+            customerPhone: customerData.whatsapp,
+            customerName: customerData.name,
+            storeName: storeName || "SimulaPool",
+            pdfUrl: publicUrl,
+          },
+        },
+      });
+
+      setWhatsAppState("sent");
+      toast.success("Proposta enviada para seu WhatsApp!");
+      setTimeout(() => setWhatsAppState("idle"), 3000);
+    } catch (err) {
+      console.error("Erro ao enviar WhatsApp:", err);
+      toast.error("Erro ao enviar proposta. Tente novamente.");
+      setWhatsAppState("idle");
+    }
+  };
+
   const storeLocation = [storeCity, storeState].filter(Boolean).join(" / ");
 
   useEffect(() => {
