@@ -1,9 +1,13 @@
-import { supabase } from "@/integrations/supabase/client";
+import { createClient } from "@supabase/supabase-js";
+
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+const supabasePublic = createClient(supabaseUrl, supabaseAnonKey);
 
 /**
  * Uploads a PDF blob to the "proposals" storage bucket and returns a signed URL (48h TTL).
+ * Uses anonymous client (no auth required) since the simulator is public.
  * Uses a fixed filename per proposal to avoid duplicates (upsert overwrites previous).
- * Optionally reports upload progress via onProgress callback.
  */
 export async function savePdfToStorage(
   proposalId: string,
