@@ -285,7 +285,12 @@ const AdminLeads = () => {
       const isAssigningToOwner = assignTargetUser === profile?.id && isOwner;
 
       if (isAssigningToOwner) {
-        // Assign + auto-accept each lead
+        // First assign to self, then auto-accept each lead
+        await (supabase as any)
+          .from("lead_distributions")
+          .update({ assigned_to: assignTargetUser })
+          .in("id", idsToAssign);
+
         for (const distId of idsToAssign) {
           const { data, error } = await supabase.functions.invoke("accept-lead", {
             body: { distribution_id: distId },
