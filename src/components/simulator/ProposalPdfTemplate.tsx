@@ -489,6 +489,50 @@ const ProposalPdfTemplate = ({
             )}
           </div>
 
+          {/* ── MARCAS PARCEIRAS (container separado acima do rodapé) ── */}
+          {footerPartners.length > 0 && (
+            <div
+              style={{
+                flexShrink: 0,
+                borderTop: "1px solid #E5E7EB",
+                paddingTop: "14px",
+                paddingBottom: "14px",
+                display: "flex",
+                flexDirection: "column",
+                gap: "8px",
+              }}
+            >
+              <p style={{ ...LABEL, textAlign: "center" }}>MARCAS PARCEIRAS</p>
+              <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", alignItems: "center", gap: "10px 16px" }}>
+                {footerPartners.map((partner) => (
+                  <div key={partner.id} style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: "24px" }}>
+                    {resolveSrc(partner.logo_url) ? (
+                      <img
+                        src={resolveSrc(partner.logo_url)!}
+                        alt={partner.name}
+                        loading="eager"
+                        referrerPolicy="no-referrer"
+                        crossOrigin="anonymous"
+                        style={{ height: "24px", width: "auto", objectFit: "contain", maxWidth: "84px" }}
+                        onError={(e) => {
+                          const t = e.currentTarget;
+                          t.style.display = "none";
+                          const fb = document.createElement("span");
+                          fb.textContent = partner.name;
+                          fb.style.cssText = "font-size:10px;font-weight:600;color:#6B7280";
+                          t.parentElement?.appendChild(fb);
+                        }}
+                      />
+                    ) : (
+                      <span style={{ fontSize: "10px", fontWeight: 600, color: "#6B7280" }}>{partner.name}</span>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* ── RODAPÉ SIMULAPOOL ── */}
           <div
             style={{
               flexShrink: 0,
@@ -496,60 +540,17 @@ const ProposalPdfTemplate = ({
               paddingTop: "12px",
               display: "flex",
               flexDirection: "column",
-              gap: "12px",
+              alignItems: "center",
+              gap: "6px",
             }}
           >
-            {footerPartners.length > 0 && (
-              <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-                <p style={{ ...LABEL, textAlign: "center" }}>MARCAS PARCEIRAS</p>
-                <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", alignItems: "center", gap: "10px 16px" }}>
-                  {footerPartners.map((partner) => (
-                    <div key={partner.id} style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: "24px" }}>
-                      {resolveSrc(partner.logo_url) ? (
-                        <img
-                          src={resolveSrc(partner.logo_url)!}
-                          alt={partner.name}
-                          loading="eager"
-                          referrerPolicy="no-referrer"
-                          crossOrigin="anonymous"
-                          style={{ height: "24px", width: "auto", objectFit: "contain", maxWidth: "84px" }}
-                          onError={(e) => {
-                            const t = e.currentTarget;
-                            t.style.display = "none";
-                            const fb = document.createElement("span");
-                            fb.textContent = partner.name;
-                            fb.style.cssText = "font-size:10px;font-weight:600;color:#6B7280";
-                            t.parentElement?.appendChild(fb);
-                          }}
-                        />
-                      ) : (
-                        <span style={{ fontSize: "10px", fontWeight: 600, color: "#6B7280" }}>{partner.name}</span>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-              }}
-            >
-              <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                <img
-                  src={resolveSrc(simulapoolLogoFooter) || simulapoolLogoFooter}
-                  alt="SimulaPool"
-                  style={{ height: "18px", width: "auto", objectFit: "contain" }}
-                />
-                <span style={{ fontSize: "10px", color: "#9CA3AF" }}>Documento gerado por SimulaPool</span>
-              </div>
-              <div style={{ textAlign: "right" }}>
-                <span style={{ fontSize: "10px", color: "#0EA5E9" }}>simulapool.com</span>
-              </div>
-            </div>
+            <img
+              src={resolveSrc(simulapoolLogoFooter) || simulapoolLogoFooter}
+              alt="SimulaPool"
+              style={{ height: "20px", width: "auto", objectFit: "contain" }}
+            />
+            <span style={{ fontSize: "10px", color: "#9CA3AF" }}>Desenvolvido e gerado por SimulaPool</span>
+            <span style={{ fontSize: "10px", color: "#0EA5E9", fontWeight: 500 }}>www.simulapool.com</span>
           </div>
         </div>
       </div>
