@@ -30,10 +30,6 @@ const waitForStablePaint = async (delay = 300) => {
   await new Promise((r) => setTimeout(r, delay));
 };
 
-/**
- * Sectioned capture: renders each [data-pdf-section] independently,
- * packing them onto A4 pages with automatic page breaks.
- */
 const exportSectionedPDF = async ({
   element,
   filename,
@@ -41,22 +37,49 @@ const exportSectionedPDF = async ({
   sectionSelector,
 }: Required<Pick<ExportPDFOptions, "element" | "filename" | "orientation" | "sectionSelector">>) => {
   const page = A4_SIZES[orientation];
-  const margin = 10;
-  const contentWidth = page.width - margin * 2;
-  const contentHeight = page.height - margin * 2;
-  const sectionGap = 4;
-
-  const sections = Array.from(
-    element.querySelectorAll<HTMLElement>(sectionSelector),
-  ).filter((s) => s.offsetWidth > 0 && s.offsetHeight > 0);
+  const sections = Array.from(element.querySelectorAll<HTMLElement>(sectionSelector)).filter(
+    (s) => s.offsetWidth > 0 && s.offsetHeight > 0,
+  );
 
   if (sections.length === 0) {
     throw new Error(`Nenhuma seção encontrada para o seletor ${sectionSelector}`);
   }
 
   const pdf = new jsPDF({ unit: "mm", format: "a4", orientation });
-  let currentY = margin;
   const scale = getHtml2canvasScale();
+  const fullPageCapture = sections.every((s) => s.hasAttribute("data-pdf-page"));
+
+  if (fullPageCapture) {
+    for (let index = 0; index < sections.length; index += 1) {
+      const section = sections[index];
+      const canvas = await html2canvas(section, {
+        scale,
+        useCORS: true,
+        allowTaint: false,
+        backgroundColor: "#ffffff",
+        logging: false,
+        imageTimeout: 15000,
+        windowWidth: section.scrollWidth,
+        windowHeight: section.scrollHeight,
+        scrollX: 0,
+        scrollY: -window.scrollY,
+      });
+
+      if (index > 0) {
+        pdf.addPage("a4", orientation);
+      }
+
+      pdf.addImage(canvas.toDataURL("image/png"), "PNG", 0, 0, page.width, page.height);
+    }
+
+    return pdf;
+  }
+
+  const margin = 10;
+  const contentWidth = page.width - margin * 2;
+  const contentHeight = page.height - margin * 2;
+  const sectionGap = 4;
+  let currentY = margin;
 
   for (const section of sections) {
     section.getBoundingClientRect();
@@ -87,7 +110,6 @@ const exportSectionedPDF = async ({
       continue;
     }
 
-    // Large section: slice into pages
     const pxPerMm = canvas.width / imgWidthMm;
     const pageSliceHeightPx = Math.floor(contentHeight * pxPerMm);
     let sourceY = 0;
@@ -119,10 +141,6 @@ const exportSectionedPDF = async ({
   return pdf;
 };
 
-/**
- * Export an HTML element to PDF.
- * The element is expected to already be at the correct capture width (794px for proposals).
- */
 export const exportPDF = async ({
   element,
   filename,
@@ -202,9 +220,6 @@ export const exportPDF = async ({
   }
 };
 
-/**
- * Generate a PDF blob from an HTML element.
- */
 export const generatePDFBlob = async ({
   element,
   orientation = "portrait",
@@ -246,33 +261,34 @@ export const generatePDFBlob = async ({
         sectionSelector,
       });
       return pdf.output("blob") as Blob;
-    } else {
-      const scale = getHtml2canvasScale();
-      const width = captureWidth || element.scrollWidth;
-      const blob = await (html2pdf() as any)
-        .set({
-          margin: [10, 10, 10, 10],
-          image: { type: "jpeg", quality: 0.98 },
-          html2canvas: {
-            scale,
-            useCORS: true,
-            allowTaint: false,
-            width,
-            windowWidth: width,
-            windowHeight: element.scrollHeight,
-            backgroundColor: "#ffffff",
-            logging: false,
-            imageTimeout: 15000,
-            scrollX: 0,
-            scrollY: -window.scrollY,
-          },
-          jsPDF: { unit: "mm", format: "a4", orientation },
-          pagebreak: { mode: ["avoid-all", "css", "legacy"] },
-        })
-        .from(element)
-        .outputPdf("blob");
-      return blob as Blob;
     }
+
+    const scale = getHtml2canvasScale();
+    const width = captureWidth || element.scrollWidth;
+    const blob = await (html2pdf() as any)
+      .set({
+        margin: [10, 10, 10, 10],
+        image: { type: "jpeg", quality: 0.98 },
+        html2canvas: {
+          scale,
+          useCORS: true,
+          allowTaint: false,
+          width,
+          windowWidth: width,
+          windowHeight: element.scrollHeight,
+          backgroundColor: "#ffffff",
+          logging: false,
+          imageTimeout: 15000,
+          scrollX: 0,
+          scrollY: -window.scrollY,
+        },
+        jsPDF: { unit: "mm", format: "a4", orientation },
+        pagebreak: { mode: ["avoid-all", "css", "legacy"] },
+      })
+      .from(element)
+      .outputPdf("blob");
+
+    return blob as Blob;
   } finally {
     restoreImages();
     hiddenOriginals.forEach(({ el, display }) => {

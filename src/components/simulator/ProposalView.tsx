@@ -192,7 +192,7 @@ const ProposalView = ({
         element,
         filename,
         orientation: "portrait",
-        sectionSelector: "[data-pdf-section]",
+        sectionSelector: "[data-pdf-page]",
       });
     } finally {
       setIsGeneratingPdf(false);
@@ -215,7 +215,7 @@ const ProposalView = ({
       const pdfBlob = await generatePDFBlob({
         element,
         orientation: "portrait",
-        sectionSelector: "[data-pdf-section]",
+        sectionSelector: "[data-pdf-page]",
       });
 
       const signedUrl = await savePdfToStorage(proposalId, pdfBlob, (p) => setUploadProgress(p));
