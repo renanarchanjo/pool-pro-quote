@@ -43,6 +43,7 @@ const AdminDashboard = () => {
   const [filterMember, setFilterMember] = useState<string>("all");
   const [leadDistributions, setLeadDistributions] = useState<{ proposal_id: string; accepted_by: string | null; status: string }[]>([]);
   const [commissionPercent, setCommissionPercent] = useState(0);
+  const [allCommissions, setAllCommissions] = useState<{ member_id: string; commission_percent: number }[]>([]);
   const [partners, setPartners] = useState<{ id: string; name: string; logo_url: string | null; banner_1_url: string | null; banner_2_url: string | null; display_percent?: number }[]>([]);
   const isOwner = role === "owner";
   const [pdfDatePreset, setPdfDatePreset] = useState("month");
@@ -194,13 +195,20 @@ const AdminDashboard = () => {
 
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
-        const { data: commData } = await supabase
-          .from("commission_settings")
-          .select("commission_percent")
-          .eq("store_id", store.id)
-          .eq("member_id", user.id)
-          .maybeSingle();
+        const [{ data: commData }, { data: allCommData }] = await Promise.all([
+          supabase
+            .from("commission_settings")
+            .select("commission_percent")
+            .eq("store_id", store.id)
+            .eq("member_id", user.id)
+            .maybeSingle(),
+          supabase
+            .from("commission_settings")
+            .select("member_id, commission_percent")
+            .eq("store_id", store.id),
+        ]);
         setCommissionPercent(commData?.commission_percent || 0);
+        setAllCommissions(allCommData || []);
       }
     } catch (error) {
       console.error("Error loading dashboard:", error);
