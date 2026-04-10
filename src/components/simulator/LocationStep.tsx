@@ -199,20 +199,17 @@ const LocationStep = ({ onSelectStore, onBack, onSkip }: LocationStepProps) => {
       {/* Store Results */}
       {searched && !loadingStores && (
         <div className="space-y-3 animate-fade-in">
-          <h2 className="text-lg font-display font-semibold">
-            {stores.length > 0
-              ? `${stores.length} loja${stores.length !== 1 ? "s" : ""} encontrada${stores.length !== 1 ? "s" : ""}`
-              : radiusSearch
-              ? "Nenhuma loja encontrada em um raio de 100km"
-              : "Nenhuma loja encontrada nessa cidade"}
-          </h2>
-
-          {stores.length === 0 && (
-            <p className="text-sm text-muted-foreground">
-              {radiusSearch
-                ? "Tente selecionar um estado e cidade manualmente."
-                : "Tente usar o botão abaixo para buscar lojas próximas."}
-            </p>
+          {stores.length > 0 ? (
+            <h2 className="text-lg font-display font-semibold">
+              {`${stores.length} loja${stores.length !== 1 ? "s" : ""} encontrada${stores.length !== 1 ? "s" : ""}`}
+            </h2>
+          ) : radiusSearch ? (
+            <NoStoresInRegion />
+          ) : (
+            <>
+              <h2 className="text-lg font-display font-semibold">Nenhuma loja encontrada nessa cidade</h2>
+              <p className="text-sm text-muted-foreground">Tente usar o botão abaixo para buscar lojas próximas.</p>
+            </>
           )}
 
           {stores.map((store) => (
