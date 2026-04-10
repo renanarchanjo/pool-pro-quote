@@ -501,6 +501,9 @@ const MatrizLeads = () => {
                           <span className="text-xs font-semibold text-emerald-600">{formatCurrency(lead.total_price)}</span>
                         </div>
                         <div className="flex items-center gap-0.5" onClick={(e) => e.stopPropagation()}>
+                          <Button variant="ghost" size="icon" className={`h-7 w-7 ${lead.is_test ? "text-purple-500" : ""}`} onClick={() => handleToggleTest(lead.id, lead.is_test)} title={lead.is_test ? "Desmarcar teste" : "Marcar como teste"}>
+                            <FlaskConical className="w-3.5 h-3.5" />
+                          </Button>
                           <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleViewLead(lead)}>
                             <Eye className="w-3.5 h-3.5" />
                           </Button>
