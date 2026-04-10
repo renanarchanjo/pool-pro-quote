@@ -328,6 +328,7 @@ const PoolSimulator = ({ onBack }: PoolSimulatorProps) => {
               partners={partners}
               includedItemsTotal={includedItemsTotal}
               proposalId={proposalId}
+              storeWhatsapp={undefined}
             />
           );
         })()}

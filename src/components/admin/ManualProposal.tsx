@@ -312,6 +312,7 @@ const ManualProposal = () => {
               brandPartnerId={brand?.partner_id}
               partners={partners}
               includedItemsTotal={includedItemsTotal}
+              storeWhatsapp={store?.whatsapp}
             />
           );
         })()}

@@ -951,6 +951,7 @@ const AdminLeads = () => {
                     delivery_days: viewingProposal.pool_models?.delivery_days || 30,
                     installation_days: viewingProposal.pool_models?.installation_days || 5,
                     payment_terms: viewingProposal.pool_models?.payment_terms,
+                    photo_url: viewingProposal.pool_models?.photo_url,
                   }}
                   selectedOptionals={
                     Array.isArray(viewingProposal.selected_optionals)
@@ -972,6 +973,7 @@ const AdminLeads = () => {
                   brandName={viewingProposal.pool_models?.categories?.brands?.name}
                   brandPartnerId={viewingProposal.pool_models?.categories?.brands?.partner_id}
                   partners={partners}
+                  storeWhatsapp={store?.whatsapp}
                 />
               </div>
             </div>
