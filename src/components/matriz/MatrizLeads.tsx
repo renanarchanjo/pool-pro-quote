@@ -330,7 +330,12 @@ const MatrizLeads = () => {
           <h1 className="text-[15px] md:text-[18px] font-semibold text-foreground leading-tight">Gestão de Leads</h1>
           <p className="text-[11px] md:text-[13px] text-muted-foreground hidden md:block">Distribuição e controle centralizado</p>
         </div>
-        <div className="flex gap-1.5 md:gap-2 shrink-0">
+        <div className="flex gap-1.5 md:gap-2 shrink-0 items-center">
+          <div className="flex items-center gap-1.5 mr-1 md:mr-2">
+            <FlaskConical className={`w-3.5 h-3.5 ${showTestLeads ? "text-purple-500" : "text-muted-foreground"}`} />
+            <Switch checked={showTestLeads} onCheckedChange={setShowTestLeads} className="scale-75" />
+            <span className="text-[10px] md:text-xs text-muted-foreground hidden md:inline">Teste</span>
+          </div>
           {selectedLeads.size > 0 && activeTab === "pendentes" && (
             <Button size="sm" onClick={() => setShowDistributeDialog(true)} className="hidden md:flex bg-emerald-600 hover:bg-emerald-700 text-white h-8 text-xs px-3">
               <Send className="w-3.5 h-3.5 mr-1" /> Distribuir ({selectedLeads.size})
