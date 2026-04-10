@@ -407,7 +407,13 @@ const AdminDashboard = () => {
       {/* On-screen interactive dashboard */}
       <div className="space-y-4 md:space-y-6">
         <div style={{ pageBreakInside: "avoid" }}>
-          <DashboardKPIs proposals={filteredProposals} role={role} commissionPercent={commissionPercent} />
+          <DashboardKPIs
+            proposals={filteredProposals}
+            role={role}
+            commissionPercent={commissionPercent}
+            allCommissions={allCommissions}
+            leadDistributions={leadDistributions}
+          />
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-2 md:gap-4" style={{ pageBreakInside: "avoid" }}>
