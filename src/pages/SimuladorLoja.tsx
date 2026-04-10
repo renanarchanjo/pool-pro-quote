@@ -111,6 +111,7 @@ const SimuladorLoja = () => {
   const [customerData, setCustomerData] = useState<CustomerData | null>(null);
   const [showCongrats, setShowCongrats] = useState(false);
   const [includedItemsTotal, setIncludedItemsTotal] = useState(0);
+  const [proposalId, setProposalId] = useState<string | null>(null);
 
   useEffect(() => {
     if (!slug) {
@@ -203,7 +204,7 @@ const SimuladorLoja = () => {
 
       const { sanitizeText, sanitizePhone, sanitizeCurrency } = await import("@/lib/sanitize");
 
-      const { error } = await supabase
+      const { data: insertedRow, error } = await supabase
         .from("proposals")
         .insert({
           customer_name: sanitizeText(data.name, 200),
@@ -213,9 +214,13 @@ const SimuladorLoja = () => {
           selected_optionals: allSelectedOpts as any,
           total_price: sanitizeCurrency(totalPrice),
           store_id: store.id,
-        });
+        })
+        .select("id")
+        .single();
 
       if (error) throw error;
+
+      setProposalId(insertedRow?.id || null);
 
       setCustomerData(data);
       setStep(4);
@@ -311,6 +316,7 @@ const SimuladorLoja = () => {
           brandPartnerId={brand?.partner_id}
           partners={partners}
           includedItemsTotal={includedItemsTotal}
+          proposalId={proposalId}
         />
       </>
     );
