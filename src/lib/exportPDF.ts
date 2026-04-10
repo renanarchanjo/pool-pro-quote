@@ -101,7 +101,12 @@ const restoreAncestorTransforms = (ancestorResets: AncestorSnapshot[]) => {
   });
 };
 
-const waitForStablePaint = async (delay = 800) => {
+const getHtml2canvasScale = (): number => {
+  const isMobile = /iPhone|iPad|Android/i.test(navigator.userAgent);
+  return isMobile ? 1.5 : 2;
+};
+
+const waitForStablePaint = async (delay = 300) => {
   await new Promise((resolve) => requestAnimationFrame(() => resolve(undefined)));
   await new Promise((resolve) => requestAnimationFrame(() => resolve(undefined)));
   await new Promise((resolve) => setTimeout(resolve, delay));
