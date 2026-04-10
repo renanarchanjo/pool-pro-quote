@@ -39,6 +39,12 @@ const PartnersManager = () => {
   const [partners, setPartners] = useState<Partner[]>([]);
   const [originalPartners, setOriginalPartners] = useState<Partner[]>([]);
   const [loading, setLoading] = useState(true);
+  const [logoDims, setLogoDims] = useState<Record<string, string>>({});
+
+  const handleLogoLoad = (partnerId: string, e: SyntheticEvent<HTMLImageElement>) => {
+    const img = e.currentTarget;
+    setLogoDims(prev => ({ ...prev, [partnerId]: `${img.naturalWidth}×${img.naturalHeight}` }));
+  };
   const [saving, setSaving] = useState(false);
   const [newName, setNewName] = useState("");
   const [newLogoFile, setNewLogoFile] = useState<File | null>(null);
