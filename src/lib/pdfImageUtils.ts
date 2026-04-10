@@ -207,7 +207,9 @@ export const inlineImagesForPdf = async (root: HTMLElement): Promise<() => void>
         console.warn("[PDF] Keeping original src (base64 failed):", src);
       }
       img.style.visibility = "visible";
-      img.style.display = img.style.display || "inline";
+      if (!img.style.display || img.style.display === "none") {
+        img.style.display = "inline";
+      }
     }),
   );
 
