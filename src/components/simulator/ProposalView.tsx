@@ -108,7 +108,7 @@ const ProposalView = ({
 
   const fmt = (v: number) => `R$ ${v.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`;
 
-  // Partner logic — preserved exactly as before
+  // Partner logic
   const matchedPartner = brandPartnerId
     ? partners.find((p) => p.id === brandPartnerId)
     : brandName
@@ -164,7 +164,6 @@ const ProposalView = ({
     if (pdfAssetsPromiseRef.current) return pdfAssetsPromiseRef.current;
 
     pdfAssetsPromiseRef.current = (async () => {
-      // Process in batches of 4 for parallelism without network overload
       const CONCURRENCY = 4;
       const allResults: [string, string][] = [];
 
@@ -305,11 +304,6 @@ const ProposalView = ({
     letterSpacing: "0.5px",
     margin: 0,
   };
-  const THIN_LINE: React.CSSProperties = {
-    borderBottom: "1px solid #E5E7EB",
-    marginBottom: "12px",
-    paddingBottom: "4px",
-  };
 
   return (
     <div style={{ minHeight: "100vh", background: "#f3f4f6" }} className="print:bg-white">
@@ -378,15 +372,15 @@ const ProposalView = ({
               PÁGINA 1
               ════════════════════════════════════════════ */}
 
-          {/* ── HEADER ── */}
+          {/* ── HEADER — sem card, apenas border-bottom fino ── */}
           <div data-pdf-section style={{ padding: `${PAGE_PADDING} ${PAGE_PADDING} 0` }}>
             <div style={{
               display: "flex",
               justifyContent: "space-between",
               alignItems: "flex-start",
-              paddingBottom: "12px",
+              paddingBottom: "16px",
               marginBottom: "20px",
-              borderBottom: "2px solid #0EA5E9",
+              borderBottom: "1px solid #E5E7EB",
             }}>
               <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
                 {storeSettings?.logo_url && (
@@ -400,7 +394,7 @@ const ProposalView = ({
                   />
                 )}
                 <div>
-                  <div style={{ fontSize: "15px", fontWeight: 700, color: "#0F172A" }}>
+                  <div style={{ fontSize: "15px", fontWeight: 700, color: "#111827" }}>
                     {storeName || "SIMULAPOOL"}
                   </div>
                   {storeLocation && (
@@ -411,26 +405,26 @@ const ProposalView = ({
                 </div>
               </div>
               <div style={{ textAlign: "right" }}>
-                <div style={{ fontSize: "16px", fontWeight: 700, color: "#0F172A", margin: 0 }}>
+                <div style={{ fontSize: "16px", fontWeight: 700, color: "#111827", margin: 0 }}>
                   Proposta Comercial
                 </div>
-                <div style={{ fontSize: "10px", color: "#6B7280", marginTop: "4px" }}>
+                <div style={{ fontSize: "10px", color: "#9CA3AF", marginTop: "4px" }}>
                   Emitida em {today}
                 </div>
-                <div style={{ fontSize: "10px", color: "#6B7280", marginTop: "1px" }}>
+                <div style={{ fontSize: "10px", color: "#9CA3AF", marginTop: "1px" }}>
                   Válida até {validUntil}
                 </div>
               </div>
             </div>
           </div>
 
-          {/* ── SEÇÃO PISCINA (60% texto / 40% foto) ── */}
+          {/* ── SEÇÃO PISCINA (60% info / 40% foto + banners) ── */}
           <div data-pdf-section style={{ padding: `0 ${PAGE_PADDING}` }}>
             <div style={{
               display: "grid",
               gridTemplateColumns: "60% 40%",
               gap: "20px",
-              alignItems: "center",
+              alignItems: "start",
             }}>
               {/* Coluna esquerda: info */}
               <div>
@@ -444,7 +438,7 @@ const ProposalView = ({
                     style={{ height: "28px", width: "auto", objectFit: "contain", display: "block", marginBottom: "8px" }}
                   />
                 )}
-                <div style={{ fontSize: "18px", fontWeight: 700, color: "#0F172A", margin: 0 }}>
+                <div style={{ fontSize: "18px", fontWeight: 700, color: "#111827", margin: 0 }}>
                   {model.name}
                 </div>
                 <div style={{
@@ -465,84 +459,126 @@ const ProposalView = ({
                     Dimensões: {dimensions}
                   </div>
                 )}
-                <div style={{ fontSize: "13px", fontWeight: 600, color: "#0F172A", marginTop: "6px" }}>
+                <div style={{ fontSize: "13px", fontWeight: 600, color: "#111827", marginTop: "6px" }}>
                   Valor base: {fmt(displayBasePrice)}
                 </div>
               </div>
-              {/* Coluna direita: foto */}
-              {model.photo_url ? (
-                <div style={{
-                  background: "#F8F9FA",
-                  borderRadius: "8px",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  overflow: "hidden",
-                }}>
-                  <img
-                    src={resolvePdfAssetSrc(model.photo_url) || undefined}
-                    alt={model.name}
-                    loading="eager"
-                    referrerPolicy="no-referrer"
-                    crossOrigin="anonymous"
-                    style={{
-                      width: "100%",
-                      maxHeight: "180px",
-                      objectFit: "contain",
-                      display: "block",
-                    }}
-                  />
-                </div>
-              ) : (
-                <div style={{
-                  background: "#F8F9FA",
-                  borderRadius: "8px",
-                  height: "120px",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  color: "#9CA3AF",
-                  fontSize: "11px",
-                }}>
-                  Sem foto
-                </div>
-              )}
+
+              {/* Coluna direita: foto + banners */}
+              <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+                {model.photo_url ? (
+                  <div style={{
+                    background: "#F8F9FA",
+                    borderRadius: "8px",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    overflow: "hidden",
+                  }}>
+                    <img
+                      src={resolvePdfAssetSrc(model.photo_url) || undefined}
+                      alt={model.name}
+                      loading="eager"
+                      referrerPolicy="no-referrer"
+                      crossOrigin="anonymous"
+                      style={{
+                        width: "100%",
+                        maxHeight: "180px",
+                        objectFit: "contain",
+                        display: "block",
+                      }}
+                    />
+                  </div>
+                ) : (
+                  <div style={{
+                    background: "#F8F9FA",
+                    borderRadius: "8px",
+                    height: "120px",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    color: "#9CA3AF",
+                    fontSize: "11px",
+                  }}>
+                    Sem foto
+                  </div>
+                )}
+
+                {/* Grid 3×2 de banners de parceiros */}
+                {banner1Urls.length > 0 && (
+                  <div style={{
+                    display: "grid",
+                    gridTemplateColumns: "repeat(3, 1fr)",
+                    gap: "8px",
+                  }}>
+                    {banner1Urls.slice(0, 6).map((banner, i) => (
+                      <div
+                        key={i}
+                        style={{
+                          background: "#F3F4F6",
+                          borderRadius: "6px",
+                          padding: "8px",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          minHeight: "52px",
+                        }}
+                      >
+                        <img
+                          src={resolvePdfAssetSrc(banner.url) || undefined}
+                          alt={banner.name}
+                          loading="eager"
+                          referrerPolicy="no-referrer"
+                          crossOrigin="anonymous"
+                          style={{
+                            width: "100%",
+                            height: "auto",
+                            objectFit: "contain",
+                            maxHeight: "52px",
+                          }}
+                        />
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
           </div>
 
-          {/* ── DADOS DO CLIENTE ── */}
+          {/* ── DADOS DO CLIENTE — border-left azul, sem card ── */}
           <div data-pdf-section style={{ padding: `16px ${PAGE_PADDING} 0` }}>
             <p style={{ ...LABEL, marginBottom: "8px" }}>CLIENTE</p>
             <div style={{
-              background: "#F8F9FA",
-              borderRadius: "8px",
+              background: "#F9FAFB",
+              borderLeft: "3px solid #1A56DB",
+              borderRadius: 0,
               padding: "12px 16px",
             }}>
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "16px" }}>
                 <div>
-                  <div style={{ fontSize: "10px", color: "#9CA3AF" }}>Nome</div>
-                  <div style={{ fontSize: "12px", fontWeight: 600, color: "#0F172A" }}>{customerData.name}</div>
+                  <div style={{ fontSize: "10px", color: "#9CA3AF", textTransform: "uppercase", letterSpacing: "0.5px", fontWeight: 500 }}>Nome</div>
+                  <div style={{ fontSize: "13px", fontWeight: 600, color: "#111827" }}>{customerData.name}</div>
                 </div>
                 <div>
-                  <div style={{ fontSize: "10px", color: "#9CA3AF" }}>WhatsApp</div>
-                  <div style={{ fontSize: "12px", fontWeight: 600, color: "#0F172A" }}>{customerData.whatsapp}</div>
+                  <div style={{ fontSize: "10px", color: "#9CA3AF", textTransform: "uppercase", letterSpacing: "0.5px", fontWeight: 500 }}>WhatsApp</div>
+                  <div style={{ fontSize: "13px", fontWeight: 600, color: "#111827" }}>{customerData.whatsapp}</div>
                 </div>
                 <div>
-                  <div style={{ fontSize: "10px", color: "#9CA3AF" }}>Cidade</div>
-                  <div style={{ fontSize: "12px", fontWeight: 600, color: "#0F172A" }}>{customerData.city}</div>
+                  <div style={{ fontSize: "10px", color: "#9CA3AF", textTransform: "uppercase", letterSpacing: "0.5px", fontWeight: 500 }}>Cidade</div>
+                  <div style={{ fontSize: "13px", fontWeight: 600, color: "#111827" }}>{customerData.city}</div>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* ── ITENS INCLUSOS ── */}
+          {/* ── ITENS INCLUSOS — sem card, só gap + títulos coloridos ── */}
           {model.included_items.length > 0 && (
             <div data-pdf-section style={{ padding: `16px ${PAGE_PADDING} 0` }}>
               <p style={{ ...LABEL, marginBottom: "8px" }}>ITENS INCLUSOS</p>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "24px" }}>
                 {materiais.length > 0 && (
                   <div>
-                    <div style={{ fontSize: "10px", fontWeight: 700, color: "#F59E0B", marginBottom: "4px" }}>
+                    <div style={{ fontSize: "10px", fontWeight: 700, color: "#0EA5E9", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "6px" }}>
                       EQUIPAMENTOS
                     </div>
                     <ul style={{ margin: 0, padding: 0 }}>
@@ -557,13 +593,13 @@ const ProposalView = ({
                 )}
                 {maoDeObra.length > 0 && (
                   <div>
-                    <div style={{ fontSize: "10px", fontWeight: 700, color: "#F59E0B", marginBottom: "4px" }}>
+                    <div style={{ fontSize: "10px", fontWeight: 700, color: "#F59E0B", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "6px" }}>
                       MÃO DE OBRA
                     </div>
                     <ul style={{ margin: 0, padding: 0 }}>
                       {maoDeObra.map((item, i) => (
                         <li key={`mo-${i}`} style={{ fontSize: "11px", color: "#374151", lineHeight: 1.7, listStyleType: "none", position: "relative", paddingLeft: "12px" }}>
-                          <span style={{ position: "absolute", left: 0, color: "#0EA5E9", fontWeight: 700 }}>•</span>
+                          <span style={{ position: "absolute", left: 0, color: "#F59E0B", fontWeight: 700 }}>•</span>
                           {item}
                         </li>
                       ))}
@@ -574,16 +610,18 @@ const ProposalView = ({
             </div>
           )}
 
-          {/* ── OPCIONAIS ── */}
+          {/* ── OPCIONAIS — linhas finas entre itens, sem card ── */}
           {selectedOptionals.length > 0 && (
             <div data-pdf-section style={{ padding: `16px ${PAGE_PADDING} 0` }}>
               <p style={{ ...LABEL, marginBottom: "8px" }}>OPCIONAIS</p>
               <table style={{ width: "100%", fontSize: "11px", borderCollapse: "collapse" }}>
                 <tbody>
                   {selectedOptionals.map((opt, i) => (
-                    <tr key={i} style={{ borderBottom: i < selectedOptionals.length - 1 ? "1px solid #F3F4F6" : "none" }}>
-                      <td style={{ padding: "5px 0", color: "#374151" }}>{opt.name}</td>
-                      <td style={{ padding: "5px 0", textAlign: "right", fontWeight: 600, color: "#0F172A", whiteSpace: "nowrap" }}>
+                    <tr key={i} style={{
+                      borderBottom: i < selectedOptionals.length - 1 ? "1px solid #F3F4F6" : "none",
+                    }}>
+                      <td style={{ padding: "6px 0", color: "#374151" }}>{opt.name}</td>
+                      <td style={{ padding: "6px 0", textAlign: "right", fontWeight: 600, color: "#111827", whiteSpace: "nowrap" }}>
                         {fmt(opt.price)}
                       </td>
                     </tr>
@@ -593,19 +631,19 @@ const ProposalView = ({
             </div>
           )}
 
-          {/* ── NÃO INCLUSOS ── */}
+          {/* ── NÃO INCLUSOS — border-left vermelho, radius 0 ── */}
           {model.not_included_items && model.not_included_items.length > 0 && (
             <div data-pdf-section style={{ padding: `16px ${PAGE_PADDING} 0` }}>
-              <p style={{ ...LABEL, marginBottom: "8px" }}>NÃO INCLUSOS</p>
+              <p style={{ ...LABEL, marginBottom: "8px", color: "#DC2626" }}>NÃO INCLUSOS</p>
               <div style={{
-                borderLeft: "3px solid #FCA5A5",
-                background: "#FFF5F5",
+                borderLeft: "3px solid #EF4444",
+                background: "#FEF2F2",
                 padding: "10px 14px",
-                borderRadius: "6px",
+                borderRadius: 0,
               }}>
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "4px 20px" }}>
                   {model.not_included_items.map((item, i) => (
-                    <div key={i} style={{ fontSize: "11px", color: "#6B7280" }}>{item}</div>
+                    <div key={i} style={{ fontSize: "11px", color: "#374151" }}>{item}</div>
                   ))}
                 </div>
               </div>
@@ -616,33 +654,35 @@ const ProposalView = ({
               PÁGINA 2
               ════════════════════════════════════════════ */}
 
-          {/* ── RESUMO FINANCEIRO ── */}
+          {/* ── RESUMO FINANCEIRO — bg sutil, sem shadow ── */}
           <div data-pdf-section style={{ padding: `20px ${PAGE_PADDING} 0` }}>
             <div style={{
+              background: "#F9FAFB",
               border: "1px solid #E5E7EB",
               borderRadius: "8px",
-              padding: "16px 20px",
+              padding: "20px 24px",
+              boxShadow: "none",
             }}>
               <table style={{ width: "100%", fontSize: "13px", borderCollapse: "collapse" }}>
                 <tbody>
                   <tr>
-                    <td style={{ padding: "6px 0", color: "#374151" }}>Valor base piscina</td>
-                    <td style={{ padding: "6px 0", textAlign: "right", color: "#0F172A" }}>{fmt(displayBasePrice)}</td>
+                    <td style={{ padding: "6px 0", color: "#6B7280" }}>Valor base piscina</td>
+                    <td style={{ padding: "6px 0", textAlign: "right", color: "#111827" }}>{fmt(displayBasePrice)}</td>
                   </tr>
                   {optionalsTotal > 0 && (
                     <tr>
-                      <td style={{ padding: "6px 0", color: "#374151" }}>Opcionais</td>
-                      <td style={{ padding: "6px 0", textAlign: "right", color: "#0F172A" }}>{fmt(optionalsTotal)}</td>
+                      <td style={{ padding: "6px 0", color: "#6B7280" }}>Opcionais</td>
+                      <td style={{ padding: "6px 0", textAlign: "right", color: "#111827" }}>{fmt(optionalsTotal)}</td>
                     </tr>
                   )}
                   <tr>
                     <td colSpan={2} style={{ padding: 0 }}>
-                      <div style={{ borderBottom: "1px solid #E5E7EB", margin: "6px 0" }} />
+                      <div style={{ borderBottom: "2px solid #E5E7EB", margin: "8px 0" }} />
                     </td>
                   </tr>
                   <tr>
-                    <td style={{ padding: "8px 0", fontWeight: 700, fontSize: "18px", color: "#0EA5E9" }}>TOTAL</td>
-                    <td style={{ padding: "8px 0", textAlign: "right", fontWeight: 700, fontSize: "18px", color: "#0EA5E9" }}>
+                    <td style={{ padding: "8px 0", fontWeight: 700, fontSize: "18px", color: "#1A56DB" }}>TOTAL</td>
+                    <td style={{ padding: "8px 0", textAlign: "right", fontWeight: 700, fontSize: "22px", color: "#1A56DB" }}>
                       {fmt(totalPrice)}
                     </td>
                   </tr>
@@ -664,7 +704,7 @@ const ProposalView = ({
                   ].map(([label, value], i) => (
                     <div key={i}>
                       <span style={{ fontSize: "10px", color: "#9CA3AF" }}>{label}</span>
-                      <div style={{ fontSize: "12px", color: "#0F172A" }}>{value}</div>
+                      <div style={{ fontSize: "12px", color: "#111827" }}>{value}</div>
                     </div>
                   ))}
                 </div>
@@ -674,16 +714,16 @@ const ProposalView = ({
                 <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
                   <div>
                     <span style={{ fontSize: "10px", color: "#9CA3AF" }}>Empresa</span>
-                    <div style={{ fontSize: "12px", color: "#0F172A" }}>{storeName || "-"}</div>
+                    <div style={{ fontSize: "12px", color: "#111827" }}>{storeName || "-"}</div>
                   </div>
                   <div>
                     <span style={{ fontSize: "10px", color: "#9CA3AF" }}>Cidade</span>
-                    <div style={{ fontSize: "12px", color: "#0F172A" }}>{storeLocation || "-"}</div>
+                    <div style={{ fontSize: "12px", color: "#111827" }}>{storeLocation || "-"}</div>
                   </div>
                   {storeWhatsapp && (
                     <div>
                       <span style={{ fontSize: "10px", color: "#9CA3AF" }}>WhatsApp</span>
-                      <div style={{ fontSize: "12px", color: "#0F172A" }}>{storeWhatsapp}</div>
+                      <div style={{ fontSize: "12px", color: "#111827" }}>{storeWhatsapp}</div>
                     </div>
                   )}
                 </div>
@@ -694,7 +734,7 @@ const ProposalView = ({
           {/* ── DIFERENCIAIS ── */}
           {model.differentials && model.differentials.length > 0 && (
             <div data-pdf-section style={{ padding: `20px ${PAGE_PADDING} 0` }}>
-              <p style={{ ...LABEL, ...THIN_LINE }}>DIFERENCIAIS</p>
+              <p style={{ ...LABEL, marginBottom: "8px", paddingBottom: "4px", borderBottom: "1px solid #E5E7EB" }}>DIFERENCIAIS</p>
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "4px 20px" }}>
                 {model.differentials.map((diff, i) => (
                   <div key={i} style={{ fontSize: "12px", color: "#374151", display: "flex", alignItems: "center", gap: "6px" }}>
