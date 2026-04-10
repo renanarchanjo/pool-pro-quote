@@ -189,7 +189,28 @@ const Admin = () => {
         </div>
       </main>
 
-      {/* Mobile bottom nav */}
+      {/* Hidden WhatsApp test button */}
+      <Button
+        size="sm"
+        variant="ghost"
+        className="fixed bottom-20 right-2 opacity-20 hover:opacity-100 z-50 text-[10px]"
+        onClick={handleTestWhatsApp}
+        disabled={whatsappTesting}
+      >
+        {whatsappTesting ? <Loader2 className="w-3 h-3 animate-spin" /> : "WA Test"}
+      </Button>
+
+      <Dialog open={whatsappModalOpen} onOpenChange={setWhatsappModalOpen}>
+        <DialogContent className="max-w-lg max-h-[80vh] overflow-auto">
+          <DialogHeader>
+            <DialogTitle>Resultado WhatsApp Test</DialogTitle>
+          </DialogHeader>
+          <pre className="text-xs bg-muted p-3 rounded overflow-auto whitespace-pre-wrap">
+            {JSON.stringify(whatsappResult, null, 2)}
+          </pre>
+        </DialogContent>
+      </Dialog>
+
       <MobileBottomNav />
       <PwaInstallBanner />
       <NotificationPrompt />
