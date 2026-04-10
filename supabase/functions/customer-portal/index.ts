@@ -37,7 +37,7 @@ serve(async (req) => {
     const customers = await stripe.customers.list({ email: user.email, limit: 1 });
     if (customers.data.length === 0) throw new Error("No Stripe customer found");
 
-    const origin = req.headers.get("origin") || req.headers.get("referer")?.replace(/\/[^/]*$/, "") || ALLOWED_ORIGIN;
+    const origin = req.headers.get("origin") || req.headers.get("referer")?.replace(/\/[^/]*$/, "") || "https://simulapool.lovable.app";
     console.log("[CUSTOMER-PORTAL] Origin:", origin, "User:", user.email);
     const portalSession = await stripe.billingPortal.sessions.create({
       customer: customers.data[0].id,

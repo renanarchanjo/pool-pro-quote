@@ -38,7 +38,7 @@ serve(async (req) => {
     }
 
     const memberPriceId = Deno.env.get("STRIPE_MEMBER_PRICE_ID") || "price_1TEdLDDLDBZHKYifSFWJIK2d";
-    const origin = req.headers.get("origin") || req.headers.get("referer")?.replace(/\/[^/]*$/, "") || ALLOWED_ORIGIN;
+    const origin = req.headers.get("origin") || req.headers.get("referer")?.replace(/\/[^/]*$/, "") || "https://simulapool.lovable.app";
     console.log("[CREATE-MEMBER-CHECKOUT] Origin:", origin, "User:", user.email, "Qty:", quantity);
 
     const session = await stripe.checkout.sessions.create({
