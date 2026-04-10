@@ -1,8 +1,11 @@
 import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { FileDown, ArrowLeft } from "lucide-react";
-import { exportPDF } from "@/lib/exportPDF";
+import { FileDown, ArrowLeft, Loader2, Check } from "lucide-react";
+import { exportPDF, generatePDFBlob } from "@/lib/exportPDF";
+import { savePdfToStorage } from "@/lib/savePdfToStorage";
 import { toBase64Safe } from "@/lib/pdfImageUtils";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 import simulapoolLogoFooter from "@/assets/simulapool-logo-footer.png?inline";
 
 interface PoolModel {
@@ -59,6 +62,10 @@ interface ProposalViewProps {
   brandPartnerId?: string | null;
   partners?: Partner[];
   includedItemsTotal?: number;
+  /** If provided, enables the WhatsApp send button (Flow 1) */
+  proposalId?: string | null;
+  /** If true, hides the WhatsApp button (e.g. when rendering for hidden PDF) */
+  hideWhatsApp?: boolean;
 }
 
 const ProposalView = ({
