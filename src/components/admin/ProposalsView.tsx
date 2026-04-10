@@ -118,7 +118,7 @@ const ProposalsView = () => {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <h2 className="text-2xl font-bold">Propostas Geradas</h2>
         <button onClick={handleExportPDF} className="inline-flex items-center gap-2 h-9 pl-4 pr-3 text-[13px] font-semibold text-white bg-[#2d2d2d] rounded-full transition-all duration-150 hover:bg-[#1a1a1a] active:scale-95 shrink-0">
-          Relatório PDF
+          PDF
           <span className="flex items-center justify-center w-7 h-7 rounded-full bg-[#dc2626]">
             <Download className="w-3.5 h-3.5 text-white" />
           </span>

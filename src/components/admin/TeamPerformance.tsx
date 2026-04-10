@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useStoreData } from "@/hooks/useStoreData";
 import { exportPDF } from "@/lib/exportPDF";
-import { Loader2, CalendarIcon, FileDown, BarChart3 } from "lucide-react";
+import { Loader2, CalendarIcon, Download, BarChart3 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -198,12 +198,14 @@ const TeamPerformance = () => {
             </Select>
           )}
           <button
-            className="inline-flex items-center gap-1.5 h-8 px-3 text-[13px] font-medium bg-background border border-border rounded-md text-muted-foreground hover:text-foreground transition-colors"
+            className="inline-flex items-center gap-2 h-9 pl-4 pr-3 text-[13px] font-semibold text-white bg-[#2d2d2d] rounded-full transition-all duration-150 hover:bg-[#1a1a1a] active:scale-95 disabled:opacity-50"
             onClick={handleExportPDF}
             disabled={filteredMetrics.length === 0}
           >
-            <FileDown className="w-3.5 h-3.5" />
             PDF
+            <span className="flex items-center justify-center w-7 h-7 rounded-full bg-[#dc2626]">
+              <Download className="w-3.5 h-3.5 text-white" />
+            </span>
           </button>
           <Select value={datePreset} onValueChange={applyPreset}>
             <SelectTrigger className="h-8 w-[140px] text-[13px] bg-background border border-border rounded-md text-muted-foreground">
