@@ -262,6 +262,58 @@ interface ImageSnapshot {
   originalSrcset: string | null;
   originalLoading: string | null;
   originalCrossOrigin: string | null;
+  originalReferrerPolicy: string | null;
+  originalDecoding: string | null;
+  originalWidthAttr: string | null;
+  originalHeightAttr: string | null;
+  originalStyleWidth: string;
+  originalStyleHeight: string;
+  originalStyleMinWidth: string;
+  originalStyleMinHeight: string;
+  originalStyleMaxWidth: string;
+  originalStyleMaxHeight: string;
+  originalStyleDisplay: string;
+  originalStyleVisibility: string;
+}
+
+const getRenderableImageSize = (img: HTMLImageElement) => {
+  const rect = img.getBoundingClientRect();
+  const computed = window.getComputedStyle(img);
+  const parsedWidth = Number.parseFloat(computed.width);
+  const parsedHeight = Number.parseFloat(computed.height);
+
+  const width = [rect.width, parsedWidth, img.width, img.naturalWidth].find(
+    (value) => Number.isFinite(value) && value > 0,
+  );
+  const height = [rect.height, parsedHeight, img.height, img.naturalHeight].find(
+    (value) => Number.isFinite(value) && value > 0,
+  );
+
+  if (!width || !height) return null;
+  return {
+    width,
+    height,
+    display: computed.display,
+  };
+};
+
+const lockImageLayoutForPdf = (img: HTMLImageElement) => {
+  const size = getRenderableImageSize(img);
+  if (!size) return;
+
+  const widthPx = `${Math.round(size.width * 100) / 100}px`;
+  const heightPx = `${Math.round(size.height * 100) / 100}px`;
+
+  img.style.width = widthPx;
+  img.style.height = heightPx;
+  img.style.minWidth = widthPx;
+  img.style.minHeight = heightPx;
+  img.style.maxWidth = widthPx;
+  img.style.maxHeight = heightPx;
+  img.style.display = size.display === "inline" ? "inline-block" : size.display;
+  img.style.visibility = "visible";
+  img.setAttribute("width", `${Math.round(size.width)}`);
+  img.setAttribute("height", `${Math.round(size.height)}`);
 }
 
 export const inlineImagesForPdf = async (root: HTMLElement): Promise<() => void> => {
@@ -272,7 +324,7 @@ export const inlineImagesForPdf = async (root: HTMLElement): Promise<() => void>
     images.map(async (img) => {
       const src = img.getAttribute("src") || img.currentSrc || img.src;
       console.log("[PDF DEBUG] inlineImages encontrou img:", src?.substring(0, 120));
-      if (!src || src.startsWith("data:") || src.startsWith("blob:")) return;
+      if (!src) return;
 
       snapshots.push({
         image: img,
@@ -280,43 +332,63 @@ export const inlineImagesForPdf = async (root: HTMLElement): Promise<() => void>
         originalSrcset: img.getAttribute("srcset"),
         originalLoading: img.getAttribute("loading"),
         originalCrossOrigin: img.getAttribute("crossorigin"),
+        originalReferrerPolicy: img.getAttribute("referrerpolicy"),
+        originalDecoding: img.getAttribute("decoding"),
+        originalWidthAttr: img.getAttribute("width"),
+        originalHeightAttr: img.getAttribute("height"),
+        originalStyleWidth: img.style.width,
+        originalStyleHeight: img.style.height,
+        originalStyleMinWidth: img.style.minWidth,
+        originalStyleMinHeight: img.style.minHeight,
+        originalStyleMaxWidth: img.style.maxWidth,
+        originalStyleMaxHeight: img.style.maxHeight,
+        originalStyleDisplay: img.style.display,
+        originalStyleVisibility: img.style.visibility,
       });
 
-      let resolvedSrc = await toBase64Safe(src);
-      console.log("[PDF DEBUG] inlineImages resultado:", src?.substring(0, 80), "→", resolvedSrc === PDF_IMAGE_FALLBACK ? "FALLBACK" : "OK (" + resolvedSrc.length + " chars)");
+      let resolvedSrc = src;
 
-      if (!resolvedSrc || resolvedSrc === PDF_IMAGE_FALLBACK) {
-        try {
-          resolvedSrc = await toBase64ViaFetchWithRetry(src, {
-            mode: "cors",
-            referrerPolicy: "no-referrer",
-            credentials: "omit",
-            cache: "no-cache",
-          });
-        } catch {
-          /* silent */
-        }
-      }
-
-      if (!resolvedSrc || resolvedSrc === PDF_IMAGE_FALLBACK) {
-        resolvedSrc = await textToBase64Placeholder(
-          img.getAttribute("alt") || "Imagem",
-          img.offsetWidth || img.clientWidth || img.naturalWidth || 120,
-          img.offsetHeight || img.clientHeight || img.naturalHeight || 40,
+      if (!src.startsWith("data:") && !src.startsWith("blob:")) {
+        resolvedSrc = await toBase64Safe(src);
+        console.log(
+          "[PDF DEBUG] inlineImages resultado:",
+          src?.substring(0, 80),
+          "→",
+          resolvedSrc === PDF_IMAGE_FALLBACK ? "FALLBACK" : `OK (${resolvedSrc.length} chars)`,
         );
-        console.warn("[PDF] Usando placeholder visível para:", src);
+
+        if (!resolvedSrc || resolvedSrc === PDF_IMAGE_FALLBACK) {
+          try {
+            resolvedSrc = await toBase64ViaFetchWithRetry(src, {
+              mode: "cors",
+              referrerPolicy: "no-referrer",
+              credentials: "omit",
+              cache: "no-cache",
+            });
+          } catch {
+            /* silent */
+          }
+        }
+
+        if (!resolvedSrc || resolvedSrc === PDF_IMAGE_FALLBACK) {
+          resolvedSrc = await textToBase64Placeholder(
+            img.getAttribute("alt") || "Imagem",
+            img.offsetWidth || img.clientWidth || img.naturalWidth || 120,
+            img.offsetHeight || img.clientHeight || img.naturalHeight || 40,
+          );
+          console.warn("[PDF] Usando placeholder visível para:", src);
+        }
+
+        img.src = resolvedSrc;
       }
 
       img.removeAttribute("srcset");
       img.removeAttribute("crossorigin");
+      img.removeAttribute("referrerpolicy");
       img.setAttribute("loading", "eager");
-      img.src = resolvedSrc;
+      img.setAttribute("decoding", "sync");
       await waitForImageReady(img);
-
-      img.style.visibility = "visible";
-      if (!img.style.display || img.style.display === "none") {
-        img.style.display = "inline";
-      }
+      lockImageLayoutForPdf(img);
     }),
   );
 
@@ -325,7 +397,27 @@ export const inlineImagesForPdf = async (root: HTMLElement): Promise<() => void>
   await new Promise((r) => setTimeout(r, 500));
 
   return () => {
-    snapshots.forEach(({ image, originalSrc, originalSrcset, originalLoading, originalCrossOrigin }) => {
+    snapshots.forEach((snapshot) => {
+      const {
+        image,
+        originalSrc,
+        originalSrcset,
+        originalLoading,
+        originalCrossOrigin,
+        originalReferrerPolicy,
+        originalDecoding,
+        originalWidthAttr,
+        originalHeightAttr,
+        originalStyleWidth,
+        originalStyleHeight,
+        originalStyleMinWidth,
+        originalStyleMinHeight,
+        originalStyleMaxWidth,
+        originalStyleMaxHeight,
+        originalStyleDisplay,
+        originalStyleVisibility,
+      } = snapshot;
+
       if (originalSrc === null) image.removeAttribute("src");
       else image.setAttribute("src", originalSrc);
       if (originalSrcset === null) image.removeAttribute("srcset");
@@ -334,6 +426,23 @@ export const inlineImagesForPdf = async (root: HTMLElement): Promise<() => void>
       else image.setAttribute("loading", originalLoading);
       if (originalCrossOrigin === null) image.removeAttribute("crossorigin");
       else image.setAttribute("crossorigin", originalCrossOrigin);
+      if (originalReferrerPolicy === null) image.removeAttribute("referrerpolicy");
+      else image.setAttribute("referrerpolicy", originalReferrerPolicy);
+      if (originalDecoding === null) image.removeAttribute("decoding");
+      else image.setAttribute("decoding", originalDecoding);
+      if (originalWidthAttr === null) image.removeAttribute("width");
+      else image.setAttribute("width", originalWidthAttr);
+      if (originalHeightAttr === null) image.removeAttribute("height");
+      else image.setAttribute("height", originalHeightAttr);
+
+      image.style.width = originalStyleWidth;
+      image.style.height = originalStyleHeight;
+      image.style.minWidth = originalStyleMinWidth;
+      image.style.minHeight = originalStyleMinHeight;
+      image.style.maxWidth = originalStyleMaxWidth;
+      image.style.maxHeight = originalStyleMaxHeight;
+      image.style.display = originalStyleDisplay;
+      image.style.visibility = originalStyleVisibility;
     });
   };
 };
