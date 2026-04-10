@@ -281,12 +281,28 @@ const AdminLeads = () => {
     const idsToAssign = assigningLeadId ? [assigningLeadId] : Array.from(selectedIds);
     if (idsToAssign.length === 0) return;
     try {
-      const { error } = await (supabase as any)
-        .from("lead_distributions")
-        .update({ assigned_to: assignTargetUser })
-        .in("id", idsToAssign);
-      if (error) throw error;
-      toast.success(`${idsToAssign.length} lead(s) atribuído(s) com sucesso!`);
+      // Check if assigning to the store owner — if so, auto-accept
+      const isAssigningToOwner = assignTargetUser === profile?.id && isOwner;
+
+      if (isAssigningToOwner) {
+        // Assign + auto-accept each lead
+        for (const distId of idsToAssign) {
+          const { data, error } = await supabase.functions.invoke("accept-lead", {
+            body: { distribution_id: distId },
+          });
+          if (error) throw error;
+          if (data?.error) throw new Error(data.error);
+        }
+        toast.success(`${idsToAssign.length} lead(s) atribuído(s) e aceito(s) automaticamente!`);
+      } else {
+        const { error } = await (supabase as any)
+          .from("lead_distributions")
+          .update({ assigned_to: assignTargetUser })
+          .in("id", idsToAssign);
+        if (error) throw error;
+        toast.success(`${idsToAssign.length} lead(s) atribuído(s) com sucesso!`);
+      }
+
       setAssignDialogOpen(false);
       setAssigningLeadId(null);
       setAssignTargetUser("");
