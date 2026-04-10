@@ -94,6 +94,8 @@ const ProposalView = ({
   const pdfAssetsCacheRef = useRef<Record<string, string>>({});
   const [pdfAssetMap, setPdfAssetMap] = useState<Record<string, string>>({});
   const [whatsAppState, setWhatsAppState] = useState<"idle" | "sending" | "sent">("idle");
+  const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
 
   const displayBasePrice = model.base_price + includedItemsTotal;
   const optionalsTotal = selectedOptionals.reduce((sum, opt) => sum + opt.price, 0);
