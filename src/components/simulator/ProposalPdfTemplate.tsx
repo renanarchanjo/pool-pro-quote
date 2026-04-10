@@ -120,6 +120,8 @@ const ProposalPdfTemplate = ({
   const storeLocation = [storeCity, storeState].filter(Boolean).join(" / ");
   const featuredBanner = bannersToShow[0] ?? null;
   const footerPartners = partners.filter((partner) => partner.logo_url);
+  const footerPartnerRows = footerPartners.length > 0 ? Math.ceil(footerPartners.length / 6) : 0;
+  const footerReservedHeight = footerPartners.length > 0 ? 76 + footerPartnerRows * 28 : 56;
 
   const materiais = model.included_items.filter((item) => !item.includes("[MO]"));
   const maoDeObra = model.included_items
@@ -148,7 +150,14 @@ const ProposalPdfTemplate = ({
           boxSizing: "border-box",
         }}
       >
-        <div data-pdf-page style={PAGE_STYLE}>
+        <div
+          data-pdf-page
+          style={{
+            ...PAGE_STYLE,
+            position: "relative",
+            paddingBottom: `${PAD_Y + footerReservedHeight}px`,
+          }}
+        >
           <div
             style={{
               display: "flex",
@@ -481,12 +490,16 @@ const ProposalPdfTemplate = ({
 
           <div
             style={{
-              marginTop: "auto",
+              position: "absolute",
+              left: `${PAD_X}px`,
+              right: `${PAD_X}px`,
+              bottom: `${PAD_Y}px`,
               borderTop: "1px solid #E5E7EB",
               paddingTop: "12px",
               display: "flex",
               flexDirection: "column",
               gap: "12px",
+              background: "#ffffff",
             }}
           >
             {footerPartners.length > 0 && (
