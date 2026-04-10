@@ -49,7 +49,20 @@ serve(async (req) => {
       .single();
 
     if (distError || !dist) throw new Error("Distribuição não encontrada");
-    if (dist.status === "accepted") throw new Error("Lead já aceito");
+    if (dist.status === "accepted") {
+      // Return success for idempotency — lead was already accepted
+      return new Response(JSON.stringify({
+        success: true,
+        already_accepted: true,
+        consumed: 0,
+        limit: 0,
+        is_excess: false,
+        excess_price: 0,
+      }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 200,
+      });
+    }
 
     // Verify user belongs to this store
     const { data: profile } = await supabaseAdmin
