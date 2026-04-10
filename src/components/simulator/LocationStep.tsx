@@ -114,7 +114,13 @@ const LocationStep = ({ onSelectStore, onBack, onSkip }: LocationStepProps) => {
           ...s,
           distance: haversineDistance(userLat, userLon, s.latitude!, s.longitude!),
         }))
-        .filter((s) => s.distance <= 100)
+        .filter((s) => {
+          // If radius filter is disabled, show the store (test mode)
+          if (s.coverage_radius_active === false) return true;
+          // Otherwise filter by the store's configured radius
+          const radius = s.coverage_radius_km || 50;
+          return s.distance <= radius;
+        })
         .sort((a, b) => a.distance - b.distance);
 
       setStores(storesWithDistance);
