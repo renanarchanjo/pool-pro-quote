@@ -56,7 +56,7 @@ async function sendDocument(
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      "Client-Token": ZAPI_CLIENT_TOKEN ?? "",
+      "Client-Token": ZAPI_CLIENT_TOKEN,
     },
     body: JSON.stringify({
       phone: formattedPhone,
