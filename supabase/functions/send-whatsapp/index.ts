@@ -1,21 +1,12 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "npm:@supabase/supabase-js@2.57.2";
 
-const ALLOWED_ORIGINS = [
-  Deno.env.get("ALLOWED_ORIGIN") ?? "https://www.simulapool.com",
-  "https://simulapool.lovable.app",
-  "https://id-preview--11ea9857-ab0e-49ed-b2d7-13783de75e7e.lovable.app",
-];
-
-function getCorsHeaders(req: Request) {
-  const origin = req.headers.get("origin") ?? "";
-  const allowed = ALLOWED_ORIGINS.find((o) => origin.startsWith(o)) ? origin : ALLOWED_ORIGINS[0];
-  return {
-    "Access-Control-Allow-Origin": allowed,
-    "Access-Control-Allow-Headers":
-      "authorization, x-client-info, apikey, content-type",
-  };
-}
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers":
+    "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Methods": "POST, OPTIONS",
+};
 
 const ZAPI_BASE_URL = Deno.env.get("ZAPI_BASE_URL");
 const ZAPI_INSTANCE_ID = Deno.env.get("ZAPI_INSTANCE_ID");
@@ -59,7 +50,7 @@ const PUBLIC_TYPES = ["enviar_proposta"];
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
-    return new Response(null, { headers: getCorsHeaders(req) });
+    return new Response(null, { headers: corsHeaders });
   }
 
   try {
@@ -192,13 +183,13 @@ serve(async (req) => {
     }
 
     return new Response(JSON.stringify({ success: true, result }), {
-      headers: { ...getCorsHeaders(req), "Content-Type": "application/json" },
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (error) {
     const msg = error instanceof Error ? error.message : String(error);
     console.error("[SEND-WHATSAPP] Error:", msg);
     return new Response(JSON.stringify({ error: msg }), {
-      headers: { ...getCorsHeaders(req), "Content-Type": "application/json" },
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 400,
     });
   }
