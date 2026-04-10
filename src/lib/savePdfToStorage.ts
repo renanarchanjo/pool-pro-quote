@@ -1,8 +1,7 @@
-import { createClient } from "@supabase/supabase-js";
+import { supabase } from "@/integrations/supabase/client";
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
-const supabasePublic = createClient(supabaseUrl, supabaseAnonKey);
 
 /**
  * Uploads a PDF blob to the "proposals" storage bucket and returns a signed URL (48h TTL).
@@ -42,7 +41,7 @@ export async function savePdfToStorage(
       xhr.send(pdfBlob);
     });
   } else {
-    const { error } = await supabasePublic.storage
+    const { error } = await supabase.storage
       .from("proposals")
       .upload(fileName, pdfBlob, {
         contentType: "application/pdf",
@@ -55,7 +54,7 @@ export async function savePdfToStorage(
     }
   }
 
-  const { data: signedData, error: signError } = await supabasePublic.storage
+  const { data: signedData, error: signError } = await supabase.storage
     .from("proposals")
     .createSignedUrl(fileName, 172800);
 
