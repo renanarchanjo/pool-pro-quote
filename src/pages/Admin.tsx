@@ -47,6 +47,31 @@ const PAGE_TITLES: Record<string, string> = {
 const Admin = () => {
   const [authLoading, setAuthLoading] = useState(true);
   const [panelOpen, setPanelOpen] = useState(false);
+  const [whatsappResult, setWhatsappResult] = useState<any>(null);
+  const [whatsappModalOpen, setWhatsappModalOpen] = useState(false);
+  const [whatsappTesting, setWhatsappTesting] = useState(false);
+
+  const handleTestWhatsApp = async () => {
+    setWhatsappTesting(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("send-whatsapp", {
+        body: {
+          type: "enviar_proposta",
+          data: {
+            customerPhone: "5511920905114",
+            customerName: "Teste",
+            storeName: "SimulaPool",
+            pdfUrl: null,
+          },
+        },
+      });
+      setWhatsappResult({ data, error: error?.message || null });
+    } catch (e: any) {
+      setWhatsappResult({ error: e.message });
+    }
+    setWhatsappTesting(false);
+    setWhatsappModalOpen(true);
+  };
   const navigate = useNavigate();
   const location = useLocation();
   const { store, role, loading: storeLoading } = useStoreData();
