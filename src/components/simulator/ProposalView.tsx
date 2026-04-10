@@ -84,11 +84,14 @@ const ProposalView = ({
   brandPartnerId,
   partners = [],
   includedItemsTotal = 0,
+  proposalId,
+  hideWhatsApp = false,
 }: ProposalViewProps) => {
   const hasAutoDownloaded = useRef(false);
   const pdfAssetsPromiseRef = useRef<Promise<void> | null>(null);
   const pdfAssetsCacheRef = useRef<Record<string, string>>({});
   const [pdfAssetMap, setPdfAssetMap] = useState<Record<string, string>>({});
+  const [whatsAppState, setWhatsAppState] = useState<"idle" | "sending" | "sent">("idle");
   const displayBasePrice = model.base_price + includedItemsTotal;
   const optionalsTotal = selectedOptionals.reduce((sum, opt) => sum + opt.price, 0);
   const totalPrice = displayBasePrice + optionalsTotal;
