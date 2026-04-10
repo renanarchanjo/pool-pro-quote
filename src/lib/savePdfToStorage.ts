@@ -17,11 +17,8 @@ export async function savePdfToStorage(
   const fileName = `proposal-${proposalId}.pdf`;
 
   if (onProgress) {
-    // Use XMLHttpRequest for progress tracking
-    const { data: sessionData } = await supabase.auth.getSession();
-    const token = sessionData?.session?.access_token;
-
-    const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+    // Use XMLHttpRequest for progress tracking (no auth needed for public bucket)
+    const uploadBaseUrl = import.meta.env.VITE_SUPABASE_URL;
     const anonKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
     const uploadUrl = `${supabaseUrl}/storage/v1/object/proposals/${fileName}`;
 
