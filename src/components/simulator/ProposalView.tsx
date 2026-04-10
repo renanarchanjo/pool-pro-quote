@@ -347,7 +347,7 @@ const ProposalView = ({
                 {whatsAppState === "sent" && <Check className="w-4 h-4" />}
                 {whatsAppState === "idle" && "📱"}
                 {whatsAppState === "idle" && " Receber no WhatsApp"}
-                {whatsAppState === "sending" && uploadProgress > 0 ? ` Enviando ${uploadProgress}%` : whatsAppState === "sending" ? " Gerando..." : ""}
+                {whatsAppState === "sending" && (whatsappStatus || "Gerando...")}
                 {whatsAppState === "sent" && " Enviado!"}
               </button>
             )}
