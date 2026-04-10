@@ -1,12 +1,21 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "npm:@supabase/supabase-js@2.57.2";
 
-const corsHeaders = {
-  "Access-Control-Allow-Origin":
-    Deno.env.get("ALLOWED_ORIGIN") ?? "https://www.simulapool.com",
-  "Access-Control-Allow-Headers":
-    "authorization, x-client-info, apikey, content-type",
-};
+const ALLOWED_ORIGINS = [
+  Deno.env.get("ALLOWED_ORIGIN") ?? "https://www.simulapool.com",
+  "https://simulapool.lovable.app",
+  "https://id-preview--11ea9857-ab0e-49ed-b2d7-13783de75e7e.lovable.app",
+];
+
+function getCorsHeaders(req: Request) {
+  const origin = req.headers.get("origin") ?? "";
+  const allowed = ALLOWED_ORIGINS.find((o) => origin.startsWith(o)) ? origin : ALLOWED_ORIGINS[0];
+  return {
+    "Access-Control-Allow-Origin": allowed,
+    "Access-Control-Allow-Headers":
+      "authorization, x-client-info, apikey, content-type",
+  };
+}
 
 const ZAPI_BASE_URL = Deno.env.get("ZAPI_BASE_URL");
 const ZAPI_INSTANCE_ID = Deno.env.get("ZAPI_INSTANCE_ID");
