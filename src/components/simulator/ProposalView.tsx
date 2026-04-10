@@ -94,6 +94,8 @@ const ProposalView = ({
   const pdfAssetsCacheRef = useRef<Record<string, string>>({});
   const [pdfAssetMap, setPdfAssetMap] = useState<Record<string, string>>({});
   const [whatsAppState, setWhatsAppState] = useState<"idle" | "sending" | "sent">("idle");
+  const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
 
   const displayBasePrice = model.base_price + includedItemsTotal;
   const optionalsTotal = selectedOptionals.reduce((sum, opt) => sum + opt.price, 0);
@@ -162,10 +164,21 @@ const ProposalView = ({
     if (pdfAssetsPromiseRef.current) return pdfAssetsPromiseRef.current;
 
     pdfAssetsPromiseRef.current = (async () => {
-      const loadedAssets = await Promise.all(
-        missingUrls.map(async (url) => [url, await toBase64Safe(url)] as const),
-      );
-      const nextAssets = Object.fromEntries(loadedAssets);
+      // Process in batches of 4 for parallelism without network overload
+      const CONCURRENCY = 4;
+      const allResults: [string, string][] = [];
+
+      for (let i = 0; i < missingUrls.length; i += CONCURRENCY) {
+        const batch = missingUrls.slice(i, i + CONCURRENCY);
+        const results = await Promise.allSettled(
+          batch.map(async (url) => [url, await toBase64Safe(url)] as const),
+        );
+        results.forEach((r) => {
+          if (r.status === "fulfilled") allResults.push([r.value[0], r.value[1]]);
+        });
+      }
+
+      const nextAssets = Object.fromEntries(allResults);
       pdfAssetsCacheRef.current = { ...pdfAssetsCacheRef.current, ...nextAssets };
       setPdfAssetMap((current) => ({ ...current, ...nextAssets }));
     })();
@@ -178,33 +191,43 @@ const ProposalView = ({
   };
 
   const handleDownloadPDF = async () => {
+    if (isGeneratingPdf) return;
     const element = document.getElementById("proposal-content");
     if (!element) return;
 
-    const filename = `Proposta-${customerData.name.trim().replace(/\s+/g, "-")}-${today.replace(/\//g, "-")}.pdf`;
+    setIsGeneratingPdf(true);
+    try {
+      const filename = `Proposta-${customerData.name.trim().replace(/\s+/g, "-")}-${today.replace(/\//g, "-")}.pdf`;
 
-    await preparePdfAssets();
-    await new Promise((resolve) => setTimeout(resolve, 2000));
+      await preparePdfAssets();
+      await document.fonts.ready;
+      await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
 
-    await exportPDF({
-      element,
-      filename,
-      orientation: "portrait",
-      captureWidth: 794,
-      sectionSelector: "[data-pdf-section]",
-    });
+      await exportPDF({
+        element,
+        filename,
+        orientation: "portrait",
+        captureWidth: 794,
+        sectionSelector: "[data-pdf-section]",
+      });
+    } finally {
+      setIsGeneratingPdf(false);
+    }
   };
 
   const handleSendWhatsApp = async () => {
-    if (!proposalId || whatsAppState !== "idle") return;
+    if (!proposalId || whatsAppState !== "idle" || isGeneratingPdf) return;
 
     const element = document.getElementById("proposal-content");
     if (!element) return;
 
     setWhatsAppState("sending");
+    setIsGeneratingPdf(true);
+    setUploadProgress(0);
     try {
       await preparePdfAssets();
-      await new Promise((resolve) => setTimeout(resolve, 2000));
+      await document.fonts.ready;
+      await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
 
       const pdfBlob = await generatePDFBlob({
         element,
@@ -213,7 +236,9 @@ const ProposalView = ({
         sectionSelector: "[data-pdf-section]",
       });
 
-      const publicUrl = await savePdfToStorage(proposalId, pdfBlob);
+      const signedUrl = await savePdfToStorage(proposalId, pdfBlob, (percent) => {
+        setUploadProgress(percent);
+      });
 
       const result = await supabase.functions.invoke("send-whatsapp", {
         body: {
@@ -222,7 +247,7 @@ const ProposalView = ({
             customerPhone: formatPhoneForWhatsApp(customerData.whatsapp),
             customerName: customerData.name,
             storeName: storeName || "SimulaPool",
-            pdfUrl: publicUrl,
+            pdfUrl: signedUrl,
           },
         },
       });
@@ -236,6 +261,9 @@ const ProposalView = ({
       console.error("Erro ao enviar WhatsApp:", err);
       toast.error("Erro ao enviar proposta. Tente novamente.");
       setWhatsAppState("idle");
+    } finally {
+      setIsGeneratingPdf(false);
+      setUploadProgress(0);
     }
   };
 
@@ -294,27 +322,36 @@ const ProposalView = ({
           <div className="flex gap-2">
             <button
               onClick={handleDownloadPDF}
-              className="inline-flex items-center gap-2 h-9 sm:h-[48px] pl-4 pr-3 text-[13px] sm:text-[15px] font-semibold text-white bg-[#2d2d2d] rounded-full sm:rounded-[10px] transition-all duration-150 hover:bg-[#1a1a1a] active:scale-95"
+              disabled={isGeneratingPdf}
+              className="inline-flex items-center gap-2 h-9 sm:h-[48px] pl-4 pr-3 text-[13px] sm:text-[15px] font-semibold text-white bg-[#2d2d2d] rounded-full sm:rounded-[10px] transition-all duration-150 hover:bg-[#1a1a1a] active:scale-95 disabled:opacity-70 disabled:pointer-events-none"
             >
-              📥 PDF
-              <span className="flex items-center justify-center w-7 h-7 rounded-full bg-[#dc2626]">
-                <FileDown className="w-3.5 h-3.5 text-white" />
-              </span>
+              {isGeneratingPdf && whatsAppState === "idle" ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" /> Gerando...
+                </>
+              ) : (
+                <>
+                  📥 PDF
+                  <span className="flex items-center justify-center w-7 h-7 rounded-full bg-[#dc2626]">
+                    <FileDown className="w-3.5 h-3.5 text-white" />
+                  </span>
+                </>
+              )}
             </button>
             {proposalId && !hideWhatsApp && (
               <button
                 onClick={handleSendWhatsApp}
-                disabled={whatsAppState !== "idle"}
-                className="inline-flex items-center gap-2 h-9 sm:h-[48px] px-4 sm:px-5 text-[13px] sm:text-[15px] font-semibold text-white rounded-full sm:rounded-[10px] transition-all duration-150 active:scale-95 disabled:opacity-70"
+                disabled={whatsAppState !== "idle" || isGeneratingPdf}
+                className="inline-flex items-center gap-2 h-9 sm:h-[48px] px-4 sm:px-5 text-[13px] sm:text-[15px] font-semibold text-white rounded-full sm:rounded-[10px] transition-all duration-150 active:scale-95 disabled:opacity-70 disabled:pointer-events-none"
                 style={{ backgroundColor: whatsAppState === "sent" ? "#16a34a" : "#25D366" }}
-                onMouseEnter={(e) => { if (whatsAppState === "idle") e.currentTarget.style.backgroundColor = "#128C7E"; }}
+                onMouseEnter={(e) => { if (whatsAppState === "idle" && !isGeneratingPdf) e.currentTarget.style.backgroundColor = "#128C7E"; }}
                 onMouseLeave={(e) => { if (whatsAppState === "idle") e.currentTarget.style.backgroundColor = "#25D366"; }}
               >
                 {whatsAppState === "sending" && <Loader2 className="w-4 h-4 animate-spin" />}
                 {whatsAppState === "sent" && <Check className="w-4 h-4" />}
                 {whatsAppState === "idle" && "📱"}
                 {whatsAppState === "idle" && " Receber no WhatsApp"}
-                {whatsAppState === "sending" && " Enviando..."}
+                {whatsAppState === "sending" && uploadProgress > 0 ? ` Enviando ${uploadProgress}%` : whatsAppState === "sending" ? " Gerando..." : ""}
                 {whatsAppState === "sent" && " Enviado!"}
               </button>
             )}
