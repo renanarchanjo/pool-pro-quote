@@ -1185,6 +1185,50 @@ export type Database = {
           },
         ]
       }
+      store_radius_audit_log: {
+        Row: {
+          changed_by: string
+          created_at: string
+          id: string
+          new_active: boolean | null
+          new_radius_km: number | null
+          old_active: boolean | null
+          old_radius_km: number | null
+          reason: string | null
+          store_id: string
+        }
+        Insert: {
+          changed_by: string
+          created_at?: string
+          id?: string
+          new_active?: boolean | null
+          new_radius_km?: number | null
+          old_active?: boolean | null
+          old_radius_km?: number | null
+          reason?: string | null
+          store_id: string
+        }
+        Update: {
+          changed_by?: string
+          created_at?: string
+          id?: string
+          new_active?: boolean | null
+          new_radius_km?: number | null
+          old_active?: boolean | null
+          old_radius_km?: number | null
+          reason?: string | null
+          store_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "store_radius_audit_log_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       store_settings: {
         Row: {
           created_at: string | null
@@ -1227,6 +1271,8 @@ export type Database = {
         Row: {
           city: string | null
           cnpj: string | null
+          coverage_radius_active: boolean
+          coverage_radius_km: number
           created_at: string | null
           id: string
           latitude: number | null
@@ -1251,6 +1297,8 @@ export type Database = {
         Insert: {
           city?: string | null
           cnpj?: string | null
+          coverage_radius_active?: boolean
+          coverage_radius_km?: number
           created_at?: string | null
           id?: string
           latitude?: number | null
@@ -1275,6 +1323,8 @@ export type Database = {
         Update: {
           city?: string | null
           cnpj?: string | null
+          coverage_radius_active?: boolean
+          coverage_radius_km?: number
           created_at?: string | null
           id?: string
           latitude?: number | null
@@ -1483,6 +1533,8 @@ export type Database = {
         Args: never
         Returns: {
           city: string
+          coverage_radius_active: boolean
+          coverage_radius_km: number
           id: string
           latitude: number
           longitude: number
