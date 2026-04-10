@@ -79,7 +79,7 @@ const MatrizSidebarContent = ({ onNavigate, isMobile = false }: MatrizSidebarCon
     <div className="flex flex-col h-full">
       {/* Header */}
       <div className="border-b border-border px-4 pt-4 pb-3 shrink-0">
-        <div className="flex items-center gap-2 justify-end">
+        <div className="flex items-center gap-0.5 justify-end">
           <span className="text-sm font-semibold text-foreground">Painel Matriz</span>
           <img src={logoIcon} alt="SimulaPool" className="h-7 w-auto shrink-0" />
         </div>

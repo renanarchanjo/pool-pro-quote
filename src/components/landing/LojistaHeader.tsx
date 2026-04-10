@@ -12,8 +12,8 @@ const LojistaHeader = () => {
 
       <nav className="sticky top-0 z-50 h-16 md:h-20 bg-transparent">
         <div className="container mx-auto px-5 md:px-12 h-full flex items-center justify-between">
-          <Link to="/lojista" className="flex items-center gap-2">
-            <img src={logoIcon} alt="SimulaPool" className="h-11 md:h-16 w-auto" />
+          <Link to="/lojista" className="flex items-center">
+            <img src={logoIcon} alt="SimulaPool" className="h-11 md:h-16 w-auto -mr-1" />
             <div className="flex flex-col">
               <span className="text-[22px] md:text-[30px] font-bold text-white tracking-[-0.01em] leading-tight">
                 <span>Simula</span>
