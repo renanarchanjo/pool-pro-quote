@@ -499,6 +499,8 @@ const AdminDashboard = () => {
                       brandPartnerId={brand?.partner_id}
                       partners={partners}
                       storeWhatsapp={store?.whatsapp}
+                      hideDownloadPdf
+                      hideWhatsApp
                     />
                   );
                 })()}
