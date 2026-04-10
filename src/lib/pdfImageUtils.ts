@@ -30,11 +30,12 @@ const blobToDataUrl = (blob: Blob): Promise<string> =>
     reader.readAsDataURL(blob);
   });
 
-const toBase64ViaFetch = async (url: string): Promise<string> => {
+const toBase64ViaFetch = async (url: string, fetchOptions?: RequestInit): Promise<string> => {
   const res = await fetch(url, {
     mode: "cors",
     credentials: "omit",
     cache: "no-cache",
+    ...fetchOptions,
   });
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   const blob = await res.blob();
@@ -52,15 +53,7 @@ const toBase64ViaFetchWithRetry = async (url: string, fetchOptions?: RequestInit
       await new Promise((r) => setTimeout(r, RETRY_DELAYS[i]));
     }
     try {
-      if (fetchOptions) {
-        const res = await fetch(url, fetchOptions);
-        if (res.ok) {
-          const blob = await res.blob();
-          return await blobToDataUrl(blob);
-        }
-        throw new Error(`HTTP ${res.status}`);
-      }
-      return await toBase64ViaFetch(url);
+      return await toBase64ViaFetch(url, fetchOptions);
     } catch (e) {
       lastError = e;
     }
@@ -68,40 +61,70 @@ const toBase64ViaFetchWithRetry = async (url: string, fetchOptions?: RequestInit
   throw lastError;
 };
 
+const getPlaceholderText = (text: string) =>
+  (text || "Imagem").trim().replace(/\s+/g, " ").slice(0, 24) || "Imagem";
+
+export const textToBase64Placeholder = async (
+  text: string,
+  width: number,
+  height: number,
+): Promise<string> => {
+  const canvas = document.createElement("canvas");
+  canvas.width = Math.max(Math.round(width || 0), 80);
+  canvas.height = Math.max(Math.round(height || 0), 30);
+
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return PDF_IMAGE_FALLBACK;
+
+  ctx.fillStyle = "#F3F4F6";
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.strokeStyle = "#E5E7EB";
+  ctx.lineWidth = 1;
+  ctx.strokeRect(0.5, 0.5, canvas.width - 1, canvas.height - 1);
+
+  ctx.fillStyle = "#9CA3AF";
+  ctx.font = `${Math.min(12, Math.max(10, canvas.height * 0.4))}px Inter, sans-serif`;
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.fillText(getPlaceholderText(text), canvas.width / 2, canvas.height / 2, canvas.width - 12);
+
+  return canvas.toDataURL("image/png");
+};
+
 export const toBase64Safe = async (url: string): Promise<string> => {
   if (!url) return PDF_IMAGE_FALLBACK;
   if (url.startsWith("data:") || url.startsWith("blob:")) return url;
 
-  // Check IndexedDB cache first
   const cached = await pdfImageCacheGet(url);
   if (cached) return cached;
 
   let result: string | null = null;
 
-  // ── PostImg.cc: special handling (restricted CORS + referrer blocking) ──
   const isPostImg = url.includes("postimg.cc") || url.includes("postimages.org");
   if (isPostImg) {
-    // 1) Canvas with referrerPolicy
     try {
       const canvasResult = await toBase64ViaCanvas(url);
       if (canvasResult && !canvasResult.startsWith("data:image/png;base64,iVBOR")) {
         result = canvasResult;
       }
-    } catch { /* silent */ }
+    } catch {
+      /* silent */
+    }
 
     if (!result) {
-      // 2) Fetch with no-referrer + retry
       try {
         result = await toBase64ViaFetchWithRetry(url, {
           mode: "cors",
           referrerPolicy: "no-referrer",
           credentials: "omit",
+          cache: "no-cache",
         });
-      } catch { /* silent */ }
+      } catch {
+        /* silent */
+      }
     }
 
     if (!result) {
-      // 3) Last resort: img tag with no-referrer
       result = await new Promise<string>((resolve) => {
         const img = new Image();
         img.crossOrigin = "anonymous";
@@ -129,25 +152,42 @@ export const toBase64Safe = async (url: string): Promise<string> => {
     return result || PDF_IMAGE_FALLBACK;
   }
 
-  // ── Standard flow with retry ──
   try {
     result = await toBase64ViaFetchWithRetry(url);
-  } catch { /* silent */ }
+  } catch {
+    /* silent */
+  }
 
   if (!result) {
     try {
       result = await toBase64ViaCanvas(url);
-    } catch { /* silent */ }
+    } catch {
+      /* silent */
+    }
   }
 
-  // Try Supabase public URL rewrite
+  if (!result) {
+    try {
+      result = await toBase64ViaFetchWithRetry(url, {
+        mode: "cors",
+        referrerPolicy: "no-referrer",
+        credentials: "omit",
+        cache: "no-cache",
+      });
+    } catch {
+      /* silent */
+    }
+  }
+
   if (!result) {
     try {
       const publicUrl = url.includes("supabase")
         ? url.replace("/storage/v1/object/", "/storage/v1/object/public/")
         : url;
       result = await toBase64ViaFetchWithRetry(publicUrl);
-    } catch { /* silent */ }
+    } catch {
+      /* silent */
+    }
   }
 
   if (!result) {
@@ -192,20 +232,36 @@ export const inlineImagesForPdf = async (root: HTMLElement): Promise<() => void>
         originalCrossOrigin: img.getAttribute("crossorigin"),
       });
 
-      const base64 = await toBase64Safe(src);
-      // Only replace src if we got a real base64, not the 1x1 fallback
-      if (base64 && base64 !== PDF_IMAGE_FALLBACK) {
-        img.removeAttribute("srcset");
-        img.removeAttribute("crossorigin");
-        img.setAttribute("loading", "eager");
-        img.src = base64;
-        await waitForImageReady(img);
-      } else {
-        // Keep original src but ensure CORS and eager loading for html2canvas
-        img.setAttribute("crossorigin", "anonymous");
-        img.setAttribute("loading", "eager");
-        console.warn("[PDF] Keeping original src (base64 failed):", src);
+      let resolvedSrc = await toBase64Safe(src);
+
+      if (!resolvedSrc || resolvedSrc === PDF_IMAGE_FALLBACK) {
+        try {
+          resolvedSrc = await toBase64ViaFetchWithRetry(src, {
+            mode: "cors",
+            referrerPolicy: "no-referrer",
+            credentials: "omit",
+            cache: "no-cache",
+          });
+        } catch {
+          /* silent */
+        }
       }
+
+      if (!resolvedSrc || resolvedSrc === PDF_IMAGE_FALLBACK) {
+        resolvedSrc = await textToBase64Placeholder(
+          img.getAttribute("alt") || "Imagem",
+          img.offsetWidth || img.clientWidth || img.naturalWidth || 120,
+          img.offsetHeight || img.clientHeight || img.naturalHeight || 40,
+        );
+        console.warn("[PDF] Usando placeholder visível para:", src);
+      }
+
+      img.removeAttribute("srcset");
+      img.removeAttribute("crossorigin");
+      img.setAttribute("loading", "eager");
+      img.src = resolvedSrc;
+      await waitForImageReady(img);
+
       img.style.visibility = "visible";
       if (!img.style.display || img.style.display === "none") {
         img.style.display = "inline";

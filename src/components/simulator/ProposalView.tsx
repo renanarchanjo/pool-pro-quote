@@ -154,14 +154,24 @@ const ProposalView = ({
     if (missingUrls.length === 0) return;
     if (pdfAssetsPromiseRef.current) return pdfAssetsPromiseRef.current;
 
+    const loadAssetWithRetry = async (url: string): Promise<[string, string]> => {
+      let base64 = PDF_IMAGE_FALLBACK;
+      for (let attempt = 0; attempt < 3; attempt += 1) {
+        base64 = await toBase64Safe(url);
+        if (base64 !== PDF_IMAGE_FALLBACK) break;
+        if (attempt < 2) {
+          await new Promise((r) => setTimeout(r, 500 * (attempt + 1)));
+        }
+      }
+      return [url, base64];
+    };
+
     pdfAssetsPromiseRef.current = (async () => {
       const CONCURRENCY = 4;
       const allResults: [string, string][] = [];
       for (let i = 0; i < missingUrls.length; i += CONCURRENCY) {
         const batch = missingUrls.slice(i, i + CONCURRENCY);
-        const results = await Promise.allSettled(
-          batch.map(async (url) => [url, await toBase64Safe(url)] as const),
-        );
+        const results = await Promise.allSettled(batch.map((url) => loadAssetWithRetry(url)));
         results.forEach((r) => {
           if (r.status === "fulfilled" && r.value[1] !== PDF_IMAGE_FALLBACK) {
             allResults.push([r.value[0], r.value[1]]);
@@ -180,6 +190,12 @@ const ProposalView = ({
     }
   };
 
+  const waitForPdfCaptureReady = async () => {
+    await document.fonts.ready;
+    await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
+    await new Promise((r) => setTimeout(r, 3000));
+  };
+
   // ── PDF actions ──
   const handleDownloadPDF = async () => {
     if (isGeneratingPdf) return;
@@ -190,8 +206,7 @@ const ProposalView = ({
     try {
       const filename = `Proposta-${customerData.name.trim().replace(/\s+/g, "-")}-${today.replace(/\//g, "-")}.pdf`;
       await preparePdfAssets();
-      await document.fonts.ready;
-      await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
+      await waitForPdfCaptureReady();
 
       await exportPDF({
         element,
@@ -211,13 +226,11 @@ const ProposalView = ({
 
     const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 
-    // Immediate feedback — critical for mobile
     setWhatsAppState("sending");
     setIsGeneratingPdf(true);
     setUploadProgress(0);
     setWhatsappStatus("Preparando proposta...");
 
-    // Small delay so UI updates on mobile
     await new Promise((r) => setTimeout(r, 100));
 
     let attempts = 0;
@@ -228,8 +241,7 @@ const ProposalView = ({
       try {
         setWhatsappStatus("Gerando PDF...");
         await preparePdfAssets();
-        await document.fonts.ready;
-        await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
+        await waitForPdfCaptureReady();
 
         const pdfBlob = await generatePDFBlob({
           element,
