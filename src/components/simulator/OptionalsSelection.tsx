@@ -142,7 +142,12 @@ const OptionalsSelection = ({ optionals, modelOptionals = [], selectedOptionals:
               <img 
                 src={model.photo_url} 
                 alt={model.name}
+                referrerPolicy="no-referrer"
                 className="w-full h-full object-contain p-2"
+                onError={(e) => {
+                  e.currentTarget.style.display = "none";
+                  e.currentTarget.parentElement?.classList.add("bg-blue-50");
+                }}
               />
             </div>
           )}
