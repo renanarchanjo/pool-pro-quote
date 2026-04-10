@@ -52,6 +52,8 @@ const exportSectionedPDF = async ({
   if (fullPageCapture) {
     for (let index = 0; index < sections.length; index += 1) {
       const section = sections[index];
+      const captureWidth = Math.max(section.offsetWidth, section.scrollWidth);
+      const captureHeight = Math.max(section.offsetHeight, section.scrollHeight);
       const canvas = await html2canvas(section, {
         scale,
         useCORS: true,
@@ -59,8 +61,10 @@ const exportSectionedPDF = async ({
         backgroundColor: "#ffffff",
         logging: false,
         imageTimeout: 15000,
-        windowWidth: section.scrollWidth,
-        windowHeight: section.scrollHeight,
+        width: captureWidth,
+        height: captureHeight,
+        windowWidth: captureWidth,
+        windowHeight: captureHeight,
         scrollX: 0,
         scrollY: -window.scrollY,
       });
