@@ -75,12 +75,13 @@ const LABEL: React.CSSProperties = {
 
 const PAGE_STYLE: React.CSSProperties = {
   width: `${PAGE_W}px`,
-  minHeight: `${PAGE_H}px`,
+  height: `${PAGE_H}px`,
   backgroundColor: "#ffffff",
   fontFamily: FONT,
   color: TEXT,
   lineHeight: 1.45,
   boxSizing: "border-box",
+  overflow: "hidden",
   display: "flex",
   flexDirection: "column",
   padding: `${PAD_Y}px ${PAD_X}px`,
