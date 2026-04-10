@@ -79,8 +79,8 @@ serve(async (req) => {
       }
     }
 
-    if (!ZAPI_BASE_URL || !ZAPI_INSTANCE_ID || !ZAPI_TOKEN) {
-      throw new Error("Z-API não configurada");
+    if (!ZAPI_INSTANCE_ID || !ZAPI_TOKEN) {
+      throw new Error("Z-API não configurada (INSTANCE_ID ou TOKEN ausente)");
     }
 
     let result;
