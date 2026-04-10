@@ -8,24 +8,8 @@ interface ExportPDFOptions {
   element: HTMLElement;
   filename: string;
   orientation?: "portrait" | "landscape";
-  /** Fixed width for consistent rendering (default: 1100 for landscape, 800 for portrait) */
-  captureWidth?: number;
   /** Capture each matching section separately to avoid broken page splits */
   sectionSelector?: string;
-}
-
-interface ElementSnapshot {
-  cssText: string;
-  className: string;
-  ariaHidden: string | null;
-}
-
-interface AncestorSnapshot {
-  el: HTMLElement;
-  transform: string;
-  width: string;
-  marginLeft: string;
-  minHeight: string;
 }
 
 const A4_SIZES = {
@@ -33,85 +17,21 @@ const A4_SIZES = {
   landscape: { width: 297, height: 210 },
 } as const;
 
-const prepareElementForCapture = (element: HTMLElement): ElementSnapshot => {
-  const snapshot: ElementSnapshot = {
-    cssText: element.style.cssText,
-    className: element.className,
-    ariaHidden: element.getAttribute("aria-hidden"),
-  };
-
-  element.classList.remove("hidden");
-  element.removeAttribute("aria-hidden");
-  element.style.display = "block";
-  element.style.visibility = "visible";
-  element.style.opacity = "1";
-  element.style.position = "absolute";
-  element.style.left = "0";
-  element.style.top = "0";
-  element.style.zIndex = "-9999";
-  element.style.pointerEvents = "none";
-  element.style.overflow = "hidden";
-  element.style.clipPath = "inset(0)";
-
-  return snapshot;
-};
-
-const restorePreparedElement = (element: HTMLElement, snapshot: ElementSnapshot) => {
-  element.style.cssText = snapshot.cssText;
-  element.className = snapshot.className;
-
-  if (snapshot.ariaHidden === null) {
-    element.removeAttribute("aria-hidden");
-  } else {
-    element.setAttribute("aria-hidden", snapshot.ariaHidden);
-  }
-};
-
-const resetAncestorTransforms = (element: HTMLElement): AncestorSnapshot[] => {
-  const ancestorResets: AncestorSnapshot[] = [];
-  let ancestor = element.parentElement;
-
-  while (ancestor) {
-    const computed = getComputedStyle(ancestor);
-    if (computed.transform !== "none") {
-      ancestorResets.push({
-        el: ancestor,
-        transform: ancestor.style.transform,
-        width: ancestor.style.width,
-        marginLeft: ancestor.style.marginLeft,
-        minHeight: ancestor.style.minHeight,
-      });
-      ancestor.style.transform = "none";
-      ancestor.style.width = "100%";
-      ancestor.style.marginLeft = "0";
-      ancestor.style.minHeight = "auto";
-    }
-    ancestor = ancestor.parentElement;
-  }
-
-  return ancestorResets;
-};
-
-const restoreAncestorTransforms = (ancestorResets: AncestorSnapshot[]) => {
-  ancestorResets.forEach(({ el, transform, width, marginLeft, minHeight }) => {
-    el.style.transform = transform;
-    el.style.width = width;
-    el.style.marginLeft = marginLeft;
-    el.style.minHeight = minHeight;
-  });
-};
-
 const getHtml2canvasScale = (): number => {
   const isMobile = /iPhone|iPad|Android/i.test(navigator.userAgent);
   return isMobile ? 1.5 : 2;
 };
 
 const waitForStablePaint = async (delay = 300) => {
-  await new Promise((resolve) => requestAnimationFrame(() => resolve(undefined)));
-  await new Promise((resolve) => requestAnimationFrame(() => resolve(undefined)));
-  await new Promise((resolve) => setTimeout(resolve, delay));
+  await new Promise((r) => requestAnimationFrame(() => r(undefined)));
+  await new Promise((r) => requestAnimationFrame(() => r(undefined)));
+  await new Promise((r) => setTimeout(r, delay));
 };
 
+/**
+ * Sectioned capture: renders each [data-pdf-section] independently,
+ * packing them onto A4 pages with automatic page breaks.
+ */
 const exportSectionedPDF = async ({
   element,
   filename,
@@ -123,9 +43,10 @@ const exportSectionedPDF = async ({
   const contentWidth = page.width - margin * 2;
   const contentHeight = page.height - margin * 2;
   const sectionGap = 4;
-  const sections = Array.from(element.querySelectorAll<HTMLElement>(sectionSelector)).filter(
-    (section) => section.offsetWidth > 0 && section.offsetHeight > 0,
-  );
+
+  const sections = Array.from(
+    element.querySelectorAll<HTMLElement>(sectionSelector),
+  ).filter((s) => s.offsetWidth > 0 && s.offsetHeight > 0);
 
   if (sections.length === 0) {
     throw new Error(`Nenhuma seção encontrada para o seletor ${sectionSelector}`);
@@ -133,11 +54,10 @@ const exportSectionedPDF = async ({
 
   const pdf = new jsPDF({ unit: "mm", format: "a4", orientation });
   let currentY = margin;
+  const scale = getHtml2canvasScale();
 
-  for (let index = 0; index < sections.length; index += 1) {
-    const section = sections[index];
+  for (const section of sections) {
     section.getBoundingClientRect();
-    const scale = getHtml2canvasScale();
     const canvas = await html2canvas(section, {
       scale,
       useCORS: true,
@@ -165,6 +85,7 @@ const exportSectionedPDF = async ({
       continue;
     }
 
+    // Large section: slice into pages
     const pxPerMm = canvas.width / imgWidthMm;
     const pageSliceHeightPx = Math.floor(contentHeight * pxPerMm);
     let sourceY = 0;
@@ -175,20 +96,10 @@ const exportSectionedPDF = async ({
       sliceCanvas.width = canvas.width;
       sliceCanvas.height = sliceHeightPx;
 
-      const sliceContext = sliceCanvas.getContext("2d");
-      if (!sliceContext) throw new Error("Falha ao preparar página do PDF");
+      const ctx = sliceCanvas.getContext("2d");
+      if (!ctx) throw new Error("Falha ao preparar página do PDF");
 
-      sliceContext.drawImage(
-        canvas,
-        0,
-        sourceY,
-        canvas.width,
-        sliceHeightPx,
-        0,
-        0,
-        canvas.width,
-        sliceHeightPx,
-      );
+      ctx.drawImage(canvas, 0, sourceY, canvas.width, sliceHeightPx, 0, 0, canvas.width, sliceHeightPx);
 
       const sliceHeightMm = sliceHeightPx / pxPerMm;
       pdf.addImage(sliceCanvas.toDataURL("image/png"), "PNG", margin, currentY, imgWidthMm, sliceHeightMm);
@@ -207,20 +118,15 @@ const exportSectionedPDF = async ({
 };
 
 /**
- * Standardized PDF export with consistent quality, background,
- * cross-origin image preparation, page-break avoidance, and style restoration on error.
+ * Export an HTML element to PDF.
+ * The element is expected to already be at the correct capture width (794px for proposals).
  */
 export const exportPDF = async ({
   element,
   filename,
-  orientation = "landscape",
-  captureWidth,
+  orientation = "portrait",
   sectionSelector,
 }: ExportPDFOptions): Promise<void> => {
-  const width = captureWidth || (orientation === "landscape" ? 1100 : 800);
-  const preparedSnapshot = prepareElementForCapture(element);
-  const ancestorResets = resetAncestorTransforms(element);
-
   const pdfHeaders = element.querySelectorAll<HTMLElement>("[data-pdf-header]");
   const pdfOnlyEls = element.querySelectorAll<HTMLElement>("[data-pdf-only]");
   const interactiveEls = element.querySelectorAll<HTMLElement>("button, [data-no-pdf], select");
@@ -238,25 +144,16 @@ export const exportPDF = async ({
       hiddenOriginals.push({ el, display: el.style.display });
       el.style.display = "block";
     });
-
     pdfOnlyEls.forEach((el) => {
       hiddenOriginals.push({ el, display: el.style.display });
       el.style.display = el.dataset.pdfOnlyDisplay || "flex";
     });
-
     interactiveEls.forEach((el) => {
       hiddenOriginals.push({ el, display: el.style.display });
       el.style.display = "none";
     });
 
-    element.style.width = `${width}px`;
-    element.style.maxWidth = `${width}px`;
-    element.style.padding = "24px";
-    element.style.background = "#ffffff";
-    element.getBoundingClientRect();
-
     restoreImages = await inlineImagesForPdf(element);
-
     await waitForStablePaint();
 
     if (sectionSelector) {
@@ -264,6 +161,7 @@ export const exportPDF = async ({
       pdf.save(filename);
     } else {
       const scale = getHtml2canvasScale();
+      const width = element.scrollWidth;
       await (html2pdf() as any)
         .set({
           margin: [10, 10, 10, 10],
@@ -295,27 +193,20 @@ export const exportPDF = async ({
     toast.error("Erro ao gerar PDF. Tente novamente.");
   } finally {
     restoreImages();
-    restorePreparedElement(element, preparedSnapshot);
     hiddenOriginals.forEach(({ el, display }) => {
       el.style.display = display;
     });
-    restoreAncestorTransforms(ancestorResets);
   }
 };
 
 /**
- * Generates a PDF blob from an HTML element (same logic as exportPDF but returns Blob).
+ * Generate a PDF blob from an HTML element.
  */
 export const generatePDFBlob = async ({
   element,
   orientation = "portrait",
-  captureWidth,
   sectionSelector,
 }: Omit<ExportPDFOptions, "filename">): Promise<Blob> => {
-  const width = captureWidth || (orientation === "landscape" ? 1100 : 800);
-  const preparedSnapshot = prepareElementForCapture(element);
-  const ancestorResets = resetAncestorTransforms(element);
-
   const pdfHeaders = element.querySelectorAll<HTMLElement>("[data-pdf-header]");
   const pdfOnlyEls = element.querySelectorAll<HTMLElement>("[data-pdf-only]");
   const interactiveEls = element.querySelectorAll<HTMLElement>("button, [data-no-pdf], select");
@@ -340,12 +231,6 @@ export const generatePDFBlob = async ({
       el.style.display = "none";
     });
 
-    element.style.width = `${width}px`;
-    element.style.maxWidth = `${width}px`;
-    element.style.padding = "24px";
-    element.style.background = "#ffffff";
-    element.getBoundingClientRect();
-
     restoreImages = await inlineImagesForPdf(element);
     await waitForStablePaint();
 
@@ -359,6 +244,7 @@ export const generatePDFBlob = async ({
       return pdf.output("blob") as Blob;
     } else {
       const scale = getHtml2canvasScale();
+      const width = element.scrollWidth;
       const blob = await (html2pdf() as any)
         .set({
           margin: [10, 10, 10, 10],
@@ -385,10 +271,8 @@ export const generatePDFBlob = async ({
     }
   } finally {
     restoreImages();
-    restorePreparedElement(element, preparedSnapshot);
     hiddenOriginals.forEach(({ el, display }) => {
       el.style.display = display;
     });
-    restoreAncestorTransforms(ancestorResets);
   }
 };
