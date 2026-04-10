@@ -282,13 +282,36 @@ const ProposalView = ({
           <div className="flex gap-2">
             <button
               onClick={handleDownloadPDF}
-              className="inline-flex items-center gap-2 h-9 pl-4 pr-3 text-[13px] font-semibold text-white bg-[#2d2d2d] rounded-full transition-all duration-150 hover:bg-[#1a1a1a] active:scale-95"
+              className="inline-flex items-center gap-2 h-9 sm:h-[48px] pl-4 pr-3 text-[13px] sm:text-[15px] font-semibold text-white bg-[#2d2d2d] rounded-full sm:rounded-[10px] transition-all duration-150 hover:bg-[#1a1a1a] active:scale-95"
             >
-              PDF
+              📥 PDF
               <span className="flex items-center justify-center w-7 h-7 rounded-full bg-[#dc2626]">
                 <FileDown className="w-3.5 h-3.5 text-white" />
               </span>
             </button>
+            {proposalId && !hideWhatsApp && (
+              <button
+                onClick={handleSendWhatsApp}
+                disabled={whatsAppState !== "idle"}
+                className="inline-flex items-center gap-2 h-9 sm:h-[48px] px-4 sm:px-5 text-[13px] sm:text-[15px] font-semibold text-white rounded-full sm:rounded-[10px] transition-all duration-150 active:scale-95 disabled:opacity-70"
+                style={{
+                  backgroundColor: whatsAppState === "sent" ? "#16a34a" : "#25D366",
+                }}
+                onMouseEnter={(e) => {
+                  if (whatsAppState === "idle") e.currentTarget.style.backgroundColor = "#128C7E";
+                }}
+                onMouseLeave={(e) => {
+                  if (whatsAppState === "idle") e.currentTarget.style.backgroundColor = "#25D366";
+                }}
+              >
+                {whatsAppState === "sending" && <Loader2 className="w-4 h-4 animate-spin" />}
+                {whatsAppState === "sent" && <Check className="w-4 h-4" />}
+                {whatsAppState === "idle" && "📱"}
+                {whatsAppState === "idle" && " Receber no WhatsApp"}
+                {whatsAppState === "sending" && " Enviando..."}
+                {whatsAppState === "sent" && " Enviado!"}
+              </button>
+            )}
           </div>
         </div>
       </nav>
