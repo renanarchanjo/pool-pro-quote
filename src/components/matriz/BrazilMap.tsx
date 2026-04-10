@@ -25,19 +25,19 @@ const STATE_COORDS: Record<string, [number, number]> = {
 };
 
 function getColor(count: number): string {
-  if (count <= 0) return "#E8ECF1";
-  if (count === 1) return "#BAE6FD";
-  if (count <= 5) return "#38BDF8";
-  if (count <= 10) return "#0284C7";
-  return "#0369A1";
+  if (count <= 0) return "#D1D5DB";
+  if (count === 1) return "#93C5FD";
+  if (count <= 5) return "#3B82F6";
+  if (count <= 10) return "#1D4ED8";
+  return "#1E3A8A";
 }
 
 function getDarkColor(count: number): string {
-  if (count <= 0) return "hsl(var(--muted))";
-  if (count === 1) return "#1e3a5f";
-  if (count <= 5) return "#0c4a6e";
-  if (count <= 10) return "#0369a1";
-  return "#0284C7";
+  if (count <= 0) return "#374151";
+  if (count === 1) return "#1E3A5F";
+  if (count <= 5) return "#1E40AF";
+  if (count <= 10) return "#2563EB";
+  return "#3B82F6";
 }
 
 export interface StorePin {
