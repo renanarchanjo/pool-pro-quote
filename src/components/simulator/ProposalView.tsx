@@ -174,7 +174,7 @@ const ProposalView = ({
           batch.map(async (url) => [url, await toBase64Safe(url)] as const),
         );
         results.forEach((r) => {
-          if (r.status === "fulfilled") allResults.push(r.value);
+          if (r.status === "fulfilled") allResults.push([r.value[0], r.value[1]]);
         });
       }
 
