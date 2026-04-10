@@ -206,8 +206,14 @@ const ProposalView = ({
     const imgsBefore = element.querySelectorAll("img");
     console.log("[PDF] Imagens no elemento ANTES do prepareAssets:", imgsBefore.length);
     imgsBefore.forEach((img, i) => {
-      console.log(`[PDF] img[${i}] src tipo:`, img.src.startsWith("data:") ? "base64 ✅" : "URL ❌", img.src.substring(0, 80));
+      const srcPreview = img.src.startsWith("data:") ? `base64 ✅ (${img.src.length} chars, hash:${img.src.substring(30, 50)})` : `URL ❌ ${img.src.substring(0, 100)}`;
+      console.log(`[PDF] img[${i}] src:`, srcPreview);
     });
+    // Log asset map keys for debugging cache
+    console.log("[PDF] pdfAssetMap keys:", Object.keys(pdfAssetMap));
+    console.log("[PDF] storeSettings.logo_url:", storeSettings?.logo_url);
+    console.log("[PDF] brandLogoUrl:", brandLogoUrl);
+    console.log("[PDF] São iguais?", storeSettings?.logo_url === brandLogoUrl);
 
     setIsGeneratingPdf(true);
     try {
