@@ -164,7 +164,7 @@ export const exportPDF = async ({
       pdf.save(filename);
     } else {
       const scale = getHtml2canvasScale();
-      const width = element.scrollWidth;
+      const width = captureWidth || element.scrollWidth;
       await (html2pdf() as any)
         .set({
           margin: [10, 10, 10, 10],
