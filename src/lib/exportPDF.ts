@@ -197,7 +197,7 @@ const exportSectionedPDF = async ({
     }
   }
 
-  pdf.save(filename);
+  return pdf;
 };
 
 /**
