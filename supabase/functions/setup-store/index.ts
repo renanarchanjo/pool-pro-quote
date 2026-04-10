@@ -174,6 +174,24 @@ serve(async (req) => {
 
     console.log(`[SETUP-STORE] Complete for user ${userId}`);
 
+    // Send welcome email (fire-and-forget)
+    try {
+      await supabaseAdmin.functions.invoke("send-email", {
+        body: {
+          type: "boas_vindas",
+          data: {
+            email: user.email,
+            name: fullName || storeName,
+            storeName: storeName,
+          },
+        },
+        headers: { Authorization: authHeader },
+      });
+      console.log(`[SETUP-STORE] Welcome email sent to ${user.email}`);
+    } catch (emailErr) {
+      console.error("[SETUP-STORE] Welcome email failed (non-blocking):", emailErr);
+    }
+
     return new Response(
       JSON.stringify({ success: true, storeId: storeData.id }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 200 }
