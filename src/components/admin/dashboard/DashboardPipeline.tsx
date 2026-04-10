@@ -360,6 +360,17 @@ const DashboardPipeline = ({ proposals, onUpdateStatus, onViewProposal, onExport
                                   <Download className="w-3 h-3 text-white" />
                                 </span>
                               </button>
+                              {onSendWhatsApp && (
+                                <button
+                                  className="inline-flex items-center gap-1.5 h-8 px-3 text-[12px] font-semibold text-white rounded-md transition-all duration-150 hover:opacity-90 active:scale-95 disabled:opacity-70"
+                                  style={{ backgroundColor: sentWhatsApp.has(p.id) ? "#16a34a" : sendingWhatsApp === p.id ? "#128C7E" : "#25D366" }}
+                                  disabled={!!sendingWhatsApp}
+                                  onClick={() => handleWhatsAppClick(p)}
+                                >
+                                  {sendingWhatsApp === p.id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : sentWhatsApp.has(p.id) ? <Check className="w-3.5 h-3.5" /> : <MessageCircle className="w-3.5 h-3.5" />}
+                                  {sentWhatsApp.has(p.id) ? " Enviado" : " WhatsApp"}
+                                </button>
+                              )}
                             </div>
                           </td>
                         </tr>
