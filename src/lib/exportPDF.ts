@@ -127,6 +127,7 @@ export const exportPDF = async ({
   element,
   filename,
   orientation = "portrait",
+  captureWidth,
   sectionSelector,
 }: ExportPDFOptions): Promise<void> => {
   const pdfHeaders = element.querySelectorAll<HTMLElement>("[data-pdf-header]");
