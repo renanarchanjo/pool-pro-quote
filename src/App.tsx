@@ -25,6 +25,7 @@ const Matriz = lazy(() => import("./pages/Matriz"));
 const Parceiros = lazy(() => import("./pages/Parceiros"));
 const Lojista = lazy(() => import("./pages/Lojista"));
 const LojistaPlanos = lazy(() => import("./pages/LojistaPlanos"));
+const SimuladorLoja = lazy(() => import("./pages/SimuladorLoja"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 const queryClient = new QueryClient({
