@@ -49,6 +49,8 @@ async function sendDocument(
 const PUBLIC_TYPES = ["enviar_proposta"];
 
 serve(async (req) => {
+  console.log("ZAPI_CLIENT_TOKEN:", Deno.env.get("ZAPI_CLIENT_TOKEN") ? "OK" : "VAZIO");
+
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
