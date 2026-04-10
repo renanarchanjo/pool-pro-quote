@@ -139,6 +139,48 @@ serve(async (req) => {
       console.log(`[ACCEPT-LEAD] Excess lead for store ${dist.store_id}: ${consumed}/${limit}. Charge: ${excessPrice}`);
     }
 
+    // Send new lead email to store owner (fire-and-forget)
+    try {
+      const { data: proposal } = await supabaseAdmin
+        .from("proposals")
+        .select("customer_name, customer_city, customer_whatsapp, pool_models(name)")
+        .eq("id", dist.proposal_id)
+        .single();
+
+      const { data: ownerRole } = await supabaseAdmin
+        .from("user_roles")
+        .select("user_id")
+        .eq("role", "owner")
+        .eq("user_id", (
+          await supabaseAdmin.from("profiles").select("id").eq("store_id", dist.store_id)
+        ).data?.map((p: any) => p.id) || [])
+        .limit(1)
+        .single();
+
+      if (ownerRole) {
+        const { data: ownerAuth } = await supabaseAdmin.auth.admin.getUserById(ownerRole.user_id);
+        if (ownerAuth?.user?.email && proposal) {
+          await supabaseAdmin.functions.invoke("send-email", {
+            body: {
+              type: "novo_lead",
+              data: {
+                email: ownerAuth.user.email,
+                storeName: store ? `Loja ${dist.store_id}` : "",
+                customerName: proposal.customer_name,
+                customerCity: proposal.customer_city,
+                customerWhatsapp: proposal.customer_whatsapp,
+                modelName: (proposal as any).pool_models?.name || null,
+              },
+            },
+            headers: { Authorization: authHeader },
+          });
+          console.log(`[ACCEPT-LEAD] Lead email sent to ${ownerAuth.user.email}`);
+        }
+      }
+    } catch (emailErr) {
+      console.error("[ACCEPT-LEAD] Lead email failed (non-blocking):", emailErr);
+    }
+
     return new Response(JSON.stringify({
       success: true,
       consumed,
