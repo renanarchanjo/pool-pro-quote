@@ -573,7 +573,10 @@ const MatrizLeads = () => {
                         )}
                         <TableCell>
                           <div>
-                            <span className="font-medium">{lead.customer_name}</span>
+                            <div className="flex items-center gap-1.5">
+                              <span className="font-medium">{lead.customer_name}</span>
+                              {lead.is_test && <Badge className="bg-purple-500/10 text-purple-600 border-purple-500/20 text-[9px] px-1 py-0">TESTE</Badge>}
+                            </div>
                             {expired && expired.length > 0 && (
                               <div className="flex items-center gap-1 mt-1">
                                 <Badge variant="outline" className="bg-orange-500/10 text-orange-600 border-orange-500/20 text-[10px] px-1.5 py-0">
@@ -610,6 +613,7 @@ const MatrizLeads = () => {
                         <TableCell className="text-sm text-muted-foreground">{lead.created_at ? format(new Date(lead.created_at), "dd/MM/yy HH:mm", { locale: ptBR }) : "-"}</TableCell>
                         <TableCell className="text-right">
                           <div className="flex items-center justify-end gap-1">
+                            <Button variant="ghost" size="icon" className={`h-8 w-8 ${lead.is_test ? "text-purple-500" : ""}`} onClick={() => handleToggleTest(lead.id, lead.is_test)} title={lead.is_test ? "Desmarcar teste" : "Marcar como teste"}><FlaskConical className="w-4 h-4" /></Button>
                             <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleViewLead(lead)}><Eye className="w-4 h-4" /></Button>
                             <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleCopyPhone(lead)}><Copy className="w-4 h-4 text-muted-foreground" /></Button>
                             <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => setDeletingLead(lead)}><Trash2 className="w-4 h-4" /></Button>
