@@ -6,7 +6,7 @@ import {
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
 import {
-  Search, Eye, Download, CalendarIcon, X, FileText, ArrowUpDown, Loader2, Check, MessageCircle,
+  Search, Eye, Download, CalendarIcon, X, FileText, ArrowUpDown,
 } from "lucide-react";
 import {
   Proposal, ProposalStatus, STATUS_CONFIG,
