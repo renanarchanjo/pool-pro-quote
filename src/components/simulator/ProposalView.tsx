@@ -4,6 +4,7 @@ import { FileDown, ArrowLeft, Loader2, Check } from "lucide-react";
 import { exportPDF, generatePDFBlob } from "@/lib/exportPDF";
 import { savePdfToStorage } from "@/lib/savePdfToStorage";
 import { toBase64Safe } from "@/lib/pdfImageUtils";
+import { formatPhoneForWhatsApp } from "@/lib/formatPhone";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import simulapoolLogoFooter from "@/assets/simulapool-logo-footer.png?inline";
@@ -213,19 +214,11 @@ const ProposalView = ({
       const publicUrl = await savePdfToStorage(proposalId, pdfBlob);
       console.log("3. PDF salvo:", publicUrl);
 
-      // Format phone: ensure 55 country code
-      const formatPhone = (phone: string) => {
-        const digits = phone.replace(/\D/g, "");
-        if (digits.startsWith("55")) return digits;
-        if (digits.startsWith("0")) return "55" + digits.slice(1);
-        return "55" + digits;
-      };
-
       const result = await supabase.functions.invoke("send-whatsapp", {
         body: {
           type: "enviar_proposta",
           data: {
-            customerPhone: formatPhone(customerData.whatsapp),
+            customerPhone: formatPhoneForWhatsApp(customerData.whatsapp),
             customerName: customerData.name,
             storeName: storeName || "SimulaPool",
             pdfUrl: publicUrl,
