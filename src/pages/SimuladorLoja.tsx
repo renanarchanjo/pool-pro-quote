@@ -125,20 +125,17 @@ const SimuladorLoja = () => {
     try {
       setLoading(true);
 
-      // Fetch store by slug (public RPC returns limited fields, query directly)
-      const { data: storeData, error: storeError } = await supabase
-        .from("stores")
-        .select("id, name, slug, city, state, whatsapp, plan_status")
-        .eq("slug", storeSlug)
-        .eq("plan_status", "active")
-        .single();
+      // Fetch store by slug via public RPC (bypasses RLS)
+      const { data: storeRows, error: storeError } = await supabase
+        .rpc("get_store_public_by_slug", { _slug: storeSlug });
 
-      if (storeError || !storeData) {
+      if (storeError || !storeRows || storeRows.length === 0) {
         setNotFound(true);
         setLoading(false);
         return;
       }
 
+      const storeData = storeRows[0];
       setStore(storeData);
 
       // Load all store data in parallel
@@ -149,7 +146,7 @@ const SimuladorLoja = () => {
         supabase.from("categories").select("id, name, brand_id").eq("active", true).eq("store_id", sid).order("name"),
         supabase.rpc("get_optionals_public", { _store_id: sid }),
         supabase.rpc("get_model_optionals_public", { _store_id: sid }),
-        supabase.from("store_settings").select("logo_url, primary_color, secondary_color").eq("store_id", sid).maybeSingle(),
+        supabase.rpc("get_store_settings_public", { _store_id: sid }),
         supabase.from("partners").select("id, name, logo_url, banner_1_url, banner_2_url, display_percent").eq("active", true).order("display_order"),
       ]);
 
