@@ -200,13 +200,35 @@ const ProposalView = ({
   const handleDownloadPDF = async () => {
     if (isGeneratingPdf) return;
     const element = document.getElementById("proposal-content");
+    console.log("[PDF] Elemento encontrado:", !!element);
     if (!element) return;
+
+    const imgsBefore = element.querySelectorAll("img");
+    console.log("[PDF] Imagens no elemento ANTES do prepareAssets:", imgsBefore.length);
+    imgsBefore.forEach((img, i) => {
+      console.log(`[PDF] img[${i}] src tipo:`, img.src.startsWith("data:") ? "base64 ✅" : "URL ❌", img.src.substring(0, 80));
+    });
 
     setIsGeneratingPdf(true);
     try {
       const filename = `Proposta-${customerData.name.trim().replace(/\s+/g, "-")}-${today.replace(/\//g, "-")}.pdf`;
       await preparePdfAssets();
       await waitForPdfCaptureReady();
+
+      const imgsAfter = element.querySelectorAll("img");
+      console.log("[PDF] Imagens no elemento APÓS prepareAssets:", imgsAfter.length);
+      imgsAfter.forEach((img, i) => {
+        console.log(`[PDF] img[${i}] após:`, img.src.startsWith("data:") ? "base64 ✅" : "URL ❌", img.src.substring(0, 80));
+        console.log(`[PDF] img[${i}] naturalWidth:`, img.naturalWidth, "naturalHeight:", img.naturalHeight, "complete:", img.complete);
+      });
+
+      // Check data-pdf-page sections
+      const sections = element.querySelectorAll("[data-pdf-page]");
+      console.log("[PDF] Seções data-pdf-page:", sections.length);
+      sections.forEach((s, i) => {
+        const el = s as HTMLElement;
+        console.log(`[PDF] seção[${i}] offsetW:`, el.offsetWidth, "offsetH:", el.offsetHeight, "scrollH:", el.scrollHeight);
+      });
 
       await exportPDF({
         element,
