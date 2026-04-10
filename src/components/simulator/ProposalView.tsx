@@ -164,10 +164,21 @@ const ProposalView = ({
     if (pdfAssetsPromiseRef.current) return pdfAssetsPromiseRef.current;
 
     pdfAssetsPromiseRef.current = (async () => {
-      const loadedAssets = await Promise.all(
-        missingUrls.map(async (url) => [url, await toBase64Safe(url)] as const),
-      );
-      const nextAssets = Object.fromEntries(loadedAssets);
+      // Process in batches of 4 for parallelism without network overload
+      const CONCURRENCY = 4;
+      const allResults: [string, string][] = [];
+
+      for (let i = 0; i < missingUrls.length; i += CONCURRENCY) {
+        const batch = missingUrls.slice(i, i + CONCURRENCY);
+        const results = await Promise.allSettled(
+          batch.map(async (url) => [url, await toBase64Safe(url)] as const),
+        );
+        results.forEach((r) => {
+          if (r.status === "fulfilled") allResults.push(r.value);
+        });
+      }
+
+      const nextAssets = Object.fromEntries(allResults);
       pdfAssetsCacheRef.current = { ...pdfAssetsCacheRef.current, ...nextAssets };
       setPdfAssetMap((current) => ({ ...current, ...nextAssets }));
     })();
