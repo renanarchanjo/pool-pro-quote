@@ -54,7 +54,7 @@ export async function savePdfToStorage(
     }
   }
 
-  const { data: signedData, error: signError } = await supabasePublic.storage
+  const { data: signedData, error: signError } = await supabase.storage
     .from("proposals")
     .createSignedUrl(fileName, 172800);
 
