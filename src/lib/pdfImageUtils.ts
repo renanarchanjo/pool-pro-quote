@@ -92,21 +92,23 @@ export const textToBase64Placeholder = async (
 };
 
 export const toBase64Safe = async (url: string): Promise<string> => {
-  if (!url) return PDF_IMAGE_FALLBACK;
-  if (url.startsWith("data:") || url.startsWith("blob:")) return url;
+  console.log("[PDF DEBUG] Convertendo:", url);
+  if (!url) { console.log("[PDF DEBUG] URL vazia, retornando FALLBACK"); return PDF_IMAGE_FALLBACK; }
+  if (url.startsWith("data:") || url.startsWith("blob:")) { console.log("[PDF DEBUG] Já é data/blob, retornando direto"); return url; }
 
   const cached = await pdfImageCacheGet(url);
-  if (cached) return cached;
+  if (cached) { console.log("[PDF DEBUG] Cache hit para:", url, "(" + cached.length + " chars)"); return cached; }
 
   let result: string | null = null;
 
   // --- Supabase Storage: fetch direto com CORS (buckets públicos) ---
   const isSupabaseStorage = url.includes("supabase.co") || url.includes("supabase.in");
   if (isSupabaseStorage) {
-    // Garante URL pública
+    console.log("[PDF DEBUG] Detectado Supabase Storage URL");
     const publicUrl = url.includes("/storage/v1/object/public/")
       ? url
       : url.replace("/storage/v1/object/", "/storage/v1/object/public/");
+    console.log("[PDF DEBUG] Public URL:", publicUrl);
 
     try {
       const res = await fetch(publicUrl, {
@@ -114,30 +116,36 @@ export const toBase64Safe = async (url: string): Promise<string> => {
         credentials: "omit",
         headers: { "Cache-Control": "no-cache" },
       });
+      console.log("[PDF DEBUG] Supabase fetch público status:", res.status, res.statusText);
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const blob = await res.blob();
+      console.log("[PDF DEBUG] Blob recebido:", blob.size, "bytes, tipo:", blob.type);
       result = await blobToDataUrl(blob);
-    } catch {
-      // fallback: tenta URL original
+      console.log("[PDF DEBUG] Supabase public OK:", result ? result.length + " chars" : "VAZIO");
+    } catch (e) {
+      console.warn("[PDF DEBUG] Supabase public fetch falhou:", e);
       try {
         const res2 = await fetch(url, {
           mode: "cors",
           credentials: "omit",
           headers: { "Cache-Control": "no-cache" },
         });
+        console.log("[PDF DEBUG] Supabase original fetch status:", res2.status);
         if (!res2.ok) throw new Error(`HTTP ${res2.status}`);
         const blob2 = await res2.blob();
         result = await blobToDataUrl(blob2);
-      } catch {
-        console.warn("[PDF] Supabase Storage fetch falhou:", url);
+        console.log("[PDF DEBUG] Supabase original OK:", result ? result.length + " chars" : "VAZIO");
+      } catch (e2) {
+        console.warn("[PDF DEBUG] Supabase Storage AMBOS falharam:", url, e2);
       }
     }
 
     if (result && result !== PDF_IMAGE_FALLBACK) {
+      console.log("[PDF DEBUG] Supabase Storage SUCESSO para:", url);
       await pdfImageCacheSet(url, result);
       return result;
     }
-    // Se falhou, continua para os fallbacks genéricos abaixo
+    console.warn("[PDF DEBUG] Supabase Storage FALHOU, tentando fallbacks genéricos para:", url);
   }
 
   const isPostImg = url.includes("postimg.cc") || url.includes("postimages.org");
@@ -231,10 +239,11 @@ export const toBase64Safe = async (url: string): Promise<string> => {
   }
 
   if (!result) {
-    console.warn("[PDF] Imagem não carregou:", url);
+    console.warn("[PDF DEBUG] FALLBACK FINAL para:", url);
     return PDF_IMAGE_FALLBACK;
   }
 
+  console.log("[PDF DEBUG] Resultado genérico OK:", url, "(" + result.length + " chars)");
   await pdfImageCacheSet(url, result);
   return result;
 };
@@ -262,6 +271,7 @@ export const inlineImagesForPdf = async (root: HTMLElement): Promise<() => void>
   await Promise.all(
     images.map(async (img) => {
       const src = img.getAttribute("src") || img.currentSrc || img.src;
+      console.log("[PDF DEBUG] inlineImages encontrou img:", src?.substring(0, 120));
       if (!src || src.startsWith("data:") || src.startsWith("blob:")) return;
 
       snapshots.push({
@@ -273,6 +283,7 @@ export const inlineImagesForPdf = async (root: HTMLElement): Promise<() => void>
       });
 
       let resolvedSrc = await toBase64Safe(src);
+      console.log("[PDF DEBUG] inlineImages resultado:", src?.substring(0, 80), "→", resolvedSrc === PDF_IMAGE_FALLBACK ? "FALLBACK" : "OK (" + resolvedSrc.length + " chars)");
 
       if (!resolvedSrc || resolvedSrc === PDF_IMAGE_FALLBACK) {
         try {
