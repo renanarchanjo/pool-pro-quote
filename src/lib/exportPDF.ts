@@ -19,15 +19,21 @@ const A4_SIZES = {
   landscape: { width: 297, height: 210 },
 } as const;
 
+const isMobileDevice = () => /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+
 const getHtml2canvasScale = (): number => {
-  const isMobile = /iPhone|iPad|Android/i.test(navigator.userAgent);
-  return isMobile ? 1.5 : 2;
+  return isMobileDevice() ? 1 : 2;
 };
 
-const waitForStablePaint = async (delay = 300) => {
+const getMobileCaptureWidth = (): number | null => {
+  return isMobileDevice() ? 390 : null;
+};
+
+const waitForStablePaint = async (delay?: number) => {
+  const d = delay ?? (isMobileDevice() ? 3000 : 300);
   await new Promise((r) => requestAnimationFrame(() => r(undefined)));
   await new Promise((r) => requestAnimationFrame(() => r(undefined)));
-  await new Promise((r) => setTimeout(r, delay));
+  await new Promise((r) => setTimeout(r, d));
 };
 
 const exportSectionedPDF = async ({
