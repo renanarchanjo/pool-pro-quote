@@ -4,7 +4,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Loader2, Upload, Building2, User, Image as ImageIcon, Mail, Lock, Eye, EyeOff } from "lucide-react";
+import { Loader2, Upload, Building2, User, Image as ImageIcon, Mail, Lock, Eye, EyeOff, Copy, ExternalLink, Share2, Link as LinkIcon } from "lucide-react";
 import { toast } from "sonner";
 import { useStoreData } from "@/hooks/useStoreData";
 
@@ -174,6 +174,61 @@ const AdminProfile = () => {
           </Button>
         </div>
       </Card>
+
+      {/* Simulation Link Card - visible for owner */}
+      {isOwner && store && (
+        <div
+          className="max-w-2xl rounded-xl border p-5 md:p-6"
+          style={{ background: "#F0F9FF", borderColor: "#E0F2FE" }}
+        >
+          <p className="text-[11px] font-semibold uppercase tracking-wider mb-3" style={{ color: "#9CA3AF" }}>
+            Seu link de simulação
+          </p>
+          <div
+            className="rounded-lg px-4 py-3 mb-4 font-semibold text-base select-all break-all"
+            style={{ background: "#F8F9FA", border: "1px solid #E5E7EB", color: "#0F172A" }}
+          >
+            simulapool.com/s/{(store as any).slug || ""}
+          </div>
+          <div className="flex flex-wrap gap-2">
+            <Button
+              size="sm"
+              variant="outline"
+              className="gap-2"
+              onClick={() => {
+                navigator.clipboard.writeText(`https://www.simulapool.com/s/${(store as any).slug || ""}`);
+                toast.success("Link copiado!");
+              }}
+            >
+              <Copy className="w-4 h-4" />
+              Copiar link
+            </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              className="gap-2"
+              onClick={() => {
+                const msg = encodeURIComponent(
+                  `Simule sua piscina de fibra pelo nosso simulador online! 👇\nhttps://www.simulapool.com/s/${(store as any).slug || ""}`
+                );
+                window.open(`https://wa.me/?text=${msg}`, "_blank");
+              }}
+            >
+              <Share2 className="w-4 h-4" />
+              Compartilhar no WhatsApp
+            </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              className="gap-2"
+              onClick={() => window.open(`/s/${(store as any).slug || ""}`, "_blank")}
+            >
+              <ExternalLink className="w-4 h-4" />
+              Ver simulador
+            </Button>
+          </div>
+        </div>
+      )}
 
       {/* Credenciais de Acesso - visível para owner */}
       {isOwner && (
