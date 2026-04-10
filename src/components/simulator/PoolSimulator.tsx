@@ -234,25 +234,25 @@ const PoolSimulator = ({ onBack }: PoolSimulatorProps) => {
       const totalPrice = selectedModel.base_price + inclTotal + optionalsPrice;
 
       const { sanitizeText, sanitizePhone, sanitizeCurrency } = await import("@/lib/sanitize");
+      const newProposalId = crypto.randomUUID();
 
       const insertPayload = {
-          customer_name: sanitizeText(data.name, 200),
-          customer_city: sanitizeText(data.city, 200),
-          customer_whatsapp: sanitizePhone(data.whatsapp),
-          model_id: selectedModel.id,
-          selected_optionals: allSelectedOpts as any,
-          total_price: sanitizeCurrency(totalPrice),
-          store_id: targetStoreId,
+        id: newProposalId,
+        customer_name: sanitizeText(data.name, 200),
+        customer_city: sanitizeText(data.city, 200),
+        customer_whatsapp: sanitizePhone(data.whatsapp),
+        model_id: selectedModel.id,
+        selected_optionals: allSelectedOpts as any,
+        total_price: sanitizeCurrency(totalPrice),
+        store_id: targetStoreId,
       };
-      console.log("INSERT payload:", JSON.stringify(insertPayload));
-      const { data: insertedRow, error } = await supabase
+
+      const { error } = await supabase
         .from("proposals")
-        .insert(insertPayload)
-        .select("id")
-        .single();
+        .insert(insertPayload);
 
       if (error) throw error;
-      setProposalId(insertedRow?.id || null);
+      setProposalId(newProposalId);
 
       setCustomerData(data);
       setStep(4);
