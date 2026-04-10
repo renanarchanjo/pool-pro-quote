@@ -8,15 +8,15 @@ const corsHeaders = {
   "Access-Control-Allow-Methods": "POST, OPTIONS",
 };
 
-const ZAPI_INSTANCE_ID = Deno.env.get("ZAPI_INSTANCE_ID");
-const ZAPI_TOKEN = Deno.env.get("ZAPI_TOKEN");
-const ZAPI_CLIENT_TOKEN = Deno.env.get("ZAPI_CLIENT_TOKEN");
+const ZAPI_INSTANCE_ID = (Deno.env.get("ZAPI_INSTANCE_ID") ?? "").trim();
+const ZAPI_TOKEN = (Deno.env.get("ZAPI_TOKEN") ?? "").trim();
+const ZAPI_CLIENT_TOKEN = (Deno.env.get("ZAPI_CLIENT_TOKEN") ?? "").trim();
 
 async function sendText(phone: string, message: string) {
   const digits = phone.replace(/\D/g, "");
   const formattedPhone = digits.startsWith("55") ? digits : "55" + digits;
   console.log("Enviando para:", formattedPhone);
-  console.log("Client-Token:", ZAPI_CLIENT_TOKEN ? "OK" : "VAZIO");
+  console.log("Client-Token length:", ZAPI_CLIENT_TOKEN.length, "value preview:", ZAPI_CLIENT_TOKEN.substring(0, 6) + "...");
 
   const url = `https://api.z-api.io/instances/${ZAPI_INSTANCE_ID}/token/${ZAPI_TOKEN}/send-text`;
 
@@ -31,7 +31,7 @@ async function sendText(phone: string, message: string) {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      "Client-Token": ZAPI_CLIENT_TOKEN ?? "",
+      "Client-Token": ZAPI_CLIENT_TOKEN,
     },
     body: JSON.stringify(body),
   });
@@ -56,7 +56,7 @@ async function sendDocument(
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      "Client-Token": ZAPI_CLIENT_TOKEN ?? "",
+      "Client-Token": ZAPI_CLIENT_TOKEN,
     },
     body: JSON.stringify({
       phone: formattedPhone,
