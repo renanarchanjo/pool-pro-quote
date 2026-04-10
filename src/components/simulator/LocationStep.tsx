@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useGeolocation, STATES_LIST } from "@/hooks/useGeolocation";
 import { supabase } from "@/integrations/supabase/client";
+import NoStoresInRegion from "./NoStoresInRegion";
 
 interface Store {
   id: string;
@@ -15,6 +16,8 @@ interface Store {
   city: string | null;
   latitude?: number | null;
   longitude?: number | null;
+  coverage_radius_km?: number;
+  coverage_radius_active?: boolean;
   distance?: number;
 }
 
