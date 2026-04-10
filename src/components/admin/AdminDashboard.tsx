@@ -68,13 +68,17 @@ const AdminDashboard = () => {
     : "Período";
 
   const memberFilteredProposals = proposals.filter(p => {
+    // For lead-distributed proposals, only show if someone accepted it
+    const dist = leadDistributions.find(d => d.proposal_id === p.id);
+    if (dist && dist.status !== "accepted") return false;
+
     if (isOwner) {
       if (filterMember === "all") return true;
-      const dist = leadDistributions.find(d => d.proposal_id === p.id && d.status === "accepted");
-      return dist?.accepted_by === filterMember || (p as any).created_by === filterMember;
+      const acceptedDist = leadDistributions.find(d => d.proposal_id === p.id && d.status === "accepted");
+      return acceptedDist?.accepted_by === filterMember || (p as any).created_by === filterMember;
     }
-    const dist = leadDistributions.find(d => d.proposal_id === p.id && d.status === "accepted");
-    return dist?.accepted_by === profile?.id || (p as any).created_by === profile?.id;
+    const acceptedDist = leadDistributions.find(d => d.proposal_id === p.id && d.status === "accepted");
+    return acceptedDist?.accepted_by === profile?.id || (p as any).created_by === profile?.id;
   });
 
   const filteredProposals = memberFilteredProposals.filter(p => {

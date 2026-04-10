@@ -281,12 +281,28 @@ const AdminLeads = () => {
     const idsToAssign = assigningLeadId ? [assigningLeadId] : Array.from(selectedIds);
     if (idsToAssign.length === 0) return;
     try {
-      const { error } = await (supabase as any)
-        .from("lead_distributions")
-        .update({ assigned_to: assignTargetUser })
-        .in("id", idsToAssign);
-      if (error) throw error;
-      toast.success(`${idsToAssign.length} lead(s) atribuído(s) com sucesso!`);
+      // Check if assigning to the store owner — if so, auto-accept
+      const isAssigningToOwner = assignTargetUser === profile?.id && isOwner;
+
+      if (isAssigningToOwner) {
+        // Assign + auto-accept each lead
+        for (const distId of idsToAssign) {
+          const { data, error } = await supabase.functions.invoke("accept-lead", {
+            body: { distribution_id: distId },
+          });
+          if (error) throw error;
+          if (data?.error) throw new Error(data.error);
+        }
+        toast.success(`${idsToAssign.length} lead(s) atribuído(s) e aceito(s) automaticamente!`);
+      } else {
+        const { error } = await (supabase as any)
+          .from("lead_distributions")
+          .update({ assigned_to: assignTargetUser })
+          .in("id", idsToAssign);
+        if (error) throw error;
+        toast.success(`${idsToAssign.length} lead(s) atribuído(s) com sucesso!`);
+      }
+
       setAssignDialogOpen(false);
       setAssigningLeadId(null);
       setAssignTargetUser("");
@@ -638,8 +654,8 @@ const AdminLeads = () => {
         <div className="bg-primary/5 border border-primary/20 rounded-lg p-3 animate-fade-in space-y-2">
           <span className="text-sm font-medium">{selectedIds.size} lead(s) selecionado(s)</span>
           <div className="flex gap-2 w-full">
-            {isOwner && teamMembers.length > 1 ? (
-              <Button size="sm" className="h-8 text-xs flex-1" onClick={() => openAssignDialog()} disabled={bulkProcessing}>
+            {isOwner ? (
+              <Button size="sm" className="h-8 text-xs flex-1 bg-emerald-600 hover:bg-emerald-700 text-white" onClick={() => openAssignDialog()} disabled={bulkProcessing}>
                 <Send className="w-3.5 h-3.5 mr-1" />
                 Atribuir ({selectedIds.size})
               </Button>
@@ -718,11 +734,10 @@ const AdminLeads = () => {
 
                         {isPending ? (
                           <div className="flex gap-2">
-                            {isOwner && teamMembers.length > 1 ? (
+                            {isOwner ? (
                               <Button
                                 size="sm"
-                                variant="outline"
-                                className="h-9 text-xs"
+                                className="h-7 text-xs bg-emerald-600 hover:bg-emerald-700 text-white"
                                 onClick={() => openAssignDialog(lead.id)}
                               >
                                 <Send className="w-3.5 h-3.5 mr-1" /> Atribuir
@@ -861,8 +876,8 @@ const AdminLeads = () => {
                           )}
                           <TableCell className="text-right" onClick={(e) => e.stopPropagation()}>
                             {isPending ? (
-                              isOwner && teamMembers.length > 1 ? (
-                                <Button size="sm" variant="ghost" className="h-7 text-xs text-muted-foreground hover:text-primary" onClick={() => openAssignDialog(lead.id)}>
+                              isOwner ? (
+                                <Button size="sm" className="h-7 text-xs bg-emerald-600 hover:bg-emerald-700 text-white" onClick={() => openAssignDialog(lead.id)}>
                                   <Send className="w-3 h-3 mr-1" /> Atribuir
                                 </Button>
                               ) : !isOwner ? (
@@ -991,7 +1006,7 @@ const AdminLeads = () => {
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-3 py-4">
-            {teamMembers.filter(m => m.id !== profile?.id).map(m => (
+            {teamMembers.map(m => (
               <button
                 key={m.id}
                 onClick={() => setAssignTargetUser(m.id)}
