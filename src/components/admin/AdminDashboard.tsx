@@ -216,7 +216,7 @@ const AdminDashboard = () => {
       filename: `proposta-${proposal.customer_name.replace(/\s+/g, "-")}.pdf`,
       orientation: "portrait",
       captureWidth: 800,
-      sectionSelector: "[data-pdf-section]",
+      sectionSelector: "[data-pdf-page]",
     });
 
     setExportingProposal(null);
@@ -238,7 +238,7 @@ const AdminDashboard = () => {
         element: proposalPdfRef.current,
         orientation: "portrait",
         captureWidth: 800,
-        sectionSelector: "[data-pdf-section]",
+        sectionSelector: "[data-pdf-page]",
       });
 
       const publicUrl = await savePdfToStorage(proposal.id, pdfBlob);
@@ -374,7 +374,19 @@ const AdminDashboard = () => {
         const pm = exportingProposal.pool_models as any;
         const brand = pm?.categories?.brands;
         return (
-          <div ref={proposalPdfRef} className="hidden">
+          <div
+            ref={proposalPdfRef}
+            aria-hidden="true"
+            style={{
+              position: "fixed",
+              top: 0,
+              left: "-99999px",
+              width: "794px",
+              opacity: 0,
+              pointerEvents: "none",
+              zIndex: -1,
+            }}
+          >
             <ProposalView
               model={pm}
               selectedOptionals={
