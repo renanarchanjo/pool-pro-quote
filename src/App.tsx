@@ -66,6 +66,7 @@ const AppInner = () => {
         <PageTransition>
           <Routes>
             <Route path="/" element={<Index />} />
+            <Route path="/s/:slug" element={<SimuladorLoja />} />
 
             <Route path="/parceiros" element={<Parceiros />} />
             <Route path="/lojista" element={<Lojista />} />
