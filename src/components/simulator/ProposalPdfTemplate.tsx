@@ -120,8 +120,6 @@ const ProposalPdfTemplate = ({
   const storeLocation = [storeCity, storeState].filter(Boolean).join(" / ");
   const featuredBanner = bannersToShow[0] ?? null;
   const footerPartners = partners.filter((partner) => partner.logo_url);
-  const footerPartnerRows = footerPartners.length > 0 ? Math.ceil(footerPartners.length / 6) : 0;
-  const footerReservedHeight = footerPartners.length > 0 ? 76 + footerPartnerRows * 28 : 56;
 
   const materiais = model.included_items.filter((item) => !item.includes("[MO]"));
   const maoDeObra = model.included_items
@@ -396,110 +394,109 @@ const ProposalPdfTemplate = ({
           )}
         </div>
 
-        <div
-          data-pdf-page
-          style={{
-            ...PAGE_STYLE,
-            position: "relative",
-            paddingBottom: `${PAD_Y + footerReservedHeight}px`,
-          }}
-        >
-          <div style={{ marginBottom: "18px" }}>
-            <div style={{ background: "#F9FAFB", border: "1px solid #E5E7EB", borderRadius: "8px", padding: "20px 24px" }}>
-              <table style={{ width: "100%", fontSize: "13px", borderCollapse: "collapse" }}>
-                <tbody>
-                  <tr>
-                    <td style={{ padding: "6px 0", color: "#6B7280" }}>Valor base piscina</td>
-                    <td style={{ padding: "6px 0", textAlign: "right", color: "#111827" }}>{fmt(displayBasePrice)}</td>
-                  </tr>
-                  {optionalsTotal > 0 && (
+        <div data-pdf-page style={PAGE_STYLE}>
+          <div
+            style={{
+              flex: 1,
+              minHeight: 0,
+              overflow: "hidden",
+              display: "flex",
+              flexDirection: "column",
+            }}
+          >
+            <div style={{ marginBottom: "18px" }}>
+              <div style={{ background: "#F9FAFB", border: "1px solid #E5E7EB", borderRadius: "8px", padding: "20px 24px" }}>
+                <table style={{ width: "100%", fontSize: "13px", borderCollapse: "collapse" }}>
+                  <tbody>
                     <tr>
-                      <td style={{ padding: "6px 0", color: "#6B7280" }}>Opcionais</td>
-                      <td style={{ padding: "6px 0", textAlign: "right", color: "#111827" }}>{fmt(optionalsTotal)}</td>
+                      <td style={{ padding: "6px 0", color: "#6B7280" }}>Valor base piscina</td>
+                      <td style={{ padding: "6px 0", textAlign: "right", color: "#111827" }}>{fmt(displayBasePrice)}</td>
                     </tr>
-                  )}
-                  <tr>
-                    <td colSpan={2} style={{ padding: 0 }}>
-                      <div style={{ borderBottom: "2px solid #E5E7EB", margin: "8px 0" }} />
-                    </td>
-                  </tr>
-                  <tr>
-                    <td style={{ padding: "8px 0", fontWeight: 700, fontSize: "18px", color: "#1A56DB" }}>TOTAL</td>
-                    <td style={{ padding: "8px 0", textAlign: "right", fontWeight: 700, fontSize: "22px", color: "#1A56DB" }}>
-                      {fmt(totalPrice)}
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "24px", marginBottom: "20px" }}>
-            <div>
-              <p style={{ ...LABEL, marginBottom: "8px" }}>CONDIÇÕES COMERCIAIS</p>
-              <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-                {([
-                  ["Pagamento", model.payment_terms || "À vista"],
-                  ["Entrega", `${model.delivery_days} dias`],
-                  ["Instalação", `${model.installation_days} dias`],
-                ] as const).map(([label, value], i) => (
-                  <div key={i}>
-                    <span style={{ fontSize: "10px", color: "#9CA3AF" }}>{label}</span>
-                    <div style={{ fontSize: "12px", color: "#111827" }}>{value}</div>
-                  </div>
-                ))}
+                    {optionalsTotal > 0 && (
+                      <tr>
+                        <td style={{ padding: "6px 0", color: "#6B7280" }}>Opcionais</td>
+                        <td style={{ padding: "6px 0", textAlign: "right", color: "#111827" }}>{fmt(optionalsTotal)}</td>
+                      </tr>
+                    )}
+                    <tr>
+                      <td colSpan={2} style={{ padding: 0 }}>
+                        <div style={{ borderBottom: "2px solid #E5E7EB", margin: "8px 0" }} />
+                      </td>
+                    </tr>
+                    <tr>
+                      <td style={{ padding: "8px 0", fontWeight: 700, fontSize: "18px", color: "#1A56DB" }}>TOTAL</td>
+                      <td style={{ padding: "8px 0", textAlign: "right", fontWeight: 700, fontSize: "22px", color: "#1A56DB" }}>
+                        {fmt(totalPrice)}
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
               </div>
             </div>
 
-            <div>
-              <p style={{ ...LABEL, marginBottom: "8px" }}>DADOS DA LOJA</p>
-              <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-                <div>
-                  <span style={{ fontSize: "10px", color: "#9CA3AF" }}>Empresa</span>
-                  <div style={{ fontSize: "12px", color: "#111827" }}>{storeName || "-"}</div>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "24px", marginBottom: "20px" }}>
+              <div>
+                <p style={{ ...LABEL, marginBottom: "8px" }}>CONDIÇÕES COMERCIAIS</p>
+                <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                  {([
+                    ["Pagamento", model.payment_terms || "À vista"],
+                    ["Entrega", `${model.delivery_days} dias`],
+                    ["Instalação", `${model.installation_days} dias`],
+                  ] as const).map(([label, value], i) => (
+                    <div key={i}>
+                      <span style={{ fontSize: "10px", color: "#9CA3AF" }}>{label}</span>
+                      <div style={{ fontSize: "12px", color: "#111827" }}>{value}</div>
+                    </div>
+                  ))}
                 </div>
-                <div>
-                  <span style={{ fontSize: "10px", color: "#9CA3AF" }}>Cidade</span>
-                  <div style={{ fontSize: "12px", color: "#111827" }}>{storeLocation || "-"}</div>
-                </div>
-                {storeWhatsapp && (
+              </div>
+
+              <div>
+                <p style={{ ...LABEL, marginBottom: "8px" }}>DADOS DA LOJA</p>
+                <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
                   <div>
-                    <span style={{ fontSize: "10px", color: "#9CA3AF" }}>WhatsApp</span>
-                    <div style={{ fontSize: "12px", color: "#111827" }}>{storeWhatsapp}</div>
+                    <span style={{ fontSize: "10px", color: "#9CA3AF" }}>Empresa</span>
+                    <div style={{ fontSize: "12px", color: "#111827" }}>{storeName || "-"}</div>
                   </div>
-                )}
+                  <div>
+                    <span style={{ fontSize: "10px", color: "#9CA3AF" }}>Cidade</span>
+                    <div style={{ fontSize: "12px", color: "#111827" }}>{storeLocation || "-"}</div>
+                  </div>
+                  {storeWhatsapp && (
+                    <div>
+                      <span style={{ fontSize: "10px", color: "#9CA3AF" }}>WhatsApp</span>
+                      <div style={{ fontSize: "12px", color: "#111827" }}>{storeWhatsapp}</div>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
-          </div>
 
-          {model.differentials && model.differentials.length > 0 && (
-            <div style={{ marginBottom: "20px" }}>
-              <p style={{ ...LABEL, marginBottom: "8px", paddingBottom: "4px", borderBottom: "1px solid #E5E7EB" }}>
-                DIFERENCIAIS
-              </p>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "6px 20px" }}>
-                {model.differentials.map((diff, i) => (
-                  <div key={i} style={{ fontSize: "12px", color: "#374151", display: "flex", alignItems: "center", gap: "6px" }}>
-                    <span style={{ color: "#10B981", fontWeight: 700, fontSize: "14px" }}>✓</span>
-                    {diff}
-                  </div>
-                ))}
+            {model.differentials && model.differentials.length > 0 && (
+              <div style={{ marginBottom: "20px" }}>
+                <p style={{ ...LABEL, marginBottom: "8px", paddingBottom: "4px", borderBottom: "1px solid #E5E7EB" }}>
+                  DIFERENCIAIS
+                </p>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "6px 20px" }}>
+                  {model.differentials.map((diff, i) => (
+                    <div key={i} style={{ fontSize: "12px", color: "#374151", display: "flex", alignItems: "center", gap: "6px" }}>
+                      <span style={{ color: "#10B981", fontWeight: 700, fontSize: "14px" }}>✓</span>
+                      {diff}
+                    </div>
+                  ))}
+                </div>
               </div>
-            </div>
-          )}
+            )}
+          </div>
 
           <div
             style={{
-              position: "absolute",
-              left: `${PAD_X}px`,
-              right: `${PAD_X}px`,
-              bottom: `${PAD_Y}px`,
+              flexShrink: 0,
               borderTop: "1px solid #E5E7EB",
               paddingTop: "12px",
               display: "flex",
               flexDirection: "column",
               gap: "12px",
-              background: "#ffffff",
             }}
           >
             {footerPartners.length > 0 && (
