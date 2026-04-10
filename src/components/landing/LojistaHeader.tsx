@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import logoIcon from "@/assets/logo-icon-v3.webp";
+import logoIcon from "@/assets/logo-icon-v3.png";
 import { User, ChevronRight } from "lucide-react";
 
 const LojistaHeader = () => {
