@@ -100,6 +100,46 @@ export const toBase64Safe = async (url: string): Promise<string> => {
 
   let result: string | null = null;
 
+  // --- Supabase Storage: fetch direto com CORS (buckets públicos) ---
+  const isSupabaseStorage = url.includes("supabase.co") || url.includes("supabase.in");
+  if (isSupabaseStorage) {
+    // Garante URL pública
+    const publicUrl = url.includes("/storage/v1/object/public/")
+      ? url
+      : url.replace("/storage/v1/object/", "/storage/v1/object/public/");
+
+    try {
+      const res = await fetch(publicUrl, {
+        mode: "cors",
+        credentials: "omit",
+        headers: { "Cache-Control": "no-cache" },
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const blob = await res.blob();
+      result = await blobToDataUrl(blob);
+    } catch {
+      // fallback: tenta URL original
+      try {
+        const res2 = await fetch(url, {
+          mode: "cors",
+          credentials: "omit",
+          headers: { "Cache-Control": "no-cache" },
+        });
+        if (!res2.ok) throw new Error(`HTTP ${res2.status}`);
+        const blob2 = await res2.blob();
+        result = await blobToDataUrl(blob2);
+      } catch {
+        console.warn("[PDF] Supabase Storage fetch falhou:", url);
+      }
+    }
+
+    if (result && result !== PDF_IMAGE_FALLBACK) {
+      await pdfImageCacheSet(url, result);
+      return result;
+    }
+    // Se falhou, continua para os fallbacks genéricos abaixo
+  }
+
   const isPostImg = url.includes("postimg.cc") || url.includes("postimages.org");
   if (isPostImg) {
     try {
