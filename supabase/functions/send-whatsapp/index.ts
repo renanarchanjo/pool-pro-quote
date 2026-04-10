@@ -45,6 +45,9 @@ async function sendDocument(
   return res.json();
 }
 
+// Types that can be called without user auth (public simulator)
+const PUBLIC_TYPES = ["enviar_proposta"];
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -52,22 +55,33 @@ serve(async (req) => {
 
   try {
     const authHeader = req.headers.get("Authorization");
-    if (!authHeader) throw new Error("Unauthorized");
 
-    const supabase = createClient(
-      Deno.env.get("SUPABASE_URL") ?? "",
-      Deno.env.get("SUPABASE_ANON_KEY") ?? "",
-      { global: { headers: { Authorization: authHeader } } }
-    );
+    // Parse body first to check type before auth
+    const { type, data } = await req.json();
 
-    const { data: { user }, error } = await supabase.auth.getUser();
-    if (error || !user) throw new Error("Unauthorized");
+    // Auth: require for non-public types
+    const isPublicType = PUBLIC_TYPES.includes(type);
+
+    if (!isPublicType) {
+      if (!authHeader) throw new Error("Unauthorized");
+
+      const supabase = createClient(
+        Deno.env.get("SUPABASE_URL") ?? "",
+        Deno.env.get("SUPABASE_ANON_KEY") ?? "",
+        { global: { headers: { Authorization: authHeader } } }
+      );
+
+      // Allow service_role or authenticated user
+      const isServiceRole = authHeader.includes(Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "NOPE");
+      if (!isServiceRole) {
+        const { data: { user }, error } = await supabase.auth.getUser();
+        if (error || !user) throw new Error("Unauthorized");
+      }
+    }
 
     if (!ZAPI_BASE_URL || !ZAPI_INSTANCE_ID || !ZAPI_TOKEN) {
       throw new Error("Z-API não configurada");
     }
-
-    const { type, data } = await req.json();
 
     let result;
 
@@ -105,6 +119,32 @@ serve(async (req) => {
           `💰 *Valor total:* ${data.totalPrice}\n\n` +
           `Acesse sua proposta completa:\n${data.proposalUrl || "https://www.simulapool.com"}\n\n` +
           `_SimulaPool · Simulador de Piscinas de Fibra_`
+        );
+        break;
+      }
+
+      case "enviar_proposta": {
+        // Validate required fields
+        if (!data.customerPhone || !data.customerName || !data.storeName || !data.pdfUrl) {
+          throw new Error("Campos obrigatórios: customerPhone, customerName, storeName, pdfUrl");
+        }
+
+        // Send intro text first
+        await sendText(
+          data.customerPhone,
+          `🏊 *Proposta de Piscina - ${data.storeName}*\n\n` +
+          `Olá, ${data.customerName}! 👋\n\n` +
+          `Segue em anexo sua proposta comercial de piscina.\n\n` +
+          `Qualquer dúvida, estamos à disposição!\n\n` +
+          `_${data.storeName} · via SimulaPool_`
+        );
+
+        // Then send the PDF document
+        result = await sendDocument(
+          data.customerPhone,
+          data.pdfUrl,
+          `Proposta-${data.customerName.replace(/\s+/g, "-")}.pdf`,
+          `📄 Proposta comercial — ${data.storeName}`
         );
         break;
       }

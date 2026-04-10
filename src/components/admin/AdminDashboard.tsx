@@ -4,7 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Loader2, Download, CalendarIcon, ZoomIn, ZoomOut, X } from "lucide-react";
 import { useStoreData } from "@/hooks/useStoreData";
 import { toast } from "sonner";
-import { exportPDF } from "@/lib/exportPDF";
+import { exportPDF, generatePDFBlob } from "@/lib/exportPDF";
+import { savePdfToStorage } from "@/lib/savePdfToStorage";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -220,6 +221,52 @@ const AdminDashboard = () => {
     setExportingProposal(null);
   };
 
+  const handleSendWhatsApp = async (proposal: Proposal) => {
+    // Generate PDF using the hidden ProposalView
+    setExportingProposal(proposal);
+    await new Promise((r) => setTimeout(r, 700));
+
+    if (!proposalPdfRef.current) {
+      toast.error("Erro ao preparar proposta para envio");
+      setExportingProposal(null);
+      return;
+    }
+
+    try {
+      const pdfBlob = await generatePDFBlob({
+        element: proposalPdfRef.current,
+        orientation: "portrait",
+        captureWidth: 800,
+        sectionSelector: "[data-pdf-section]",
+      });
+
+      const publicUrl = await savePdfToStorage(proposal.id, pdfBlob);
+
+      const { error } = await supabase.functions.invoke("send-whatsapp", {
+        body: {
+          type: "enviar_proposta",
+          data: {
+            customerPhone: proposal.customer_whatsapp,
+            customerName: proposal.customer_name,
+            storeName: store?.name || "SimulaPool",
+            pdfUrl: publicUrl,
+          },
+        },
+      });
+
+      if (error) throw error;
+
+      // Update status to "enviada"
+      await updateStatus(proposal.id, "enviada");
+      toast.success("Proposta enviada para o WhatsApp do cliente!");
+    } catch (err) {
+      console.error("Erro ao enviar WhatsApp:", err);
+      toast.error("Erro ao enviar proposta via WhatsApp");
+    } finally {
+      setExportingProposal(null);
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex justify-center p-8">
@@ -317,6 +364,7 @@ const AdminDashboard = () => {
           onUpdateStatus={updateStatus}
           onViewProposal={setViewingProposal}
           onExportPDF={handleExportProposalPDF}
+          onSendWhatsApp={handleSendWhatsApp}
         />
       </div>
 

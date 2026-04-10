@@ -197,7 +197,7 @@ const exportSectionedPDF = async ({
     }
   }
 
-  pdf.save(filename);
+  return pdf;
 };
 
 /**
@@ -254,7 +254,8 @@ export const exportPDF = async ({
     await waitForStablePaint();
 
     if (sectionSelector) {
-      await exportSectionedPDF({ element, filename, orientation, sectionSelector });
+      const pdf = await exportSectionedPDF({ element, filename, orientation, sectionSelector });
+      pdf.save(filename);
     } else {
       await (html2pdf() as any)
         .set({
@@ -285,6 +286,95 @@ export const exportPDF = async ({
   } catch (error) {
     console.error("Erro ao gerar PDF:", error);
     toast.error("Erro ao gerar PDF. Tente novamente.");
+  } finally {
+    restoreImages();
+    restorePreparedElement(element, preparedSnapshot);
+    hiddenOriginals.forEach(({ el, display }) => {
+      el.style.display = display;
+    });
+    restoreAncestorTransforms(ancestorResets);
+  }
+};
+
+/**
+ * Generates a PDF blob from an HTML element (same logic as exportPDF but returns Blob).
+ */
+export const generatePDFBlob = async ({
+  element,
+  orientation = "portrait",
+  captureWidth,
+  sectionSelector,
+}: Omit<ExportPDFOptions, "filename">): Promise<Blob> => {
+  const width = captureWidth || (orientation === "landscape" ? 1100 : 800);
+  const preparedSnapshot = prepareElementForCapture(element);
+  const ancestorResets = resetAncestorTransforms(element);
+
+  const pdfHeaders = element.querySelectorAll<HTMLElement>("[data-pdf-header]");
+  const pdfOnlyEls = element.querySelectorAll<HTMLElement>("[data-pdf-only]");
+  const interactiveEls = element.querySelectorAll<HTMLElement>("button, [data-no-pdf], select");
+  const hiddenOriginals: { el: HTMLElement; display: string }[] = [];
+  let restoreImages = () => {};
+
+  try {
+    if (typeof document !== "undefined" && "fonts" in document) {
+      await (document as Document & { fonts?: { ready?: Promise<unknown> } }).fonts?.ready;
+    }
+
+    pdfHeaders.forEach((el) => {
+      hiddenOriginals.push({ el, display: el.style.display });
+      el.style.display = "block";
+    });
+    pdfOnlyEls.forEach((el) => {
+      hiddenOriginals.push({ el, display: el.style.display });
+      el.style.display = el.dataset.pdfOnlyDisplay || "flex";
+    });
+    interactiveEls.forEach((el) => {
+      hiddenOriginals.push({ el, display: el.style.display });
+      el.style.display = "none";
+    });
+
+    element.style.width = `${width}px`;
+    element.style.maxWidth = `${width}px`;
+    element.style.padding = "24px";
+    element.style.background = "#ffffff";
+    element.getBoundingClientRect();
+
+    restoreImages = await inlineImagesForPdf(element);
+    await waitForStablePaint();
+
+    if (sectionSelector) {
+      const pdf = await exportSectionedPDF({
+        element,
+        filename: "temp.pdf",
+        orientation,
+        sectionSelector,
+      });
+      return pdf.output("blob") as Blob;
+    } else {
+      const blob = await (html2pdf() as any)
+        .set({
+          margin: [10, 10, 10, 10],
+          image: { type: "jpeg", quality: 0.98 },
+          html2canvas: {
+            scale: 2,
+            useCORS: true,
+            allowTaint: false,
+            width,
+            windowWidth: width,
+            windowHeight: element.scrollHeight,
+            backgroundColor: "#ffffff",
+            logging: false,
+            imageTimeout: 15000,
+            scrollX: 0,
+            scrollY: -window.scrollY,
+          },
+          jsPDF: { unit: "mm", format: "a4", orientation },
+          pagebreak: { mode: ["avoid-all", "css", "legacy"] },
+        })
+        .from(element)
+        .outputPdf("blob");
+      return blob as Blob;
+    }
   } finally {
     restoreImages();
     restorePreparedElement(element, preparedSnapshot);

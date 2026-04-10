@@ -1,8 +1,11 @@
 import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { FileDown, ArrowLeft } from "lucide-react";
-import { exportPDF } from "@/lib/exportPDF";
+import { FileDown, ArrowLeft, Loader2, Check } from "lucide-react";
+import { exportPDF, generatePDFBlob } from "@/lib/exportPDF";
+import { savePdfToStorage } from "@/lib/savePdfToStorage";
 import { toBase64Safe } from "@/lib/pdfImageUtils";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 import simulapoolLogoFooter from "@/assets/simulapool-logo-footer.png?inline";
 
 interface PoolModel {
@@ -59,6 +62,10 @@ interface ProposalViewProps {
   brandPartnerId?: string | null;
   partners?: Partner[];
   includedItemsTotal?: number;
+  /** If provided, enables the WhatsApp send button (Flow 1) */
+  proposalId?: string | null;
+  /** If true, hides the WhatsApp button (e.g. when rendering for hidden PDF) */
+  hideWhatsApp?: boolean;
 }
 
 const ProposalView = ({
@@ -77,11 +84,14 @@ const ProposalView = ({
   brandPartnerId,
   partners = [],
   includedItemsTotal = 0,
+  proposalId,
+  hideWhatsApp = false,
 }: ProposalViewProps) => {
   const hasAutoDownloaded = useRef(false);
   const pdfAssetsPromiseRef = useRef<Promise<void> | null>(null);
   const pdfAssetsCacheRef = useRef<Record<string, string>>({});
   const [pdfAssetMap, setPdfAssetMap] = useState<Record<string, string>>({});
+  const [whatsAppState, setWhatsAppState] = useState<"idle" | "sending" | "sent">("idle");
   const displayBasePrice = model.base_price + includedItemsTotal;
   const optionalsTotal = selectedOptionals.reduce((sum, opt) => sum + opt.price, 0);
   const totalPrice = displayBasePrice + optionalsTotal;
@@ -180,6 +190,48 @@ const ProposalView = ({
     });
   };
 
+  const handleSendWhatsApp = async () => {
+    if (!proposalId || whatsAppState !== "idle") return;
+
+    const element = document.getElementById("proposal-content");
+    if (!element) return;
+
+    setWhatsAppState("sending");
+    try {
+      await preparePdfAssets();
+      await new Promise((resolve) => setTimeout(resolve, 800));
+
+      const pdfBlob = await generatePDFBlob({
+        element,
+        orientation: "portrait",
+        captureWidth: 800,
+        sectionSelector: "[data-pdf-section]",
+      });
+
+      const publicUrl = await savePdfToStorage(proposalId, pdfBlob);
+
+      await supabase.functions.invoke("send-whatsapp", {
+        body: {
+          type: "enviar_proposta",
+          data: {
+            customerPhone: customerData.whatsapp,
+            customerName: customerData.name,
+            storeName: storeName || "SimulaPool",
+            pdfUrl: publicUrl,
+          },
+        },
+      });
+
+      setWhatsAppState("sent");
+      toast.success("Proposta enviada para seu WhatsApp!");
+      setTimeout(() => setWhatsAppState("idle"), 3000);
+    } catch (err) {
+      console.error("Erro ao enviar WhatsApp:", err);
+      toast.error("Erro ao enviar proposta. Tente novamente.");
+      setWhatsAppState("idle");
+    }
+  };
+
   const storeLocation = [storeCity, storeState].filter(Boolean).join(" / ");
 
   useEffect(() => {
@@ -230,13 +282,36 @@ const ProposalView = ({
           <div className="flex gap-2">
             <button
               onClick={handleDownloadPDF}
-              className="inline-flex items-center gap-2 h-9 pl-4 pr-3 text-[13px] font-semibold text-white bg-[#2d2d2d] rounded-full transition-all duration-150 hover:bg-[#1a1a1a] active:scale-95"
+              className="inline-flex items-center gap-2 h-9 sm:h-[48px] pl-4 pr-3 text-[13px] sm:text-[15px] font-semibold text-white bg-[#2d2d2d] rounded-full sm:rounded-[10px] transition-all duration-150 hover:bg-[#1a1a1a] active:scale-95"
             >
-              PDF
+              📥 PDF
               <span className="flex items-center justify-center w-7 h-7 rounded-full bg-[#dc2626]">
                 <FileDown className="w-3.5 h-3.5 text-white" />
               </span>
             </button>
+            {proposalId && !hideWhatsApp && (
+              <button
+                onClick={handleSendWhatsApp}
+                disabled={whatsAppState !== "idle"}
+                className="inline-flex items-center gap-2 h-9 sm:h-[48px] px-4 sm:px-5 text-[13px] sm:text-[15px] font-semibold text-white rounded-full sm:rounded-[10px] transition-all duration-150 active:scale-95 disabled:opacity-70"
+                style={{
+                  backgroundColor: whatsAppState === "sent" ? "#16a34a" : "#25D366",
+                }}
+                onMouseEnter={(e) => {
+                  if (whatsAppState === "idle") e.currentTarget.style.backgroundColor = "#128C7E";
+                }}
+                onMouseLeave={(e) => {
+                  if (whatsAppState === "idle") e.currentTarget.style.backgroundColor = "#25D366";
+                }}
+              >
+                {whatsAppState === "sending" && <Loader2 className="w-4 h-4 animate-spin" />}
+                {whatsAppState === "sent" && <Check className="w-4 h-4" />}
+                {whatsAppState === "idle" && "📱"}
+                {whatsAppState === "idle" && " Receber no WhatsApp"}
+                {whatsAppState === "sending" && " Enviando..."}
+                {whatsAppState === "sent" && " Enviado!"}
+              </button>
+            )}
           </div>
         </div>
       </nav>
