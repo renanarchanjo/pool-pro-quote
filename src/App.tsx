@@ -5,6 +5,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "next-themes";
+import { HelmetProvider } from "react-helmet-async";
 import PageTransition from "@/components/PageTransition";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import SuspenseFallback from "@/components/SuspenseFallback";
@@ -106,15 +107,17 @@ const AppInner = () => {
 };
 
 const App = () => (
-  <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false}>
-    <QueryClientProvider client={queryClient}>
-      <TooltipProvider delayDuration={300}>
-        <Toaster />
-        <Sonner />
-        <AppInner />
-      </TooltipProvider>
-    </QueryClientProvider>
-  </ThemeProvider>
+  <HelmetProvider>
+    <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false}>
+      <QueryClientProvider client={queryClient}>
+        <TooltipProvider delayDuration={300}>
+          <Toaster />
+          <Sonner />
+          <AppInner />
+        </TooltipProvider>
+      </QueryClientProvider>
+    </ThemeProvider>
+  </HelmetProvider>
 );
 
 export default App;
