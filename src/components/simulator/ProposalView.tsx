@@ -98,6 +98,7 @@ const ProposalView = ({
   const pdfAssetsCacheRef = useRef<Record<string, string>>({});
   const [pdfAssetMap, setPdfAssetMap] = useState<Record<string, string>>({});
   const [whatsAppState, setWhatsAppState] = useState<"idle" | "sending" | "sent">("idle");
+  const [whatsappStatus, setWhatsappStatus] = useState<string | null>(null);
   const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
 
@@ -206,46 +207,90 @@ const ProposalView = ({
     const element = document.getElementById("proposal-content");
     if (!element) return;
 
+    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+
+    // Immediate feedback — critical for mobile
     setWhatsAppState("sending");
     setIsGeneratingPdf(true);
     setUploadProgress(0);
-    try {
-      await preparePdfAssets();
-      await document.fonts.ready;
-      await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
+    setWhatsappStatus("Preparando proposta...");
 
-      const pdfBlob = await generatePDFBlob({
-        element,
-        orientation: "portrait",
-        sectionSelector: "[data-pdf-page]",
-      });
+    // Small delay so UI updates on mobile
+    await new Promise((r) => setTimeout(r, 100));
 
-      const signedUrl = await savePdfToStorage(proposalId, pdfBlob, (p) => setUploadProgress(p));
+    let attempts = 0;
+    const maxAttempts = isMobile ? 2 : 1;
 
-      const result = await supabase.functions.invoke("send-whatsapp", {
-        body: {
-          type: "enviar_proposta",
-          data: {
-            customerPhone: formatPhoneForWhatsApp(customerData.whatsapp),
-            customerName: customerData.name,
-            storeName: storeName || "SimulaPool",
-            pdfUrl: signedUrl,
+    while (attempts < maxAttempts) {
+      attempts++;
+      try {
+        setWhatsappStatus("Gerando PDF...");
+        await preparePdfAssets();
+        await document.fonts.ready;
+        await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
+
+        const pdfBlob = await generatePDFBlob({
+          element,
+          orientation: "portrait",
+          sectionSelector: "[data-pdf-page]",
+        });
+
+        setWhatsappStatus("Enviando para WhatsApp...");
+        const signedUrl = await savePdfToStorage(proposalId, pdfBlob, (p) => setUploadProgress(p));
+
+        const result = await supabase.functions.invoke("send-whatsapp", {
+          body: {
+            type: "enviar_proposta",
+            data: {
+              customerPhone: formatPhoneForWhatsApp(customerData.whatsapp),
+              customerName: customerData.name,
+              storeName: storeName || "SimulaPool",
+              pdfUrl: signedUrl,
+            },
           },
-        },
-      });
-      if (result.error) throw new Error(result.error.message || "Erro na Edge Function");
+        });
+        if (result.error) throw new Error(result.error.message || "Erro na Edge Function");
 
-      setWhatsAppState("sent");
-      toast.success("Proposta enviada para seu WhatsApp!");
-      setTimeout(() => setWhatsAppState("idle"), 3000);
-    } catch (err) {
-      console.error("Erro ao enviar WhatsApp:", err);
-      toast.error("Erro ao enviar proposta. Tente novamente.");
-      setWhatsAppState("idle");
-    } finally {
-      setIsGeneratingPdf(false);
-      setUploadProgress(0);
+        setWhatsappStatus("✓ Enviado!");
+        setWhatsAppState("sent");
+        toast.success("Proposta enviada para seu WhatsApp!");
+        setTimeout(() => {
+          setWhatsAppState("idle");
+          setWhatsappStatus(null);
+        }, 3000);
+        return; // success — exit
+      } catch (err) {
+        console.error(`Erro WhatsApp (tentativa ${attempts}):`, err);
+
+        // If mobile and we still have retries, continue
+        if (isMobile && attempts < maxAttempts) {
+          setWhatsappStatus("Tentando novamente...");
+          await new Promise((r) => setTimeout(r, 1000));
+          continue;
+        }
+
+        // Mobile fallback: open WhatsApp with link instead of PDF
+        if (isMobile) {
+          console.warn("Mobile fallback: opening WhatsApp with link");
+          const proposalUrl = `${window.location.origin}/proposta/${proposalId}`;
+          const phone = formatPhoneForWhatsApp(customerData.whatsapp);
+          const fallbackMessage = `Olá ${customerData.name}! Segue o link da sua proposta:\n${proposalUrl}`;
+          window.open(
+            `https://wa.me/${phone}?text=${encodeURIComponent(fallbackMessage)}`,
+            "_blank"
+          );
+          toast.info("PDF falhou no mobile. Abrindo WhatsApp com link da proposta.");
+        } else {
+          toast.error("Erro ao enviar proposta. Tente novamente.");
+        }
+
+        setWhatsAppState("idle");
+        setWhatsappStatus(null);
+      }
     }
+
+    setIsGeneratingPdf(false);
+    setUploadProgress(0);
   };
 
   useEffect(() => {
@@ -302,7 +347,7 @@ const ProposalView = ({
                 {whatsAppState === "sent" && <Check className="w-4 h-4" />}
                 {whatsAppState === "idle" && "📱"}
                 {whatsAppState === "idle" && " Receber no WhatsApp"}
-                {whatsAppState === "sending" && uploadProgress > 0 ? ` Enviando ${uploadProgress}%` : whatsAppState === "sending" ? " Gerando..." : ""}
+                {whatsAppState === "sending" && (whatsappStatus || "Gerando...")}
                 {whatsAppState === "sent" && " Enviado!"}
               </button>
             )}
