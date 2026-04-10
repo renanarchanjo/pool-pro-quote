@@ -40,45 +40,76 @@ const toBase64ViaCanvas = async (url: string): Promise<string> => {
 
 };
 
-const toBase64ViaFetch = async (url: string): Promise<string> => {
-
-  const res = await fetch(url, {
-
-    mode: "cors",
-
-    credentials: "omit",
-
-    cache: "no-cache",
-
-  });
-
-  if (!res.ok) throw new Error(`HTTP ${res.status}`);
-
-  const blob = await res.blob();
-
-  return new Promise((resolve, reject) => {
-
+const blobToDataUrl = (blob: Blob): Promise<string> =>
+  new Promise((resolve, reject) => {
     const reader = new FileReader();
-
     reader.onloadend = () => resolve(reader.result as string);
-
     reader.onerror = reject;
-
     reader.readAsDataURL(blob);
-
   });
 
+const toBase64ViaFetch = async (url: string): Promise<string> => {
+  const res = await fetch(url, {
+    mode: "cors",
+    credentials: "omit",
+    cache: "no-cache",
+  });
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  const blob = await res.blob();
+  return blobToDataUrl(blob);
 };
 
 const FALLBACK = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=";
 
 export const toBase64Safe = async (url: string): Promise<string> => {
-
   if (!url) return FALLBACK;
-
   if (url.startsWith("data:") || url.startsWith("blob:")) return url;
 
-  // Tenta fetch direto primeiro
+  // ── PostImg.cc: tratamento especial (CORS restrito + referrer blocking) ──
+  const isPostImg = url.includes("postimg.cc") || url.includes("postimages.org");
+  if (isPostImg) {
+    // 1) Canvas com referrerPolicy
+    try {
+      const result = await toBase64ViaCanvas(url);
+      if (result && !result.startsWith("data:image/png;base64,iVBOR")) return result;
+    } catch { /* silent */ }
+
+    // 2) Fetch com no-referrer
+    try {
+      const res = await fetch(url, {
+        mode: "cors",
+        referrerPolicy: "no-referrer",
+        credentials: "omit",
+      });
+      if (res.ok) {
+        const blob = await res.blob();
+        return await blobToDataUrl(blob);
+      }
+    } catch { /* silent */ }
+
+    // 3) Último recurso: img tag com no-referrer
+    return new Promise((resolve) => {
+      const img = new Image();
+      img.crossOrigin = "anonymous";
+      img.referrerPolicy = "no-referrer";
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        canvas.width = img.naturalWidth;
+        canvas.height = img.naturalHeight;
+        const ctx = canvas.getContext("2d");
+        ctx?.drawImage(img, 0, 0);
+        try {
+          resolve(canvas.toDataURL("image/png"));
+        } catch {
+          resolve(FALLBACK);
+        }
+      };
+      img.onerror = () => resolve(FALLBACK);
+      img.src = url + (url.includes("?") ? "&" : "?") + "_t=" + Date.now();
+    });
+  }
+
+  // ── Fluxo padrão ──
 
   try {
 
