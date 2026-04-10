@@ -208,6 +208,7 @@ export const exportPDF = async ({
 export const generatePDFBlob = async ({
   element,
   orientation = "portrait",
+  captureWidth,
   sectionSelector,
 }: Omit<ExportPDFOptions, "filename">): Promise<Blob> => {
   const pdfHeaders = element.querySelectorAll<HTMLElement>("[data-pdf-header]");
