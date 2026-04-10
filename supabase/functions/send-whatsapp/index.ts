@@ -8,13 +8,12 @@ const corsHeaders = {
   "Access-Control-Allow-Methods": "POST, OPTIONS",
 };
 
-const ZAPI_BASE_URL = Deno.env.get("ZAPI_BASE_URL");
 const ZAPI_INSTANCE_ID = Deno.env.get("ZAPI_INSTANCE_ID");
 const ZAPI_TOKEN = Deno.env.get("ZAPI_TOKEN");
 const ZAPI_CLIENT_TOKEN = Deno.env.get("ZAPI_CLIENT_TOKEN");
 
 async function sendText(phone: string, message: string) {
-  const url = `${ZAPI_BASE_URL}/instances/${ZAPI_INSTANCE_ID}/token/${ZAPI_TOKEN}/send-text`;
+  const url = `https://api.z-api.io/instances/${ZAPI_INSTANCE_ID}/token/${ZAPI_TOKEN}/send-text`;
   const res = await fetch(url, {
     method: "POST",
     headers: { "Content-Type": "application/json", "Client-Token": ZAPI_CLIENT_TOKEN ?? "" },
@@ -32,7 +31,7 @@ async function sendDocument(
   filename: string,
   caption: string
 ) {
-  const url = `${ZAPI_BASE_URL}/instances/${ZAPI_INSTANCE_ID}/token/${ZAPI_TOKEN}/send-document/pdf`;
+  const url = `https://api.z-api.io/instances/${ZAPI_INSTANCE_ID}/token/${ZAPI_TOKEN}/send-document/pdf`;
   const res = await fetch(url, {
     method: "POST",
     headers: { "Content-Type": "application/json", "Client-Token": ZAPI_CLIENT_TOKEN ?? "" },
@@ -80,8 +79,8 @@ serve(async (req) => {
       }
     }
 
-    if (!ZAPI_BASE_URL || !ZAPI_INSTANCE_ID || !ZAPI_TOKEN) {
-      throw new Error("Z-API não configurada");
+    if (!ZAPI_INSTANCE_ID || !ZAPI_TOKEN) {
+      throw new Error("Z-API não configurada (INSTANCE_ID ou TOKEN ausente)");
     }
 
     let result;
