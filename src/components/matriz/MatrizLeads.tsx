@@ -479,10 +479,15 @@ const MatrizLeads = () => {
                   <CardContent className="p-3">
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between gap-2 mb-1">
-                        <span className="text-sm font-semibold text-foreground truncate">{lead.customer_name}</span>
-                        <Badge variant="outline" className={`${statusConfig[lead.status].color} text-[10px] px-1.5 py-0 shrink-0`}>
-                          {statusConfig[lead.status].label}
-                        </Badge>
+                        <div className="flex items-center gap-1.5 min-w-0">
+                          <span className="text-sm font-semibold text-foreground truncate">{lead.customer_name}</span>
+                          {lead.is_test && <Badge className="bg-purple-500/10 text-purple-600 border-purple-500/20 text-[9px] px-1 py-0 shrink-0">TESTE</Badge>}
+                        </div>
+                        <div className="flex items-center gap-1 shrink-0">
+                          <Badge variant="outline" className={`${statusConfig[lead.status].color} text-[10px] px-1.5 py-0`}>
+                            {statusConfig[lead.status].label}
+                          </Badge>
+                        </div>
                       </div>
 
                       <div className="flex items-center gap-3 text-[11px] text-muted-foreground mb-1.5">
