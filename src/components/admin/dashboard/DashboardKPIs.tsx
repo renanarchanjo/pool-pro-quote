@@ -13,8 +13,13 @@ const DashboardKPIs = ({ proposals, role, commissionPercent = 0 }: Props) => {
   const faturamentoBruto = closed.reduce((s, p) => s + p.total_price, 0);
 
   const faturamentoLiquido = closed.reduce((s, p) => {
-    const cost = p.pool_models?.cost || 0;
-    return s + (p.total_price - cost);
+    const modelCost = p.pool_models?.cost || 0;
+    const includedItemsCost = (p.pool_models as any)?._included_items_cost || 0;
+    const optionalsCost = Array.isArray(p.selected_optionals)
+      ? p.selected_optionals.reduce((sum: number, o: any) => sum + (o?.cost || 0), 0)
+      : 0;
+    const totalCost = modelCost + includedItemsCost + optionalsCost;
+    return s + (p.total_price - totalCost);
   }, 0);
   const comissaoTotal = faturamentoBruto * (commissionPercent / 100);
 
