@@ -162,13 +162,23 @@ const ModelSelection = ({ models, brands, categories, onSelect, onBack }: ModelS
                 className="overflow-hidden hover:shadow-elegant transition-all cursor-pointer group bg-card/80 backdrop-blur-sm"
                 onClick={() => onSelect(model)}
               >
-                {model.photo_url && (
+                {model.photo_url ? (
                   <div className="aspect-square overflow-hidden bg-white p-4">
                     <img
                       src={model.photo_url}
                       alt={model.name}
+                      crossOrigin="anonymous"
                       className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-300"
+                      onError={(e) => {
+                        (e.currentTarget as HTMLImageElement).style.display = "none";
+                        const parent = (e.currentTarget as HTMLImageElement).parentElement;
+                        if (parent) parent.classList.add("flex", "items-center", "justify-center");
+                      }}
                     />
+                  </div>
+                ) : (
+                  <div className="aspect-square overflow-hidden flex items-center justify-center" style={{ backgroundColor: "#E0F2FE" }}>
+                    <Waves className="w-16 h-16 text-sky-400" />
                   </div>
                 )}
                 <div className="p-4">
