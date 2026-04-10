@@ -24,7 +24,6 @@ import PendingLeadsAlert from "@/components/admin/PendingLeadsAlert";
 import MobileBottomNav from "@/components/admin/MobileBottomNav";
 import PwaInstallBanner from "@/components/PwaInstallBanner";
 import { NotificationPrompt } from "@/components/NotificationPrompt";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 const PAGE_TITLES: Record<string, string> = {
   "": "Dashboard",
@@ -47,31 +46,6 @@ const PAGE_TITLES: Record<string, string> = {
 const Admin = () => {
   const [authLoading, setAuthLoading] = useState(true);
   const [panelOpen, setPanelOpen] = useState(false);
-  const [whatsappResult, setWhatsappResult] = useState<any>(null);
-  const [whatsappModalOpen, setWhatsappModalOpen] = useState(false);
-  const [whatsappTesting, setWhatsappTesting] = useState(false);
-
-  const handleTestWhatsApp = async () => {
-    setWhatsappTesting(true);
-    try {
-      const { data, error } = await supabase.functions.invoke("send-whatsapp", {
-        body: {
-          type: "enviar_proposta",
-          data: {
-            customerPhone: "5511920905114",
-            customerName: "Teste",
-            storeName: "SimulaPool",
-            pdfUrl: null,
-          },
-        },
-      });
-      setWhatsappResult({ data, error: error?.message || null });
-    } catch (e: any) {
-      setWhatsappResult({ error: e.message });
-    }
-    setWhatsappTesting(false);
-    setWhatsappModalOpen(true);
-  };
   const navigate = useNavigate();
   const location = useLocation();
   const { store, role, loading: storeLoading } = useStoreData();
@@ -188,28 +162,6 @@ const Admin = () => {
           </Routes>
         </div>
       </main>
-
-      {/* Hidden WhatsApp test button */}
-      <Button
-        size="sm"
-        variant="ghost"
-        className="fixed bottom-20 right-2 opacity-20 hover:opacity-100 z-50 text-[10px]"
-        onClick={handleTestWhatsApp}
-        disabled={whatsappTesting}
-      >
-        {whatsappTesting ? <Loader2 className="w-3 h-3 animate-spin" /> : "WA Test"}
-      </Button>
-
-      <Dialog open={whatsappModalOpen} onOpenChange={setWhatsappModalOpen}>
-        <DialogContent className="max-w-lg max-h-[80vh] overflow-auto">
-          <DialogHeader>
-            <DialogTitle>Resultado WhatsApp Test</DialogTitle>
-          </DialogHeader>
-          <pre className="text-xs bg-muted p-3 rounded overflow-auto whitespace-pre-wrap">
-            {JSON.stringify(whatsappResult, null, 2)}
-          </pre>
-        </DialogContent>
-      </Dialog>
 
       <MobileBottomNav />
       <PwaInstallBanner />
