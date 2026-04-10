@@ -262,15 +262,27 @@ const ProposalPdfTemplate = ({
                   style={{
                     width: "254px",
                     height: "316px",
-                    backgroundImage: `url(${resolveSrc(featuredBanner.url) || featuredBanner.url})`,
-                    backgroundSize: "cover",
-                    backgroundPosition: "center",
-                    backgroundRepeat: "no-repeat",
-                    backgroundColor: "#F8F9FA",
                     borderRadius: "10px",
                     border: "1px solid #E5E7EB",
+                    backgroundColor: "#F8F9FA",
+                    overflow: "hidden",
+                    position: "relative",
                   }}
-                />
+                >
+                  <img
+                    src={resolveSrc(featuredBanner.url) || featuredBanner.url}
+                    alt={featuredBanner.name}
+                    loading="eager"
+                    referrerPolicy="no-referrer"
+                    crossOrigin="anonymous"
+                    style={{
+                      width: "100%",
+                      height: "100%",
+                      objectFit: "cover",
+                      display: "block",
+                    }}
+                  />
+                </div>
               ) : (
                 <div
                   style={{
