@@ -275,11 +275,7 @@ const MatrizLeads = () => {
 
   const uniqueCities = [...new Set(leads.map(l => l.customer_city))].sort();
   const selectedCities = [...new Set(Array.from(selectedLeads).map(id => leads.find(l => l.id === id)?.customer_city).filter(Boolean))];
-  const availableStores = [...stores].sort((a, b) => {
-    const activeDiff = Number(Boolean(b.lead_plan_active)) - Number(Boolean(a.lead_plan_active));
-    if (activeDiff !== 0) return activeDiff;
-    return a.name.localeCompare(b.name, "pt-BR");
-  });
+  const availableStores = stores.filter(s => s.lead_plan_active).sort((a, b) => a.name.localeCompare(b.name, "pt-BR"));
   const receitaPotencial = filtered.reduce((sum, l) => sum + l.total_price, 0);
   const formatCurrency = (v: number) => v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 
