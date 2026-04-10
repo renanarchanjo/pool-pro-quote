@@ -27,6 +27,7 @@ const Parceiros = lazy(() => import("./pages/Parceiros"));
 const Lojista = lazy(() => import("./pages/Lojista"));
 const LojistaPlanos = lazy(() => import("./pages/LojistaPlanos"));
 const SimuladorLoja = lazy(() => import("./pages/SimuladorLoja"));
+const Links = lazy(() => import("./pages/Links"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 const queryClient = new QueryClient({
@@ -67,6 +68,7 @@ const AppInner = () => {
         <PageTransition>
           <Routes>
             <Route path="/" element={<Index />} />
+            <Route path="/links" element={<Links />} />
             <Route path="/s/:slug" element={<SimuladorLoja />} />
 
             <Route path="/parceiros" element={<Parceiros />} />
