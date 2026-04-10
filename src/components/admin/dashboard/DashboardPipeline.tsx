@@ -44,7 +44,7 @@ const formatDaysStyled = (days: number): { text: string; color: string } => {
   return { text: `${days}d`, color: "#DC2626" };
 };
 
-const DashboardPipeline = ({ proposals, onUpdateStatus, onViewProposal, onExportPDF, onSendWhatsApp }: Props) => {
+const DashboardPipeline = ({ proposals, onUpdateStatus, onViewProposal, onExportPDF }: Props) => {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [sortMode, setSortMode] = useState<SortMode>("recente");
@@ -52,20 +52,6 @@ const DashboardPipeline = ({ proposals, onUpdateStatus, onViewProposal, onExport
   const [dateFrom, setDateFrom] = useState<Date | undefined>();
   const [dateTo, setDateTo] = useState<Date | undefined>();
   const [datePopoverOpen, setDatePopoverOpen] = useState(false);
-  const [sendingWhatsApp, setSendingWhatsApp] = useState<string | null>(null);
-  const [sentWhatsApp, setSentWhatsApp] = useState<Set<string>>(new Set());
-
-  const handleWhatsAppClick = async (p: Proposal) => {
-    if (!onSendWhatsApp || sendingWhatsApp) return;
-    setSendingWhatsApp(p.id);
-    try {
-      await onSendWhatsApp(p);
-      setSentWhatsApp((prev) => new Set(prev).add(p.id));
-      setTimeout(() => setSentWhatsApp((prev) => { const n = new Set(prev); n.delete(p.id); return n; }), 3000);
-    } finally {
-      setSendingWhatsApp(null);
-    }
-  };
 
   const applyDatePreset = (v: string) => {
     if (v === "all") { setDateFrom(undefined); setDateTo(undefined); setDatePreset("all"); return; }
@@ -269,17 +255,6 @@ const DashboardPipeline = ({ proposals, onUpdateStatus, onViewProposal, onExport
                             <Download className="w-3 h-3 text-white" />
                           </span>
                         </button>
-                        {onSendWhatsApp && (
-                          <button
-                            className="inline-flex items-center gap-1 h-7 px-2.5 text-[11px] font-semibold text-white rounded-md transition-all duration-150 active:scale-95 disabled:opacity-70"
-                            style={{ backgroundColor: sentWhatsApp.has(p.id) ? "#16a34a" : sendingWhatsApp === p.id ? "#128C7E" : "#25D366" }}
-                            disabled={!!sendingWhatsApp}
-                            onClick={() => handleWhatsAppClick(p)}
-                          >
-                            {sendingWhatsApp === p.id ? <Loader2 className="w-3 h-3 animate-spin" /> : sentWhatsApp.has(p.id) ? <Check className="w-3 h-3" /> : <MessageCircle className="w-3 h-3" />}
-                            {sentWhatsApp.has(p.id) ? "✓" : "WhatsApp"}
-                          </button>
-                        )}
                       </div>
                     </div>
                   </div>
@@ -360,17 +335,6 @@ const DashboardPipeline = ({ proposals, onUpdateStatus, onViewProposal, onExport
                                   <Download className="w-3 h-3 text-white" />
                                 </span>
                               </button>
-                              {onSendWhatsApp && (
-                                <button
-                                  className="inline-flex items-center gap-1.5 h-8 px-3 text-[12px] font-semibold text-white rounded-md transition-all duration-150 hover:opacity-90 active:scale-95 disabled:opacity-70"
-                                  style={{ backgroundColor: sentWhatsApp.has(p.id) ? "#16a34a" : sendingWhatsApp === p.id ? "#128C7E" : "#25D366" }}
-                                  disabled={!!sendingWhatsApp}
-                                  onClick={() => handleWhatsAppClick(p)}
-                                >
-                                  {sendingWhatsApp === p.id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : sentWhatsApp.has(p.id) ? <Check className="w-3.5 h-3.5" /> : <MessageCircle className="w-3.5 h-3.5" />}
-                                  {sentWhatsApp.has(p.id) ? " Enviado" : " WhatsApp"}
-                                </button>
-                              )}
                             </div>
                           </td>
                         </tr>
