@@ -167,12 +167,11 @@ const ModelSelection = ({ models, brands, categories, onSelect, onBack }: ModelS
                     <img
                       src={model.photo_url}
                       alt={model.name}
-                      crossOrigin="anonymous"
+                      referrerPolicy="no-referrer"
                       className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-300"
                       onError={(e) => {
-                        (e.currentTarget as HTMLImageElement).style.display = "none";
-                        const parent = (e.currentTarget as HTMLImageElement).parentElement;
-                        if (parent) parent.classList.add("flex", "items-center", "justify-center");
+                        e.currentTarget.style.display = "none";
+                        e.currentTarget.parentElement?.classList.add("bg-blue-50", "flex", "items-center", "justify-center");
                       }}
                     />
                   </div>
