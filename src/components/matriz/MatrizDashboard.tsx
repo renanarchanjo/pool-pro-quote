@@ -259,18 +259,6 @@ const MatrizDashboard = () => {
               </PopoverContent>
             </Popover>
           )}
-          <Button variant="outline" size="sm" className="h-8 gap-1.5 text-[12px]" onClick={async () => {
-            if (!reportRef.current) return;
-            await exportPDF({
-              element: reportRef.current,
-              filename: `dashboard-matriz-${new Date().toISOString().split("T")[0]}.pdf`,
-              orientation: "portrait",
-              captureWidth: 900,
-              sectionSelector: "[data-pdf-section]",
-            });
-          }}>
-            <FileDown className="w-3.5 h-3.5" /> PDF
-          </Button>
         </div>
       </div>
 
