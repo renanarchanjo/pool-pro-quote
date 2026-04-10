@@ -8,6 +8,8 @@ interface ExportPDFOptions {
   element: HTMLElement;
   filename: string;
   orientation?: "portrait" | "landscape";
+  /** Optional fixed width hint for non-template callers */
+  captureWidth?: number;
   /** Capture each matching section separately to avoid broken page splits */
   sectionSelector?: string;
 }
