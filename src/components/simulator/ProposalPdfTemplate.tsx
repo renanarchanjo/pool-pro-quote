@@ -118,11 +118,13 @@ const ProposalPdfTemplate = ({
   ).toLocaleDateString("pt-BR");
 
   const storeLocation = [storeCity, storeState].filter(Boolean).join(" / ");
+  const featuredBanner = bannersToShow[0] ?? null;
+  const footerPartners = partners.filter((partner) => partner.logo_url);
 
-  const materiais = model.included_items.filter((i) => !i.includes("[MO]"));
+  const materiais = model.included_items.filter((item) => !item.includes("[MO]"));
   const maoDeObra = model.included_items
-    .filter((i) => i.includes("[MO]"))
-    .map((i) => i.replace("[MO] ", "").replace("[MO]", ""));
+    .filter((item) => item.includes("[MO]"))
+    .map((item) => item.replace("[MO] ", "").replace("[MO]", ""));
 
   const dimensions = [
     model.length ? `${model.length}m` : null,
@@ -161,13 +163,36 @@ const ProposalPdfTemplate = ({
               {storeSettings?.logo_url && (
                 <img
                   src={resolveSrc(storeSettings.logo_url) || undefined}
-                  alt="Logo"
+                  alt="Logo da loja"
                   loading="eager"
                   referrerPolicy="no-referrer"
                   crossOrigin="anonymous"
-                  style={{ height: "40px", width: "auto", objectFit: "contain" }}
+                  style={{ height: "40px", width: "auto", objectFit: "contain", maxWidth: "120px" }}
                 />
               )}
+
+              {brandLogoUrl && (
+                <div
+                  style={{
+                    height: "28px",
+                    width: "1px",
+                    background: "#E5E7EB",
+                    flexShrink: 0,
+                  }}
+                />
+              )}
+
+              {brandLogoUrl && (
+                <img
+                  src={resolveSrc(brandLogoUrl) || undefined}
+                  alt={brandName || "Marca parceira"}
+                  loading="eager"
+                  referrerPolicy="no-referrer"
+                  crossOrigin="anonymous"
+                  style={{ height: "30px", width: "auto", objectFit: "contain", maxWidth: "140px" }}
+                />
+              )}
+
               <div>
                 <div style={{ fontSize: "15px", fontWeight: 700, color: "#111827" }}>
                   {storeName || "SIMULAPOOL"}
@@ -179,6 +204,7 @@ const ProposalPdfTemplate = ({
                 )}
               </div>
             </div>
+
             <div style={{ textAlign: "right" }}>
               <div style={{ fontSize: "16px", fontWeight: 700, color: "#111827", margin: 0 }}>
                 Proposta Comercial
@@ -202,22 +228,6 @@ const ProposalPdfTemplate = ({
             }}
           >
             <div>
-              {brandLogoUrl && (
-                <img
-                  src={resolveSrc(brandLogoUrl) || undefined}
-                  alt={brandName || "Marca"}
-                  loading="eager"
-                  referrerPolicy="no-referrer"
-                  crossOrigin="anonymous"
-                  style={{
-                    height: "28px",
-                    width: "auto",
-                    objectFit: "contain",
-                    display: "block",
-                    marginBottom: "8px",
-                  }}
-                />
-              )}
               <div style={{ fontSize: "18px", fontWeight: 700, color: "#111827", margin: 0 }}>
                 {model.name}
               </div>
@@ -246,72 +256,40 @@ const ProposalPdfTemplate = ({
               </div>
             </div>
 
-            <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
-              {model.photo_url ? (
+            <div>
+              {featuredBanner ? (
                 <div
                   style={{
                     width: "254px",
-                    height: "188px",
-                    backgroundImage: `url(${resolveSrc(model.photo_url) || model.photo_url})`,
-                    backgroundSize: "contain",
+                    height: "316px",
+                    backgroundImage: `url(${resolveSrc(featuredBanner.url) || featuredBanner.url})`,
+                    backgroundSize: "cover",
                     backgroundPosition: "center",
                     backgroundRepeat: "no-repeat",
                     backgroundColor: "#F8F9FA",
-                    borderRadius: "8px",
+                    borderRadius: "10px",
+                    border: "1px solid #E5E7EB",
                   }}
                 />
               ) : (
                 <div
                   style={{
                     width: "254px",
-                    height: "188px",
+                    height: "316px",
                     background: "#F8F9FA",
-                    borderRadius: "8px",
+                    borderRadius: "10px",
+                    border: "1px solid #E5E7EB",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
                     color: "#9CA3AF",
                     fontSize: "11px",
+                    textAlign: "center",
+                    padding: "16px",
+                    boxSizing: "border-box",
                   }}
                 >
-                  Sem foto
-                </div>
-              )}
-
-              {bannersToShow.length > 0 && (
-                <div
-                  style={{
-                    display: "grid",
-                    gridTemplateColumns: "repeat(3, 1fr)",
-                    gap: "8px",
-                    width: "254px",
-                  }}
-                >
-                  {bannersToShow.slice(0, 6).map((banner, i) => (
-                    <div
-                      key={i}
-                      style={{
-                        background: "#F3F4F6",
-                        borderRadius: "6px",
-                        padding: "8px",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        width: "79px",
-                        height: "52px",
-                        boxSizing: "border-box",
-                      }}
-                    >
-                      <img
-                        src={resolveSrc(banner.url) || undefined}
-                        alt={banner.name}
-                        loading="eager"
-                        referrerPolicy="no-referrer"
-                        crossOrigin="anonymous"
-                        style={{ width: "63px", height: "36px", objectFit: "contain" }}
-                      />
-                    </div>
-                  ))}
+                  Banner da marca indisponível
                 </div>
               )}
             </div>
@@ -331,12 +309,14 @@ const ProposalPdfTemplate = ({
                   { label: "Nome", value: customerData.name },
                   { label: "WhatsApp", value: customerData.whatsapp },
                   { label: "Cidade", value: customerData.city },
-                ].map((f) => (
-                  <div key={f.label}>
+                ].map((field) => (
+                  <div key={field.label}>
                     <div style={{ fontSize: "10px", color: "#9CA3AF", textTransform: "uppercase", letterSpacing: "0.5px", fontWeight: 500 }}>
-                      {f.label}
+                      {field.label}
                     </div>
-                    <div style={{ fontSize: "13px", fontWeight: 600, color: "#111827" }}>{f.value}</div>
+                    <div style={{ fontSize: "13px", fontWeight: 600, color: "#111827" }}>
+                      {field.value}
+                    </div>
                   </div>
                 ))}
               </div>
@@ -362,6 +342,7 @@ const ProposalPdfTemplate = ({
                     </ul>
                   </div>
                 )}
+
                 {maoDeObra.length > 0 && (
                   <div>
                     <div style={{ fontSize: "10px", fontWeight: 700, color: "#F59E0B", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "6px" }}>
@@ -382,7 +363,7 @@ const ProposalPdfTemplate = ({
           )}
 
           {selectedOptionals.length > 0 && (
-            <div style={{ marginBottom: "16px" }}>
+            <div style={{ marginBottom: "10px" }}>
               <p style={{ ...LABEL, marginBottom: "8px" }}>OPCIONAIS</p>
               <table style={{ width: "100%", fontSize: "11px", borderCollapse: "collapse" }}>
                 <tbody>
@@ -399,20 +380,18 @@ const ProposalPdfTemplate = ({
             </div>
           )}
 
-          <div style={{ marginTop: "auto" }}>
-            {model.not_included_items && model.not_included_items.length > 0 && (
-              <div>
-                <p style={{ ...LABEL, marginBottom: "8px", color: "#DC2626" }}>NÃO INCLUSOS</p>
-                <div style={{ borderLeft: "3px solid #EF4444", background: "#FEF2F2", padding: "10px 14px" }}>
-                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "4px 20px" }}>
-                    {model.not_included_items.map((item, i) => (
-                      <div key={i} style={{ fontSize: "11px", color: "#374151" }}>{item}</div>
-                    ))}
-                  </div>
+          {model.not_included_items && model.not_included_items.length > 0 && (
+            <div style={{ marginBottom: "0" }}>
+              <p style={{ ...LABEL, marginBottom: "8px", color: "#DC2626" }}>NÃO INCLUSOS</p>
+              <div style={{ borderLeft: "3px solid #EF4444", background: "#FEF2F2", padding: "10px 14px" }}>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "4px 20px" }}>
+                  {model.not_included_items.map((item, i) => (
+                    <div key={i} style={{ fontSize: "11px", color: "#374151" }}>{item}</div>
+                  ))}
                 </div>
               </div>
-            )}
-          </div>
+            </div>
+          )}
         </div>
 
         <div data-pdf-page style={PAGE_STYLE}>
@@ -462,6 +441,7 @@ const ProposalPdfTemplate = ({
                 ))}
               </div>
             </div>
+
             <div>
               <p style={{ ...LABEL, marginBottom: "8px" }}>DADOS DA LOJA</p>
               <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
@@ -499,25 +479,30 @@ const ProposalPdfTemplate = ({
             </div>
           )}
 
-          <div style={{ marginTop: "auto" }}>
-            {partners.length > 0 && (
-              <div style={{ borderTop: "1px solid #E5E7EB", borderBottom: "1px solid #E5E7EB", padding: "12px 0", marginBottom: "16px" }}>
-                <p style={{ ...LABEL, textAlign: "center", marginBottom: "10px" }}>PARCEIROS OFICIAIS</p>
-                <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", alignItems: "center", gap: "10px 18px" }}>
-                  {partners.map((p) => (
-                    <div key={p.id} style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: "28px" }}>
-                      {p.logo_url ? (
-                        <img
-                          src={resolveSrc(p.logo_url) || undefined}
-                          alt={p.name}
-                          loading="eager"
-                          referrerPolicy="no-referrer"
-                          crossOrigin="anonymous"
-                          style={{ height: "28px", width: "auto", objectFit: "contain", maxWidth: "88px" }}
-                        />
-                      ) : (
-                        <span style={{ fontSize: "11px", fontWeight: 600, color: "#6B7280" }}>{p.name}</span>
-                      )}
+          <div
+            style={{
+              marginTop: "auto",
+              borderTop: "1px solid #E5E7EB",
+              paddingTop: "12px",
+              display: "flex",
+              flexDirection: "column",
+              gap: "12px",
+            }}
+          >
+            {footerPartners.length > 0 && (
+              <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                <p style={{ ...LABEL, textAlign: "center" }}>MARCAS PARCEIRAS</p>
+                <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", alignItems: "center", gap: "10px 16px" }}>
+                  {footerPartners.map((partner) => (
+                    <div key={partner.id} style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: "24px" }}>
+                      <img
+                        src={resolveSrc(partner.logo_url) || undefined}
+                        alt={partner.name}
+                        loading="eager"
+                        referrerPolicy="no-referrer"
+                        crossOrigin="anonymous"
+                        style={{ height: "24px", width: "auto", objectFit: "contain", maxWidth: "84px" }}
+                      />
                     </div>
                   ))}
                 </div>
@@ -526,8 +511,6 @@ const ProposalPdfTemplate = ({
 
             <div
               style={{
-                borderTop: "1px solid #E5E7EB",
-                paddingTop: "10px",
                 display: "flex",
                 justifyContent: "space-between",
                 alignItems: "center",
