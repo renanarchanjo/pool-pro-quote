@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import BrandLogo from "@/components/BrandLogo";
 import { useForceLightTheme } from "@/hooks/useForceLightTheme";
 import PwaInstallBanner from "@/components/PwaInstallBanner";
+import PageSEO from "@/components/PageSEO";
 
 type View = "login" | "forgot" | "forgot-sent";
 
@@ -197,6 +198,7 @@ const Login = () => {
   // Login form
   return (
     <div className="min-h-screen flex items-center justify-center p-4" style={{ background: heroGradient }}>
+      <PageSEO title="Login - SIMULAPOOL" description="Acesse sua conta SIMULAPOOL para gerenciar orçamentos, leads e equipe." path="/login" noIndex />
       <div className={cardClass}>
         <div className="flex flex-col items-center mb-8">
           <BrandLogo size="lg" className="mb-4 [&_span]:text-white" />

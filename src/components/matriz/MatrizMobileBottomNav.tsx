@@ -5,8 +5,8 @@ import MatrizSidebarContent from "./MatrizSidebarContent";
 import FloatingPanel from "@/components/admin/FloatingPanel";
 
 const NAV_ITEMS = [
-  { icon: LayoutGrid, url: "/matriz" },
-  { icon: Filter, url: "/matriz/leads" },
+  { icon: LayoutGrid, url: "/matriz", label: "Dashboard" },
+  { icon: Filter, url: "/matriz/leads", label: "Leads" },
 ];
 
 const MatrizMobileBottomNav = () => {
@@ -38,8 +38,9 @@ const MatrizMobileBottomNav = () => {
             <button
               key={item.url}
               onClick={() => navigate(item.url)}
+              aria-label={item.label}
               className="flex items-center justify-center flex-1 transition-all duration-150 active:scale-90"
-              style={{ height: 'var(--bottom-nav-height)' }}
+              style={{ height: 'var(--bottom-nav-height)', minHeight: '44px' }}
               data-compact
             >
               <div className={`p-2 rounded-xl transition-all duration-150 ${active ? "bg-primary/10" : ""}`}>
@@ -53,8 +54,9 @@ const MatrizMobileBottomNav = () => {
         })}
         <button
           onClick={() => setPanelOpen(true)}
+          aria-label="Abrir menu"
           className="flex items-center justify-center flex-1 transition-all duration-150 active:scale-90"
-          style={{ height: 'var(--bottom-nav-height)' }}
+          style={{ height: 'var(--bottom-nav-height)', minHeight: '44px' }}
           data-compact
         >
           <div className={`p-2 rounded-xl transition-all duration-150 ${panelOpen ? "bg-primary/10" : ""}`}>
