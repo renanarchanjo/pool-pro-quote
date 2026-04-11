@@ -432,6 +432,9 @@ const MatrizDashboard = () => {
           </div>
         </div>
       </div>
+
+      {/* ── DEMONSTRATIVO POR LOJA ── */}
+      <StoreSalesPanel stores={data!.stores} proposals={data!.proposals} />
     </div>
   );
 };
@@ -486,6 +489,150 @@ function EmptyChart() {
     <div className="flex flex-col items-center justify-center h-[200px] text-muted-foreground">
       <BarChart3 className="w-8 h-8 mb-2 opacity-20" />
       <span className="text-[11px]">Sem dados</span>
+    </div>
+  );
+}
+
+/* ─── Store Sales Panel ─── */
+
+import { FileText, Send, CheckCircle2 as Check2Icon, XCircle as XIcon, TrendingUp as TrendIcon } from "lucide-react";
+
+function StoreSalesPanel({ stores, proposals }: {
+  stores: StoreRow[];
+  proposals: DashboardData["proposals"];
+}) {
+  const [stateFilter, setStateFilter] = useState("all");
+  const [storeFilter, setStoreFilter] = useState("all");
+
+  const states = useMemo(() => {
+    const s = new Set(stores.map(st => st.state).filter(Boolean) as string[]);
+    return Array.from(s).sort();
+  }, [stores]);
+
+  const filteredStores = useMemo(() => {
+    if (stateFilter === "all") return stores;
+    return stores.filter(s => s.state === stateFilter);
+  }, [stores, stateFilter]);
+
+  const storeOptions = useMemo(() =>
+    filteredStores.map(s => ({ id: s.id, name: s.name })).sort((a, b) => a.name.localeCompare(b.name)),
+  [filteredStores]);
+
+  // Reset store filter when state changes
+  useEffect(() => { setStoreFilter("all"); }, [stateFilter]);
+
+  const targetStoreIds = useMemo(() => {
+    if (storeFilter !== "all") return new Set([storeFilter]);
+    return new Set(filteredStores.map(s => s.id));
+  }, [storeFilter, filteredStores]);
+
+  const filtered = useMemo(() =>
+    proposals.filter(p => p.store_id && targetStoreIds.has(p.store_id)),
+  [proposals, targetStoreIds]);
+
+  const metrics = useMemo(() => {
+    const total = filtered.length;
+    const nova = filtered.filter(p => p.status === "nova").length;
+    const enviada = filtered.filter(p => p.status === "enviada").length;
+    const em_negociacao = filtered.filter(p => p.status === "em_negociacao").length;
+    const fechada = filtered.filter(p => p.status === "fechada").length;
+    const perdida = filtered.filter(p => p.status === "perdida").length;
+    const faturamento = filtered.filter(p => p.status === "fechada").reduce((s, p) => s + (p.total_price || 0), 0);
+    const conversao = total > 0 ? (fechada / total) * 100 : 0;
+    return { total, nova, enviada, em_negociacao, fechada, perdida, faturamento, conversao };
+  }, [filtered]);
+
+  const funnelStages = [
+    { label: "Novas", count: metrics.nova, color: "bg-muted-foreground" },
+    { label: "Enviadas", count: metrics.enviada, color: "bg-blue-500" },
+    { label: "Em Negociação", count: metrics.em_negociacao, color: "bg-amber-500" },
+    { label: "Fechadas", count: metrics.fechada, color: "bg-emerald-500" },
+    { label: "Perdidas", count: metrics.perdida, color: "bg-red-500" },
+  ];
+
+  return (
+    <div className="bg-card border border-border rounded-2xl p-4 space-y-4">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+        <div>
+          <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">Demonstrativo de vendas</p>
+          <p className="text-[11px] text-muted-foreground">Acompanhe a operação de cada lojista em tempo real</p>
+        </div>
+        <div className="flex gap-2">
+          <Select value={stateFilter} onValueChange={setStateFilter}>
+            <SelectTrigger className="w-32 h-8 text-xs">
+              <SelectValue placeholder="Estado" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todos estados</SelectItem>
+              {states.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}
+            </SelectContent>
+          </Select>
+          <Select value={storeFilter} onValueChange={setStoreFilter}>
+            <SelectTrigger className="w-44 h-8 text-xs">
+              <SelectValue placeholder="Loja" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todas as lojas</SelectItem>
+              {storeOptions.map(s => <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>)}
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+
+      {/* KPIs */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5">
+        <SalesKPI icon={FileText} label="Geradas" value={metrics.total} />
+        <SalesKPI icon={Send} label="Enviadas" value={metrics.enviada} color="text-blue-600" />
+        <SalesKPI icon={TrendIcon} label="Negociação" value={metrics.em_negociacao} color="text-amber-600" />
+        <SalesKPI icon={Check2Icon} label="Fechadas" value={metrics.fechada} color="text-emerald-600" />
+        <SalesKPI icon={XIcon} label="Perdidas" value={metrics.perdida} color="text-red-500" />
+        <div className="rounded-xl border border-border bg-background p-3">
+          <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Faturamento</p>
+          <p className="text-base font-bold text-primary mt-0.5 tabular-nums">{fmt(metrics.faturamento)}</p>
+        </div>
+      </div>
+
+      {/* Funnel + Conversão */}
+      {metrics.total > 0 && (
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+          <div className="lg:col-span-2 space-y-1.5">
+            <p className="text-xs font-medium text-foreground">Funil de Vendas</p>
+            {funnelStages.map(stage => {
+              const pctVal = Math.max((stage.count / metrics.total) * 100, 2);
+              return (
+                <div key={stage.label} className="flex items-center gap-2">
+                  <span className="text-[11px] text-muted-foreground w-24 shrink-0 text-right">{stage.label}</span>
+                  <div className="flex-1 h-5 bg-muted rounded-full overflow-hidden">
+                    <div className={`h-full rounded-full ${stage.color} transition-all`} style={{ width: `${pctVal}%` }} />
+                  </div>
+                  <span className="text-[11px] font-semibold w-8 text-right tabular-nums">{stage.count}</span>
+                </div>
+              );
+            })}
+          </div>
+          <div className="flex flex-col items-center justify-center rounded-xl border border-border bg-background p-4">
+            <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">Taxa de Conversão</p>
+            <p className="text-3xl font-bold text-foreground tabular-nums">{metrics.conversao.toFixed(1)}%</p>
+            <p className="text-[10px] text-muted-foreground mt-1">{metrics.fechada} de {metrics.total} propostas</p>
+          </div>
+        </div>
+      )}
+
+      {metrics.total === 0 && (
+        <p className="text-center text-sm text-muted-foreground py-6">Nenhuma proposta encontrada para o filtro selecionado.</p>
+      )}
+    </div>
+  );
+}
+
+function SalesKPI({ icon: Icon, label, value, color }: { icon: any; label: string; value: number; color?: string }) {
+  return (
+    <div className="rounded-xl border border-border bg-background p-3">
+      <div className="flex items-center gap-1.5 mb-1">
+        <Icon className={`w-3.5 h-3.5 ${color || "text-muted-foreground"}`} />
+        <p className="text-[10px] text-muted-foreground uppercase tracking-wider">{label}</p>
+      </div>
+      <p className={`text-xl font-bold ${color || "text-foreground"} tabular-nums`}>{value}</p>
     </div>
   );
 }
