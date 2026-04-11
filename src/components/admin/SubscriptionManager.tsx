@@ -102,7 +102,7 @@ const SubscriptionManager = () => {
     const loadPlans = async () => {
       const { data } = await (supabase as any)
         .from("subscription_plans")
-        .select("*")
+        .select("id, name, slug, price_monthly, max_proposals_per_month, max_users, display_order, active, stripe_price_id, stripe_product_id")
         .eq("active", true)
         .order("display_order");
       if (data) setDbPlans(data);

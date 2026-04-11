@@ -144,9 +144,9 @@ const ManualProposal = () => {
       const [brandRes, catRes, modRes, optRes, modelOptRes, groupsRes, partnersRes] = await Promise.all([
         supabase.from("brands").select("id, name, logo_url, partner_id").eq("store_id", storeId).eq("active", true).order("name"),
         supabase.from("categories").select("id, name, brand_id").eq("store_id", storeId).eq("active", true).order("name"),
-        supabase.from("pool_models").select("*").eq("store_id", storeId).eq("active", true).order("display_order"),
-        supabase.from("optionals").select("*").eq("store_id", storeId).eq("active", true).order("display_order"),
-        supabase.from("model_optionals").select("*").eq("store_id", storeId).eq("active", true).order("display_order"),
+        supabase.from("pool_models").select("id, name, category_id, length, width, depth, photo_url, differentials, included_items, not_included_items, base_price, delivery_days, installation_days, payment_terms, notes").eq("store_id", storeId).eq("active", true).order("display_order"),
+        supabase.from("optionals").select("id, name, description, price, group_id, warning_note, cost, margin_percent, item_type").eq("store_id", storeId).eq("active", true).order("display_order"),
+        supabase.from("model_optionals").select("id, name, description, price, model_id, cost, margin_percent, item_type").eq("store_id", storeId).eq("active", true).order("display_order"),
         supabase.from("optional_groups").select("id, name, description, display_order").eq("store_id", storeId).eq("active", true).order("display_order"),
         supabase.from("partners").select("id, name, logo_url, banner_1_url, banner_2_url, display_percent").eq("active", true).order("display_order"),
       ]);
