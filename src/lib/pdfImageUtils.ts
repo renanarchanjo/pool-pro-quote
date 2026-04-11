@@ -301,8 +301,39 @@ const lockImageLayoutForPdf = (img: HTMLImageElement) => {
   const size = getRenderableImageSize(img);
   if (!size) return;
 
-  const widthPx = `${Math.round(size.width * 100) / 100}px`;
-  const heightPx = `${Math.round(size.height * 100) / 100}px`;
+  let finalWidth = size.width;
+  let finalHeight = size.height;
+
+  // When objectFit is contain/cover, the rendered box includes empty space.
+  // Calculate the actual displayed image dimensions using natural aspect ratio
+  // so html2canvas (which ignores objectFit) doesn't stretch the image.
+  const computed = window.getComputedStyle(img);
+  const objectFit = computed.objectFit;
+  const naturalW = img.naturalWidth;
+  const naturalH = img.naturalHeight;
+
+  if ((objectFit === "contain" || objectFit === "cover") && naturalW > 0 && naturalH > 0) {
+    const containerRatio = size.width / size.height;
+    const imageRatio = naturalW / naturalH;
+
+    if (objectFit === "contain") {
+      // Image fits inside the container, preserving aspect ratio
+      if (imageRatio > containerRatio) {
+        // Width-limited
+        finalWidth = size.width;
+        finalHeight = size.width / imageRatio;
+      } else {
+        // Height-limited
+        finalHeight = size.height;
+        finalWidth = size.height * imageRatio;
+      }
+    }
+    // Remove objectFit so html2canvas renders at exact dimensions
+    img.style.objectFit = "fill";
+  }
+
+  const widthPx = `${Math.round(finalWidth * 100) / 100}px`;
+  const heightPx = `${Math.round(finalHeight * 100) / 100}px`;
 
   img.style.width = widthPx;
   img.style.height = heightPx;
@@ -312,8 +343,8 @@ const lockImageLayoutForPdf = (img: HTMLImageElement) => {
   img.style.maxHeight = heightPx;
   img.style.display = size.display === "inline" ? "inline-block" : size.display;
   img.style.visibility = "visible";
-  img.setAttribute("width", `${Math.round(size.width)}`);
-  img.setAttribute("height", `${Math.round(size.height)}`);
+  img.setAttribute("width", `${Math.round(finalWidth)}`);
+  img.setAttribute("height", `${Math.round(finalHeight)}`);
 }
 
 export const inlineImagesForPdf = async (root: HTMLElement): Promise<() => void> => {
