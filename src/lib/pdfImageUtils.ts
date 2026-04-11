@@ -376,6 +376,7 @@ export const inlineImagesForPdf = async (root: HTMLElement): Promise<() => void>
         originalStyleMaxHeight: img.style.maxHeight,
         originalStyleDisplay: img.style.display,
         originalStyleVisibility: img.style.visibility,
+        originalStyleObjectFit: img.style.objectFit,
       });
 
       let resolvedSrc = src;
