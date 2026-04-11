@@ -54,8 +54,9 @@ const MatrizMobileBottomNav = () => {
         })}
         <button
           onClick={() => setPanelOpen(true)}
+          aria-label="Abrir menu"
           className="flex items-center justify-center flex-1 transition-all duration-150 active:scale-90"
-          style={{ height: 'var(--bottom-nav-height)' }}
+          style={{ height: 'var(--bottom-nav-height)', minHeight: '44px' }}
           data-compact
         >
           <div className={`p-2 rounded-xl transition-all duration-150 ${panelOpen ? "bg-primary/10" : ""}`}>
