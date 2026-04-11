@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { TableSkeleton } from "./AdminLoadingSkeleton";
 import { supabase } from "@/integrations/supabase/client";
 import { useStoreData } from "@/hooks/useStoreData";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -106,11 +107,7 @@ const ProposalsView = () => {
   };
 
   if (loading) {
-    return (
-      <div className="flex justify-center p-8">
-        <Loader2 className="w-8 h-8 animate-spin text-primary" />
-      </div>
-    );
+    return <TableSkeleton rows={6} cols={4} />;
   }
 
   return (
