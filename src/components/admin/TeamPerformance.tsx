@@ -141,7 +141,7 @@ const TeamPerformance = () => {
         avgResponseTimeHours, avgClosingDays,
         totalProposals: memberProposals.length,
       };
-    }).filter(m => m.leadsReceived > 0 || m.leadsAccepted > 0)
+    }).filter(m => m.leadsReceived > 0 || m.leadsAccepted > 0 || m.totalProposals > 0)
       .sort((a, b) => b.revenueClosed - a.revenueClosed);
   }, [members, distributions, proposals, dateRange]);
 
