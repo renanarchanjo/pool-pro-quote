@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import SiteHeader from "@/components/landing/SiteHeader";
 import SiteFooter from "@/components/landing/SiteFooter";
 import { useForceLightTheme } from "@/hooks/useForceLightTheme";
+import PageSEO from "@/components/PageSEO";
 
 interface Partner {
   id: string;

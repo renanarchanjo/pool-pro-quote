@@ -130,6 +130,11 @@ const Lojista = () => {
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
+      <PageSEO
+        title="SIMULAPOOL para Lojistas - Automatize Orçamentos de Piscinas"
+        description="Transforme sua loja de piscinas com orçamentos automáticos, leads qualificados e gestão de equipe. Comece grátis."
+        path="/lojista"
+      />
       {/* ─── Hero ─── */}
       <div
         className="relative overflow-hidden"

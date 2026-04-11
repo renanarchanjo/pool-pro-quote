@@ -2,6 +2,7 @@ import LojistaHeader from "@/components/landing/LojistaHeader";
 import SiteFooter from "@/components/landing/SiteFooter";
 import PricingSection from "@/components/landing/PricingSection";
 import { useForceLightTheme } from "@/hooks/useForceLightTheme";
+import PageSEO from "@/components/PageSEO";
 
 const LojistaPlanos = () => {
   useForceLightTheme();
