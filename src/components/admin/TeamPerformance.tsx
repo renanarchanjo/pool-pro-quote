@@ -328,10 +328,12 @@ const TeamPerformance = () => {
                           : `${m.avgResponseTimeHours.toFixed(1)}h`}
                       </p>
                     </div>
-                    <div>
-                      <p className="text-[11px] font-semibold uppercase tracking-[0.06em] text-muted-foreground">Receita Prevista</p>
-                      <p className="text-[18px] font-bold text-primary">{formatCurrency(m.revenuePredicted)}</p>
-                    </div>
+                    {isOwner && (
+                      <div>
+                        <p className="text-[11px] font-semibold uppercase tracking-[0.06em] text-muted-foreground">Receita Prevista</p>
+                        <p className="text-[18px] font-bold text-primary">{formatCurrency(m.revenuePredicted)}</p>
+                      </div>
+                    )}
                   </div>
 
 
