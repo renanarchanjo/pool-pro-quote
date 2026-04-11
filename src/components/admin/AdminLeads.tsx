@@ -277,7 +277,7 @@ const AdminLeads = () => {
     loadData();
   };
 
-  const [assigning, setAssigning] = useState(false);
+
 
   const handleAssignLead = async () => {
     if (!assignTargetUser || assigning) return;
