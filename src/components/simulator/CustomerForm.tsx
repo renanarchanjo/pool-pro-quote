@@ -124,9 +124,12 @@ const CustomerForm = ({ onSubmit, onBack, model, optionals, includedItemsTotal =
               id="name"
               value={formData.name}
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+              onBlur={() => markTouched("name")}
               placeholder="Seu nome"
               required
+              className={errors.name ? "border-destructive" : ""}
             />
+            {errors.name && <p className="text-xs text-destructive mt-1">{errors.name}</p>}
           </div>
 
           <div>
@@ -141,8 +144,9 @@ const CustomerForm = ({ onSubmit, onBack, model, optionals, includedItemsTotal =
             <select
               id="uf"
               value={uf}
-              onChange={(e) => { setUf(e.target.value); setCity(""); }}
-              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              onChange={(e) => { setUf(e.target.value); setCity(""); markTouched("uf"); }}
+              onBlur={() => markTouched("uf")}
+              className={`flex h-10 w-full rounded-md border ${errors.uf ? "border-destructive" : "border-input"} bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring`}
               required
             >
               <option value="">Selecione o estado</option>
@@ -150,6 +154,7 @@ const CustomerForm = ({ onSubmit, onBack, model, optionals, includedItemsTotal =
                 <option key={s.abbr} value={s.abbr}>{s.name} ({s.abbr})</option>
               ))}
             </select>
+            {errors.uf && <p className="text-xs text-destructive mt-1">{errors.uf}</p>}
           </div>
 
           <div>
