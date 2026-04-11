@@ -167,8 +167,9 @@ const CustomerForm = ({ onSubmit, onBack, model, optionals, includedItemsTotal =
               <select
                 id="city"
                 value={city}
-                onChange={(e) => setCity(e.target.value)}
-                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                onChange={(e) => { setCity(e.target.value); markTouched("city"); }}
+                onBlur={() => markTouched("city")}
+                className={`flex h-10 w-full rounded-md border ${errors.city ? "border-destructive" : "border-input"} bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring`}
                 required
               >
                 <option value="">Selecione a cidade</option>
@@ -181,10 +182,13 @@ const CustomerForm = ({ onSubmit, onBack, model, optionals, includedItemsTotal =
                 id="city"
                 value={city}
                 onChange={(e) => setCity(e.target.value)}
+                onBlur={() => markTouched("city")}
                 placeholder="Selecione um estado primeiro"
                 required
+                className={errors.city ? "border-destructive" : ""}
               />
             )}
+            {errors.city && <p className="text-xs text-destructive mt-1">{errors.city}</p>}
           </div>
 
           <div>
