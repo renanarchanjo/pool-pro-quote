@@ -477,6 +477,7 @@ export const inlineImagesForPdf = async (root: HTMLElement): Promise<() => void>
       image.style.maxHeight = originalStyleMaxHeight;
       image.style.display = originalStyleDisplay;
       image.style.visibility = originalStyleVisibility;
+      image.style.objectFit = originalStyleObjectFit;
     });
   };
 };
