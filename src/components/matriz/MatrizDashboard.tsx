@@ -432,6 +432,9 @@ const MatrizDashboard = () => {
           </div>
         </div>
       </div>
+
+      {/* ── DEMONSTRATIVO POR LOJA ── */}
+      <StoreSalesPanel stores={data!.stores} proposals={data!.proposals} />
     </div>
   );
 };
