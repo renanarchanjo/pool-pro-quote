@@ -87,6 +87,11 @@ const Parceiros = () => {
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
+      <PageSEO
+        title="Parceiros SIMULAPOOL - Posicione sua marca no simulador"
+        description="Seja parceiro SIMULAPOOL e posicione sua marca diretamente no simulador de piscinas mais usado do Brasil."
+        path="/parceiros"
+      />
       {/* ─── Hero ─── */}
       <div
         className="relative overflow-hidden"

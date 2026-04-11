@@ -9,6 +9,11 @@ const LojistaPlanos = () => {
 
   return (
     <div className="min-h-screen flex flex-col" style={{ background: "#0B1929" }}>
+      <PageSEO
+        title="Planos e Preços - SIMULAPOOL para Lojistas"
+        description="Escolha o plano ideal para sua loja de piscinas. Orçamentos automáticos, gestão de leads e equipe a partir de R$0."
+        path="/lojista/planos"
+      />
       <div
         className="relative"
         style={{
