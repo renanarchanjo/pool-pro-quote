@@ -1,3 +1,4 @@
+import { memo } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Clock, Copy, Flame, Phone } from "lucide-react";
 import { toast } from "sonner";
@@ -154,4 +155,4 @@ const DashboardAlerts = ({ proposals, onSelectProposal }: Props) => {
   );
 };
 
-export default DashboardAlerts;
+export default memo(DashboardAlerts);

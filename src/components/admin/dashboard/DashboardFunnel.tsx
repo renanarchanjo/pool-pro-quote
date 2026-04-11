@@ -1,3 +1,4 @@
+import { memo } from "react";
 import { Proposal, ProposalStatus, STATUS_CONFIG, formatCurrency } from "./types";
 
 interface Props {
@@ -107,4 +108,4 @@ const DashboardFunnel = ({ proposals }: Props) => {
   );
 };
 
-export default DashboardFunnel;
+export default memo(DashboardFunnel);
