@@ -194,7 +194,6 @@ const AdminLeads = () => {
     setAccepting(null);
   };
 
-  const [rejecting, setRejecting] = useState<string | null>(null);
   const handleReject = async (distId: string) => {
     if (rejecting) return;
     setRejecting(distId);
