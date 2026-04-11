@@ -44,10 +44,9 @@ const PendingLeadsAlert = () => {
     setLastCheckedCount(newCount);
   }, [storeId, lastCheckedCount]);
 
-  // Initial check on mount
+  // Initial check on mount — no delay needed
   useEffect(() => {
-    const timer = setTimeout(() => checkPendingLeads(false), 800);
-    return () => clearTimeout(timer);
+    checkPendingLeads(false);
   }, []);
 
   // Polling: check for new leads periodically

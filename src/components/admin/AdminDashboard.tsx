@@ -258,7 +258,8 @@ const AdminDashboard = () => {
 
   const handleExportProposalPDF = async (proposal: Proposal) => {
     setExportingProposal(proposal);
-    await new Promise((r) => setTimeout(r, 700));
+    // Wait for React to render the hidden ProposalView
+    await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
 
     if (!proposalPdfRef.current) {
       toast.error("Erro ao preparar proposta para PDF");
@@ -280,7 +281,8 @@ const AdminDashboard = () => {
   const handleSendWhatsApp = async (proposal: Proposal) => {
     // Generate PDF using the hidden ProposalView
     setExportingProposal(proposal);
-    await new Promise((r) => setTimeout(r, 700));
+    // Wait for React to render the hidden ProposalView
+    await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
 
     if (!proposalPdfRef.current) {
       toast.error("Erro ao preparar proposta para envio");

@@ -81,7 +81,7 @@ const AdminLeads = () => {
   // Load available lead plans
   useEffect(() => {
     const loadLeadPlans = async () => {
-      const { data } = await (supabase as any).from("lead_plans").select("*").eq("active", true).order("display_order");
+      const { data } = await (supabase as any).from("lead_plans").select("id, name, price_monthly, lead_limit, excess_price, stripe_price_id, stripe_product_id").eq("active", true).order("display_order");
       if (data) setLeadPlans(data);
     };
     loadLeadPlans();
