@@ -474,9 +474,12 @@ function EmptyChart() {
 
 import { FileText, Send, CheckCircle2 as Check2Icon, XCircle as XIcon, TrendingUp as TrendIcon } from "lucide-react";
 
-function StoreSalesPanel({ stores, proposals }: {
+function StoreSalesPanel({ stores, proposals, stateMap, topStates, maxStateCount }: {
   stores: StoreRow[];
   proposals: DashboardData["proposals"];
+  stateMap: Map<string, number>;
+  topStates: { state: string; count: number }[];
+  maxStateCount: number;
 }) {
   const [stateFilter, setStateFilter] = useState("all");
   const [storeFilter, setStoreFilter] = useState("all");
@@ -502,6 +505,31 @@ function StoreSalesPanel({ stores, proposals }: {
     if (storeFilter !== "all") return new Set([storeFilter]);
     return new Set(filteredStores.map(s => s.id));
   }, [storeFilter, filteredStores]);
+
+  // Map data filtered
+  const mapStores = useMemo(() =>
+    filteredStores
+      .filter(s => storeFilter === "all" || s.id === storeFilter)
+      .map(s => ({ id: s.id, name: s.name, city: s.city, state: s.state })),
+  [filteredStores, storeFilter]);
+
+  const mapStateData = useMemo(() => {
+    if (stateFilter === "all" && storeFilter === "all") return Object.fromEntries(stateMap);
+    const counts: Record<string, number> = {};
+    mapStores.forEach(s => { if (s.state) counts[s.state] = (counts[s.state] || 0) + 1; });
+    return counts;
+  }, [stateFilter, storeFilter, stateMap, mapStores]);
+
+  const mapTopStates = useMemo(() => {
+    if (stateFilter === "all" && storeFilter === "all") return topStates;
+    const entries = Object.entries(mapStateData).map(([state, count]) => ({ state, count }));
+    return entries.sort((a, b) => b.count - a.count).slice(0, 8);
+  }, [stateFilter, storeFilter, mapStateData, topStates]);
+
+  const mapMaxCount = useMemo(() => {
+    if (stateFilter === "all" && storeFilter === "all") return maxStateCount;
+    return Math.max(...mapTopStates.map(t => t.count), 1);
+  }, [stateFilter, storeFilter, mapTopStates, maxStateCount]);
 
   const filtered = useMemo(() =>
     proposals.filter(p => p.store_id && targetStoreIds.has(p.store_id)),
