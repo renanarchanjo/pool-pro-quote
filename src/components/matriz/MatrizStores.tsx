@@ -290,7 +290,10 @@ const MatrizStores = () => {
                 <p className="font-bold text-primary text-sm">{formatCurrency(store.subscription_plans?.price_monthly || 0)}/mês</p>
                 <p className="text-xs text-muted-foreground">{store.subscription_plans?.name || "Gratuito"}</p>
               </div>
-              <div className="flex items-center gap-1.5 shrink-0">
+                <div className="flex items-center gap-1.5 shrink-0">
+                <Button variant="outline" size="sm" className="h-8 text-xs gap-1" onClick={() => openDemo(store)} title="Demonstrativo">
+                  <BarChart3 className="w-3.5 h-3.5" /> Vendas
+                </Button>
                 <div className="flex items-center gap-1 mr-1" title="Distribuição de leads">
                   <Radio className="w-3 h-3 text-muted-foreground" />
                   <Switch checked={!!store.lead_plan_active} onCheckedChange={(checked) => handleToggleLeadPlan(store.id, checked)} className="data-[state=checked]:bg-emerald-500 scale-90" />
