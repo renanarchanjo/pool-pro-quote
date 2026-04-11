@@ -1,11 +1,11 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Loader2, Search, Pencil, Trash2, Save, X, Store, Radio } from "lucide-react";
+import { Loader2, Search, Pencil, Trash2, Save, X, Store, Radio, BarChart3, TrendingUp, FileText, Send, CheckCircle2, XCircle } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -61,6 +61,36 @@ const MatrizStores = () => {
   // Delete state
   const [deletingStore, setDeletingStore] = useState<StoreRow | null>(null);
   const [deleting, setDeleting] = useState(false);
+
+  // Demonstrativo state
+  const [demoStore, setDemoStore] = useState<StoreRow | null>(null);
+  const [demoLoading, setDemoLoading] = useState(false);
+  const [demoProposals, setDemoProposals] = useState<any[]>([]);
+
+  const openDemo = useCallback(async (store: StoreRow) => {
+    setDemoStore(store);
+    setDemoLoading(true);
+    const { data } = await supabase
+      .from("proposals")
+      .select("id, status, total_price, created_at, is_test")
+      .eq("store_id", store.id)
+      .eq("is_test", false)
+      .order("created_at", { ascending: false });
+    setDemoProposals(data || []);
+    setDemoLoading(false);
+  }, []);
+
+  const demoMetrics = useMemo(() => {
+    if (!demoProposals.length) return { total: 0, nova: 0, enviada: 0, em_negociacao: 0, fechada: 0, perdida: 0, faturamento: 0 };
+    const total = demoProposals.length;
+    const nova = demoProposals.filter(p => p.status === "nova").length;
+    const enviada = demoProposals.filter(p => p.status === "enviada").length;
+    const em_negociacao = demoProposals.filter(p => p.status === "em_negociacao").length;
+    const fechada = demoProposals.filter(p => p.status === "fechada").length;
+    const perdida = demoProposals.filter(p => p.status === "perdida").length;
+    const faturamento = demoProposals.filter(p => p.status === "fechada").reduce((s, p) => s + (p.total_price || 0), 0);
+    return { total, nova, enviada, em_negociacao, fechada, perdida, faturamento };
+  }, [demoProposals]);
 
   useEffect(() => {
     loadStores();
@@ -260,7 +290,10 @@ const MatrizStores = () => {
                 <p className="font-bold text-primary text-sm">{formatCurrency(store.subscription_plans?.price_monthly || 0)}/mês</p>
                 <p className="text-xs text-muted-foreground">{store.subscription_plans?.name || "Gratuito"}</p>
               </div>
-              <div className="flex items-center gap-1.5 shrink-0">
+                <div className="flex items-center gap-1.5 shrink-0">
+                <Button variant="outline" size="sm" className="h-8 text-xs gap-1" onClick={() => openDemo(store)} title="Demonstrativo">
+                  <BarChart3 className="w-3.5 h-3.5" /> Vendas
+                </Button>
                 <div className="flex items-center gap-1 mr-1" title="Distribuição de leads">
                   <Radio className="w-3 h-3 text-muted-foreground" />
                   <Switch checked={!!store.lead_plan_active} onCheckedChange={(checked) => handleToggleLeadPlan(store.id, checked)} className="data-[state=checked]:bg-emerald-500 scale-90" />
@@ -320,6 +353,7 @@ const MatrizStores = () => {
                   <span className="text-[9px] text-muted-foreground">Leads</span>
                 </div>
                 <div className="flex items-center gap-0">
+                  <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => openDemo(store)} title="Demonstrativo"><BarChart3 className="w-3 h-3" /></Button>
                   <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => openEdit(store)}><Pencil className="w-3 h-3" /></Button>
                   <Button variant="ghost" size="icon" className="h-6 w-6 text-destructive hover:text-destructive hover:bg-destructive/10" onClick={() => setDeletingStore(store)}><Trash2 className="w-3 h-3" /></Button>
                 </div>
@@ -433,8 +467,94 @@ const MatrizStores = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+      {/* ── Demonstrativo Dialog ── */}
+      <Dialog open={!!demoStore} onOpenChange={(open) => !open && setDemoStore(null)}>
+        <DialogContent className="max-w-lg sm:max-w-lg max-sm:!max-w-[100vw] max-sm:!w-screen max-sm:!h-screen max-sm:!max-h-screen max-sm:!rounded-none max-sm:!top-0 max-sm:!left-0 max-sm:!translate-x-0 max-sm:!translate-y-0 max-sm:overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <BarChart3 className="w-4 h-4 text-primary" />
+              Demonstrativo — {demoStore?.name}
+            </DialogTitle>
+            <DialogDescription>
+              {demoStore?.city && `${demoStore.city}/${demoStore.state} · `}Dados em tempo real
+            </DialogDescription>
+          </DialogHeader>
+
+          {demoLoading ? (
+            <div className="flex justify-center py-8">
+              <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
+            </div>
+          ) : (
+            <div className="space-y-4 py-2">
+              {/* KPI Grid */}
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                <DemoKPI icon={FileText} label="Total Geradas" value={demoMetrics.total} />
+                <DemoKPI icon={Send} label="Enviadas" value={demoMetrics.enviada} color="text-blue-600" />
+                <DemoKPI icon={TrendingUp} label="Em Negociação" value={demoMetrics.em_negociacao} color="text-amber-600" />
+                <DemoKPI icon={CheckCircle2} label="Fechadas" value={demoMetrics.fechada} color="text-emerald-600" />
+                <DemoKPI icon={XCircle} label="Perdidas" value={demoMetrics.perdida} color="text-red-500" />
+                <div className="col-span-2 sm:col-span-1 rounded-xl border border-border bg-card p-3">
+                  <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Faturamento Total</p>
+                  <p className="text-lg font-bold text-primary mt-0.5">{formatCurrency(demoMetrics.faturamento)}</p>
+                </div>
+              </div>
+
+              {/* Funnel visual */}
+              {demoMetrics.total > 0 && (
+                <div className="space-y-1.5">
+                  <p className="text-xs font-medium text-foreground">Funil de Vendas</p>
+                  {[
+                    { label: "Novas", count: demoMetrics.nova, color: "bg-muted-foreground" },
+                    { label: "Enviadas", count: demoMetrics.enviada, color: "bg-blue-500" },
+                    { label: "Em Negociação", count: demoMetrics.em_negociacao, color: "bg-amber-500" },
+                    { label: "Fechadas", count: demoMetrics.fechada, color: "bg-emerald-500" },
+                    { label: "Perdidas", count: demoMetrics.perdida, color: "bg-red-500" },
+                  ].map((stage) => {
+                    const pct = Math.max((stage.count / demoMetrics.total) * 100, 2);
+                    return (
+                      <div key={stage.label} className="flex items-center gap-2">
+                        <span className="text-[11px] text-muted-foreground w-24 shrink-0 text-right">{stage.label}</span>
+                        <div className="flex-1 h-5 bg-muted rounded-full overflow-hidden">
+                          <div className={`h-full rounded-full ${stage.color} transition-all`} style={{ width: `${pct}%` }} />
+                        </div>
+                        <span className="text-[11px] font-semibold w-8 text-right">{stage.count}</span>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+
+              {demoMetrics.total === 0 && (
+                <p className="text-center text-sm text-muted-foreground py-4">Nenhuma proposta registrada para este lojista.</p>
+              )}
+
+              {/* Conversion rate */}
+              {demoMetrics.total > 0 && (
+                <div className="flex items-center justify-between rounded-xl border border-border bg-muted/30 px-4 py-2.5">
+                  <span className="text-xs text-muted-foreground">Taxa de Conversão</span>
+                  <span className="text-sm font-bold text-foreground">
+                    {((demoMetrics.fechada / demoMetrics.total) * 100).toFixed(1)}%
+                  </span>
+                </div>
+              )}
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
+
+function DemoKPI({ icon: Icon, label, value, color }: { icon: any; label: string; value: number; color?: string }) {
+  return (
+    <div className="rounded-xl border border-border bg-card p-3">
+      <div className="flex items-center gap-1.5 mb-1">
+        <Icon className={`w-3.5 h-3.5 ${color || "text-muted-foreground"}`} />
+        <p className="text-[10px] text-muted-foreground uppercase tracking-wider">{label}</p>
+      </div>
+      <p className={`text-xl font-bold ${color || "text-foreground"}`}>{value}</p>
+    </div>
+  );
+}
 
 export default MatrizStores;
