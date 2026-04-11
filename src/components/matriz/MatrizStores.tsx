@@ -467,8 +467,94 @@ const MatrizStores = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+      {/* ── Demonstrativo Dialog ── */}
+      <Dialog open={!!demoStore} onOpenChange={(open) => !open && setDemoStore(null)}>
+        <DialogContent className="max-w-lg sm:max-w-lg max-sm:!max-w-[100vw] max-sm:!w-screen max-sm:!h-screen max-sm:!max-h-screen max-sm:!rounded-none max-sm:!top-0 max-sm:!left-0 max-sm:!translate-x-0 max-sm:!translate-y-0 max-sm:overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <BarChart3 className="w-4 h-4 text-primary" />
+              Demonstrativo — {demoStore?.name}
+            </DialogTitle>
+            <DialogDescription>
+              {demoStore?.city && `${demoStore.city}/${demoStore.state} · `}Dados em tempo real
+            </DialogDescription>
+          </DialogHeader>
+
+          {demoLoading ? (
+            <div className="flex justify-center py-8">
+              <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
+            </div>
+          ) : (
+            <div className="space-y-4 py-2">
+              {/* KPI Grid */}
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                <DemoKPI icon={FileText} label="Total Geradas" value={demoMetrics.total} />
+                <DemoKPI icon={Send} label="Enviadas" value={demoMetrics.enviada} color="text-blue-600" />
+                <DemoKPI icon={TrendingUp} label="Em Negociação" value={demoMetrics.em_negociacao} color="text-amber-600" />
+                <DemoKPI icon={CheckCircle2} label="Fechadas" value={demoMetrics.fechada} color="text-emerald-600" />
+                <DemoKPI icon={XCircle} label="Perdidas" value={demoMetrics.perdida} color="text-red-500" />
+                <div className="col-span-2 sm:col-span-1 rounded-xl border border-border bg-card p-3">
+                  <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Faturamento Total</p>
+                  <p className="text-lg font-bold text-primary mt-0.5">{formatCurrency(demoMetrics.faturamento)}</p>
+                </div>
+              </div>
+
+              {/* Funnel visual */}
+              {demoMetrics.total > 0 && (
+                <div className="space-y-1.5">
+                  <p className="text-xs font-medium text-foreground">Funil de Vendas</p>
+                  {[
+                    { label: "Novas", count: demoMetrics.nova, color: "bg-muted-foreground" },
+                    { label: "Enviadas", count: demoMetrics.enviada, color: "bg-blue-500" },
+                    { label: "Em Negociação", count: demoMetrics.em_negociacao, color: "bg-amber-500" },
+                    { label: "Fechadas", count: demoMetrics.fechada, color: "bg-emerald-500" },
+                    { label: "Perdidas", count: demoMetrics.perdida, color: "bg-red-500" },
+                  ].map((stage) => {
+                    const pct = Math.max((stage.count / demoMetrics.total) * 100, 2);
+                    return (
+                      <div key={stage.label} className="flex items-center gap-2">
+                        <span className="text-[11px] text-muted-foreground w-24 shrink-0 text-right">{stage.label}</span>
+                        <div className="flex-1 h-5 bg-muted rounded-full overflow-hidden">
+                          <div className={`h-full rounded-full ${stage.color} transition-all`} style={{ width: `${pct}%` }} />
+                        </div>
+                        <span className="text-[11px] font-semibold w-8 text-right">{stage.count}</span>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+
+              {demoMetrics.total === 0 && (
+                <p className="text-center text-sm text-muted-foreground py-4">Nenhuma proposta registrada para este lojista.</p>
+              )}
+
+              {/* Conversion rate */}
+              {demoMetrics.total > 0 && (
+                <div className="flex items-center justify-between rounded-xl border border-border bg-muted/30 px-4 py-2.5">
+                  <span className="text-xs text-muted-foreground">Taxa de Conversão</span>
+                  <span className="text-sm font-bold text-foreground">
+                    {((demoMetrics.fechada / demoMetrics.total) * 100).toFixed(1)}%
+                  </span>
+                </div>
+              )}
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
+
+function DemoKPI({ icon: Icon, label, value, color }: { icon: any; label: string; value: number; color?: string }) {
+  return (
+    <div className="rounded-xl border border-border bg-card p-3">
+      <div className="flex items-center gap-1.5 mb-1">
+        <Icon className={`w-3.5 h-3.5 ${color || "text-muted-foreground"}`} />
+        <p className="text-[10px] text-muted-foreground uppercase tracking-wider">{label}</p>
+      </div>
+      <p className={`text-xl font-bold ${color || "text-foreground"}`}>{value}</p>
+    </div>
+  );
+}
 
 export default MatrizStores;
