@@ -74,6 +74,7 @@ const AdminLeads = () => {
   const [assigningLeadId, setAssigningLeadId] = useState<string | null>(null);
   const [assignTargetUser, setAssignTargetUser] = useState<string>("");
   const [partners, setPartners] = useState<{ id: string; name: string; logo_url: string | null; banner_1_url: string | null; banner_2_url: string | null; display_percent?: number }[]>([]);
+  const [assigning, setAssigning] = useState(false);
 
   const isOwner = role === "owner";
 
@@ -276,45 +277,58 @@ const AdminLeads = () => {
     loadData();
   };
 
+
+
   const handleAssignLead = async () => {
-    if (!assignTargetUser) return;
+    if (!assignTargetUser || assigning) return;
     const idsToAssign = assigningLeadId ? [assigningLeadId] : Array.from(selectedIds);
     if (idsToAssign.length === 0) return;
+
+    setAssigning(true);
+    // Close dialog immediately for snappy UX
+    setAssignDialogOpen(false);
+    const toastId = toast.loading("Atribuindo lead(s)...");
+
     try {
-      // Check if assigning to the store owner — if so, auto-accept
       const isAssigningToOwner = assignTargetUser === profile?.id && isOwner;
 
       if (isAssigningToOwner) {
-        // First assign to self, then auto-accept each lead
         await (supabase as any)
           .from("lead_distributions")
           .update({ assigned_to: assignTargetUser })
           .in("id", idsToAssign);
 
-        for (const distId of idsToAssign) {
-          const { data, error } = await supabase.functions.invoke("accept-lead", {
-            body: { distribution_id: distId },
-          });
-          if (error) throw error;
-          if (data?.error) throw new Error(data.error);
+        // Accept all in parallel instead of sequential
+        const results = await Promise.allSettled(
+          idsToAssign.map(distId =>
+            supabase.functions.invoke("accept-lead", {
+              body: { distribution_id: distId },
+            })
+          )
+        );
+        const failed = results.filter(r => r.status === "rejected").length;
+        if (failed > 0) {
+          toast.warning(`${idsToAssign.length - failed} atribuído(s), ${failed} com erro`, { id: toastId });
+        } else {
+          toast.success(`${idsToAssign.length} lead(s) atribuído(s) e aceito(s)!`, { id: toastId });
         }
-        toast.success(`${idsToAssign.length} lead(s) atribuído(s) e aceito(s) automaticamente!`);
       } else {
         const { error } = await (supabase as any)
           .from("lead_distributions")
           .update({ assigned_to: assignTargetUser })
           .in("id", idsToAssign);
         if (error) throw error;
-        toast.success(`${idsToAssign.length} lead(s) atribuído(s) com sucesso!`);
+        toast.success(`${idsToAssign.length} lead(s) atribuído(s) com sucesso!`, { id: toastId });
       }
 
-      setAssignDialogOpen(false);
       setAssigningLeadId(null);
       setAssignTargetUser("");
       setSelectedIds(new Set());
       loadData();
     } catch (err: any) {
-      toast.error(err.message || "Erro ao atribuir lead");
+      toast.error(err.message || "Erro ao atribuir lead", { id: toastId });
+    } finally {
+      setAssigning(false);
     }
   };
 
@@ -1036,11 +1050,11 @@ const AdminLeads = () => {
             <Button variant="outline" onClick={() => setAssignDialogOpen(false)}>Cancelar</Button>
             <Button
               onClick={handleAssignLead}
-              disabled={!assignTargetUser}
+              disabled={!assignTargetUser || assigning}
               className="gradient-primary text-white"
             >
-              <Send className="w-4 h-4 mr-2" />
-              Atribuir Lead
+              {assigning ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Send className="w-4 h-4 mr-2" />}
+              {assigning ? "Atribuindo..." : "Atribuir Lead"}
             </Button>
           </DialogFooter>
         </DialogContent>
