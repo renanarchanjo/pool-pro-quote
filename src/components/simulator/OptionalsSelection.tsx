@@ -73,7 +73,7 @@ const OptionalsSelection = ({ optionals, modelOptionals = [], selectedOptionals:
     try {
       const { data, error } = await supabase
         .from("optional_groups")
-        .select("*")
+        .select("id, name, description, selection_type, display_order")
         .eq("active", true)
         .order("display_order");
 

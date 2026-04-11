@@ -37,7 +37,7 @@ const ProposalNotesPanel = ({ proposalId, storeId }: Props) => {
   const loadNotes = async () => {
     const { data, error } = await supabase
       .from("proposal_notes" as any)
-      .select("*")
+      .select("id, content, note_type, created_at, author_id")
       .eq("proposal_id", proposalId)
       .order("created_at", { ascending: false });
 

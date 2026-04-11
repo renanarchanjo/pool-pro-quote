@@ -193,7 +193,8 @@ const ProposalView = ({
   const waitForPdfCaptureReady = async () => {
     await document.fonts.ready;
     await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
-    await new Promise((r) => setTimeout(r, 3000));
+    // Reduced wait — images are already preloaded by preparePdfAssets
+    await new Promise((r) => setTimeout(r, 800));
   };
 
   // ── PDF actions ──
@@ -259,7 +260,7 @@ const ProposalView = ({
     setUploadProgress(0);
     setWhatsappStatus("Preparando proposta...");
 
-    await new Promise((r) => setTimeout(r, 100));
+    await new Promise((r) => requestAnimationFrame(r));
 
     let attempts = 0;
     const maxAttempts = isMobile ? 2 : 1;

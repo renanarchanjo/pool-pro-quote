@@ -56,7 +56,7 @@ const TeamCommissions = () => {
     try {
       const [membersRes, settingsRes, distRes, proposalsRes] = await Promise.all([
         (supabase as any).from("profiles").select("id, full_name").eq("store_id", store.id),
-        supabase.from("commission_settings" as any).select("*").eq("store_id", store.id),
+        supabase.from("commission_settings" as any).select("id, member_id, commission_percent").eq("store_id", store.id),
         supabase.from("lead_distributions").select("id, proposal_id, accepted_by, status, accepted_at, created_at").eq("store_id", store.id),
         supabase.from("proposals").select("id, status, total_price, created_at, customer_name, created_by").eq("store_id", store.id),
       ]);

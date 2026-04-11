@@ -104,6 +104,8 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     overscroll-behavior: none;
+    overflow-wrap: break-word;
+    word-break: break-word;
   }
 
   #root {
@@ -116,6 +118,11 @@
     font-family: 'Inter', sans-serif;
     font-weight: 600;
     letter-spacing: -0.02em;
+    overflow-wrap: break-word;
+  }
+
+  p, span, li, td, th, label {
+    overflow-wrap: break-word;
   }
 
   /* GPU-accelerate images for smoother scrolling */

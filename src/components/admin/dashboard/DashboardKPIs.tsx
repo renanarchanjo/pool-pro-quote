@@ -1,3 +1,4 @@
+import { memo } from "react";
 import { Proposal, formatCurrency } from "./types";
 
 interface Props {
@@ -109,4 +110,4 @@ const DashboardKPIs = ({
   );
 };
 
-export default DashboardKPIs;
+export default memo(DashboardKPIs);

@@ -65,8 +65,8 @@ const PartnersManager = () => {
 
   const fetchPartners = async () => {
     const [partnersRes, catsRes] = await Promise.all([
-      supabase.from("partners").select("*").order("ranking", { ascending: true }),
-      supabase.from("partner_categories").select("*").order("display_order", { ascending: true }),
+      supabase.from("partners").select("id, name, logo_url, banner_1_url, banner_2_url, display_percent, ranking, active, display_order").order("ranking", { ascending: true }),
+      supabase.from("partner_categories").select("id, name, description, partner_id, display_order").order("display_order", { ascending: true }),
     ]);
 
     if (partnersRes.error) {
@@ -215,12 +215,12 @@ const PartnersManager = () => {
       }
 
       setAnimating(true);
-      await new Promise((r) => setTimeout(r, 100));
-      const sorted = [...partners].sort((a, b) => a.ranking - b.ranking);
-      setPartners(sorted);
-      setOriginalPartners(JSON.parse(JSON.stringify(sorted)));
-      await new Promise((r) => setTimeout(r, 500));
-      setAnimating(false);
+      requestAnimationFrame(() => {
+        const sorted = [...partners].sort((a, b) => a.ranking - b.ranking);
+        setPartners(sorted);
+        setOriginalPartners(JSON.parse(JSON.stringify(sorted)));
+        requestAnimationFrame(() => setAnimating(false));
+      });
 
       toast.success(`${updates.length} parceiro(s) atualizado(s)!`);
     } catch (error: any) {

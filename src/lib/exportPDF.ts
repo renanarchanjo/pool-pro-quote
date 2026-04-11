@@ -30,7 +30,7 @@ const getMobileCaptureWidth = (): number | null => {
 };
 
 const waitForStablePaint = async (delay?: number) => {
-  const d = delay ?? (isMobileDevice() ? 3000 : 300);
+  const d = delay ?? (isMobileDevice() ? 500 : 150);
   await new Promise((r) => requestAnimationFrame(() => r(undefined)));
   await new Promise((r) => requestAnimationFrame(() => r(undefined)));
   await new Promise((r) => setTimeout(r, d));
