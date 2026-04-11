@@ -9,6 +9,7 @@ import { HelmetProvider } from "react-helmet-async";
 import PageTransition from "@/components/PageTransition";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import SuspenseFallback from "@/components/SuspenseFallback";
+import ErrorBoundary from "@/components/ErrorBoundary";
 import { supabase } from "@/integrations/supabase/client";
 
 // Eager load landing page for instant first paint
@@ -64,6 +65,7 @@ const AppInner = () => {
 
   return (
     <BrowserRouter>
+      <ErrorBoundary fallbackTitle="Erro na aplicação">
       <Suspense fallback={<SuspenseFallback />}>
         <PageTransition>
           <Routes>
@@ -104,6 +106,7 @@ const AppInner = () => {
           </Routes>
         </PageTransition>
       </Suspense>
+      </ErrorBoundary>
     </BrowserRouter>
   );
 };
