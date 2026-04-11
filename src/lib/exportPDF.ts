@@ -22,7 +22,7 @@ const A4_SIZES = {
 const isMobileDevice = () => /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 
 const getHtml2canvasScale = (): number => {
-  return isMobileDevice() ? 1 : 2;
+  return isMobileDevice() ? 1 : 1.5;
 };
 
 const getMobileCaptureWidth = (): number | null => {
@@ -79,7 +79,7 @@ const exportSectionedPDF = async ({
         pdf.addPage("a4", orientation);
       }
 
-      pdf.addImage(canvas.toDataURL("image/png"), "PNG", 0, 0, page.width, page.height);
+      pdf.addImage(canvas.toDataURL("image/jpeg", 0.75), "JPEG", 0, 0, page.width, page.height);
     }
 
     return pdf;
@@ -115,7 +115,7 @@ const exportSectionedPDF = async ({
     }
 
     if (imgHeightMm <= contentHeight) {
-      pdf.addImage(canvas.toDataURL("image/png"), "PNG", margin, currentY, imgWidthMm, imgHeightMm);
+      pdf.addImage(canvas.toDataURL("image/jpeg", 0.75), "JPEG", margin, currentY, imgWidthMm, imgHeightMm);
       currentY += imgHeightMm + sectionGap;
       continue;
     }
@@ -136,7 +136,7 @@ const exportSectionedPDF = async ({
       ctx.drawImage(canvas, 0, sourceY, canvas.width, sliceHeightPx, 0, 0, canvas.width, sliceHeightPx);
 
       const sliceHeightMm = sliceHeightPx / pxPerMm;
-      pdf.addImage(sliceCanvas.toDataURL("image/png"), "PNG", margin, currentY, imgWidthMm, sliceHeightMm);
+      pdf.addImage(sliceCanvas.toDataURL("image/jpeg", 0.75), "JPEG", margin, currentY, imgWidthMm, sliceHeightMm);
       sourceY += sliceHeightPx;
 
       if (sourceY < canvas.height) {
@@ -288,7 +288,7 @@ export const generatePDFBlob = async ({
     const blob = await (html2pdf() as any)
       .set({
         margin: [10, 10, 10, 10],
-        image: { type: "jpeg", quality: mobile ? 0.85 : 0.98 },
+        image: { type: "jpeg", quality: mobile ? 0.7 : 0.75 },
         html2canvas: {
           scale,
           useCORS: true,
