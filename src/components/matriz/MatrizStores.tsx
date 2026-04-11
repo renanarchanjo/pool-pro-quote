@@ -62,6 +62,36 @@ const MatrizStores = () => {
   const [deletingStore, setDeletingStore] = useState<StoreRow | null>(null);
   const [deleting, setDeleting] = useState(false);
 
+  // Demonstrativo state
+  const [demoStore, setDemoStore] = useState<StoreRow | null>(null);
+  const [demoLoading, setDemoLoading] = useState(false);
+  const [demoProposals, setDemoProposals] = useState<any[]>([]);
+
+  const openDemo = useCallback(async (store: StoreRow) => {
+    setDemoStore(store);
+    setDemoLoading(true);
+    const { data } = await supabase
+      .from("proposals")
+      .select("id, status, total_price, created_at, is_test")
+      .eq("store_id", store.id)
+      .eq("is_test", false)
+      .order("created_at", { ascending: false });
+    setDemoProposals(data || []);
+    setDemoLoading(false);
+  }, []);
+
+  const demoMetrics = useMemo(() => {
+    if (!demoProposals.length) return { total: 0, nova: 0, enviada: 0, em_negociacao: 0, fechada: 0, perdida: 0, faturamento: 0 };
+    const total = demoProposals.length;
+    const nova = demoProposals.filter(p => p.status === "nova").length;
+    const enviada = demoProposals.filter(p => p.status === "enviada").length;
+    const em_negociacao = demoProposals.filter(p => p.status === "em_negociacao").length;
+    const fechada = demoProposals.filter(p => p.status === "fechada").length;
+    const perdida = demoProposals.filter(p => p.status === "perdida").length;
+    const faturamento = demoProposals.filter(p => p.status === "fechada").reduce((s, p) => s + (p.total_price || 0), 0);
+    return { total, nova, enviada, em_negociacao, fechada, perdida, faturamento };
+  }, [demoProposals]);
+
   useEffect(() => {
     loadStores();
   }, []);
