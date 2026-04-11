@@ -16,6 +16,7 @@ import {
 import LojistaHeader from "@/components/landing/LojistaHeader";
 import SiteFooter from "@/components/landing/SiteFooter";
 import { useForceLightTheme } from "@/hooks/useForceLightTheme";
+import PageSEO from "@/components/PageSEO";
 
 const METRICS = [
   { value: "200+", label: "lojistas ativos" },
