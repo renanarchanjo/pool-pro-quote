@@ -129,9 +129,9 @@ const PoolModelManager = () => {
       const [brandsRes, categoriesRes, modelsRes, optRes, inclRes, tmplRes] = await Promise.all([
         supabase.from("brands").select("id, name, partner_id").eq("active", true).eq("store_id", store.id),
         supabase.from("categories").select("id, name, brand_id").eq("active", true).eq("store_id", store.id),
-        supabase.from("pool_models").select("*").eq("store_id", store.id).order("created_at", { ascending: false }),
-        supabase.from("model_optionals").select("*").eq("store_id", store.id).order("display_order"),
-        supabase.from("model_included_items").select("*").eq("store_id", store.id).order("display_order"),
+        supabase.from("pool_models").select("id, name, category_id, base_price, cost, margin_percent, length, width, depth, photo_url, differentials, included_items, not_included_items, delivery_days, installation_days, payment_terms, notes, display_order, active, created_at").eq("store_id", store.id).order("created_at", { ascending: false }),
+        supabase.from("model_optionals").select("id, name, description, price, cost, margin_percent, item_type, model_id, display_order, active").eq("store_id", store.id).order("display_order"),
+        supabase.from("model_included_items").select("id, name, cost, price, margin_percent, quantity, item_type, model_id, display_order, active").eq("store_id", store.id).order("display_order"),
         supabase.from("included_item_templates").select("id, name, not_included_items").eq("store_id", store.id).order("name"),
       ]);
       if (brandsRes.error) throw brandsRes.error;
@@ -149,7 +149,7 @@ const PoolModelManager = () => {
       for (const t of tmplList) {
         const { data: tmplItems } = await supabase
           .from("included_item_template_items")
-          .select("*")
+          .select("id, name, cost, price, margin_percent, quantity, item_type, display_order")
           .eq("store_id", store.id)
           .eq("template_id", t.id)
           .order("display_order");

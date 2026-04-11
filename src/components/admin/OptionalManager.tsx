@@ -55,7 +55,7 @@ const OptionalManager = () => {
     if (!store) return;
     try {
       const [optRes, groupRes] = await Promise.all([
-        supabase.from("optionals").select("*").eq("store_id", store.id).order("display_order"),
+        supabase.from("optionals").select("id, name, description, price, cost, margin_percent, item_type, group_id, display_order, active, warning_note").eq("store_id", store.id).order("display_order"),
         supabase.from("optional_groups").select("id, name, description, display_order").eq("store_id", store.id).eq("active", true).order("display_order"),
       ]);
       if (optRes.error) throw optRes.error;
