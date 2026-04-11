@@ -410,31 +410,8 @@ const MatrizDashboard = () => {
         </div>
       </div>
 
-      {/* ── MAPA ── */}
-      <div data-pdf-section className="bg-card border border-border rounded-2xl p-4">
-        <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground mb-3">Distribuição geográfica</p>
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-          <div className="lg:col-span-2">
-            <BrazilMap stateData={Object.fromEntries(metrics.stateMap)} stores={data!.stores.map(s => ({ id: s.id, name: s.name, city: s.city, state: s.state }))} />
-          </div>
-          <div className="space-y-2.5">
-            <p className="text-[12px] font-medium text-foreground">Top estados</p>
-            {metrics.topStates.map(ts => (
-              <div key={ts.state} className="flex items-center gap-2">
-                <span className="text-[12px] font-medium text-foreground w-8">{ts.state}</span>
-                <div className="flex-1 h-1.5 bg-muted rounded-full overflow-hidden">
-                  <div className="h-full bg-primary rounded-full transition-all" style={{ width: `${(ts.count / metrics.maxStateCount) * 100}%` }} />
-                </div>
-                <span className="text-[11px] font-semibold text-foreground tabular-nums w-4 text-right">{ts.count}</span>
-              </div>
-            ))}
-            {metrics.topStates.length === 0 && <p className="text-[11px] text-muted-foreground">Sem dados</p>}
-          </div>
-        </div>
-      </div>
-
-      {/* ── DEMONSTRATIVO POR LOJA ── */}
-      <StoreSalesPanel stores={data!.stores} proposals={data!.proposals} />
+      {/* ── MAPA + DEMONSTRATIVO (integrados) ── */}
+      <StoreSalesPanel stores={data!.stores} proposals={data!.proposals} stateMap={metrics.stateMap} topStates={metrics.topStates} maxStateCount={metrics.maxStateCount} />
     </div>
   );
 };
@@ -497,9 +474,12 @@ function EmptyChart() {
 
 import { FileText, Send, CheckCircle2 as Check2Icon, XCircle as XIcon, TrendingUp as TrendIcon } from "lucide-react";
 
-function StoreSalesPanel({ stores, proposals }: {
+function StoreSalesPanel({ stores, proposals, stateMap, topStates, maxStateCount }: {
   stores: StoreRow[];
   proposals: DashboardData["proposals"];
+  stateMap: Map<string, number>;
+  topStates: { state: string; count: number }[];
+  maxStateCount: number;
 }) {
   const [stateFilter, setStateFilter] = useState("all");
   const [storeFilter, setStoreFilter] = useState("all");
@@ -525,6 +505,31 @@ function StoreSalesPanel({ stores, proposals }: {
     if (storeFilter !== "all") return new Set([storeFilter]);
     return new Set(filteredStores.map(s => s.id));
   }, [storeFilter, filteredStores]);
+
+  // Map data filtered
+  const mapStores = useMemo(() =>
+    filteredStores
+      .filter(s => storeFilter === "all" || s.id === storeFilter)
+      .map(s => ({ id: s.id, name: s.name, city: s.city, state: s.state })),
+  [filteredStores, storeFilter]);
+
+  const mapStateData = useMemo(() => {
+    if (stateFilter === "all" && storeFilter === "all") return Object.fromEntries(stateMap);
+    const counts: Record<string, number> = {};
+    mapStores.forEach(s => { if (s.state) counts[s.state] = (counts[s.state] || 0) + 1; });
+    return counts;
+  }, [stateFilter, storeFilter, stateMap, mapStores]);
+
+  const mapTopStates = useMemo(() => {
+    if (stateFilter === "all" && storeFilter === "all") return topStates;
+    const entries = Object.entries(mapStateData).map(([state, count]) => ({ state, count }));
+    return entries.sort((a, b) => b.count - a.count).slice(0, 8);
+  }, [stateFilter, storeFilter, mapStateData, topStates]);
+
+  const mapMaxCount = useMemo(() => {
+    if (stateFilter === "all" && storeFilter === "all") return maxStateCount;
+    return Math.max(...mapTopStates.map(t => t.count), 1);
+  }, [stateFilter, storeFilter, mapTopStates, maxStateCount]);
 
   const filtered = useMemo(() =>
     proposals.filter(p => p.store_id && targetStoreIds.has(p.store_id)),
@@ -576,6 +581,26 @@ function StoreSalesPanel({ stores, proposals }: {
               {storeOptions.map(s => <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>)}
             </SelectContent>
           </Select>
+        </div>
+      </div>
+
+      {/* Mapa integrado */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        <div className="lg:col-span-2">
+          <BrazilMap stateData={mapStateData} stores={mapStores} />
+        </div>
+        <div className="space-y-2.5">
+          <p className="text-[12px] font-medium text-foreground">Top estados</p>
+          {mapTopStates.map(ts => (
+            <div key={ts.state} className="flex items-center gap-2">
+              <span className="text-[12px] font-medium text-foreground w-8">{ts.state}</span>
+              <div className="flex-1 h-1.5 bg-muted rounded-full overflow-hidden">
+                <div className="h-full bg-primary rounded-full transition-all" style={{ width: `${(ts.count / mapMaxCount) * 100}%` }} />
+              </div>
+              <span className="text-[11px] font-semibold text-foreground tabular-nums w-4 text-right">{ts.count}</span>
+            </div>
+          ))}
+          {mapTopStates.length === 0 && <p className="text-[11px] text-muted-foreground">Sem dados</p>}
         </div>
       </div>
 
