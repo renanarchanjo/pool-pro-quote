@@ -449,6 +449,7 @@ export const inlineImagesForPdf = async (root: HTMLElement): Promise<() => void>
         originalStyleMaxHeight,
         originalStyleDisplay,
         originalStyleVisibility,
+        originalStyleObjectFit,
       } = snapshot;
 
       if (originalSrc === null) image.removeAttribute("src");
