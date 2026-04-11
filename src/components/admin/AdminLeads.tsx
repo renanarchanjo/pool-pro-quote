@@ -76,6 +76,7 @@ const AdminLeads = () => {
   const [assignTargetUser, setAssignTargetUser] = useState<string>("");
   const [partners, setPartners] = useState<{ id: string; name: string; logo_url: string | null; banner_1_url: string | null; banner_2_url: string | null; display_percent?: number }[]>([]);
   const [assigning, setAssigning] = useState(false);
+  const [rejecting, setRejecting] = useState<string | null>(null);
 
   const isOwner = role === "owner";
 
