@@ -1049,11 +1049,11 @@ const AdminLeads = () => {
             <Button variant="outline" onClick={() => setAssignDialogOpen(false)}>Cancelar</Button>
             <Button
               onClick={handleAssignLead}
-              disabled={!assignTargetUser}
+              disabled={!assignTargetUser || assigning}
               className="gradient-primary text-white"
             >
-              <Send className="w-4 h-4 mr-2" />
-              Atribuir Lead
+              {assigning ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Send className="w-4 h-4 mr-2" />}
+              {assigning ? "Atribuindo..." : "Atribuir Lead"}
             </Button>
           </DialogFooter>
         </DialogContent>
