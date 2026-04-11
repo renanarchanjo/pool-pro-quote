@@ -34,20 +34,15 @@ const PageTransition = ({ children }: PageTransitionProps) => {
 
     prevPathRef.current = location.pathname;
 
-    // Phase 1: fade out
+    // Instant swap with minimal fade — no blocking delay
     setVisible(false);
-
-    // Phase 2: swap content and fade in
-    const swapTimer = setTimeout(() => {
+    // Use rAF for near-instant swap instead of setTimeout
+    requestAnimationFrame(() => {
       setDisplayChildren(children);
       requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          setVisible(true);
-        });
+        setVisible(true);
       });
-    }, 120);
-
-    return () => clearTimeout(swapTimer);
+    });
   }, [location.pathname, children]);
 
   return (
@@ -56,8 +51,8 @@ const PageTransition = ({ children }: PageTransitionProps) => {
       style={{
         opacity: visible ? 1 : 0,
         transition: visible
-          ? "opacity 0.2s ease-out"
-          : "opacity 0.1s ease-in",
+          ? "opacity 0.12s ease-out"
+          : "opacity 0.05s ease-in",
       }}
     >
       {displayChildren}
