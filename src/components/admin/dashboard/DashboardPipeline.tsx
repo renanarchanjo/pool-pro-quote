@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, memo } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
@@ -351,4 +351,4 @@ const DashboardPipeline = ({ proposals, onUpdateStatus, onViewProposal, onExport
   );
 };
 
-export default DashboardPipeline;
+export default memo(DashboardPipeline);
