@@ -584,6 +584,26 @@ function StoreSalesPanel({ stores, proposals, stateMap, topStates, maxStateCount
         </div>
       </div>
 
+      {/* Mapa integrado */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        <div className="lg:col-span-2">
+          <BrazilMap stateData={mapStateData} stores={mapStores} />
+        </div>
+        <div className="space-y-2.5">
+          <p className="text-[12px] font-medium text-foreground">Top estados</p>
+          {mapTopStates.map(ts => (
+            <div key={ts.state} className="flex items-center gap-2">
+              <span className="text-[12px] font-medium text-foreground w-8">{ts.state}</span>
+              <div className="flex-1 h-1.5 bg-muted rounded-full overflow-hidden">
+                <div className="h-full bg-primary rounded-full transition-all" style={{ width: `${(ts.count / mapMaxCount) * 100}%` }} />
+              </div>
+              <span className="text-[11px] font-semibold text-foreground tabular-nums w-4 text-right">{ts.count}</span>
+            </div>
+          ))}
+          {mapTopStates.length === 0 && <p className="text-[11px] text-muted-foreground">Sem dados</p>}
+        </div>
+      </div>
+
       {/* KPIs */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5">
         <SalesKPI icon={FileText} label="Geradas" value={metrics.total} />
