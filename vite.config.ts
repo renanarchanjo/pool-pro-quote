@@ -98,14 +98,25 @@ export default defineConfig(({ mode }) => ({
   build: {
     target: "es2020",
     cssMinify: true,
+    minify: "terser",
+    terserOptions: {
+      compress: {
+        drop_console: true,
+        drop_debugger: true,
+        passes: 2,
+      },
+    },
     rollupOptions: {
       output: {
         manualChunks: {
-          vendor: ["react", "react-dom", "react-router-dom"],
+          "vendor-react": ["react", "react-dom"],
+          "vendor-router": ["react-router-dom"],
           ui: ["@radix-ui/react-dialog", "@radix-ui/react-popover", "@radix-ui/react-tooltip", "@radix-ui/react-dropdown-menu"],
           query: ["@tanstack/react-query"],
           supabase: ["@supabase/supabase-js"],
           motion: ["framer-motion"],
+          charts: ["recharts"],
+          pdf: ["html2pdf.js", "jspdf", "html2canvas"],
         },
       },
     },
