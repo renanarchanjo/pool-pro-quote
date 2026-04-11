@@ -205,9 +205,12 @@ const CustomerForm = ({ onSubmit, onBack, model, optionals, includedItemsTotal =
                   .replace(/(\d{5})(\d)/, "$1-$2");
                 setFormData({ ...formData, whatsapp: formatted });
               }}
+              onBlur={() => markTouched("whatsapp")}
               placeholder="(00) 00000-0000"
               required
+              className={errors.whatsapp ? "border-destructive" : ""}
             />
+            {errors.whatsapp && <p className="text-xs text-destructive mt-1">{errors.whatsapp}</p>}
           </div>
 
           <div className="bg-muted/50 p-4 rounded-lg">
