@@ -410,31 +410,8 @@ const MatrizDashboard = () => {
         </div>
       </div>
 
-      {/* ── MAPA ── */}
-      <div data-pdf-section className="bg-card border border-border rounded-2xl p-4">
-        <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground mb-3">Distribuição geográfica</p>
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-          <div className="lg:col-span-2">
-            <BrazilMap stateData={Object.fromEntries(metrics.stateMap)} stores={data!.stores.map(s => ({ id: s.id, name: s.name, city: s.city, state: s.state }))} />
-          </div>
-          <div className="space-y-2.5">
-            <p className="text-[12px] font-medium text-foreground">Top estados</p>
-            {metrics.topStates.map(ts => (
-              <div key={ts.state} className="flex items-center gap-2">
-                <span className="text-[12px] font-medium text-foreground w-8">{ts.state}</span>
-                <div className="flex-1 h-1.5 bg-muted rounded-full overflow-hidden">
-                  <div className="h-full bg-primary rounded-full transition-all" style={{ width: `${(ts.count / metrics.maxStateCount) * 100}%` }} />
-                </div>
-                <span className="text-[11px] font-semibold text-foreground tabular-nums w-4 text-right">{ts.count}</span>
-              </div>
-            ))}
-            {metrics.topStates.length === 0 && <p className="text-[11px] text-muted-foreground">Sem dados</p>}
-          </div>
-        </div>
-      </div>
-
-      {/* ── DEMONSTRATIVO POR LOJA ── */}
-      <StoreSalesPanel stores={data!.stores} proposals={data!.proposals} />
+      {/* ── MAPA + DEMONSTRATIVO (integrados) ── */}
+      <StoreSalesPanel stores={data!.stores} proposals={data!.proposals} stateMap={metrics.stateMap} topStates={metrics.topStates} maxStateCount={metrics.maxStateCount} />
     </div>
   );
 };
