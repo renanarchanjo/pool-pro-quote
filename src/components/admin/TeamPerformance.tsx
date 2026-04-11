@@ -176,7 +176,7 @@ const TeamPerformance = () => {
     });
   };
 
-  if (loading) return <div className="flex justify-center p-8"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
+  if (loading) return <div className="space-y-3 animate-in fade-in"><div className="h-8 bg-muted rounded animate-pulse w-40" /><div className="space-y-2">{Array.from({length:3}).map((_,i)=><div key={i} className="h-20 bg-muted rounded animate-pulse" />)}</div></div>;
 
   return (
     <div className="space-y-4">

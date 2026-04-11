@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { TableSkeleton } from "./AdminLoadingSkeleton";
 import { supabase } from "@/integrations/supabase/client";
 import { useStoreData } from "@/hooks/useStoreData";
 import { toast } from "sonner";
@@ -264,11 +265,7 @@ const TeamManager = () => {
   };
 
   if (loading) {
-    return (
-      <div className="flex justify-center p-8">
-        <Loader2 className="w-8 h-8 animate-spin text-primary" />
-      </div>
-    );
+    return <TableSkeleton rows={3} cols={3} />;
   }
 
   if (role !== "owner") {
