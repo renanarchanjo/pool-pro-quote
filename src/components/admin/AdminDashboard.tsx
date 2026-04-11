@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button"; 
 import { Loader2, Download, CalendarIcon, ZoomIn, ZoomOut, X } from "lucide-react";
+import { DashboardSkeleton } from "./AdminLoadingSkeleton";
 import { useStoreData } from "@/hooks/useStoreData";
 import { toast } from "sonner";
 import { exportPDF, generatePDFBlob } from "@/lib/exportPDF";
@@ -326,7 +327,6 @@ const AdminDashboard = () => {
   };
 
   if (loading) {
-    const { DashboardSkeleton } = require("./AdminLoadingSkeleton");
     return <DashboardSkeleton />;
   }
 

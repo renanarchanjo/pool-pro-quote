@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useStoreData } from "@/hooks/useStoreData";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -12,6 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Loader2, Lock, CheckCircle, AlertTriangle, Copy, Package, XCircle, CheckCheck, Eye, FileDown, ExternalLink, Check, Radio, CreditCard, Users, UserPlus, Send, ZoomIn, ZoomOut, X, Search, RefreshCw, Download, Filter } from "lucide-react";
 import { toast } from "sonner";
+import { LeadsSkeleton } from "./AdminLoadingSkeleton";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import ProposalView from "@/components/simulator/ProposalView";
@@ -460,7 +461,6 @@ const AdminLeads = () => {
   };
 
   if (loading || leadSubActive === null) {
-    const { LeadsSkeleton } = require("./AdminLoadingSkeleton");
     return <LeadsSkeleton />;
   }
 
