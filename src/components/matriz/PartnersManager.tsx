@@ -215,12 +215,12 @@ const PartnersManager = () => {
       }
 
       setAnimating(true);
-      await new Promise((r) => setTimeout(r, 100));
-      const sorted = [...partners].sort((a, b) => a.ranking - b.ranking);
-      setPartners(sorted);
-      setOriginalPartners(JSON.parse(JSON.stringify(sorted)));
-      await new Promise((r) => setTimeout(r, 500));
-      setAnimating(false);
+      requestAnimationFrame(() => {
+        const sorted = [...partners].sort((a, b) => a.ranking - b.ranking);
+        setPartners(sorted);
+        setOriginalPartners(JSON.parse(JSON.stringify(sorted)));
+        requestAnimationFrame(() => setAnimating(false));
+      });
 
       toast.success(`${updates.length} parceiro(s) atualizado(s)!`);
     } catch (error: any) {
