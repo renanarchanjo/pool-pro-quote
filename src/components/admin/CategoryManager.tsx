@@ -38,7 +38,7 @@ const CategoryManager = () => {
     try {
       const { data, error } = await supabase
         .from("categories")
-        .select("*")
+        .select("id, name, description, brand_id, active, created_at")
         .eq("store_id", store.id)
         .order("created_at", { ascending: false });
       if (error) throw error;

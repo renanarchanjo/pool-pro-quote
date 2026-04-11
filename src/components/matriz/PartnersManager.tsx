@@ -65,8 +65,8 @@ const PartnersManager = () => {
 
   const fetchPartners = async () => {
     const [partnersRes, catsRes] = await Promise.all([
-      supabase.from("partners").select("*").order("ranking", { ascending: true }),
-      supabase.from("partner_categories").select("*").order("display_order", { ascending: true }),
+      supabase.from("partners").select("id, name, logo_url, banner_1_url, banner_2_url, display_percent, ranking, active, display_order").order("ranking", { ascending: true }),
+      supabase.from("partner_categories").select("id, name, description, partner_id, display_order").order("display_order", { ascending: true }),
     ]);
 
     if (partnersRes.error) {
