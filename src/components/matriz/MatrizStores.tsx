@@ -353,6 +353,7 @@ const MatrizStores = () => {
                   <span className="text-[9px] text-muted-foreground">Leads</span>
                 </div>
                 <div className="flex items-center gap-0">
+                  <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => openDemo(store)} title="Demonstrativo"><BarChart3 className="w-3 h-3" /></Button>
                   <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => openEdit(store)}><Pencil className="w-3 h-3" /></Button>
                   <Button variant="ghost" size="icon" className="h-6 w-6 text-destructive hover:text-destructive hover:bg-destructive/10" onClick={() => setDeletingStore(store)}><Trash2 className="w-3 h-3" /></Button>
                 </div>
