@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -30,6 +30,7 @@ const CustomerForm = ({ onSubmit, onBack, model, optionals, includedItemsTotal =
   const [cities, setCities] = useState<string[]>([]);
   const [loadingCities, setLoadingCities] = useState(false);
   const [formData, setFormData] = useState({ name: "", whatsapp: "" });
+  const [touched, setTouched] = useState<Record<string, boolean>>({});
   const { detectLocation, loading: geoLoading } = useGeolocation();
 
   // Auto-detect location on mount
@@ -62,8 +63,27 @@ const CustomerForm = ({ onSubmit, onBack, model, optionals, includedItemsTotal =
 
   const totalPrice = model.base_price + includedItemsTotal + optionals.reduce((sum: number, opt: any) => sum + opt.price, 0);
 
+  // Real-time inline validation
+  const errors = useMemo(() => {
+    const e: Record<string, string> = {};
+    if (touched.name && formData.name.trim().length > 0 && formData.name.trim().length < 3)
+      e.name = "Informe seu nome completo (mínimo 3 caracteres)";
+    if (touched.whatsapp) {
+      const digits = formData.whatsapp.replace(/\D/g, "");
+      if (digits.length > 0 && (digits.length < 10 || digits.length > 11))
+        e.whatsapp = "Informe um número válido com DDD (10 ou 11 dígitos)";
+    }
+    if (touched.uf && !uf) e.uf = "Selecione um estado";
+    if (touched.city && !city) e.city = "Selecione uma cidade";
+    return e;
+  }, [formData, uf, city, touched]);
+
+  const markTouched = (field: string) => setTouched(prev => ({ ...prev, [field]: true }));
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    // Mark all touched on submit
+    setTouched({ name: true, whatsapp: true, uf: true, city: true });
     if (!formData.name || !city || !uf || !formData.whatsapp) {
       toast.error("Preencha todos os campos");
       return;
@@ -104,9 +124,12 @@ const CustomerForm = ({ onSubmit, onBack, model, optionals, includedItemsTotal =
               id="name"
               value={formData.name}
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+              onBlur={() => markTouched("name")}
               placeholder="Seu nome"
               required
+              className={errors.name ? "border-destructive" : ""}
             />
+            {errors.name && <p className="text-xs text-destructive mt-1">{errors.name}</p>}
           </div>
 
           <div>
@@ -121,8 +144,9 @@ const CustomerForm = ({ onSubmit, onBack, model, optionals, includedItemsTotal =
             <select
               id="uf"
               value={uf}
-              onChange={(e) => { setUf(e.target.value); setCity(""); }}
-              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              onChange={(e) => { setUf(e.target.value); setCity(""); markTouched("uf"); }}
+              onBlur={() => markTouched("uf")}
+              className={`flex h-10 w-full rounded-md border ${errors.uf ? "border-destructive" : "border-input"} bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring`}
               required
             >
               <option value="">Selecione o estado</option>
@@ -130,6 +154,7 @@ const CustomerForm = ({ onSubmit, onBack, model, optionals, includedItemsTotal =
                 <option key={s.abbr} value={s.abbr}>{s.name} ({s.abbr})</option>
               ))}
             </select>
+            {errors.uf && <p className="text-xs text-destructive mt-1">{errors.uf}</p>}
           </div>
 
           <div>
@@ -142,8 +167,9 @@ const CustomerForm = ({ onSubmit, onBack, model, optionals, includedItemsTotal =
               <select
                 id="city"
                 value={city}
-                onChange={(e) => setCity(e.target.value)}
-                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                onChange={(e) => { setCity(e.target.value); markTouched("city"); }}
+                onBlur={() => markTouched("city")}
+                className={`flex h-10 w-full rounded-md border ${errors.city ? "border-destructive" : "border-input"} bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring`}
                 required
               >
                 <option value="">Selecione a cidade</option>
@@ -156,10 +182,13 @@ const CustomerForm = ({ onSubmit, onBack, model, optionals, includedItemsTotal =
                 id="city"
                 value={city}
                 onChange={(e) => setCity(e.target.value)}
+                onBlur={() => markTouched("city")}
                 placeholder="Selecione um estado primeiro"
                 required
+                className={errors.city ? "border-destructive" : ""}
               />
             )}
+            {errors.city && <p className="text-xs text-destructive mt-1">{errors.city}</p>}
           </div>
 
           <div>
@@ -176,9 +205,12 @@ const CustomerForm = ({ onSubmit, onBack, model, optionals, includedItemsTotal =
                   .replace(/(\d{5})(\d)/, "$1-$2");
                 setFormData({ ...formData, whatsapp: formatted });
               }}
+              onBlur={() => markTouched("whatsapp")}
               placeholder="(00) 00000-0000"
               required
+              className={errors.whatsapp ? "border-destructive" : ""}
             />
+            {errors.whatsapp && <p className="text-xs text-destructive mt-1">{errors.whatsapp}</p>}
           </div>
 
           <div className="bg-muted/50 p-4 rounded-lg">

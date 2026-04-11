@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useStoreData } from "@/hooks/useStoreData";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -12,6 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Loader2, Lock, CheckCircle, AlertTriangle, Copy, Package, XCircle, CheckCheck, Eye, FileDown, ExternalLink, Check, Radio, CreditCard, Users, UserPlus, Send, ZoomIn, ZoomOut, X, Search, RefreshCw, Download, Filter } from "lucide-react";
 import { toast } from "sonner";
+import { LeadsSkeleton } from "./AdminLoadingSkeleton";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import ProposalView from "@/components/simulator/ProposalView";
@@ -75,6 +76,7 @@ const AdminLeads = () => {
   const [assignTargetUser, setAssignTargetUser] = useState<string>("");
   const [partners, setPartners] = useState<{ id: string; name: string; logo_url: string | null; banner_1_url: string | null; banner_2_url: string | null; display_percent?: number }[]>([]);
   const [assigning, setAssigning] = useState(false);
+  const [rejecting, setRejecting] = useState<string | null>(null);
 
   const isOwner = role === "owner";
 
@@ -168,7 +170,10 @@ const AdminLeads = () => {
   }, [store]);
 
   const handleAccept = async (distId: string) => {
+    if (accepting) return; // prevent double-click
     setAccepting(distId);
+    // Optimistic: immediately move to accepted in UI
+    setLeads(prev => prev.map(l => l.id === distId ? { ...l, status: "accepted", accepted_at: new Date().toISOString(), accepted_by: profile?.id || null } : l));
     try {
       const { data, error } = await supabase.functions.invoke("accept-lead", {
         body: { distribution_id: distId },
@@ -182,12 +187,18 @@ const AdminLeads = () => {
       toast.success(msg);
       loadData();
     } catch (err: any) {
-      toast.error(err.message || "Erro ao aceitar lead");
+      // Revert optimistic update
+      setLeads(prev => prev.map(l => l.id === distId ? { ...l, status: "pending", accepted_at: null, accepted_by: null } : l));
+      toast.error(err.message || "Não foi possível aceitar o lead. Verifique sua conexão e tente novamente.");
     }
     setAccepting(null);
   };
 
   const handleReject = async (distId: string) => {
+    if (rejecting) return;
+    setRejecting(distId);
+    // Optimistic update
+    setLeads(prev => prev.map(l => l.id === distId ? { ...l, status: "rejected" } : l));
     try {
       const { error } = await supabase
         .from("lead_distributions")
@@ -197,7 +208,10 @@ const AdminLeads = () => {
       toast.success("Lead recusado");
       loadData();
     } catch (err: any) {
-      toast.error(err.message || "Erro ao recusar lead");
+      setLeads(prev => prev.map(l => l.id === distId ? { ...l, status: "pending" } : l));
+      toast.error(err.message || "Não foi possível recusar o lead. Tente novamente.");
+    } finally {
+      setRejecting(null);
     }
   };
 
@@ -446,7 +460,9 @@ const AdminLeads = () => {
     return "";
   };
 
-  if (loading || leadSubActive === null) return <div className="flex items-center justify-center py-20"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
+  if (loading || leadSubActive === null) {
+    return <LeadsSkeleton />;
+  }
 
   if (!storeInfo?.lead_plan_active) {
     return (
