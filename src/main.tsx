@@ -43,30 +43,4 @@ if (isPreviewHost || isInIframe) {
 document.addEventListener("touchstart", () => {}, { passive: true });
 document.addEventListener("touchmove", () => {}, { passive: true });
 
-// ── DevTools detection (production only) ──
-if (import.meta.env.PROD) {
-  const devtools = { open: false };
-  const threshold = 160;
-
-  setInterval(() => {
-    if (
-      window.outerWidth - window.innerWidth > threshold ||
-      window.outerHeight - window.innerHeight > threshold
-    ) {
-      if (!devtools.open) {
-        devtools.open = true;
-        import("@/integrations/supabase/client").then(({ supabase }) => {
-          supabase.auth.getSession().then(({ data: { session } }) => {
-            if (session) {
-              console.clear();
-            }
-          });
-        });
-      }
-    } else {
-      devtools.open = false;
-    }
-  }, 500);
-}
-
 createRoot(document.getElementById("root")!).render(<App />);

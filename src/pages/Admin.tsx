@@ -1,29 +1,37 @@
-import { useEffect, useState } from "react";
+import { lazy, Suspense, useEffect, useState } from "react";
 import { useNavigate, useLocation, Routes, Route } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Loader2, Menu as MenuIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import AdminSidebarContent from "@/components/admin/AdminSidebarContent";
 import FloatingPanel from "@/components/admin/FloatingPanel";
-import AdminDashboard from "@/components/admin/AdminDashboard";
-import BrandCategoryManager from "@/components/admin/BrandCategoryManager";
-import PoolModelManager from "@/components/admin/PoolModelManager";
-import OptionalManager from "@/components/admin/OptionalManager";
-import AdminProfile from "@/components/admin/AdminProfile";
-import ManualProposal from "@/components/admin/ManualProposal";
-import StoresManager from "@/components/admin/StoresManager";
-import TeamManager from "@/components/admin/TeamManager";
-import TeamPerformance from "@/components/admin/TeamPerformance";
-import TeamCommissions from "@/components/admin/TeamCommissions";
-import SubscriptionManager from "@/components/admin/SubscriptionManager";
-import AdminLeads from "@/components/admin/AdminLeads";
-import InvoiceHistory from "@/components/admin/InvoiceHistory";
-import StorePartnersManager from "@/components/admin/StorePartnersManager";
 import { useStoreData } from "@/hooks/useStoreData";
 import PendingLeadsAlert from "@/components/admin/PendingLeadsAlert";
 import MobileBottomNav from "@/components/admin/MobileBottomNav";
 import PwaInstallBanner from "@/components/PwaInstallBanner";
 import { NotificationPrompt } from "@/components/NotificationPrompt";
+
+// Lazy load ALL sub-pages for smaller initial bundle
+const AdminDashboard = lazy(() => import("@/components/admin/AdminDashboard"));
+const BrandCategoryManager = lazy(() => import("@/components/admin/BrandCategoryManager"));
+const PoolModelManager = lazy(() => import("@/components/admin/PoolModelManager"));
+const OptionalManager = lazy(() => import("@/components/admin/OptionalManager"));
+const AdminProfile = lazy(() => import("@/components/admin/AdminProfile"));
+const ManualProposal = lazy(() => import("@/components/admin/ManualProposal"));
+const StoresManager = lazy(() => import("@/components/admin/StoresManager"));
+const TeamManager = lazy(() => import("@/components/admin/TeamManager"));
+const TeamPerformance = lazy(() => import("@/components/admin/TeamPerformance"));
+const TeamCommissions = lazy(() => import("@/components/admin/TeamCommissions"));
+const SubscriptionManager = lazy(() => import("@/components/admin/SubscriptionManager"));
+const AdminLeads = lazy(() => import("@/components/admin/AdminLeads"));
+const InvoiceHistory = lazy(() => import("@/components/admin/InvoiceHistory"));
+const StorePartnersManager = lazy(() => import("@/components/admin/StorePartnersManager"));
+
+const SubpageFallback = () => (
+  <div className="flex justify-center py-12">
+    <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
+  </div>
+);
 
 const PAGE_TITLES: Record<string, string> = {
   "": "Dashboard",
@@ -59,8 +67,10 @@ const Admin = () => {
   }, [location.pathname]);
 
   useEffect(() => {
+    let cancelled = false;
     const checkAuth = async () => {
       const { data: { session } } = await supabase.auth.getSession();
+      if (cancelled) return;
       if (!session) { navigate("/login"); return; }
 
       const { data: roleData } = await supabase
@@ -69,6 +79,7 @@ const Admin = () => {
         .eq("user_id", session.user.id)
         .single();
 
+      if (cancelled) return;
       if (!roleData?.role) { navigate("/login"); return; }
       if (roleData.role === "super_admin") { navigate("/matriz", { replace: true }); return; }
       if (roleData.role !== "owner" && roleData.role !== "seller") { navigate("/login"); return; }
@@ -76,6 +87,7 @@ const Admin = () => {
       setAuthLoading(false);
     };
     checkAuth();
+    return () => { cancelled = true; };
   }, [navigate]);
 
   if (authLoading || storeLoading) {
@@ -135,31 +147,33 @@ const Admin = () => {
       >
         <div className="p-4 md:p-6">
           <PendingLeadsAlert />
-          <Routes>
-            <Route index element={<AdminDashboard />} />
-            <Route path="gerar-proposta" element={<ManualProposal />} />
-            <Route path="leads" element={<AdminLeads />} />
-            <Route path="faturas" element={<InvoiceHistory />} />
-            <Route path="perfil" element={<AdminProfile />} />
-            {!isOwner && (
-              <>
-                <Route path="performance" element={<TeamPerformance />} />
-                <Route path="comissao" element={<TeamCommissions />} />
-              </>
-            )}
-            {isOwner && (
-              <>
-                <Route path="marcas" element={<BrandCategoryManager mode="brands" />} />
-                <Route path="categorias" element={<BrandCategoryManager mode="categories" />} />
-                <Route path="modelos" element={<PoolModelManager />} />
-                <Route path="opcionais" element={<OptionalManager />} />
-                <Route path="equipe" element={<TeamManager />} />
-                <Route path="lojistas" element={<StoresManager />} />
-                <Route path="assinatura" element={<SubscriptionManager />} />
-                <Route path="parceiros" element={<StorePartnersManager />} />
-              </>
-            )}
-          </Routes>
+          <Suspense fallback={<SubpageFallback />}>
+            <Routes>
+              <Route index element={<AdminDashboard />} />
+              <Route path="gerar-proposta" element={<ManualProposal />} />
+              <Route path="leads" element={<AdminLeads />} />
+              <Route path="faturas" element={<InvoiceHistory />} />
+              <Route path="perfil" element={<AdminProfile />} />
+              {!isOwner && (
+                <>
+                  <Route path="performance" element={<TeamPerformance />} />
+                  <Route path="comissao" element={<TeamCommissions />} />
+                </>
+              )}
+              {isOwner && (
+                <>
+                  <Route path="marcas" element={<BrandCategoryManager mode="brands" />} />
+                  <Route path="categorias" element={<BrandCategoryManager mode="categories" />} />
+                  <Route path="modelos" element={<PoolModelManager />} />
+                  <Route path="opcionais" element={<OptionalManager />} />
+                  <Route path="equipe" element={<TeamManager />} />
+                  <Route path="lojistas" element={<StoresManager />} />
+                  <Route path="assinatura" element={<SubscriptionManager />} />
+                  <Route path="parceiros" element={<StorePartnersManager />} />
+                </>
+              )}
+            </Routes>
+          </Suspense>
         </div>
       </main>
 

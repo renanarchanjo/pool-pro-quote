@@ -41,7 +41,7 @@ export const useStoreData = () => {
 
   const fetchStoreData = useCallback(async (attempt = 0, silent = false) => {
     try {
-      if (attempt >= 5) {
+      if (attempt >= 3) {
         resetState();
         setLoading(false);
         return;
@@ -63,7 +63,7 @@ export const useStoreData = () => {
       if (profileError) throw profileError;
 
       if (!profileData?.store_id) {
-        await new Promise(r => setTimeout(r, 600 * (attempt + 1)));
+        await new Promise(r => setTimeout(r, 300 * (attempt + 1)));
         return fetchStoreData(attempt + 1, silent);
       }
 
@@ -90,7 +90,7 @@ export const useStoreData = () => {
       if (roleError) throw roleError;
 
       if (!storeData || !roleData?.role) {
-        await new Promise(r => setTimeout(r, 600 * (attempt + 1)));
+        await new Promise(r => setTimeout(r, 300 * (attempt + 1)));
         return fetchStoreData(attempt + 1, silent);
       }
 
