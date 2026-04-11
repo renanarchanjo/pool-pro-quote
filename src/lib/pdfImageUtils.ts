@@ -274,6 +274,7 @@ interface ImageSnapshot {
   originalStyleMaxHeight: string;
   originalStyleDisplay: string;
   originalStyleVisibility: string;
+  originalStyleObjectFit: string;
 }
 
 const getRenderableImageSize = (img: HTMLImageElement) => {
