@@ -36,10 +36,7 @@ const AdminProfile = () => {
     const file = e.target.files?.[0];
     if (!file || !store) return;
 
-    if (!file.type.startsWith("image/")) {
-      toast.error("Selecione um arquivo de imagem");
-      return;
-    }
+    if (!validateImageFile(file)) return;
 
     setUploading(true);
     try {
