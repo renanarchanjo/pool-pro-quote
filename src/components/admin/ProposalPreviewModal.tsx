@@ -8,6 +8,8 @@ interface ProposalPreviewModalProps {
   store: { name?: string; city?: string; state?: string; whatsapp?: string } | null;
   storeSettings: any;
   partners: any[];
+  hideDownloadPdf?: boolean;
+  hideWhatsApp?: boolean;
 }
 
 const ProposalPreviewModal = ({
