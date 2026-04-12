@@ -21,55 +21,50 @@ const DashboardKPIs = ({
 
   const faturamentoBruto = closed.reduce((s, p) => s + p.total_price, 0);
 
-  // Custos totais = custo modelo + itens inclusos + opcionais
-  const custosTotais = closed.reduce((s, p) => {
-    const modelCost = p.pool_models?.cost || 0;
-    const includedItemsCost = (p.pool_models as any)?._included_items_cost || 0;
-    const optionalsCost = Array.isArray(p.selected_optionals)
-      ? p.selected_optionals.reduce((sum: number, o: any) => sum + (o?.cost || 0), 0)
-      : 0;
-    return s + modelCost + includedItemsCost + optionalsCost;
-  }, 0);
-
-  // Comissões a pagar (owner): para cada proposta fechada, encontrar quem aceitou e aplicar sua comissão
-  const comissoesPagar = isOwner
-    ? closed.reduce((s, p) => {
-        // Find who accepted this proposal
-        const dist = leadDistributions.find(
-          (d) => d.proposal_id === p.id && d.status === "accepted"
-        );
-        const memberId = dist?.accepted_by || (p as any).created_by;
-        if (!memberId) return s;
-        const commSetting = allCommissions.find((c) => c.member_id === memberId);
-        if (!commSetting) return s;
-        return s + p.total_price * (commSetting.commission_percent / 100);
-      }, 0)
-    : 0;
-
-  // Lucro Líquido = Faturamento Bruto - Custos Totais - Comissões a Pagar
-  const lucroLiquido = faturamentoBruto - custosTotais - comissoesPagar;
-
-  // Comissão do colaborador (seller)
-  const comissaoTotal = faturamentoBruto * (commissionPercent / 100);
-
   const totalWorked = proposals.filter((p) => p.status !== "nova").length;
   const conversionRate = totalWorked > 0 ? (closed.length / totalWorked) * 100 : 0;
-
   const ticketMedio = closed.length > 0 ? faturamentoBruto / closed.length : 0;
 
-  const marginPct = faturamentoBruto > 0 ? (lucroLiquido / faturamentoBruto) * 100 : 0;
+  // Owner-only: custos e lucro líquido
+  let secondKpi: { label: string; value: string; subtitle?: string };
 
-  const secondKpi = isOwner
-    ? {
-        label: "LUCRO LÍQUIDO",
-        value: formatCurrency(lucroLiquido),
-        subtitle: faturamentoBruto > 0 ? `margem ${marginPct.toFixed(1)}%` : undefined,
-      }
-    : {
-        label: "COMISSÃO",
-        value: formatCurrency(comissaoTotal),
-        subtitle: `${commissionPercent}% sobre vendas`,
-      };
+  if (isOwner) {
+    const custosTotais = closed.reduce((s, p) => {
+      const modelCost = p.pool_models?.cost || 0;
+      const includedItemsCost = (p.pool_models as any)?._included_items_cost || 0;
+      const optionalsCost = Array.isArray(p.selected_optionals)
+        ? p.selected_optionals.reduce((sum: number, o: any) => sum + (o?.cost || 0), 0)
+        : 0;
+      return s + modelCost + includedItemsCost + optionalsCost;
+    }, 0);
+
+    const comissoesPagar = closed.reduce((s, p) => {
+      const dist = leadDistributions.find(
+        (d) => d.proposal_id === p.id && d.status === "accepted"
+      );
+      const memberId = dist?.accepted_by || (p as any).created_by;
+      if (!memberId) return s;
+      const commSetting = allCommissions.find((c) => c.member_id === memberId);
+      if (!commSetting) return s;
+      return s + p.total_price * (commSetting.commission_percent / 100);
+    }, 0);
+
+    const lucroLiquido = faturamentoBruto - custosTotais - comissoesPagar;
+    const marginPct = faturamentoBruto > 0 ? (lucroLiquido / faturamentoBruto) * 100 : 0;
+
+    secondKpi = {
+      label: "LUCRO LÍQUIDO",
+      value: formatCurrency(lucroLiquido),
+      subtitle: faturamentoBruto > 0 ? `margem ${marginPct.toFixed(1)}%` : undefined,
+    };
+  } else {
+    const comissaoTotal = faturamentoBruto * (commissionPercent / 100);
+    secondKpi = {
+      label: "COMISSÃO",
+      value: formatCurrency(comissaoTotal),
+      subtitle: `${commissionPercent}% sobre vendas`,
+    };
+  }
 
   const kpis = [
     {
