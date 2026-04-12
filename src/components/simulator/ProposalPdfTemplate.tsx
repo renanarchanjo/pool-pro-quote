@@ -1,12 +1,17 @@
 import simulapoolLogoFooter from "@/assets/simulapool-logo-footer.png?inline";
 
+export interface PdfIncludedItem {
+  name: string;
+  item_type?: "material" | "mao_de_obra" | string;
+}
+
 export interface PdfTemplatePoolModel {
   name: string;
   length?: number | null;
   width?: number | null;
   depth?: number | null;
   differentials: string[];
-  included_items: string[];
+  included_items: (string | PdfIncludedItem)[];
   not_included_items: string[];
   base_price: number;
   delivery_days: number;
