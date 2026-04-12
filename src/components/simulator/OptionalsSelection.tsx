@@ -86,20 +86,20 @@ const OptionalsSelection = ({ optionals, modelOptionals = [], selectedOptionals:
     }
   };
 
-  const handleSelectOptional = (groupId: string, optionalId: string) => {
+  const handleSelectOptional = (groupId: string, optionalId: string, selectionType?: string) => {
     setSelected((prev) => {
       const current = prev[groupId] || [];
-      // Regular optionals: only 1 per group (toggle on/off)
       if (current.includes(optionalId)) {
-        return { ...prev, [groupId]: [] };
+        // Radio behavior: cannot deselect in single-select groups
+        if (selectionType === "single") return prev;
+        return { ...prev, [groupId]: current.filter(id => id !== optionalId) };
       }
-      return { ...prev, [groupId]: [optionalId] };
+      // Single: replace selection; Multiple: add to selection
+      if (selectionType === "single") {
+        return { ...prev, [groupId]: [optionalId] };
+      }
+      return { ...prev, [groupId]: [...current, optionalId] };
     });
-  };
-
-  // Kept for backwards compat — now same as handleSelectOptional
-  const handleRadioChange = (groupId: string, optionalId: string) => {
-    handleSelectOptional(groupId, optionalId);
   };
 
   const handleContinue = () => {
