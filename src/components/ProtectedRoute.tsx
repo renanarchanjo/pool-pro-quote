@@ -3,19 +3,22 @@ import { Navigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Loader2 } from "lucide-react";
 
-type Status = "loading" | "ok" | "unauth" | "forbidden";
+type Status = "loading" | "ok" | "unauth" | "forbidden" | "mfa_required";
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
   requiredRole?: "owner" | "seller" | "super_admin";
   /** Where to redirect if the user lacks the required role */
   forbiddenRedirect?: string;
+  /** Where to redirect if MFA verification is needed */
+  mfaRedirect?: string;
 }
 
 const ProtectedRoute = ({
   children,
   requiredRole,
   forbiddenRedirect = "/",
+  mfaRedirect = "/loginmatriz",
 }: ProtectedRouteProps) => {
   const [status, setStatus] = useState<Status>("loading");
 
@@ -32,6 +35,22 @@ const ProtectedRoute = ({
       if (!session) {
         setStatus("unauth");
         return;
+      }
+
+      // Check MFA assurance level for roles that require it
+      if (requiredRole === "owner" || requiredRole === "super_admin") {
+        const { data: mfaData } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
+
+        if (cancelled) return;
+
+        // User has MFA enrolled (nextLevel is aal2) but session is only aal1
+        if (
+          mfaData?.nextLevel === "aal2" &&
+          mfaData?.currentLevel === "aal1"
+        ) {
+          setStatus("mfa_required");
+          return;
+        }
       }
 
       if (requiredRole) {
@@ -88,6 +107,7 @@ const ProtectedRoute = ({
   }
 
   if (status === "unauth") return <Navigate to="/login" replace />;
+  if (status === "mfa_required") return <Navigate to={mfaRedirect} replace />;
   if (status === "forbidden") return <Navigate to={forbiddenRedirect} replace />;
 
   return <>{children}</>;
