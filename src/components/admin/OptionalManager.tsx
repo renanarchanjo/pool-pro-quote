@@ -110,15 +110,11 @@ const OptionalManager = () => {
     if (selected.length === 0) return;
     try {
       if (action === "delete") {
-        for (const id of selected) {
-          await supabase.from("optionals").delete().eq("id", id);
-        }
+        await Promise.all(selected.map(id => supabase.from("optionals").delete().eq("id", id)));
         toast.success(`${selected.length} opcional(is) excluído(s)`);
       } else {
         const active = action === "activate";
-        for (const id of selected) {
-          await supabase.from("optionals").update({ active }).eq("id", id);
-        }
+        await supabase.from("optionals").update({ active }).in("id", selected);
         toast.success(`${selected.length} opcional(is) ${active ? "ativado(s)" : "desativado(s)"}`);
       }
       setSelected([]);
