@@ -177,7 +177,12 @@ const TeamManager = () => {
       loadMembers();
     } catch (error: any) {
       console.error("Error inviting:", error);
-      toast.error(error.message || "Erro ao convidar membro");
+      const msg = error.message || "Erro ao convidar membro";
+      if (msg.toLowerCase().includes("limite") || msg.toLowerCase().includes("limit")) {
+        toast.error("Limite de colaboradores atingido. Faça upgrade do plano ou contrate vagas extras.");
+      } else {
+        toast.error(msg);
+      }
     } finally {
       setSubmitting(false);
     }
