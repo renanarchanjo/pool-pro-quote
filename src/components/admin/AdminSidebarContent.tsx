@@ -1,12 +1,11 @@
 import { useNavigate, useLocation } from "react-router-dom";
 import ThemeToggle from "@/components/ThemeToggle";
 import BrandLogo from "@/components/BrandLogo";
-import {
-  LayoutGrid, FilePlus, Layers, Boxes, Package, UserCircle, Users, LogOut, UsersRound, CreditCard, Receipt, TrendingUp, DollarSign, Handshake, FolderTree
-} from "lucide-react";
+import { LogOut } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useStoreData } from "@/hooks/useStoreData";
+import { getAdminNavGroups, type SidebarNavItem } from "./adminNavItems";
 
 interface AdminSidebarContentProps {
   onNavigate?: () => void;
@@ -43,33 +42,9 @@ const AdminSidebarContent = ({ onNavigate, isMobile = false }: AdminSidebarConte
     .join("")
     .toUpperCase();
 
-  const mainItems = [
-    { title: "Dashboard", url: "/admin", icon: LayoutGrid },
-    { title: "Gerar Nova Proposta", url: "/admin/gerar-proposta", icon: FilePlus },
-    { title: "Leads (Tráfego)", url: "/admin/leads", icon: Users },
-  ];
+  const groups = getAdminNavGroups(isOwner);
 
-  const catalogItems = isOwner ? [
-    { title: "Marcas Parceiras", url: "/admin/parceiros", icon: Handshake },
-    { title: "Marcas", url: "/admin/marcas", icon: Layers },
-    { title: "Categorias de Marcas", url: "/admin/categorias", icon: FolderTree },
-    { title: "Modelos e Opcionais", url: "/admin/modelos", icon: Boxes },
-    { title: "Opcionais", url: "/admin/opcionais", icon: Package },
-  ] : [];
-
-  const accountItems = [
-    { title: "Minha Conta", url: "/admin/perfil", icon: UserCircle },
-    ...(!isOwner ? [
-      { title: "Performance", url: "/admin/performance", icon: TrendingUp },
-      { title: "Comissão", url: "/admin/comissao", icon: DollarSign },
-    ] : [
-      { title: "Minha Equipe", url: "/admin/equipe", icon: UsersRound },
-      { title: "Faturas", url: "/admin/faturas", icon: Receipt },
-      { title: "Assinatura", url: "/admin/assinatura", icon: CreditCard },
-    ]),
-  ];
-
-  const renderGroup = (label: string, items: typeof mainItems) => {
+  const renderGroup = (label: string, items: SidebarNavItem[]) => {
     if (items.length === 0) return null;
     return (
       <div className="mb-1">
@@ -121,9 +96,10 @@ const AdminSidebarContent = ({ onNavigate, isMobile = false }: AdminSidebarConte
 
       {/* Content */}
       <div className="flex-1 overflow-y-auto px-1 py-1">
-        {renderGroup("Painel Comercial", mainItems)}
-        {!isMobile && renderGroup("Cadastro", catalogItems)}
-        {renderGroup("Conta", accountItems)}
+        {groups.map((g) => {
+          if (isMobile && g.hideOnMobile) return null;
+          return <div key={g.label}>{renderGroup(g.label, g.items)}</div>;
+        })}
       </div>
 
       {/* Footer */}

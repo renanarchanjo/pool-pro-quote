@@ -1,8 +1,6 @@
 import { useNavigate, useLocation } from "react-router-dom";
 import ThemeToggle from "@/components/ThemeToggle";
-import {
-  LayoutDashboard, FilePlus, Tag, Box, Package, User, Users, LogOut, UsersRound, CreditCard, Receipt, TrendingUp, DollarSign, Handshake, FolderTree
-} from "lucide-react";
+import { LogOut } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -19,6 +17,7 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useStoreData } from "@/hooks/useStoreData";
+import { getAdminNavGroups, type SidebarNavItem } from "./adminNavItems";
 
 const AdminSidebar = () => {
   const navigate = useNavigate();
@@ -51,33 +50,9 @@ const AdminSidebar = () => {
     .join("")
     .toUpperCase();
 
-  const mainItems = [
-    { title: "Dashboard", url: "/admin", icon: LayoutDashboard },
-    { title: "Gerar Nova Proposta", url: "/admin/gerar-proposta", icon: FilePlus },
-    { title: "Leads (Tráfego)", url: "/admin/leads", icon: Users },
-  ];
+  const groups = getAdminNavGroups(isOwner);
 
-  const catalogItems = isOwner ? [
-    { title: "Marcas Parceiras", url: "/admin/parceiros", icon: Handshake },
-    { title: "Marcas", url: "/admin/marcas", icon: Tag },
-    { title: "Categorias de Marcas", url: "/admin/categorias", icon: FolderTree },
-    { title: "Modelos e Opcionais", url: "/admin/modelos", icon: Box },
-    { title: "Opcionais", url: "/admin/opcionais", icon: Package },
-  ] : [];
-
-  const accountItems = [
-    { title: "Minha Conta", url: "/admin/perfil", icon: User },
-    ...(!isOwner ? [
-      { title: "Performance", url: "/admin/performance", icon: TrendingUp },
-      { title: "Comissão", url: "/admin/comissao", icon: DollarSign },
-    ] : [
-      { title: "Minha Equipe", url: "/admin/equipe", icon: UsersRound },
-      { title: "Faturas", url: "/admin/faturas", icon: Receipt },
-      { title: "Assinatura", url: "/admin/assinatura", icon: CreditCard },
-    ]),
-  ];
-
-  const renderGroup = (label: string, items: typeof mainItems) => {
+  const renderGroup = (label: string, items: SidebarNavItem[]) => {
     if (items.length === 0) return null;
     return (
       <SidebarGroup>
@@ -127,9 +102,10 @@ const AdminSidebar = () => {
       </SidebarHeader>
 
       <SidebarContent className="px-2">
-        {renderGroup("Painel Comercial", mainItems)}
-        {!isMobile && renderGroup("Cadastro", catalogItems)}
-        {renderGroup("Conta", accountItems)}
+        {groups.map((g) => {
+          if (isMobile && g.hideOnMobile) return null;
+          return <div key={g.label}>{renderGroup(g.label, g.items)}</div>;
+        })}
       </SidebarContent>
 
       <SidebarFooter className="p-3 border-t border-border shrink-0 safe-area-bottom">
