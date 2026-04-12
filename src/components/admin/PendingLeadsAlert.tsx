@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -11,6 +11,7 @@ const PendingLeadsAlert = () => {
   const [storeId, setStoreId] = useState<string | null>(null);
   const [lastCheckedCount, setLastCheckedCount] = useState(0);
   const navigate = useNavigate();
+  const location = useLocation();
 
   const checkPendingLeads = useCallback(async (showOnlyIfNew = false) => {
     const { data: { session } } = await supabase.auth.getSession();
@@ -36,13 +37,14 @@ const PendingLeadsAlert = () => {
 
     const newCount = count || 0;
     if (newCount > 0) {
-      if (!showOnlyIfNew || newCount > lastCheckedCount) {
-        setPendingCount(newCount);
+      setPendingCount(newCount);
+      const isOnLeadsPage = location.pathname.includes("/admin/leads");
+      if (!isOnLeadsPage && (!showOnlyIfNew || newCount > lastCheckedCount)) {
         setOpen(true);
       }
     }
     setLastCheckedCount(newCount);
-  }, [storeId, lastCheckedCount]);
+  }, [storeId, lastCheckedCount, location.pathname]);
 
   // Initial check on mount — no delay needed
   useEffect(() => {
