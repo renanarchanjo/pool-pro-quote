@@ -8,6 +8,8 @@ interface ProposalPreviewModalProps {
   store: { name?: string; city?: string; state?: string; whatsapp?: string } | null;
   storeSettings: any;
   partners: any[];
+  hideDownloadPdf?: boolean;
+  hideWhatsApp?: boolean;
 }
 
 const ProposalPreviewModal = ({
@@ -16,6 +18,8 @@ const ProposalPreviewModal = ({
   store,
   storeSettings,
   partners,
+  hideDownloadPdf = true,
+  hideWhatsApp = true,
 }: ProposalPreviewModalProps) => {
   const [zoomed, setZoomed] = useState(false);
 
@@ -107,8 +111,8 @@ const ProposalPreviewModal = ({
               brandPartnerId={brand?.partner_id}
               partners={partners}
               storeWhatsapp={store?.whatsapp}
-              hideDownloadPdf
-              hideWhatsApp
+              hideDownloadPdf={hideDownloadPdf}
+              hideWhatsApp={hideWhatsApp}
             />
           </div>
         </div>
