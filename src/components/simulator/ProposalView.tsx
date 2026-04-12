@@ -128,7 +128,12 @@ const ProposalView = ({
     }
     return partners.filter((p) => p.banner_1_url).map((p) => ({ url: p.banner_1_url!, name: p.name }));
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [matchedPartner?.id, partners.length]);
+  }, [matchedPartner?.id, partnerUrls]);
+
+  const partnerUrls = useMemo(
+    () => partners.map(p => [p.logo_url, p.banner_1_url].filter(Boolean)).flat().join(","),
+    [partners]
+  );
 
   const resolveSrc = (url?: string | null) => {
     if (!url) return null;
