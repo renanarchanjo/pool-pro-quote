@@ -147,6 +147,7 @@ const TeamManager = () => {
       toast.error("A senha deve ter pelo menos 6 caracteres");
       return;
     }
+    // UX hint only — the backend enforces the real limit
     if (!isUnlimited && members.length >= maxMembers) {
       toast.error(`Limite de ${maxMembers} usuários no plano atual atingido. Faça upgrade para adicionar mais membros.`);
       return;
@@ -163,6 +164,7 @@ const TeamManager = () => {
           password: formData.password,
           full_name: formData.full_name,
           role: formData.role,
+          enforce_plan_limit: true,
         },
       });
 
@@ -175,7 +177,12 @@ const TeamManager = () => {
       loadMembers();
     } catch (error: any) {
       console.error("Error inviting:", error);
-      toast.error(error.message || "Erro ao convidar membro");
+      const msg = error.message || "Erro ao convidar membro";
+      if (msg.toLowerCase().includes("limite") || msg.toLowerCase().includes("limit")) {
+        toast.error("Limite de colaboradores atingido. Faça upgrade do plano ou contrate vagas extras.");
+      } else {
+        toast.error(msg);
+      }
     } finally {
       setSubmitting(false);
     }
