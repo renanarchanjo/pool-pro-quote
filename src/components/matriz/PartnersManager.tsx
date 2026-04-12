@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Loader2, Plus, Upload, Trash2, Image as ImageIcon, Trophy, Pencil, Check, Save, FolderPlus, Tag } from "lucide-react";
 import { toast } from "sonner";
+import { validateImageFile } from "@/lib/validateImageFile";
 
 interface Partner {
   id: string;
