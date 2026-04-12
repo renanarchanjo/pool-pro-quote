@@ -16,11 +16,7 @@ const sizes = {
 const BrandLogo = ({ size = "md", className = "", showSlogan = false, variant = "auto" }: BrandLogoProps) => {
   const s = sizes[size];
 
-  const simulaColor = variant === "light"
-    ? "text-white"
-    : variant === "dark"
-      ? "text-foreground"
-      : "text-foreground";
+  const simulaColor = variant === "light" ? "text-white" : "text-foreground";
 
   return (
     <div className={`flex items-center justify-center ${className}`}>
