@@ -1,8 +1,5 @@
 import { useNavigate, useLocation } from "react-router-dom";
-import {
-  LayoutGrid, CircleAlert,
-  Building2, Users, Wallet, MapPinned, Filter, LogOut,
-} from "lucide-react";
+import { LogOut } from "lucide-react";
 import ThemeToggle from "@/components/ThemeToggle";
 import {
   Sidebar, SidebarContent, SidebarGroup, SidebarGroupLabel,
@@ -12,6 +9,7 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import logoIcon from "@/assets/logo-icon-v3.webp";
+import { getMatrizNavGroups, type MatrizNavItem } from "./matrizNavItems";
 
 const MatrizSidebar = () => {
   const navigate = useNavigate();
@@ -34,21 +32,9 @@ const MatrizSidebar = () => {
     navigate("/login", { replace: true });
   };
 
-  const mainItems = [
-    { title: "Dashboard", url: "/matriz", icon: LayoutGrid },
-    { title: "Lojas Ativas", url: "/matriz/lojistas", icon: Building2 },
-    { title: "Parceiros", url: "/matriz/parceiros", icon: Users },
-    { title: "Mapa de Lojistas", url: "/matriz/mapa", icon: MapPinned },
-  ];
+  const groups = getMatrizNavGroups();
 
-  const operacaoItems = [
-    { title: "Leads", url: "/matriz/leads", icon: Filter },
-    { title: "Planos e Preços", url: "/matriz/planos", icon: Wallet },
-    { title: "Inadimplência", url: "/matriz/inadimplencia", icon: CircleAlert },
-    
-  ];
-
-  const renderGroup = (label: string, items: typeof mainItems) => (
+  const renderGroup = (label: string, items: MatrizNavItem[]) => (
     <SidebarGroup className="py-0">
       <SidebarGroupLabel className="text-[10px] font-semibold uppercase tracking-[0.1em] text-muted-foreground/70 px-3 pt-5 pb-1.5">
         {label}
@@ -93,8 +79,9 @@ const MatrizSidebar = () => {
       </SidebarHeader>
 
       <SidebarContent className="px-2 overflow-y-auto flex-1 min-h-0">
-        {renderGroup("Principal", mainItems)}
-        {renderGroup("Operação", operacaoItems)}
+        {groups.map((g) => (
+          <div key={g.label}>{renderGroup(g.label, g.items)}</div>
+        ))}
       </SidebarContent>
 
       <SidebarFooter className="mt-auto shrink-0 p-3 border-t border-border safe-area-bottom">

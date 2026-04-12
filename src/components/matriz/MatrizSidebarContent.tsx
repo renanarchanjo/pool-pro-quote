@@ -1,20 +1,17 @@
 import { useNavigate, useLocation } from "react-router-dom";
 import ThemeToggle from "@/components/ThemeToggle";
-import BrandLogo from "@/components/BrandLogo";
-import {
-  LayoutGrid, CircleAlert,
-  Building2, Users, Wallet, MapPinned, Filter, LogOut, Radar,
-} from "lucide-react";
+import { LogOut } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import logoIcon from "@/assets/logo-icon-v3.webp";
+import { getMatrizNavGroups, type MatrizNavItem } from "./matrizNavItems";
 
 interface MatrizSidebarContentProps {
   onNavigate?: () => void;
   isMobile?: boolean;
 }
 
-const MatrizSidebarContent = ({ onNavigate, isMobile = false }: MatrizSidebarContentProps) => {
+const MatrizSidebarContent = ({ onNavigate }: MatrizSidebarContentProps) => {
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -34,22 +31,9 @@ const MatrizSidebarContent = ({ onNavigate, isMobile = false }: MatrizSidebarCon
     navigate("/login", { replace: true });
   };
 
-  const mainItems = [
-    { title: "Dashboard", url: "/matriz", icon: LayoutGrid },
-    { title: "Lojas Ativas", url: "/matriz/lojistas", icon: Building2 },
-    { title: "Cobertura", url: "/matriz/cobertura", icon: Radar },
-    { title: "Parceiros", url: "/matriz/parceiros", icon: Users },
-    { title: "Mapa de Lojistas", url: "/matriz/mapa", icon: MapPinned },
-  ];
+  const groups = getMatrizNavGroups();
 
-  const operacaoItems = [
-    { title: "Leads", url: "/matriz/leads", icon: Filter },
-    { title: "Planos e Preços", url: "/matriz/planos", icon: Wallet },
-    { title: "Inadimplência", url: "/matriz/inadimplencia", icon: CircleAlert },
-    
-  ];
-
-  const renderGroup = (label: string, items: typeof mainItems) => (
+  const renderGroup = (label: string, items: MatrizNavItem[]) => (
     <div className="mb-1">
       <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground px-3 mt-4 mb-1.5 text-right">
         {label}
@@ -88,8 +72,9 @@ const MatrizSidebarContent = ({ onNavigate, isMobile = false }: MatrizSidebarCon
 
       {/* Content */}
       <div className="flex-1 overflow-y-auto px-1 py-1">
-        {renderGroup("Principal", mainItems)}
-        {renderGroup("Operação", operacaoItems)}
+        {groups.map((g) => (
+          <div key={g.label}>{renderGroup(g.label, g.items)}</div>
+        ))}
       </div>
 
       {/* Footer */}
