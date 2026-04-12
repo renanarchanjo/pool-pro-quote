@@ -164,6 +164,7 @@ const TeamManager = () => {
           password: formData.password,
           full_name: formData.full_name,
           role: formData.role,
+          enforce_plan_limit: true,
         },
       });
 
