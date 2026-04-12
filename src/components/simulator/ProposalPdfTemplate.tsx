@@ -126,10 +126,17 @@ const ProposalPdfTemplate = ({
   const featuredBanner = bannersToShow[0] ?? null;
   const footerPartners = partners.filter((partner) => partner.logo_url);
 
-  const materiais = model.included_items.filter((item) => !item.includes("[MO]"));
-  const maoDeObra = model.included_items
-    .filter((item) => item.includes("[MO]"))
-    .map((item) => item.replace("[MO] ", "").replace("[MO]", ""));
+  const isMaoDeObra = (item: string | PdfIncludedItem): boolean => {
+    if (typeof item === "object" && item.item_type) return item.item_type === "mao_de_obra";
+    return typeof item === "string" && item.includes("[MO]");
+  };
+  const getItemLabel = (item: string | PdfIncludedItem): string => {
+    if (typeof item === "object") return item.name;
+    return item.replace("[MO] ", "").replace("[MO]", "");
+  };
+
+  const materiais = model.included_items.filter((item) => !isMaoDeObra(item)).map(getItemLabel);
+  const maoDeObra = model.included_items.filter(isMaoDeObra).map(getItemLabel);
 
   const dimensions = [
     model.length ? `${model.length}m` : null,
