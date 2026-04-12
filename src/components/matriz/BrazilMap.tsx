@@ -71,6 +71,15 @@ const BrazilMap = ({ stateData, stores = [] }: Props) => {
     pinsByState[st].push(s);
   });
 
+  if (!geoData) {
+    return (
+      <div className="relative">
+        <Skeleton className="w-full rounded-lg" style={{ aspectRatio: "6/5" }} />
+        <p className="text-center text-xs text-muted-foreground mt-2 animate-pulse">Carregando mapa…</p>
+      </div>
+    );
+  }
+
   return (
     <div className="relative">
       <ComposableMap
@@ -80,7 +89,7 @@ const BrazilMap = ({ stateData, stores = [] }: Props) => {
         height={500}
         style={{ width: "100%", height: "auto" }}
       >
-        <Geographies geography={GEO_URL}>
+        <Geographies geography={geoData}>
           {({ geographies }) =>
             geographies.map((geo) => {
               const stateName = geo.properties.name || geo.properties.NAME;
