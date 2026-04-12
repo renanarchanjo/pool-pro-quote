@@ -112,34 +112,36 @@ const DashboardPipeline = ({ proposals, onUpdateStatus, onViewProposal, onExport
         />
       </div>
 
-      {/* Filter row — horizontal scroll on mobile */}
-      <div className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1 scrollbar-none">
-        <Select value={statusFilter} onValueChange={setStatusFilter}>
-          <SelectTrigger className="w-auto min-w-[100px] h-8 text-[13px] bg-input border-border rounded-md text-foreground whitespace-nowrap shrink-0">
-            <SelectValue placeholder="Status" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">Todos</SelectItem>
-            {Object.entries(STATUS_CONFIG).map(([k, v]) => (
-              <SelectItem key={k} value={k}>{v.label}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+      {/* Filter row — horizontal scroll on mobile + date popover outside overflow */}
+      <div className="flex gap-2 items-center">
+        <div className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1 scrollbar-none flex-1 min-w-0">
+          <Select value={statusFilter} onValueChange={setStatusFilter}>
+            <SelectTrigger className="w-auto min-w-[100px] h-8 text-[13px] bg-input border-border rounded-md text-foreground whitespace-nowrap shrink-0">
+              <SelectValue placeholder="Status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todos</SelectItem>
+              {Object.entries(STATUS_CONFIG).map(([k, v]) => (
+                <SelectItem key={k} value={k}>{v.label}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
 
-        <Select value={sortMode} onValueChange={(v) => setSortMode(v as SortMode)}>
-          <SelectTrigger className="w-auto min-w-[110px] h-8 text-[13px] bg-input border-border rounded-md text-foreground whitespace-nowrap shrink-0">
-            <div className="flex items-center gap-1.5">
-              <ArrowUpDown className="w-3.5 h-3.5" />
-              <SelectValue />
-            </div>
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="recente">Recente</SelectItem>
-            <SelectItem value="valor">Maior Valor</SelectItem>
-            <SelectItem value="probabilidade">Probabilidade</SelectItem>
-            <SelectItem value="tempo">Mais Antigo</SelectItem>
-          </SelectContent>
-        </Select>
+          <Select value={sortMode} onValueChange={(v) => setSortMode(v as SortMode)}>
+            <SelectTrigger className="w-auto min-w-[110px] h-8 text-[13px] bg-input border-border rounded-md text-foreground whitespace-nowrap shrink-0">
+              <div className="flex items-center gap-1.5">
+                <ArrowUpDown className="w-3.5 h-3.5" />
+                <SelectValue />
+              </div>
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="recente">Recente</SelectItem>
+              <SelectItem value="valor">Maior Valor</SelectItem>
+              <SelectItem value="probabilidade">Probabilidade</SelectItem>
+              <SelectItem value="tempo">Mais Antigo</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
 
         <Popover open={datePopoverOpen} onOpenChange={setDatePopoverOpen}>
           <PopoverTrigger asChild>
@@ -152,7 +154,7 @@ const DashboardPipeline = ({ proposals, onUpdateStatus, onViewProposal, onExport
               )}
             </button>
           </PopoverTrigger>
-          <PopoverContent className="w-auto p-0" align="end" sideOffset={8}>
+          <PopoverContent className="w-auto p-0 z-50" align="end" sideOffset={8}>
             <div className="flex flex-col sm:flex-row">
               <div className="border-b sm:border-b-0 sm:border-r border-border p-2 sm:w-[160px] max-h-[260px] overflow-y-auto">
                 <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-1.5 px-1">Período</p>
