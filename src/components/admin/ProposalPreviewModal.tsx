@@ -18,6 +18,8 @@ const ProposalPreviewModal = ({
   store,
   storeSettings,
   partners,
+  hideDownloadPdf = true,
+  hideWhatsApp = true,
 }: ProposalPreviewModalProps) => {
   const [zoomed, setZoomed] = useState(false);
 
