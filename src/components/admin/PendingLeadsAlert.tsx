@@ -44,7 +44,7 @@ const PendingLeadsAlert = () => {
       }
     }
     setLastCheckedCount(newCount);
-  }, [storeId, lastCheckedCount]);
+  }, [storeId, lastCheckedCount, location.pathname]);
 
   // Initial check on mount — no delay needed
   useEffect(() => {
