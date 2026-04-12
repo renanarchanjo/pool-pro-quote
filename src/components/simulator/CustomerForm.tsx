@@ -160,8 +160,8 @@ const CustomerForm = ({ onSubmit, onBack, model, optionals, includedItemsTotal =
           <div>
             <Label htmlFor="city">Cidade *</Label>
             {loadingCities ? (
-              <div className="flex items-center gap-2 h-10 text-sm text-muted-foreground">
-                <Loader2 className="w-4 h-4 animate-spin" /> Carregando cidades...
+              <div className="flex items-center gap-2 h-10 px-3 rounded-md border border-input bg-muted/50 text-sm text-muted-foreground">
+                <Loader2 className="w-4 h-4 animate-spin shrink-0" /> Carregando cidades de {uf}...
               </div>
             ) : cities.length > 0 ? (
               <select
