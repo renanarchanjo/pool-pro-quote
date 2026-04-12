@@ -346,7 +346,20 @@ const PoolSimulator = ({ onBack }: PoolSimulatorProps) => {
           <Button
             variant="ghost"
             size="sm"
-            onClick={step === 0 ? onBack : () => setStep(step === 1 ? 0 : step - 1)}
+            onClick={step === 0 ? onBack : () => {
+              if (step === 2) {
+                setStoreId(null);
+                setSelectedModel(null);
+                setModels([]);
+                setBrands([]);
+                setCategories([]);
+                setOptionals([]);
+                setModelOptionals([]);
+                setStep(0);
+              } else {
+                setStep(step === 1 ? 0 : step - 1);
+              }
+            }}
             className="z-10"
           >
             <ArrowLeft className="w-4 h-4 mr-1" />
