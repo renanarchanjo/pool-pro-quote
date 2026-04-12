@@ -97,8 +97,15 @@ const TeamCommissions = () => {
         distributions.filter(d => d.accepted_by === member.id && d.status === "accepted").map(d => d.proposal_id)
       );
       const allProposals = Array.from(proposalMap.values());
+      // IDs de propostas que têm lead_distribution (qualquer status)
+      const proposalsWithDistribution = new Set(distributions.map(d => d.proposal_id));
       const memberProposalIds = new Set<string>(acceptedIds);
-      allProposals.forEach(p => { if ((p as any).created_by === member.id) memberProposalIds.add(p.id); });
+      // Fallback: só creditar por created_by se NÃO existe lead_distribution para essa proposta
+      allProposals.forEach(p => {
+        if ((p as any).created_by === member.id && !proposalsWithDistribution.has(p.id)) {
+          memberProposalIds.add(p.id);
+        }
+      });
       const memberProposals = Array.from(memberProposalIds).map(id => proposalMap.get(id)).filter(Boolean) as ProposalDataFull[];
       const inRange = memberProposals.filter(p => { const dt = new Date(p.created_at); return dt >= from && dt <= to; });
       const nova = inRange.filter(p => p.status === "nova");
