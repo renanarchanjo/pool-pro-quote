@@ -12,6 +12,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Calendar } from "@/components/ui/calendar";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import ProposalPreviewModal from "./ProposalPreviewModal";
+import ProposalView from "@/components/simulator/ProposalView";
 import { Proposal, ProposalStatus, STATUS_CONFIG } from "./dashboard/types";
 import DashboardKPIs from "./dashboard/DashboardKPIs";
 import DashboardFunnel from "./dashboard/DashboardFunnel";
