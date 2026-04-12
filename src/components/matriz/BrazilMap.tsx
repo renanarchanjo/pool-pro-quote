@@ -54,6 +54,14 @@ interface Props {
 const BrazilMap = ({ stateData, stores = [] }: Props) => {
   const [tooltip, setTooltip] = useState<{ name: string; count: number } | null>(null);
   const [hoveredPin, setHoveredPin] = useState<StorePin | null>(null);
+  const [geoData, setGeoData] = useState<unknown>(null);
+
+  useEffect(() => {
+    fetch("/data/brazil-states.geojson")
+      .then((r) => r.json())
+      .then(setGeoData)
+      .catch((err) => console.error("Failed to load GeoJSON:", err));
+  }, []);
 
   // Group stores by state for pin placement with offset
   const pinsByState: Record<string, StorePin[]> = {};
