@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button"; 
-import { Loader2, Download, CalendarIcon, ZoomIn, ZoomOut, X } from "lucide-react";
+import { Loader2, Download, CalendarIcon } from "lucide-react";
 import { DashboardSkeleton } from "./AdminLoadingSkeleton";
 import { useStoreData } from "@/hooks/useStoreData";
 import { toast } from "sonner";
@@ -11,6 +11,7 @@ import { formatPhoneForWhatsApp } from "@/lib/formatPhone";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import ProposalPreviewModal from "./ProposalPreviewModal";
 import ProposalView from "@/components/simulator/ProposalView";
 import { Proposal, ProposalStatus, STATUS_CONFIG } from "./dashboard/types";
 import DashboardKPIs from "./dashboard/DashboardKPIs";
@@ -39,7 +40,7 @@ const AdminDashboard = () => {
   const [viewingProposal, setViewingProposal] = useState<Proposal | null>(null);
   const reportRef = useRef<HTMLDivElement>(null);
   const proposalPdfRef = useRef<HTMLDivElement>(null);
-  const [previewZoomed, setPreviewZoomed] = useState(false);
+  
   const [teamMembers, setTeamMembers] = useState<{ id: string; full_name: string | null }[]>([]);
   const [filterMember, setFilterMember] = useState<string>("all");
   const [leadDistributions, setLeadDistributions] = useState<{ proposal_id: string; accepted_by: string | null; status: string }[]>([]);
@@ -479,89 +480,13 @@ const AdminDashboard = () => {
         );
       })()}
 
-      {/* Proposal Preview Overlay (same as Leads) */}
-      {viewingProposal && (
-        <div
-          className="fixed inset-0 z-[70] flex items-center justify-center bg-black/50 backdrop-blur-sm p-3 md:p-6"
-          onClick={() => { setViewingProposal(null); setPreviewZoomed(false); }}
-        >
-          <div
-            className="relative bg-background rounded-2xl shadow-2xl border border-border flex flex-col w-full max-w-lg max-h-[85dvh]"
-            onClick={(e) => e.stopPropagation()}
-          >
-            {/* Toolbar */}
-            <div className="flex items-center justify-between px-4 py-2.5 border-b border-border shrink-0">
-              <span className="text-sm font-bold text-foreground">Proposta</span>
-              <div className="flex items-center gap-1.5">
-                <button
-                  onClick={() => setPreviewZoomed(!previewZoomed)}
-                  className="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-muted transition-colors"
-                  title={previewZoomed ? "Reduzir" : "Ampliar"}
-                >
-                  {previewZoomed ? <ZoomOut className="w-4 h-4 text-muted-foreground" /> : <ZoomIn className="w-4 h-4 text-muted-foreground" />}
-                </button>
-                <button
-                  onClick={() => { setViewingProposal(null); setPreviewZoomed(false); }}
-                  className="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-muted transition-colors"
-                >
-                  <X className="w-4 h-4 text-muted-foreground" />
-                </button>
-              </div>
-            </div>
-
-            {/* Proposal content */}
-            <div className="flex-1 overflow-y-auto overflow-x-hidden overscroll-contain">
-              <div
-                style={{
-                  transform: previewZoomed ? 'scale(1)' : 'scale(0.65)',
-                  transformOrigin: 'top center',
-                  width: previewZoomed ? '100%' : '154%',
-                  marginLeft: previewZoomed ? '0' : '-27%',
-                  minHeight: previewZoomed ? 'auto' : '154%',
-                  transition: 'transform 250ms ease, width 250ms ease, margin 250ms ease',
-                }}
-              >
-                {viewingProposal?.pool_models && (() => {
-                  const pm = viewingProposal.pool_models as any;
-                  const brand = pm?.categories?.brands;
-                  return (
-                    <ProposalView
-                      model={pm}
-                      selectedOptionals={
-                        Array.isArray(viewingProposal.selected_optionals)
-                          ? viewingProposal.selected_optionals.map((o: any) =>
-                              typeof o === "object" && o !== null
-                                ? { name: o.name || "Item", price: o.price || 0 }
-                                : { name: String(o), price: 0 }
-                            )
-                          : []
-                      }
-                      customerData={{
-                        name: viewingProposal.customer_name,
-                        city: viewingProposal.customer_city,
-                        whatsapp: viewingProposal.customer_whatsapp,
-                      }}
-                      category={pm?.categories?.name || pm.name}
-                      onBack={() => { setViewingProposal(null); setPreviewZoomed(false); }}
-                      storeSettings={storeSettings}
-                      storeName={store?.name}
-                      storeCity={store?.city}
-                      storeState={store?.state}
-                      brandLogoUrl={brand?.logo_url}
-                      brandName={brand?.name}
-                      brandPartnerId={brand?.partner_id}
-                      partners={partners}
-                      storeWhatsapp={store?.whatsapp}
-                      hideDownloadPdf
-                      hideWhatsApp
-                    />
-                  );
-                })()}
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+      <ProposalPreviewModal
+        proposal={viewingProposal}
+        onClose={() => setViewingProposal(null)}
+        store={store}
+        storeSettings={storeSettings}
+        partners={partners}
+      />
     </div>
   );
 };
