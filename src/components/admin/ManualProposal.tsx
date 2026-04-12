@@ -679,7 +679,7 @@ const ManualProposal = () => {
         <div className="flex-1 min-h-0">
           {mobileStep === 0 && renderCustomerFields()}
           {mobileStep === 1 && renderModelFields()}
-          {mobileStep === 2 && renderOptionalsContent(false)}
+          {mobileStep === 2 && renderOptionalsContent(true)}
           {mobileStep === 3 && renderSummaryStep()}
         </div>
 
