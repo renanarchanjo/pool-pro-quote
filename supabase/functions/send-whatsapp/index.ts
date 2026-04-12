@@ -83,7 +83,22 @@ serve(async (req) => {
     const { type, data } = await req.json();
 
     // Auth: require for non-public types
-    const isPublicType = PUBLIC_TYPES.includes(type);
+    // Rate limit public types by IP
+    if (isPublicType) {
+      const supabaseAdmin = createClient(
+        Deno.env.get("SUPABASE_URL") ?? "",
+        Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
+        { auth: { persistSession: false } }
+      );
+      const clientIp = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
+      const { allowed } = await checkRateLimit(supabaseAdmin, clientIp, "send-whatsapp-public", 5, 60);
+      if (!allowed) {
+        return new Response(JSON.stringify({ error: "Muitas tentativas. Aguarde." }), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          status: 429,
+        });
+      }
+    }
 
     if (!isPublicType) {
       if (!authHeader) throw new Error("Unauthorized");
