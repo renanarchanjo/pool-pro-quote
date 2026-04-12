@@ -125,8 +125,7 @@ const AdminDashboard = () => {
       const needsResolve = rawProposals.filter((p: any) =>
         Array.isArray(p.selected_optionals) &&
         p.selected_optionals.length > 0 &&
-        typeof p.selected_optionals[0] === "string" &&
-        !p.selected_optionals[0].includes("{")
+        typeof p.selected_optionals[0] === "string"
       );
 
       // Resolve optionals: enrich with name, price and cost
