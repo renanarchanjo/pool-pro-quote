@@ -107,8 +107,7 @@ const PartnersManager = () => {
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    if (!file.type.startsWith("image/")) { toast.error("Selecione um arquivo de imagem"); return; }
-    if (file.size > 5 * 1024 * 1024) { toast.error("A imagem deve ter no máximo 5MB"); return; }
+    if (!validateImageFile(file)) return;
     setNewLogoFile(file);
     const reader = new FileReader();
     reader.onload = () => setNewLogoPreview(reader.result as string);
