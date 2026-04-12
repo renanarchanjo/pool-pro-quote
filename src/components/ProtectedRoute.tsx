@@ -60,7 +60,7 @@ const ProtectedRoute = ({
         }
       }
 
-      if (!cancelled) setStatus("ok");
+      setStatus("ok");
     };
 
     check();
