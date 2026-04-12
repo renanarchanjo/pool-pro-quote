@@ -111,8 +111,8 @@ const ProposalPreviewModal = ({
               brandPartnerId={brand?.partner_id}
               partners={partners}
               storeWhatsapp={store?.whatsapp}
-              hideDownloadPdf
-              hideWhatsApp
+              hideDownloadPdf={hideDownloadPdf}
+              hideWhatsApp={hideWhatsApp}
             />
           </div>
         </div>
