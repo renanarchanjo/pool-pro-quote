@@ -1,12 +1,7 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "npm:@supabase/supabase-js@2.57.2";
-
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers":
-    "authorization, x-client-info, apikey, content-type",
-  "Access-Control-Allow-Methods": "POST, OPTIONS",
-};
+import { checkRateLimit } from "../_shared/rateLimiter.ts";
+import { corsHeaders } from "../_shared/cors.ts";
 
 const ZAPI_INSTANCE_ID = (Deno.env.get("ZAPI_INSTANCE_ID") ?? "").trim();
 const ZAPI_TOKEN = (Deno.env.get("ZAPI_TOKEN") ?? "").trim();
@@ -88,7 +83,22 @@ serve(async (req) => {
     const { type, data } = await req.json();
 
     // Auth: require for non-public types
-    const isPublicType = PUBLIC_TYPES.includes(type);
+    // Rate limit public types by IP
+    if (isPublicType) {
+      const supabaseAdmin = createClient(
+        Deno.env.get("SUPABASE_URL") ?? "",
+        Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
+        { auth: { persistSession: false } }
+      );
+      const clientIp = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
+      const { allowed } = await checkRateLimit(supabaseAdmin, clientIp, "send-whatsapp-public", 5, 60);
+      if (!allowed) {
+        return new Response(JSON.stringify({ error: "Muitas tentativas. Aguarde." }), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          status: 429,
+        });
+      }
+    }
 
     if (!isPublicType) {
       if (!authHeader) throw new Error("Unauthorized");

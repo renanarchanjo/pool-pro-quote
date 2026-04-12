@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Loader2, Plus, Upload, Trash2, Image as ImageIcon, Trophy, Pencil, Check, Save, FolderPlus, Tag } from "lucide-react";
 import { toast } from "sonner";
+import { validateImageFile } from "@/lib/validateImageFile";
 
 interface Partner {
   id: string;
@@ -107,8 +108,7 @@ const PartnersManager = () => {
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    if (!file.type.startsWith("image/")) { toast.error("Selecione um arquivo de imagem"); return; }
-    if (file.size > 5 * 1024 * 1024) { toast.error("A imagem deve ter no máximo 5MB"); return; }
+    if (!validateImageFile(file)) return;
     setNewLogoFile(file);
     const reader = new FileReader();
     reader.onload = () => setNewLogoPreview(reader.result as string);

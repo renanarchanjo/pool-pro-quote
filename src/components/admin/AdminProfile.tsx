@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Loader2, Upload, Building2, User, Image as ImageIcon, Mail, Lock, Eye, EyeOff, Copy, ExternalLink, Share2, Link as LinkIcon } from "lucide-react";
 import { toast } from "sonner";
 import { useStoreData } from "@/hooks/useStoreData";
+import { validateImageFile } from "@/lib/validateImageFile";
 
 const AdminProfile = () => {
   const { profile, store, storeSettings, role, refetch } = useStoreData();
@@ -36,10 +37,7 @@ const AdminProfile = () => {
     const file = e.target.files?.[0];
     if (!file || !store) return;
 
-    if (!file.type.startsWith("image/")) {
-      toast.error("Selecione um arquivo de imagem");
-      return;
-    }
+    if (!validateImageFile(file)) return;
 
     setUploading(true);
     try {
