@@ -344,7 +344,7 @@ const ProposalView = ({
 
   useEffect(() => {
     void preparePdfAssets();
-  }, [storeSettings?.logo_url, brandLogoUrl, partners, brandPartnerId, model.photo_url]);
+  }, [storeSettings?.logo_url, brandLogoUrl, partnerUrls, brandPartnerId, model.photo_url]);
 
   useEffect(() => {
     if (autoDownload && !hasAutoDownloaded.current) {
