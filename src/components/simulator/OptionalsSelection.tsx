@@ -205,7 +205,7 @@ const OptionalsSelection = ({ optionals, modelOptionals = [], selectedOptionals:
                     return (
                       <div key={optional.id} className="space-y-2">
                         <div
-                          onClick={() => handleRadioChange(group.id, optional.id)}
+                          onClick={() => handleSelectOptional(group.id, optional.id, "single")}
                           className={`relative p-4 rounded-xl border-2 cursor-pointer transition-all duration-200 active:scale-[0.98] ${
                             isSelected
                               ? "border-primary bg-primary/10 shadow-md shadow-primary/10"
@@ -246,7 +246,7 @@ const OptionalsSelection = ({ optionals, modelOptionals = [], selectedOptionals:
                     return (
                       <div key={optional.id} className="space-y-2">
                         <div
-                          onClick={() => handleSelectOptional(group.id, optional.id)}
+                          onClick={() => handleSelectOptional(group.id, optional.id, "multiple")}
                           className={`relative p-4 rounded-xl border-2 cursor-pointer transition-all duration-200 active:scale-[0.98] ${
                             isSelected
                               ? "border-primary bg-primary/10 shadow-md shadow-primary/10"
