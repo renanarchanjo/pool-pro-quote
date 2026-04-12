@@ -19,10 +19,14 @@ const FloatingPanel = ({ open, onClose, children }: FloatingPanelProps) => {
     return () => document.removeEventListener("keydown", handleKey);
   }, [open, onClose]);
 
-  // Prevent body scroll when open
+  // Prevent body scroll when open & auto-focus first element
   useEffect(() => {
     if (open) {
       document.body.style.overflow = "hidden";
+      requestAnimationFrame(() => {
+        const el = panelRef.current?.querySelector<HTMLElement>("button, a, [tabindex]");
+        el?.focus();
+      });
     } else {
       document.body.style.overflow = "";
     }
