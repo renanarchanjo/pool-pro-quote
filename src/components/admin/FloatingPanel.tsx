@@ -19,10 +19,14 @@ const FloatingPanel = ({ open, onClose, children }: FloatingPanelProps) => {
     return () => document.removeEventListener("keydown", handleKey);
   }, [open, onClose]);
 
-  // Prevent body scroll when open
+  // Prevent body scroll when open & auto-focus first element
   useEffect(() => {
     if (open) {
       document.body.style.overflow = "hidden";
+      requestAnimationFrame(() => {
+        const el = panelRef.current?.querySelector<HTMLElement>("button, a, [tabindex]");
+        el?.focus();
+      });
     } else {
       document.body.style.overflow = "";
     }
@@ -62,7 +66,9 @@ const FloatingPanel = ({ open, onClose, children }: FloatingPanelProps) => {
         )}
         role="dialog"
         aria-modal="true"
+        aria-labelledby="floating-panel-title"
       >
+        <h2 id="floating-panel-title" className="sr-only">Menu de navegação</h2>
         <div className="flex-1 overflow-y-auto overflow-x-hidden overscroll-contain rounded-2xl">
           {children}
         </div>
