@@ -1,7 +1,6 @@
 import { ComposableMap, Geographies, Geography, Marker } from "react-simple-maps";
-import { useState } from "react";
-
-const GEO_URL = "/data/brazil-states.geojson";
+import { useState, useEffect } from "react";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const STATE_ABBR: Record<string, string> = {
   "Acre": "AC", "Alagoas": "AL", "Amapá": "AP", "Amazonas": "AM",
@@ -55,6 +54,14 @@ interface Props {
 const BrazilMap = ({ stateData, stores = [] }: Props) => {
   const [tooltip, setTooltip] = useState<{ name: string; count: number } | null>(null);
   const [hoveredPin, setHoveredPin] = useState<StorePin | null>(null);
+  const [geoData, setGeoData] = useState<unknown>(null);
+
+  useEffect(() => {
+    fetch("/data/brazil-states.geojson")
+      .then((r) => r.json())
+      .then(setGeoData)
+      .catch((err) => console.error("Failed to load GeoJSON:", err));
+  }, []);
 
   // Group stores by state for pin placement with offset
   const pinsByState: Record<string, StorePin[]> = {};
@@ -63,6 +70,15 @@ const BrazilMap = ({ stateData, stores = [] }: Props) => {
     if (!pinsByState[st]) pinsByState[st] = [];
     pinsByState[st].push(s);
   });
+
+  if (!geoData) {
+    return (
+      <div className="relative">
+        <Skeleton className="w-full rounded-lg" style={{ aspectRatio: "6/5" }} />
+        <p className="text-center text-xs text-muted-foreground mt-2 animate-pulse">Carregando mapa…</p>
+      </div>
+    );
+  }
 
   return (
     <div className="relative">
@@ -73,7 +89,7 @@ const BrazilMap = ({ stateData, stores = [] }: Props) => {
         height={500}
         style={{ width: "100%", height: "auto" }}
       >
-        <Geographies geography={GEO_URL}>
+        <Geographies geography={geoData}>
           {({ geographies }) =>
             geographies.map((geo) => {
               const stateName = geo.properties.name || geo.properties.NAME;
