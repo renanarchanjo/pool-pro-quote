@@ -10,12 +10,12 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Loader2, Lock, CheckCircle, AlertTriangle, Copy, Package, XCircle, CheckCheck, Eye, FileDown, ExternalLink, Check, Radio, CreditCard, Users, UserPlus, Send, ZoomIn, ZoomOut, X, Search, RefreshCw, Download, Filter } from "lucide-react";
+import { Loader2, Lock, CheckCircle, AlertTriangle, Copy, Package, XCircle, CheckCheck, Eye, FileDown, ExternalLink, Check, Radio, CreditCard, Users, UserPlus, Send, Search, RefreshCw, Download, Filter } from "lucide-react";
 import { toast } from "sonner";
 import { LeadsSkeleton } from "./AdminLoadingSkeleton";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import ProposalView from "@/components/simulator/ProposalView";
+import ProposalPreviewModal from "./ProposalPreviewModal";
 
 interface LeadPlanOption {
   id: string;
@@ -57,7 +57,7 @@ const AdminLeads = () => {
   const [storeInfo, setStoreInfo] = useState<{ lead_limit_monthly: number; lead_price_excess: number; lead_plan_active: boolean } | null>(null);
   const [viewingProposal, setViewingProposal] = useState<any>(null);
   const [loadingProposal, setLoadingProposal] = useState(false);
-  const [previewZoomed, setPreviewZoomed] = useState(false);
+  
   const [leadSubActive, setLeadSubActive] = useState<boolean | null>(null);
   const [checkoutLoading, setCheckoutLoading] = useState(false);
   const [filterUser, setFilterUser] = useState<string>("all");
@@ -943,92 +943,13 @@ const AdminLeads = () => {
         </CardContent>
       </Card>
 
-      {/* Proposal Preview Overlay */}
-      {viewingProposal && (
-        <div
-          className="fixed inset-0 z-[70] flex items-center justify-center bg-black/50 backdrop-blur-sm p-3 md:p-6"
-          onClick={() => { setViewingProposal(null); setPreviewZoomed(false); }}
-        >
-          <div
-            className="relative bg-background rounded-2xl shadow-2xl border border-border flex flex-col w-full max-w-lg max-h-[85dvh]"
-            onClick={(e) => e.stopPropagation()}
-          >
-            {/* Toolbar */}
-            <div className="flex items-center justify-between px-4 py-2.5 border-b border-border shrink-0">
-              <span className="text-sm font-bold text-foreground">Proposta</span>
-              <div className="flex items-center gap-1.5">
-                <button
-                  onClick={() => setPreviewZoomed(!previewZoomed)}
-                  className="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-muted transition-colors"
-                  title={previewZoomed ? "Reduzir" : "Ampliar"}
-                >
-                  {previewZoomed ? <ZoomOut className="w-4 h-4 text-muted-foreground" /> : <ZoomIn className="w-4 h-4 text-muted-foreground" />}
-                </button>
-                <button
-                  onClick={() => { setViewingProposal(null); setPreviewZoomed(false); }}
-                  className="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-muted transition-colors"
-                >
-                  <X className="w-4 h-4 text-muted-foreground" />
-                </button>
-              </div>
-            </div>
-
-            {/* Proposal content */}
-            <div className="flex-1 overflow-y-auto overflow-x-hidden overscroll-contain">
-              <div
-                style={{
-                  transform: previewZoomed ? 'scale(1)' : 'scale(0.65)',
-                  transformOrigin: 'top center',
-                  width: previewZoomed ? '100%' : '154%',
-                  marginLeft: previewZoomed ? '0' : '-27%',
-                  minHeight: previewZoomed ? 'auto' : '154%',
-                  transition: 'transform 250ms ease, width 250ms ease, margin 250ms ease',
-                }}
-              >
-                <ProposalView
-                  model={{
-                    name: viewingProposal.pool_models?.name || "Modelo",
-                    length: viewingProposal.pool_models?.length,
-                    width: viewingProposal.pool_models?.width,
-                    depth: viewingProposal.pool_models?.depth,
-                    differentials: viewingProposal.pool_models?.differentials || [],
-                    included_items: viewingProposal.pool_models?.included_items || [],
-                    not_included_items: viewingProposal.pool_models?.not_included_items || [],
-                    base_price: viewingProposal.pool_models?.base_price || 0,
-                    delivery_days: viewingProposal.pool_models?.delivery_days || 30,
-                    installation_days: viewingProposal.pool_models?.installation_days || 5,
-                    payment_terms: viewingProposal.pool_models?.payment_terms,
-                    photo_url: viewingProposal.pool_models?.photo_url,
-                  }}
-                  selectedOptionals={
-                    Array.isArray(viewingProposal.selected_optionals)
-                      ? viewingProposal.selected_optionals.map((o: any) => ({ name: o.name || o, price: o.price || 0 }))
-                      : []
-                  }
-                  customerData={{
-                    name: viewingProposal.customer_name,
-                    city: viewingProposal.customer_city,
-                    whatsapp: viewingProposal.customer_whatsapp,
-                  }}
-                  category={viewingProposal.pool_models?.categories?.name || ""}
-                  onBack={() => { setViewingProposal(null); setPreviewZoomed(false); }}
-                  storeSettings={storeSettings}
-                  storeName={store?.name}
-                  storeCity={store?.city}
-                  storeState={store?.state}
-                  brandLogoUrl={viewingProposal.pool_models?.categories?.brands?.logo_url}
-                  brandName={viewingProposal.pool_models?.categories?.brands?.name}
-                  brandPartnerId={viewingProposal.pool_models?.categories?.brands?.partner_id}
-                  partners={partners}
-                  storeWhatsapp={store?.whatsapp}
-                  hideDownloadPdf
-                  hideWhatsApp
-                />
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+      <ProposalPreviewModal
+        proposal={viewingProposal}
+        onClose={() => setViewingProposal(null)}
+        store={store}
+        storeSettings={storeSettings}
+        partners={partners}
+      />
 
       {/* Assign Lead Dialog */}
       <Dialog open={assignDialogOpen} onOpenChange={setAssignDialogOpen}>
