@@ -1,7 +1,6 @@
 import { ComposableMap, Geographies, Geography, Marker } from "react-simple-maps";
-import { useState } from "react";
-
-const GEO_URL = "/data/brazil-states.geojson";
+import { useState, useEffect } from "react";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const STATE_ABBR: Record<string, string> = {
   "Acre": "AC", "Alagoas": "AL", "Amapá": "AP", "Amazonas": "AM",
