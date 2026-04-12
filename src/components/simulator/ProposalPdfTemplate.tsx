@@ -1,12 +1,17 @@
 import simulapoolLogoFooter from "@/assets/simulapool-logo-footer.png?inline";
 
+export interface PdfIncludedItem {
+  name: string;
+  item_type?: "material" | "mao_de_obra" | string;
+}
+
 export interface PdfTemplatePoolModel {
   name: string;
   length?: number | null;
   width?: number | null;
   depth?: number | null;
   differentials: string[];
-  included_items: string[];
+  included_items: (string | PdfIncludedItem)[];
   not_included_items: string[];
   base_price: number;
   delivery_days: number;
@@ -121,10 +126,17 @@ const ProposalPdfTemplate = ({
   const featuredBanner = bannersToShow[0] ?? null;
   const footerPartners = partners.filter((partner) => partner.logo_url);
 
-  const materiais = model.included_items.filter((item) => !item.includes("[MO]"));
-  const maoDeObra = model.included_items
-    .filter((item) => item.includes("[MO]"))
-    .map((item) => item.replace("[MO] ", "").replace("[MO]", ""));
+  const isMaoDeObra = (item: string | PdfIncludedItem): boolean => {
+    if (typeof item === "object" && item.item_type) return item.item_type === "mao_de_obra";
+    return typeof item === "string" && item.includes("[MO]");
+  };
+  const getItemLabel = (item: string | PdfIncludedItem): string => {
+    if (typeof item === "object") return item.name;
+    return item.replace("[MO] ", "").replace("[MO]", "");
+  };
+
+  const materiais = model.included_items.filter((item) => !isMaoDeObra(item)).map(getItemLabel);
+  const maoDeObra = model.included_items.filter(isMaoDeObra).map(getItemLabel);
 
   const dimensions = [
     model.length ? `${model.length}m` : null,
