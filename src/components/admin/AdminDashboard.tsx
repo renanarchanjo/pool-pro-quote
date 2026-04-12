@@ -92,11 +92,8 @@ const AdminDashboard = () => {
   });
 
   useEffect(() => {
-    if (store) loadData();
-  }, [store]);
-
-  useEffect(() => {
     if (!store) return;
+    loadData();
     const interval = setInterval(() => loadData(), 30000);
     return () => clearInterval(interval);
   }, [store]);
