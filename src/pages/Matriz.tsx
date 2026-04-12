@@ -59,6 +59,14 @@ const Matriz = () => {
       if (cancelled) return;
       if (!session) { navigate("/loginmatriz"); return; }
 
+      // Check MFA assurance level — super_admin must have aal2 if MFA is enrolled
+      const { data: mfaData } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
+      if (cancelled) return;
+      if (mfaData?.nextLevel === "aal2" && mfaData?.currentLevel === "aal1") {
+        navigate("/loginmatriz", { replace: true });
+        return;
+      }
+
       const { data: roleData } = await supabase
         .from("user_roles").select("role")
         .eq("user_id", session.user.id).eq("role", "super_admin").single();

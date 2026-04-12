@@ -19,8 +19,10 @@ const MobileApp = () => {
 
   // Se já logado, redireciona ao admin
   useEffect(() => {
+    let cancelled = false;
     const checkSession = async () => {
       const { data: { session } } = await supabase.auth.getSession();
+      if (cancelled) return;
       if (session) {
         const { data: roleData } = await supabase
           .from("user_roles")
@@ -28,15 +30,25 @@ const MobileApp = () => {
           .eq("user_id", session.user.id)
           .single();
 
+        if (cancelled) return;
+
         if (roleData?.role === "super_admin") {
-          navigate("/matriz");
+          // Check MFA — redirect to MFA login if enrolled but not verified
+          const { data: mfaData } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
+          if (cancelled) return;
+          if (mfaData?.nextLevel === "aal2" && mfaData?.currentLevel === "aal1") {
+            navigate("/loginmatriz");
+          } else {
+            navigate("/matriz");
+          }
         } else {
           navigate("/admin");
         }
       }
-      setCheckingSession(false);
+      if (!cancelled) setCheckingSession(false);
     };
     checkSession();
+    return () => { cancelled = true; };
   }, [navigate]);
 
   const handleLogin = async (e: React.FormEvent) => {
