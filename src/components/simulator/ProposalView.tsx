@@ -104,6 +104,12 @@ const ProposalView = ({
 
   const today = new Date().toLocaleDateString("pt-BR");
 
+  // ── Stable partner URL key ──
+  const partnerUrls = useMemo(
+    () => partners.map(p => [p.logo_url, p.banner_1_url].filter(Boolean)).flat().join(","),
+    [partners]
+  );
+
   // ── Partner selection (stable via useMemo) ──
   const matchedPartner = brandPartnerId
     ? partners.find((p) => p.id === brandPartnerId)
@@ -128,7 +134,7 @@ const ProposalView = ({
     }
     return partners.filter((p) => p.banner_1_url).map((p) => ({ url: p.banner_1_url!, name: p.name }));
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [matchedPartner?.id, partners.length]);
+  }, [matchedPartner?.id, partnerUrls]);
 
   const resolveSrc = (url?: string | null) => {
     if (!url) return null;
@@ -338,7 +344,7 @@ const ProposalView = ({
 
   useEffect(() => {
     void preparePdfAssets();
-  }, [storeSettings?.logo_url, brandLogoUrl, partners, brandPartnerId, model.photo_url]);
+  }, [storeSettings?.logo_url, brandLogoUrl, partnerUrls, brandPartnerId, model.photo_url]);
 
   useEffect(() => {
     if (autoDownload && !hasAutoDownloaded.current) {
