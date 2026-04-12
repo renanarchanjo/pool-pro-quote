@@ -250,9 +250,9 @@ const MatrizLeads = () => {
 
   // --- Filters ---
   const now = new Date();
-  const filtered = leads.filter(l => {
-    // Filter test leads unless showTestLeads is on
-    if (!showTestLeads && l.is_test) return false;
+
+  const applyFilters = (l: Lead, excludeTest: boolean) => {
+    if (excludeTest && l.is_test) return false;
     if (search) {
       const s = search.toLowerCase();
       if (![l.customer_name, l.customer_city, l.customer_whatsapp, l.pool_models?.name || ""].some(v => v.toLowerCase().includes(s))) return false;
@@ -270,11 +270,19 @@ const MatrizLeads = () => {
       if (filterPeriod === "90d" && diffDays > 90) return false;
     }
     return true;
+  };
+
+  // KPIs always exclude test leads
+  const realFiltered = leads.filter(l => applyFilters(l, true));
+  // Display list respects the toggle
+  const filtered = leads.filter(l => {
+    if (!showTestLeads && l.is_test) return false;
+    return applyFilters(l, false);
   });
 
-  const pendentesCount = filtered.filter(l => !distributionMap.has(l.id)).length;
-  const distribuidosCount = filtered.filter(l => distributionMap.has(l.id)).length;
-  const aceitosCount = filtered.filter(l => {
+  const pendentesCount = realFiltered.filter(l => !distributionMap.has(l.id)).length;
+  const distribuidosCount = realFiltered.filter(l => distributionMap.has(l.id)).length;
+  const aceitosCount = realFiltered.filter(l => {
     const dist = distributionMap.get(l.id);
     return dist && dist.status === 'accepted';
   }).length;
@@ -288,7 +296,7 @@ const MatrizLeads = () => {
   const uniqueCities = [...new Set(leads.map(l => l.customer_city))].sort();
   const selectedCities = [...new Set(Array.from(selectedLeads).map(id => leads.find(l => l.id === id)?.customer_city).filter(Boolean))];
   const availableStores = stores.filter(s => s.lead_plan_active).sort((a, b) => a.name.localeCompare(b.name, "pt-BR"));
-  const receitaPotencial = filtered.reduce((sum, l) => sum + l.total_price, 0);
+  const receitaPotencial = realFiltered.reduce((sum, l) => sum + l.total_price, 0);
   const formatCurrency = (v: number) => v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 
   const handleExportXlsx = async () => {
