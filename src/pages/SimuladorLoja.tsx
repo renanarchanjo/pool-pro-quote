@@ -202,8 +202,8 @@ const SimuladorLoja = () => {
       const inclTotal = Number(inclTotalData) || 0;
       setIncludedItemsTotal(inclTotal);
 
-      const optionalsPrice = allSelectedOpts.reduce((sum, opt) => sum + opt.price, 0);
-      const totalPrice = selectedModel.base_price + inclTotal + optionalsPrice;
+      const { calculateTotalPrice } = await import("@/lib/calculateProposal");
+      const totalPrice = calculateTotalPrice(selectedModel.base_price, inclTotal, allSelectedOpts);
 
       const { sanitizeText, sanitizePhone, sanitizeCurrency } = await import("@/lib/sanitize");
 

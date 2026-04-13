@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { calculateTotalPrice } from "@/lib/calculateProposal";
 import { useStoreData } from "@/hooks/useStoreData";
 import { toast } from "sonner";
 import { Loader2, FileText, ArrowLeft, Eye, EyeOff, ChevronRight, ChevronLeft, User, Waves, Settings, Send, Check, Sparkles } from "lucide-react";
@@ -179,8 +180,8 @@ const ManualProposal = () => {
   const selectedOptionalsList = optionals.filter((o) => selectedOptionalIds.includes(o.id));
   const currentModelOpts = selectedModel ? modelOptionals.filter((o: any) => o.model_id === selectedModel.id) : [];
   const selectedModelOptsList = currentModelOpts.filter((o: any) => selectedModelOptIds.includes(o.id));
-  const optionalsTotal = selectedOptionalsList.reduce((s, o) => s + o.price, 0) + selectedModelOptsList.reduce((s: number, o: any) => s + o.price, 0);
-  const totalPrice = (selectedModel?.base_price || 0) + includedItemsTotal + optionalsTotal;
+  const allSelectedOptionals = [...selectedOptionalsList, ...selectedModelOptsList];
+  const totalPrice = calculateTotalPrice(selectedModel?.base_price || 0, includedItemsTotal, allSelectedOptionals);
 
   const toggleEnabled = (id: string) => {
     setEnabledOptionalIds((prev) =>

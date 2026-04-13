@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
+import { calculateTotalPrice } from "@/lib/calculateProposal";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -61,7 +62,7 @@ const CustomerForm = ({ onSubmit, onBack, model, optionals, includedItemsTotal =
     fetchCities();
   }, [uf]);
 
-  const totalPrice = model.base_price + includedItemsTotal + optionals.reduce((sum: number, opt: any) => sum + opt.price, 0);
+  const totalPrice = calculateTotalPrice(model.base_price, includedItemsTotal, optionals);
 
   // Real-time inline validation
   const errors = useMemo(() => {
