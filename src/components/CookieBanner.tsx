@@ -1,8 +1,17 @@
 import { useState, useEffect, useCallback } from "react";
 
 function enableAnalytics() {
-  // Placeholder: ativar scripts de analytics quando consentido
   console.log("[CookieBanner] Analytics habilitado");
+}
+
+function requestLocationPermission() {
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(
+      () => console.log("[CookieBanner] Localização autorizada"),
+      () => console.log("[CookieBanner] Localização negada"),
+      { enableHighAccuracy: false, timeout: 10000, maximumAge: 300000 }
+    );
+  }
 }
 
 const CookieBanner = () => {
