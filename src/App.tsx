@@ -1,4 +1,5 @@
 import { lazy, Suspense, useEffect } from "react";
+import * as Sentry from "@sentry/react";
 import CookieBanner from "@/components/CookieBanner";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -107,7 +108,7 @@ const AppInner = () => {
           </Routes>
         </PageTransition>
       </Suspense>
-      </ErrorBoundary>
+      </Sentry.ErrorBoundary>
       <CookieBanner />
     </BrowserRouter>
   );
