@@ -31,7 +31,7 @@ export async function savePdfToStorage(
     await new Promise<void>((resolve, reject) => {
       const xhr = new XMLHttpRequest();
       xhr.open("POST", uploadUrl, true);
-      xhr.setRequestHeader("Content-Type", "application/pdf");
+      // Do NOT set Content-Type manually — browser sets multipart boundary automatically
       xhr.setRequestHeader("apikey", supabaseAnonKey);
       xhr.setRequestHeader("Authorization", `Bearer ${token}`);
       xhr.setRequestHeader("x-upsert", "true");
@@ -55,7 +55,12 @@ export async function savePdfToStorage(
         }
       };
       xhr.onerror = () => reject(new Error("Network error during upload"));
-      xhr.send(pdfBlob);
+
+      // Supabase Storage expects FormData for POST uploads, not raw blob
+      const formData = new FormData();
+      formData.append("cacheControl", "3600");
+      formData.append("", pdfBlob, fileName);
+      xhr.send(formData);
     });
   } else {
     const { error } = await supabase.storage
