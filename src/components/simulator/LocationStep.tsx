@@ -75,12 +75,28 @@ const LocationStep = ({ onSelectStore, onBack, onSkip }: LocationStepProps) => {
     setSearched(true);
     setRadiusSearch(false);
     try {
-      const { data, error } = await supabase
+      // Fetch stores matching state+city
+      const { data: cityData, error: cityError } = await supabase
         .rpc("get_stores_public_by_state", { _state: state })
         .ilike("city" as any, city.trim());
 
-      if (error) throw error;
-      setStores((data as Store[]) || []);
+      if (cityError) throw cityError;
+
+      // Also fetch stores with coverage disabled (appear everywhere)
+      const { data: allData } = await supabase.rpc("get_stores_public");
+      const globalStores = ((allData as Store[]) || []).filter(
+        (s) => s.coverage_radius_active === false
+      );
+
+      // Merge: city matches + global stores (deduplicate by id)
+      const cityStores = (cityData as Store[]) || [];
+      const seenIds = new Set(cityStores.map((s) => s.id));
+      const merged = [
+        ...cityStores,
+        ...globalStores.filter((s) => !seenIds.has(s.id)),
+      ];
+
+      setStores(merged);
     } catch (err) {
       console.error("Error searching stores:", err);
       setStores([]);
