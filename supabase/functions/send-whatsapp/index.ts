@@ -10,8 +10,6 @@ const ZAPI_CLIENT_TOKEN = (Deno.env.get("ZAPI_CLIENT_TOKEN") ?? "").trim();
 async function sendText(phone: string, message: string) {
   const digits = phone.replace(/\D/g, "");
   const formattedPhone = digits.startsWith("55") ? digits : "55" + digits;
-  console.log("Enviando para:", formattedPhone);
-  console.log("Client-Token length:", ZAPI_CLIENT_TOKEN.length, "value preview:", ZAPI_CLIENT_TOKEN.substring(0, 6) + "...");
 
   const url = `https://api.z-api.io/instances/${ZAPI_INSTANCE_ID}/token/${ZAPI_TOKEN}/send-text`;
 
@@ -19,8 +17,6 @@ async function sendText(phone: string, message: string) {
     phone: formattedPhone,
     message: message,
   };
-  console.log("URL:", url);
-  console.log("Body:", JSON.stringify(body));
 
   const res = await fetch(url, {
     method: "POST",
@@ -70,8 +66,6 @@ async function sendDocument(
 const PUBLIC_TYPES = ["enviar_proposta"];
 
 serve(async (req) => {
-  console.log("ZAPI_CLIENT_TOKEN:", Deno.env.get("ZAPI_CLIENT_TOKEN") ? "OK" : "VAZIO");
-
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
@@ -79,12 +73,12 @@ serve(async (req) => {
   try {
     const authHeader = req.headers.get("Authorization");
 
-    // Parse body first to check type before auth
+    // Parse body para verificar tipo antes da auth
     const { type, data } = await req.json();
+    const isPublicType = PUBLIC_TYPES.includes(type);
 
-    // Auth: require for non-public types
-    // Rate limit public types by IP
     if (isPublicType) {
+      // Rate limit chamadas públicas por IP
       const supabaseAdmin = createClient(
         Deno.env.get("SUPABASE_URL") ?? "",
         Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
@@ -98,22 +92,24 @@ serve(async (req) => {
           status: 429,
         });
       }
-    }
+    } else {
+      // Tipos não-públicos exigem autenticação
+      if (!authHeader || !authHeader.startsWith("Bearer ")) {
+        throw new Error("Unauthorized");
+      }
 
-    if (!isPublicType) {
-      if (!authHeader) throw new Error("Unauthorized");
+      const token = authHeader.replace("Bearer ", "");
+      const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
+      const isServiceRole = token === serviceRoleKey;
 
-      const supabase = createClient(
-        Deno.env.get("SUPABASE_URL") ?? "",
-        Deno.env.get("SUPABASE_ANON_KEY") ?? "",
-        { global: { headers: { Authorization: authHeader } } }
-      );
-
-      // Allow service_role or authenticated user
-      const isServiceRole = authHeader.includes(Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "NOPE");
       if (!isServiceRole) {
-        const { data: { user }, error } = await supabase.auth.getUser();
-        if (error || !user) throw new Error("Unauthorized");
+        const supabase = createClient(
+          Deno.env.get("SUPABASE_URL") ?? "",
+          Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
+          { auth: { persistSession: false } }
+        );
+        const { data: userData, error } = await supabase.auth.getUser(token);
+        if (error || !userData?.user) throw new Error("Unauthorized");
       }
     }
 

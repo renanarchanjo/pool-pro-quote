@@ -94,13 +94,13 @@ Deno.serve(async (req) => {
       throw new Error("Email, senha e nome são obrigatórios");
     }
 
-    // Check member limit
-    const { data: storeMembers } = await supabaseAdmin
+    // Verificar limite de membros (count eficiente)
+    const { count: memberCount } = await supabaseAdmin
       .from("profiles")
-      .select("id")
+      .select("id", { count: "exact", head: true })
       .eq("store_id", callerProfile.store_id);
 
-    if (storeMembers && storeMembers.length >= 10) {
+    if ((memberCount || 0) >= 10) {
       throw new Error("Limite de 10 usuários por loja atingido");
     }
 

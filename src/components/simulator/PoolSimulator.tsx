@@ -181,7 +181,7 @@ const PoolSimulator = ({ onBack }: PoolSimulatorProps) => {
     }
   };
 
-  const handleModelSelect = (model: PoolModel) => {
+  const handleModelSelect = async (model: PoolModel) => {
     if (!storeId && model.store_id) {
       setStoreId(model.store_id);
       loadStoreData(model.store_id);
@@ -189,12 +189,13 @@ const PoolSimulator = ({ onBack }: PoolSimulatorProps) => {
 
     setSelectedModel(model);
 
-    // Fetch included items total for selected model via public RPC
-    const fetchInclTotal = async () => {
-      const { data } = await supabase.rpc("get_model_included_items_total", { _model_id: model.id });
-      setIncludedItemsTotal(Number(data) || 0);
-    };
-    fetchInclTotal();
+    // Aguardar total de itens inclusos antes de avançar
+    try {
+      const { data, error } = await supabase.rpc("get_model_included_items_total", { _model_id: model.id });
+      if (!error) setIncludedItemsTotal(Number(data) || 0);
+    } catch {
+      setIncludedItemsTotal(0);
+    }
 
     setStep(2);
   };

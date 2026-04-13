@@ -15,19 +15,20 @@ Deno.serve(async (req) => {
   }
 
   try {
-    // Auth: only service_role or cron
+    // Auth: somente service_role (cron/server) pode executar o monitor
     const authHeader = req.headers.get("Authorization") ?? "";
+    if (!authHeader.startsWith("Bearer ")) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
     const token = authHeader.replace("Bearer ", "");
-    if (token !== SERVICE_ROLE_KEY && token !== Deno.env.get("SUPABASE_ANON_KEY")) {
-      // Verify it's a valid service_role call
-      const sb = createClient(SUPABASE_URL, token, { auth: { persistSession: false } });
-      const { data } = await sb.auth.getUser(token);
-      if (!data?.user) {
-        return new Response(JSON.stringify({ error: "Unauthorized" }), {
-          status: 401,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
-      }
+    if (token !== SERVICE_ROLE_KEY) {
+      return new Response(JSON.stringify({ error: "Forbidden: requires service role" }), {
+        status: 403,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
 
     const supabase = createClient(SUPABASE_URL, SERVICE_ROLE_KEY, {
@@ -91,7 +92,8 @@ Deno.serve(async (req) => {
         .from("rate_limits")
         .select("identifier, action, count, window_start")
         .gte("window_start", windowStart)
-        .gte("count", 5);
+        .gte("count", 5)
+        .limit(50);
 
       if (rlRows && rlRows.length > 0) {
         for (const row of rlRows) {
@@ -130,24 +132,26 @@ Deno.serve(async (req) => {
       }
     }
 
-    // 3. PROPOSAL VOLUME SPIKE — >50 proposals per store in 1 hour
+    // 3. PROPOSAL VOLUME SPIKE — >50 proposals per store in 1 hour (batch query)
     {
       const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000).toISOString();
-      const { data: proposalRows } = await supabase.rpc("get_stores_public");
+      const { data: recentProposals } = await supabase
+        .from("proposals")
+        .select("store_id")
+        .gte("created_at", oneHourAgo);
 
-      if (proposalRows) {
-        for (const store of proposalRows) {
-          const { count } = await supabase
-            .from("proposals")
-            .select("id", { count: "exact", head: true })
-            .eq("store_id", store.id)
-            .gte("created_at", oneHourAgo);
-
-          if (count && count > 50) {
-            log("Proposal volume spike", { store_id: store.id, count });
+      if (recentProposals && recentProposals.length > 0) {
+        // Contar por store_id em memória
+        const countByStore = new Map<string, number>();
+        for (const p of recentProposals) {
+          countByStore.set(p.store_id, (countByStore.get(p.store_id) || 0) + 1);
+        }
+        for (const [storeId, count] of countByStore) {
+          if (count > 50) {
+            log("Proposal volume spike", { store_id: storeId, count });
             await insertIfNew("proposal_volume_spike", "high", {
-              storeId: store.id,
-              details: { store_id: store.id, count },
+              storeId,
+              details: { store_id: storeId, count },
             });
           }
         }

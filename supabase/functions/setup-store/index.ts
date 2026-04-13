@@ -201,9 +201,15 @@ serve(async (req) => {
       console.log("[SETUP-STORE] Rollback completed for store:", createdStoreId);
     }
 
-    const msg = error instanceof Error ? error.message : String(error);
-    console.error("[SETUP-STORE] Error:", msg);
-    return new Response(JSON.stringify({ error: msg }), {
+    const rawMsg = error instanceof Error ? error.message : String(error);
+    console.error("[SETUP-STORE] Error:", rawMsg);
+    // Sanitizar mensagem de erro — não expor detalhes internos do banco
+    const safeMsg = rawMsg.includes("duplicate key") || rawMsg.includes("unique constraint")
+      ? "Esta loja ou usuário já está cadastrado"
+      : rawMsg.includes("violates") || rawMsg.includes("constraint")
+        ? "Erro de validação nos dados enviados"
+        : "Erro ao configurar a loja. Tente novamente.";
+    return new Response(JSON.stringify({ error: safeMsg }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 500,
     });

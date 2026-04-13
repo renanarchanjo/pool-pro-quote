@@ -52,7 +52,7 @@ serve(async (req) => {
 
     const { data: plan, error: planError } = await supabase
       .from("subscription_plans")
-      .select("*")
+      .select("id, name, slug, price_monthly, stripe_product_id, stripe_price_id, active, max_proposals_per_month, max_users, display_order")
       .eq("id", plan_id)
       .single();
 

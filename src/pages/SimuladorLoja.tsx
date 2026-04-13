@@ -166,13 +166,16 @@ const SimuladorLoja = () => {
     }
   };
 
-  const handleModelSelect = (model: PoolModel) => {
+  const handleModelSelect = async (model: PoolModel) => {
     setSelectedModel(model);
-    const fetchInclTotal = async () => {
-      const { data } = await supabase.rpc("get_model_included_items_total", { _model_id: model.id });
-      setIncludedItemsTotal(Number(data) || 0);
-    };
-    fetchInclTotal();
+
+    try {
+      const { data, error } = await supabase.rpc("get_model_included_items_total", { _model_id: model.id });
+      if (!error) setIncludedItemsTotal(Number(data) || 0);
+    } catch {
+      setIncludedItemsTotal(0);
+    }
+
     setStep(2);
   };
 
