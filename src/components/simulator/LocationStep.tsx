@@ -75,12 +75,28 @@ const LocationStep = ({ onSelectStore, onBack, onSkip }: LocationStepProps) => {
     setSearched(true);
     setRadiusSearch(false);
     try {
-      const { data, error } = await supabase
+      // Fetch stores matching state+city
+      const { data: cityData, error: cityError } = await supabase
         .rpc("get_stores_public_by_state", { _state: state })
         .ilike("city" as any, city.trim());
 
-      if (error) throw error;
-      setStores((data as Store[]) || []);
+      if (cityError) throw cityError;
+
+      // Also fetch stores with coverage disabled (appear everywhere)
+      const { data: allData } = await supabase.rpc("get_stores_public");
+      const globalStores = ((allData as Store[]) || []).filter(
+        (s) => s.coverage_radius_active === false
+      );
+
+      // Merge: city matches + global stores (deduplicate by id)
+      const cityStores = (cityData as Store[]) || [];
+      const seenIds = new Set(cityStores.map((s) => s.id));
+      const merged = [
+        ...cityStores,
+        ...globalStores.filter((s) => !seenIds.has(s.id)),
+      ];
+
+      setStores(merged);
     } catch (err) {
       console.error("Error searching stores:", err);
       setStores([]);
@@ -108,22 +124,38 @@ const LocationStep = ({ onSelectStore, onBack, onSkip }: LocationStepProps) => {
 
       if (error) throw error;
 
-      const storesWithDistance = ((data as Store[]) || [])
-        .filter((s) => s.latitude != null && s.longitude != null)
+      const allStores = (data as Store[]) || [];
+
+      // Stores with coverage disabled appear everywhere (no coords needed)
+      const globalStores = allStores
+        .filter((s) => s.coverage_radius_active === false)
+        .map((s) => {
+          if (s.latitude != null && s.longitude != null) {
+            return { ...s, distance: haversineDistance(userLat, userLon, s.latitude!, s.longitude!) };
+          }
+          return { ...s, distance: undefined };
+        });
+
+      // Stores with coverage enabled need coords + distance check
+      const radiusStores = allStores
+        .filter((s) => s.coverage_radius_active !== false && s.latitude != null && s.longitude != null)
         .map((s) => ({
           ...s,
           distance: haversineDistance(userLat, userLon, s.latitude!, s.longitude!),
         }))
         .filter((s) => {
-          // If radius filter is disabled, show the store (test mode)
-          if (s.coverage_radius_active === false) return true;
-          // Otherwise filter by the store's configured radius
           const radius = s.coverage_radius_km || 50;
           return s.distance <= radius;
-        })
-        .sort((a, b) => a.distance - b.distance);
+        });
 
-      setStores(storesWithDistance);
+      // Merge and deduplicate
+      const seenIds = new Set(radiusStores.map((s) => s.id));
+      const merged = [
+        ...radiusStores,
+        ...globalStores.filter((s) => !seenIds.has(s.id)),
+      ].sort((a, b) => (a.distance ?? 99999) - (b.distance ?? 99999));
+
+      setStores(merged);
     } catch (err) {
       console.error("Error searching nearby stores:", err);
       setStores([]);
