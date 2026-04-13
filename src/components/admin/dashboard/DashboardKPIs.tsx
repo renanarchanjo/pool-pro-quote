@@ -31,7 +31,7 @@ const DashboardKPIs = ({
   if (isOwner) {
     const custosTotais = closed.reduce((s, p) => {
       const modelCost = p.pool_models?.cost || 0;
-      const includedItemsCost = (p.pool_models as any)?._included_items_cost || 0;
+      const includedItemsCost = p.pool_models?._included_items_cost || 0;
       const optionalsCost = Array.isArray(p.selected_optionals)
         ? p.selected_optionals.reduce((sum: number, o: any) => sum + (o?.cost || 0), 0)
         : 0;
@@ -42,7 +42,7 @@ const DashboardKPIs = ({
       const dist = leadDistributions.find(
         (d) => d.proposal_id === p.id && d.status === "accepted"
       );
-      const memberId = dist?.accepted_by || (p as any).created_by;
+      const memberId = dist?.accepted_by || p.created_by;
       if (!memberId) return s;
       const commSetting = allCommissions.find((c) => c.member_id === memberId);
       if (!commSetting) return s;

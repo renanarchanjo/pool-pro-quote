@@ -78,10 +78,10 @@ const AdminDashboard = () => {
     if (isOwner) {
       if (filterMember === "all") return true;
       const acceptedDist = leadDistributions.find(d => d.proposal_id === p.id && d.status === "accepted");
-      return acceptedDist?.accepted_by === filterMember || (p as any).created_by === filterMember;
+      return acceptedDist?.accepted_by === filterMember || p.created_by === filterMember;
     }
     const acceptedDist = leadDistributions.find(d => d.proposal_id === p.id && d.status === "accepted");
-    return acceptedDist?.accepted_by === profile?.id || (p as any).created_by === profile?.id;
+    return acceptedDist?.accepted_by === profile?.id || p.created_by === profile?.id;
   });
 
   const filteredProposals = memberFilteredProposals.filter(p => {
@@ -117,7 +117,7 @@ const AdminDashboard = () => {
         .order("created_at", { ascending: false })
         .limit(2000),
         supabase.from("lead_distributions").select("proposal_id, accepted_by, status").eq("store_id", store.id),
-        (supabase as any).from("profiles").select("id, full_name").eq("store_id", store.id),
+        supabase.from("profiles").select("id, full_name").eq("store_id", store.id),
         supabase.from("partners").select("id, name, logo_url, banner_1_url, banner_2_url, display_percent").eq("active", true).order("display_order"),
       ]);
 
@@ -185,8 +185,8 @@ const AdminDashboard = () => {
         // Attach included items cost to pool_models
         for (const p of rawProposals) {
           if (p.pool_models) {
-            const mid = (p.pool_models as any).id || p.model_id;
-            (p.pool_models as any)._included_items_cost = includedCostByModel[mid] || 0;
+            const mid = p.pool_models.id || p.model_id;
+            p.pool_models._included_items_cost = includedCostByModel[mid] || 0;
           }
         }
       }

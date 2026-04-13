@@ -17,7 +17,7 @@ import { DateRange } from "react-day-picker";
 
 interface MemberProfile { id: string; full_name: string | null; }
 interface LeadDist { id: string; proposal_id: string; store_id: string; status: string; accepted_by: string | null; accepted_at: string | null; created_at: string; }
-interface ProposalData { id: string; status: string; total_price: number; created_at: string; customer_name: string; }
+interface ProposalData { id: string; status: string; total_price: number; created_at: string; customer_name: string; created_by: string | null; }
 
 interface SellerMetrics {
   memberId: string; name: string; leadsReceived: number; leadsAccepted: number;
@@ -69,14 +69,14 @@ const TeamPerformance = () => {
     setLoading(true);
     try {
       const [membersRes, distRes, proposalsRes] = await Promise.all([
-        (supabase as any).from("profiles").select("id, full_name").eq("store_id", store.id),
+        supabase.from("profiles").select("id, full_name").eq("store_id", store.id),
         supabase.from("lead_distributions").select("id, proposal_id, store_id, status, accepted_by, accepted_at, created_at").eq("store_id", store.id),
         supabase.from("proposals").select("id, status, total_price, created_at, customer_name, created_by").eq("store_id", store.id),
       ]);
       if (membersRes.error) console.error("Error loading members:", membersRes.error);
       if (distRes.error) console.error("Error loading distributions:", distRes.error);
       if (proposalsRes.error) console.error("Error loading proposals:", proposalsRes.error);
-      setMembers(membersRes.data || []);
+      setMembers(membersRes.data as MemberProfile[] || []);
       setDistributions(distRes.data || []);
       setProposals(proposalsRes.data || []);
     } catch (e) { console.error(e); } finally { setLoading(false); }
@@ -102,7 +102,7 @@ const TeamPerformance = () => {
       const acceptedIds = new Set(acceptedDists.map(d => d.proposal_id));
       const manualIds = new Set(
         Array.from(proposalMap.values())
-          .filter(p => (p as any).created_by === member.id && !acceptedIds.has(p.id))
+          .filter(p => p.created_by === member.id && !acceptedIds.has(p.id))
           .filter(p => { const dt = new Date(p.created_at); return dt >= from && dt <= to; })
           .map(p => p.id)
       );

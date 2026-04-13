@@ -15,8 +15,7 @@ import { DateRange } from "react-day-picker";
 
 interface MemberProfile { id: string; full_name: string | null; }
 interface CommissionSetting { id: string; store_id: string; member_id: string; commission_percent: number; }
-interface ProposalData { id: string; status: string; total_price: number; created_at: string; customer_name: string; }
-interface ProposalDataFull extends ProposalData { created_by: string | null; }
+interface ProposalData { id: string; status: string; total_price: number; created_at: string; customer_name: string; created_by: string | null; }
 interface LeadDist { id: string; proposal_id: string; accepted_by: string | null; status: string; accepted_at: string | null; created_at: string; }
 
 const DATE_PRESETS = [
@@ -40,7 +39,7 @@ const TeamCommissions = () => {
   const [members, setMembers] = useState<MemberProfile[]>([]);
   const [commissionSettings, setCommissionSettings] = useState<CommissionSetting[]>([]);
   const [distributions, setDistributions] = useState<LeadDist[]>([]);
-  const [proposals, setProposals] = useState<ProposalDataFull[]>([]);
+  const [proposals, setProposals] = useState<ProposalData[]>([]);
   const [datePreset, setDatePreset] = useState("month");
   const [dateRange, setDateRange] = useState<DateRange | undefined>(() => {
     const r = DATE_PRESETS[0].getRange();
@@ -55,8 +54,8 @@ const TeamCommissions = () => {
     setLoading(true);
     try {
       const [membersRes, settingsRes, distRes, proposalsRes] = await Promise.all([
-        (supabase as any).from("profiles").select("id, full_name").eq("store_id", store.id),
-        supabase.from("commission_settings" as any).select("id, member_id, commission_percent").eq("store_id", store.id),
+        supabase.from("profiles").select("id, full_name").eq("store_id", store.id),
+        supabase.from("commission_settings").select("id, member_id, commission_percent").eq("store_id", store.id),
         supabase.from("lead_distributions").select("id, proposal_id, accepted_by, status, accepted_at, created_at").eq("store_id", store.id),
         supabase.from("proposals").select("id, status, total_price, created_at, customer_name, created_by").eq("store_id", store.id),
       ]);
@@ -64,8 +63,8 @@ const TeamCommissions = () => {
       if (settingsRes.error) console.error("Error loading commission settings:", settingsRes.error);
       if (distRes.error) console.error("Error loading distributions:", distRes.error);
       if (proposalsRes.error) console.error("Error loading proposals:", proposalsRes.error);
-      setMembers(membersRes.data || []);
-      setCommissionSettings((settingsRes.data as any) || []);
+      setMembers(membersRes.data as MemberProfile[] || []);
+      setCommissionSettings(settingsRes.data as CommissionSetting[] || []);
       setDistributions(distRes.data || []);
       setProposals(proposalsRes.data || []);
     } catch (e) { console.error(e); } finally { setLoading(false); }
@@ -84,15 +83,15 @@ const TeamCommissions = () => {
     : "Período";
 
   const getCommissionPercent = (memberId: string) => {
-    const s = commissionSettings.find(s => (s as any).member_id === memberId);
-    return s ? (s as any).commission_percent : 0;
+    const s = commissionSettings.find(s => s.member_id === memberId);
+    return s ? s.commission_percent : 0;
   };
 
   const commissionData = useMemo(() => {
     if (!dateRange?.from) return [];
     const from = dateRange.from;
     const to = dateRange.to || new Date();
-    const proposalMap = new Map<string, ProposalDataFull>();
+    const proposalMap = new Map<string, ProposalData>();
     proposals.forEach(p => proposalMap.set(p.id, p));
     const visibleMembers = isOwner ? members : members.filter(m => m.id === profile?.id);
 
@@ -106,11 +105,11 @@ const TeamCommissions = () => {
       const memberProposalIds = new Set<string>(acceptedIds);
       // Fallback: só creditar por created_by se NÃO existe lead_distribution para essa proposta
       allProposals.forEach(p => {
-        if ((p as any).created_by === member.id && !proposalsWithDistribution.has(p.id)) {
+        if (p.created_by === member.id && !proposalsWithDistribution.has(p.id)) {
           memberProposalIds.add(p.id);
         }
       });
-      const memberProposals = Array.from(memberProposalIds).map(id => proposalMap.get(id)).filter(Boolean) as ProposalDataFull[];
+      const memberProposals = Array.from(memberProposalIds).map(id => proposalMap.get(id)).filter(Boolean) as ProposalData[];
       const inRange = memberProposals.filter(p => { const dt = new Date(p.created_at); return dt >= from && dt <= to; });
       const nova = inRange.filter(p => p.status === "nova");
       const enviada = inRange.filter(p => p.status === "enviada");

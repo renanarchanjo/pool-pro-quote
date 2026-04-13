@@ -7,10 +7,13 @@ export interface Proposal {
   customer_whatsapp: string;
   total_price: number;
   created_at: string;
+  created_by: string | null;
+  model_id: string | null;
   selected_optionals: any;
   store_id: string | null;
   status: ProposalStatus;
   pool_models: {
+    id: string;
     name: string;
     length: number | null;
     width: number | null;
@@ -26,6 +29,8 @@ export interface Proposal {
     payment_terms: string | null;
     notes: string | null;
     category_id: string;
+    categories?: { name: string; brand_id: string | null; brands?: { name: string; logo_url: string | null; partner_id: string | null } | null } | null;
+    _included_items_cost?: number;
   } | null;
   stores: { name: string } | null;
 }
