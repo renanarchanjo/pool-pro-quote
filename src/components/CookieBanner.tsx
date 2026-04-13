@@ -1,8 +1,17 @@
 import { useState, useEffect, useCallback } from "react";
 
 function enableAnalytics() {
-  // Placeholder: ativar scripts de analytics quando consentido
   console.log("[CookieBanner] Analytics habilitado");
+}
+
+function requestLocationPermission() {
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(
+      () => console.log("[CookieBanner] Localização autorizada"),
+      () => console.log("[CookieBanner] Localização negada"),
+      { enableHighAccuracy: false, timeout: 10000, maximumAge: 300000 }
+    );
+  }
 }
 
 const CookieBanner = () => {
@@ -21,7 +30,10 @@ const CookieBanner = () => {
   const dismiss = useCallback((accepted: boolean) => {
     setExiting(true);
     localStorage.setItem("cookie_consent", accepted ? "accepted" : "rejected");
-    if (accepted) enableAnalytics();
+    if (accepted) {
+      enableAnalytics();
+      requestLocationPermission();
+    }
     setTimeout(() => setVisible(false), 300);
   }, []);
 
