@@ -8,7 +8,7 @@ interface PageSEOProps {
   noIndex?: boolean;
 }
 
-const BASE_URL = "https://simulapool.lovable.app";
+const BASE_URL = "https://simulapool.com";
 const DEFAULT_OG = `${BASE_URL}/pwa-512x512.png`;
 
 const PageSEO = ({ title, description, path = "/", ogImage, noIndex }: PageSEOProps) => {

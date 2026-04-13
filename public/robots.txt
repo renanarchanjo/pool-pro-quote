@@ -18,4 +18,4 @@ Disallow: /login
 Disallow: /loginmatriz
 Disallow: /reset-password
 
-Sitemap: https://simulapool.lovable.app/sitemap.xml
+Sitemap: https://simulapool.com/sitemap.xml

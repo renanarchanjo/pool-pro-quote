@@ -20,8 +20,8 @@ serve(async (req) => {
 
     // Auth
     const authHeader = req.headers.get("Authorization");
-    if (!authHeader) throw new Error("Não autenticado");
-    const token = authHeader.replace("Bearer ", "");
+    if (!authHeader || !authHeader.startsWith("Bearer ")) throw new Error("Não autenticado");
+    const token = authHeader.substring(7);
     const { data: { user }, error: authError } = await supabaseAdmin.auth.getUser(token);
     if (authError || !user) throw new Error("Não autenticado");
 
@@ -138,13 +138,14 @@ serve(async (req) => {
     if (updateError) throw new Error("Erro ao aceitar lead");
 
     // Insert log
-    await supabaseAdmin.from("lead_logs").insert({
+    const { error: logErr } = await supabaseAdmin.from("lead_logs").insert({
       proposal_id: dist.proposal_id,
       store_id: dist.store_id,
       action: "accepted",
       performed_by: user.id,
       details: { consumed, limit, is_excess: isExcess, excess_price: isExcess ? excessPrice : 0 },
     });
+    if (logErr) console.error("[ACCEPT-LEAD] Failed to insert log:", logErr.message);
 
     // Cobrança de lead excedente via Stripe invoice item
     if (isExcess && store.stripe_customer_id) {

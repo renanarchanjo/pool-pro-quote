@@ -79,10 +79,10 @@ serve(async (req) => {
       );
     }
 
-    if (typeof storeName !== "string" || storeName.length > 200) {
+    if (typeof storeName !== "string" || storeName.trim().length < 2 || storeName.length > 200) {
       throw new Error("Invalid storeName");
     }
-    if (typeof slug !== "string" || slug.length > 100 || !/^[a-z0-9-]+$/.test(slug)) {
+    if (typeof slug !== "string" || slug.length < 3 || slug.length > 100 || !/^[a-z0-9-]+$/.test(slug)) {
       throw new Error("Invalid slug format");
     }
     if (typeof userId !== "string" || userId.length !== 36) {

@@ -58,10 +58,19 @@ const Auth = () => {
 
   useEffect(() => {
     if (!state) { setCities([]); return; }
-    fetch(`https://servicodados.ibge.gov.br/api/v1/localidades/estados/${state}/municipios?orderBy=nome`)
-      .then(res => res.json())
+    const controller = new AbortController();
+    fetch(`https://servicodados.ibge.gov.br/api/v1/localidades/estados/${state}/municipios?orderBy=nome`, {
+      signal: controller.signal,
+    })
+      .then(res => {
+        if (!res.ok) throw new Error("Erro ao buscar cidades");
+        return res.json();
+      })
       .then((data: any[]) => setCities(data.map((m: any) => m.nome)))
-      .catch(() => setCities([]));
+      .catch((err) => {
+        if (err.name !== "AbortError") setCities([]);
+      });
+    return () => controller.abort();
   }, [state]);
 
   useEffect(() => {
@@ -106,7 +115,7 @@ const Auth = () => {
 
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session) redirectByRole(session.user.id);
-    });
+    }).catch(() => { /* auth state handled by onAuthStateChange */ });
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (session) redirectByRole(session.user.id);

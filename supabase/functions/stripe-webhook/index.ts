@@ -37,18 +37,28 @@ serve(async (req) => {
         const session = event.data.object as Stripe.Checkout.Session;
         if (session.mode !== "subscription") break;
 
-        const customerEmail = session.customer_email || 
-          (await stripe.customers.retrieve(
-            session.customer as string
-          ) as Stripe.Customer).email;
-
-        if (!customerEmail) break;
+        let customerEmail = session.customer_email;
+        if (!customerEmail && session.customer) {
+          try {
+            const cust = await stripe.customers.retrieve(session.customer as string) as Stripe.Customer;
+            customerEmail = cust.email;
+          } catch (custErr) {
+            console.error("[STRIPE-WEBHOOK] Failed to retrieve customer:", custErr);
+            break;
+          }
+        }
+        if (!customerEmail) {
+          console.error("[STRIPE-WEBHOOK] No customer email for session:", session.id);
+          break;
+        }
 
         const subscriptionId = session.subscription as string;
-        const subscription = await stripe.subscriptions.retrieve(
-          subscriptionId
-        );
-        const priceId = subscription.items.data[0]?.price.id;
+        const subscription = await stripe.subscriptions.retrieve(subscriptionId);
+        const priceId = subscription.items.data[0]?.price?.id;
+        if (!priceId) {
+          console.error("[STRIPE-WEBHOOK] No price found in subscription:", subscriptionId);
+          break;
+        }
 
         const { data: plan } = await supabase
           .from("subscription_plans")
@@ -60,7 +70,13 @@ serve(async (req) => {
           subscription.current_period_end * 1000
         ).toISOString();
 
-        await supabase
+        const storeId = await getStoreIdByEmail(supabase, customerEmail);
+        if (!storeId) {
+          console.error("[STRIPE-WEBHOOK] No store found for checkout email");
+          break;
+        }
+
+        const { error: updateErr } = await supabase
           .from("stores")
           .update({
             plan_id: plan?.id ?? null,
@@ -70,8 +86,9 @@ serve(async (req) => {
             stripe_subscription_id: subscriptionId,
             stripe_customer_id: session.customer as string,
           })
-          .eq("id", await getStoreIdByEmail(supabase, customerEmail));
+          .eq("id", storeId);
 
+        if (updateErr) console.error("[STRIPE-WEBHOOK] Failed to update store:", updateErr.message);
         console.log(`[STRIPE-WEBHOOK] Checkout completed for subscription: ${subscriptionId}`);
         break;
       }
@@ -108,19 +125,20 @@ serve(async (req) => {
           })
           .eq("id", storeId);
 
-        await supabase.from("payment_history").insert({
+        const { error: payInsertErr } = await supabase.from("payment_history").insert({
           store_id: storeId,
           amount: (invoice.amount_paid || 0) / 100,
           status: "paid",
           payment_date: new Date().toISOString(),
-          period_start: invoice.period_start 
-            ? new Date(invoice.period_start * 1000).toISOString() 
+          period_start: invoice.period_start
+            ? new Date(invoice.period_start * 1000).toISOString()
             : null,
-          period_end: invoice.period_end 
-            ? new Date(invoice.period_end * 1000).toISOString() 
+          period_end: invoice.period_end
+            ? new Date(invoice.period_end * 1000).toISOString()
             : null,
           stripe_payment_id: invoice.payment_intent as string,
         });
+        if (payInsertErr) console.error("[STRIPE-WEBHOOK] Failed to insert payment:", payInsertErr.message);
 
         console.log(`[STRIPE-WEBHOOK] Payment succeeded: ${storeId}`);
         break;
@@ -145,13 +163,14 @@ serve(async (req) => {
           .update({ plan_status: "past_due" })
           .eq("id", storeId);
 
-        await supabase.from("payment_history").insert({
+        const { error: failInsertErr } = await supabase.from("payment_history").insert({
           store_id: storeId,
           amount: (invoice.amount_due || 0) / 100,
           status: "failed",
           payment_date: new Date().toISOString(),
           stripe_payment_id: invoice.payment_intent as string,
         });
+        if (failInsertErr) console.error("[STRIPE-WEBHOOK] Failed to insert payment:", failInsertErr.message);
 
         console.log(`[STRIPE-WEBHOOK] Payment failed: ${storeId}`);
         break;
@@ -244,15 +263,27 @@ async function getStoreIdByEmail(
 ): Promise<string | null> {
   if (!email) return null;
 
-  // Query direta por email — evita listar todos os users do sistema
-  const { data: userData, error } = await supabase.auth.admin.getUserByEmail(email);
-  if (error || !userData?.user) return null;
+  try {
+    const { data: userData, error } = await supabase.auth.admin.getUserByEmail(email);
+    if (error || !userData?.user) {
+      console.error("[STRIPE-WEBHOOK] getUserByEmail failed:", error?.message ?? "user not found");
+      return null;
+    }
 
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("store_id")
-    .eq("id", userData.user.id)
-    .single();
+    const { data: profile, error: profileErr } = await supabase
+      .from("profiles")
+      .select("store_id")
+      .eq("id", userData.user.id)
+      .single();
 
-  return profile?.store_id ?? null;
+    if (profileErr) {
+      console.error("[STRIPE-WEBHOOK] Profile lookup failed:", profileErr.message);
+      return null;
+    }
+
+    return profile?.store_id ?? null;
+  } catch (err) {
+    console.error("[STRIPE-WEBHOOK] getStoreIdByEmail error:", err);
+    return null;
+  }
 }

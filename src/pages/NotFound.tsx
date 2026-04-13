@@ -1,13 +1,8 @@
 import { useLocation } from "react-router-dom";
-import { useEffect } from "react";
 import PageSEO from "@/components/PageSEO";
 
 const NotFound = () => {
   const location = useLocation();
-
-  useEffect(() => {
-    console.error("404: page not found");
-  }, [location.pathname]);
 
   return (
     <main className="flex min-h-screen items-center justify-center bg-muted">

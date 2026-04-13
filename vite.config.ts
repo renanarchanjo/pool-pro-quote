@@ -57,15 +57,15 @@ export default defineConfig(({ mode }) => ({
         name: "SIMULAPOOL - Orçamentos de Piscinas",
         short_name: "SIMULAPOOL",
         description: "O jeito moderno de orçar piscinas. Simule, orce e feche negócios.",
-        theme_color: "#0EA5E9",
-        background_color: "#ffffff",
+        theme_color: "#0F172A",
+        background_color: "#0F172A",
         display: "standalone",
         orientation: "portrait",
         start_url: "/login",
         scope: "/",
         categories: ["business", "productivity"],
         lang: "pt-BR",
-        dir: "ltr" as any,
+        dir: "ltr" as unknown as "auto",
         prefer_related_applications: false,
         icons: [
           {

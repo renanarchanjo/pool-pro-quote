@@ -448,12 +448,11 @@ async function enviarPush(payload: NotificationPayload, supabase: any): Promise<
       },
       body: JSON.stringify(body),
     });
-    const result = await res.json();
-    console.log("OneSignal response:", JSON.stringify(result));
+    const result = await res.json().catch(() => null);
     
     // If external_id fails, fallback to subscription_id or player_id
     if (!res.ok && (sub.onesignal_subscription_id || sub.onesignal_player_id)) {
-      console.log("Falling back to direct subscription/player targeting");
+      // Fallback to direct subscription/player targeting
       const fallbackBody: Record<string, unknown> = {
         app_id: ONESIGNAL_APP_ID,
         headings: { en: payload.titulo },
@@ -476,8 +475,7 @@ async function enviarPush(payload: NotificationPayload, supabase: any): Promise<
         },
         body: JSON.stringify(fallbackBody),
       });
-      const fallbackResult = await fallbackRes.json();
-      console.log("OneSignal fallback response:", JSON.stringify(fallbackResult));
+      await fallbackRes.json().catch(() => null);
       return fallbackRes.ok;
     }
     
@@ -602,7 +600,16 @@ serve(async (req) => {
       });
     }
 
-    const { periodo = "manual", tipo, userId, leadCount, bypassCooldown, bypassDailyLimit, bypassDeduplication } = await req.json().catch(() => ({}));
+    let parsedBody: Record<string, unknown> = {};
+    try {
+      parsedBody = await req.json();
+    } catch {
+      return new Response(JSON.stringify({ error: "Invalid JSON body" }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+    const { periodo = "manual", tipo, userId, leadCount, bypassCooldown, bypassDailyLimit, bypassDeduplication } = parsedBody as any;
 
     // Validate: non-service-role users can only send to themselves
     if (!isServiceRole && tipo === "lead_recebido" && userId && userId !== userData?.user?.id) {
