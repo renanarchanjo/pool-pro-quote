@@ -4,10 +4,11 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Loader2, Upload, Building2, User, Image as ImageIcon, Mail, Lock, Eye, EyeOff, Copy, ExternalLink, Share2, Link as LinkIcon } from "lucide-react";
+import { Loader2, Upload, Building2, User, Image as ImageIcon, Mail, Lock, Eye, EyeOff, Copy, ExternalLink, Share2, Link as LinkIcon, Bell } from "lucide-react";
 import { toast } from "sonner";
 import { useStoreData } from "@/hooks/useStoreData";
 import { validateImageFile } from "@/lib/validateImageFile";
+import PushNotificationButton from "./PushNotificationButton";
 
 const AdminProfile = () => {
   const { profile, store, storeSettings, role, refetch } = useStoreData();
@@ -227,6 +228,18 @@ const AdminProfile = () => {
           </div>
         </div>
       )}
+
+      {/* Notificações Push */}
+      <Card className="p-6 max-w-2xl">
+        <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
+          <Bell className="w-5 h-5 text-muted-foreground" />
+          Notificações Push
+        </h2>
+        <p className="text-sm text-muted-foreground mb-4">
+          Receba alertas de novos leads e atualizações no seu dispositivo. Funciona exclusivamente no app instalado (PWA).
+        </p>
+        <PushNotificationButton />
+      </Card>
 
       {/* Credenciais de Acesso - visível para owner */}
       {isOwner && (

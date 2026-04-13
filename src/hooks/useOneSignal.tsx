@@ -47,18 +47,23 @@ export function useOneSignal() {
   useEffect(() => {
     if (typeof window === "undefined") return;
 
+    // Push notifications are PWA-only — must be installed on home screen
+    const isStandalone = window.matchMedia("(display-mode: standalone)").matches || (window.navigator as any).standalone === true;
+    if (!isStandalone) {
+      setSupport("unsupported");
+      const isApple = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+      setStatusMessage(
+        isApple
+          ? "Para receber notificações, instale o app na tela inicial do iPhone."
+          : "Para receber notificações, instale o app (Adicionar à tela inicial)."
+      );
+      return;
+    }
+
     const isSecure = window.isSecureContext && window.location.protocol === "https:";
     if (!("Notification" in window) || !("serviceWorker" in navigator) || !isSecure) {
       setSupport("unsupported");
       setStatusMessage("Este dispositivo/navegador não suporta notificações web neste contexto.");
-      return;
-    }
-
-    const isApple = /iPhone|iPad|iPod/i.test(navigator.userAgent);
-    const isStandalone = window.matchMedia("(display-mode: standalone)").matches || (window.navigator as any).standalone === true;
-    if (isApple && !isStandalone) {
-      setSupport("unsupported");
-      setStatusMessage("No iPhone, instale o app na tela inicial para ativar notificações push.");
       return;
     }
 
@@ -75,7 +80,13 @@ export function useOneSignal() {
     w.OneSignalDeferred = w.OneSignalDeferred || [];
     w.OneSignalDeferred.push(async (OneSignal: any) => {
       try {
-        await OneSignal.init({ appId: ONESIGNAL_APP_ID });
+        await OneSignal.init({
+          appId: ONESIGNAL_APP_ID,
+          serviceWorkerPath: "/OneSignalSDKWorker.js",
+          serviceWorkerParam: { scope: "/" },
+          notificationClickHandlerMatch: "origin",
+          notificationClickHandlerAction: "focus",
+        });
       } catch (err: any) {
         if (err?.message !== "SDK already initialized") {
           console.error("OneSignal init error:", err);
