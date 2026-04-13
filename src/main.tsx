@@ -34,10 +34,22 @@ if (isPreviewHost || isInIframe) {
   navigator.serviceWorker?.getRegistrations().then((regs) => {
     regs.forEach((r) => r.unregister());
   });
-} else if ("serviceWorker" in navigator) {
-  navigator.serviceWorker.ready.then((registration) => {
-    setInterval(() => registration.update(), 5 * 60 * 1000);
+} else {
+  // Auto-update: recarrega quando nova versão estiver disponível
+  registerSW({
+    onNeedRefresh() {
+      window.location.reload();
+    },
+    onOfflineReady() {
+      console.log("App pronto para uso offline");
+    },
   });
+
+  if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.ready.then((registration) => {
+      setInterval(() => registration.update(), 5 * 60 * 1000);
+    });
+  }
 }
 
 // ── Passive touch listeners for smoother scrolling ──
