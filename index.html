@@ -51,11 +51,15 @@
     <!-- Apple splash screens (iPhone) -->
     <link rel="apple-touch-startup-image" href="/512.png" />
 
-    <!-- Fonts — optimized loading -->
+    <!-- Fonts — optimized loading (only 400+600+700, subsetting latin) -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" onload="this.onload=null;this.rel='stylesheet'" />
-    <noscript><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"></noscript>
+    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap&subset=latin" onload="this.onload=null;this.rel='stylesheet'" />
+    <noscript><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap&subset=latin" rel="stylesheet"></noscript>
+
+    <!-- External API prefetch -->
+    <link rel="dns-prefetch" href="https://brasilapi.com.br" />
+    <link rel="dns-prefetch" href="https://servicodados.ibge.gov.br" />
 
     <!-- OneSignal -->
     <link rel="dns-prefetch" href="https://cdn.onesignal.com" />

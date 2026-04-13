@@ -22,11 +22,7 @@ const A4_SIZES = {
 const isMobileDevice = () => /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 
 const getHtml2canvasScale = (): number => {
-  return isMobileDevice() ? 1 : 1.5;
-};
-
-const getMobileCaptureWidth = (): number | null => {
-  return isMobileDevice() ? 390 : null;
+  return isMobileDevice() ? 2 : 2.5;
 };
 
 const waitForStablePaint = async (delay?: number) => {
@@ -79,7 +75,7 @@ const exportSectionedPDF = async ({
         pdf.addPage("a4", orientation);
       }
 
-      pdf.addImage(canvas.toDataURL("image/jpeg", 0.75), "JPEG", 0, 0, page.width, page.height);
+      pdf.addImage(canvas.toDataURL("image/jpeg", 0.92), "JPEG", 0, 0, page.width, page.height);
     }
 
     return pdf;
@@ -115,7 +111,7 @@ const exportSectionedPDF = async ({
     }
 
     if (imgHeightMm <= contentHeight) {
-      pdf.addImage(canvas.toDataURL("image/jpeg", 0.75), "JPEG", margin, currentY, imgWidthMm, imgHeightMm);
+      pdf.addImage(canvas.toDataURL("image/jpeg", 0.92), "JPEG", margin, currentY, imgWidthMm, imgHeightMm);
       currentY += imgHeightMm + sectionGap;
       continue;
     }
@@ -136,7 +132,7 @@ const exportSectionedPDF = async ({
       ctx.drawImage(canvas, 0, sourceY, canvas.width, sliceHeightPx, 0, 0, canvas.width, sliceHeightPx);
 
       const sliceHeightMm = sliceHeightPx / pxPerMm;
-      pdf.addImage(sliceCanvas.toDataURL("image/jpeg", 0.75), "JPEG", margin, currentY, imgWidthMm, sliceHeightMm);
+      pdf.addImage(sliceCanvas.toDataURL("image/jpeg", 0.92), "JPEG", margin, currentY, imgWidthMm, sliceHeightMm);
       sourceY += sliceHeightPx;
 
       if (sourceY < canvas.height) {
@@ -197,7 +193,7 @@ export const exportPDF = async ({
         .set({
           margin: [10, 10, 10, 10],
           filename,
-          image: { type: "jpeg", quality: 0.75 },
+          image: { type: "jpeg", quality: 0.92 },
           html2canvas: {
             scale,
             useCORS: true,
@@ -242,10 +238,6 @@ export const generatePDFBlob = async ({
   const hiddenOriginals: { el: HTMLElement; display: string }[] = [];
   let restoreImages = () => {};
 
-  const mobile = isMobileDevice();
-  const mobileWidth = getMobileCaptureWidth();
-  const savedStyles = { width: element.style.width, fontSize: element.style.fontSize };
-
   try {
     if (typeof document !== "undefined" && "fonts" in document) {
       await (document as Document & { fonts?: { ready?: Promise<unknown> } }).fonts?.ready;
@@ -264,12 +256,6 @@ export const generatePDFBlob = async ({
       el.style.display = "none";
     });
 
-    // Mobile: reduce element size before capture
-    if (mobile && mobileWidth) {
-      element.style.width = `${mobileWidth}px`;
-      element.style.fontSize = "10px";
-    }
-
     restoreImages = await inlineImagesForPdf(element);
     await waitForStablePaint();
 
@@ -284,11 +270,11 @@ export const generatePDFBlob = async ({
     }
 
     const scale = getHtml2canvasScale();
-    const width = captureWidth || (mobile && mobileWidth ? mobileWidth : element.scrollWidth);
+    const width = captureWidth || element.scrollWidth;
     const blob = await (html2pdf() as any)
       .set({
         margin: [10, 10, 10, 10],
-        image: { type: "jpeg", quality: mobile ? 0.7 : 0.75 },
+        image: { type: "jpeg", quality: 0.92 },
         html2canvas: {
           scale,
           useCORS: true,
@@ -310,11 +296,6 @@ export const generatePDFBlob = async ({
 
     return blob as Blob;
   } finally {
-    // Restore mobile styles
-    if (mobile && mobileWidth) {
-      element.style.width = savedStyles.width;
-      element.style.fontSize = savedStyles.fontSize;
-    }
     restoreImages();
     hiddenOriginals.forEach(({ el, display }) => {
       el.style.display = display;
