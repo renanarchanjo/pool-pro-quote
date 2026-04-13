@@ -12,22 +12,22 @@
     <meta name="theme-color" content="#0F172A" media="(prefers-color-scheme: light)" />
     <meta name="theme-color" content="#0F172A" media="(prefers-color-scheme: dark)" />
     <meta name="format-detection" content="telephone=no" />
-    <meta http-equiv="Content-Security-Policy" 
+    <meta http-equiv="Content-Security-Policy"
       content="
         default-src 'self';
-        script-src 'self' 'unsafe-inline' 
-          https://cdn.onesignal.com 
+        script-src 'self' 'unsafe-inline'
+          https://cdn.onesignal.com
           https://onesignal.com;
-        style-src 'self' 'unsafe-inline' 
+        style-src 'self' 'unsafe-inline'
           https://fonts.googleapis.com;
-        font-src 'self' 
+        font-src 'self'
           https://fonts.gstatic.com;
-        img-src 'self' data: blob: 
-          https://*.supabase.co 
+        img-src 'self' data: blob:
+          https://*.supabase.co
           https://*.supabase.in
           https://i.postimg.cc;
-        connect-src 'self' 
-          https://*.supabase.co 
+        connect-src 'self'
+          https://*.supabase.co
           https://*.supabase.in
           https://i.postimg.cc
           https://api.onesignal.com
@@ -35,6 +35,10 @@
           https://servicodados.ibge.gov.br
           https://nominatim.openstreetmap.org;
         frame-ancestors 'none';
+        object-src 'none';
+        base-uri 'self';
+        form-action 'self';
+        upgrade-insecure-requests;
       ">
     <meta name="msapplication-tap-highlight" content="no" />
 
@@ -65,7 +69,7 @@
     <link rel="manifest" href="/manifest.webmanifest" />
 
     <!-- Canonical URL -->
-    <link rel="canonical" href="https://simulapool.lovable.app/" />
+    <link rel="canonical" href="https://simulapool.com/" />
 
     <!-- SEO -->
     <title>SIMULAPOOL - O jeito moderno de orçar piscinas</title>
@@ -75,7 +79,7 @@
     <meta property="og:title" content="SIMULAPOOL - Descubra o preço da sua piscina em 1 minuto" />
     <meta property="og:description" content="Simulador gratuito de piscinas de fibra. Escolha o modelo, personalize e receba o orçamento detalhado na hora." />
     <meta property="og:type" content="website" />
-    <meta property="og:url" content="https://simulapool.lovable.app/" />
+    <meta property="og:url" content="https://simulapool.com/" />
     <meta property="og:site_name" content="SIMULAPOOL" />
     <meta property="og:locale" content="pt_BR" />
     <meta name="twitter:card" content="summary_large_image" />
@@ -89,7 +93,7 @@
       "@context": "https://schema.org",
       "@type": "WebApplication",
       "name": "SIMULAPOOL",
-      "url": "https://simulapool.lovable.app",
+      "url": "https://simulapool.com",
       "description": "Sistema profissional de orçamentos automatizados para piscinas de fibra. Simule, orce e feche negócios mais rápido.",
       "applicationCategory": "BusinessApplication",
       "operatingSystem": "All",

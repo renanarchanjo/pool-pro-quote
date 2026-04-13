@@ -36,16 +36,34 @@ serve(async (req) => {
     if (userError) throw new Error(`Authentication error: ${userError.message}`);
     const user = userData.user;
     if (!user?.email) throw new Error("User not authenticated or email not available");
-    logStep("User authenticated", { userId: user.id, email: user.email });
+    logStep("User authenticated", { userId: user.id });
 
     // Read body ONCE
     const body = await req.json();
     const { subscription_id, cancel_immediately, product_id } = body;
-    logStep("Request body", { subscription_id, cancel_immediately, product_id });
+    logStep("Request body", { subscription_id: !!subscription_id, cancel_immediately, product_id: !!product_id });
 
     const stripe = new Stripe(stripeKey, { apiVersion: "2025-08-27.basil" });
 
+    // Always resolve the customer first so we can verify ownership
+    const customers = await stripe.customers.list({ email: user.email, limit: 1 });
+    if (customers.data.length === 0) {
+      throw new Error("No Stripe customer found");
+    }
+    const customerId = customers.data[0].id;
+
     if (subscription_id) {
+      // Validate format
+      if (typeof subscription_id !== "string" || !subscription_id.startsWith("sub_")) {
+        throw new Error("Invalid subscription_id format");
+      }
+      // Verify the subscription belongs to this customer
+      const sub = await stripe.subscriptions.retrieve(subscription_id);
+      if (sub.customer !== customerId) {
+        logStep("SECURITY: subscription ownership mismatch", { subCustomer: sub.customer, userCustomer: customerId });
+        throw new Error("Subscription not found");
+      }
+
       if (cancel_immediately) {
         const canceled = await stripe.subscriptions.cancel(subscription_id);
         logStep("Subscription canceled immediately", { id: canceled.id });
@@ -53,7 +71,7 @@ serve(async (req) => {
         const canceled = await stripe.subscriptions.update(subscription_id, {
           cancel_at_period_end: true,
         });
-        logStep("Subscription set to cancel at period end", { id: canceled.id, cancel_at: canceled.cancel_at });
+        logStep("Subscription set to cancel at period end", { id: canceled.id });
       }
 
       return new Response(JSON.stringify({ success: true }), {
@@ -62,12 +80,6 @@ serve(async (req) => {
     }
 
     // If no subscription_id provided, find and cancel by product_id
-    const customers = await stripe.customers.list({ email: user.email, limit: 1 });
-    if (customers.data.length === 0) {
-      throw new Error("No Stripe customer found");
-    }
-
-    const customerId = customers.data[0].id;
     const subscriptions = await stripe.subscriptions.list({
       customer: customerId,
       status: "active",
@@ -94,7 +106,12 @@ serve(async (req) => {
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
     logStep("ERROR", { message: errorMessage });
-    return new Response(JSON.stringify({ error: errorMessage }), {
+    // Only surface safe messages to client
+    const safeMessages = ["No Stripe customer found", "Subscription not found", "No authorization header provided"];
+    const clientMessage = safeMessages.includes(errorMessage)
+      ? errorMessage
+      : "Erro ao cancelar assinatura. Tente novamente.";
+    return new Response(JSON.stringify({ error: clientMessage }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 500,
     });

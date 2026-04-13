@@ -7,9 +7,61 @@ const ZAPI_INSTANCE_ID = (Deno.env.get("ZAPI_INSTANCE_ID") ?? "").trim();
 const ZAPI_TOKEN = (Deno.env.get("ZAPI_TOKEN") ?? "").trim();
 const ZAPI_CLIENT_TOKEN = (Deno.env.get("ZAPI_CLIENT_TOKEN") ?? "").trim();
 
-async function sendText(phone: string, message: string) {
+/** Validate Brazilian phone: 10-11 digits (with or without country code 55) */
+function validatePhone(phone: string): string {
   const digits = phone.replace(/\D/g, "");
-  const formattedPhone = digits.startsWith("55") ? digits : "55" + digits;
+  // Strip country code if present
+  const local = digits.startsWith("55") ? digits.slice(2) : digits;
+  if (!/^\d{10,11}$/.test(local)) {
+    throw new Error("Número de telefone inválido");
+  }
+  return "55" + local;
+}
+
+/** Whitelist domains allowed for PDF URLs sent to Z-API */
+const ALLOWED_PDF_DOMAINS = [
+  "szaepmecxdhxduqbikqm.supabase.co",
+  "szaepmecxdhxduqbikqm.supabase.in",
+];
+
+function validatePdfUrl(url: string): void {
+  try {
+    const parsed = new URL(url);
+    if (parsed.protocol !== "https:") {
+      throw new Error("URL do PDF deve usar HTTPS");
+    }
+    if (!ALLOWED_PDF_DOMAINS.some((d) => parsed.hostname === d || parsed.hostname.endsWith("." + d))) {
+      throw new Error("Domínio do PDF não permitido");
+    }
+  } catch (e) {
+    if (e instanceof TypeError) throw new Error("URL do PDF inválida");
+    throw e;
+  }
+}
+
+/** Sanitize error message to avoid leaking internal details */
+function safeErrorMessage(error: unknown): string {
+  if (error instanceof Error) {
+    const msg = error.message;
+    // Allow known user-facing messages through
+    const safeMessages = [
+      "Número de telefone inválido",
+      "URL do PDF deve usar HTTPS",
+      "Domínio do PDF não permitido",
+      "URL do PDF inválida",
+      "Campos obrigatórios",
+      "Muitas tentativas",
+      "Unauthorized",
+      "Z-API não configurada",
+      "Tipo de mensagem desconhecido",
+    ];
+    if (safeMessages.some((s) => msg.includes(s))) return msg;
+  }
+  return "Erro ao enviar mensagem. Tente novamente.";
+}
+
+async function sendText(phone: string, message: string) {
+  const formattedPhone = validatePhone(phone);
 
   const url = `https://api.z-api.io/instances/${ZAPI_INSTANCE_ID}/token/${ZAPI_TOKEN}/send-text`;
 
@@ -28,7 +80,6 @@ async function sendText(phone: string, message: string) {
   });
 
   const json = await res.json();
-  console.log("Z-API response:", JSON.stringify(json));
   return json;
 }
 
@@ -38,8 +89,8 @@ async function sendDocument(
   filename: string,
   caption: string
 ) {
-  const digits = phone.replace(/\D/g, "");
-  const formattedPhone = digits.startsWith("55") ? digits : "55" + digits;
+  const formattedPhone = validatePhone(phone);
+  validatePdfUrl(documentUrl);
 
   const url = `https://api.z-api.io/instances/${ZAPI_INSTANCE_ID}/token/${ZAPI_TOKEN}/send-document/pdf`;
 
@@ -58,7 +109,6 @@ async function sendDocument(
   });
 
   const json = await res.json();
-  console.log("Z-API document response:", JSON.stringify(json));
   return json;
 }
 
@@ -220,9 +270,8 @@ serve(async (req) => {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (error) {
-    const msg = error instanceof Error ? error.message : String(error);
-    console.error("[SEND-WHATSAPP] Error:", msg);
-    return new Response(JSON.stringify({ error: msg }), {
+    console.error("[SEND-WHATSAPP] Error:", error instanceof Error ? error.message : String(error));
+    return new Response(JSON.stringify({ error: safeErrorMessage(error) }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 400,
     });

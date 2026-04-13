@@ -64,10 +64,10 @@ Deno.serve(async (req) => {
       JSON.stringify({ invoices: formattedInvoices }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
-  } catch (error: any) {
-    console.error("Error in list-invoices:", error);
+  } catch (error) {
+    console.error("[LIST-INVOICES] Error:", error instanceof Error ? error.message : String(error));
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ error: "Erro ao listar faturas." }),
       { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   }

@@ -437,7 +437,7 @@ async function enviarPush(payload: NotificationPayload, supabase: any): Promise<
 
   // OneSignal v2 keys (os_v2_app_...) and legacy keys both work with "Basic" auth
   const authHeader = `Basic ${ONESIGNAL_REST_API_KEY}`;
-  console.log(`[push] Auth header prefix: Basic, key starts with: ${ONESIGNAL_REST_API_KEY.substring(0, 10)}...`);
+  console.log(`[push] Sending push notification via OneSignal`);
 
   try {
     const res = await fetch("https://api.onesignal.com/notifications", {

@@ -3,7 +3,7 @@ import Stripe from "https://esm.sh/stripe@18.5.0";
 import { createClient } from "npm:@supabase/supabase-js@2.57.2";
 
 
-import { getCorsHeaders } from "../_shared/cors.ts";
+import { getCorsHeaders, getSafeCallbackOrigin } from "../_shared/cors.ts";
 
 serve(async (req) => {
   const corsHeaders = getCorsHeaders(req);
@@ -22,11 +22,11 @@ serve(async (req) => {
     );
 
     const authHeader = req.headers.get("Authorization");
-    if (!authHeader) throw new Error("No authorization header");
+    if (!authHeader || !authHeader.startsWith("Bearer ")) throw new Error("Unauthorized");
 
     const token = authHeader.replace("Bearer ", "");
     const { data: userData, error: userError } = await supabaseClient.auth.getUser(token);
-    if (userError) throw new Error(`Auth error: ${userError.message}`);
+    if (userError) throw new Error("Unauthorized");
     const user = userData.user;
     if (!user?.email) throw new Error("User not authenticated");
 
@@ -34,8 +34,7 @@ serve(async (req) => {
     const customers = await stripe.customers.list({ email: user.email, limit: 1 });
     if (customers.data.length === 0) throw new Error("No Stripe customer found");
 
-    const origin = req.headers.get("origin") || req.headers.get("referer")?.replace(/\/[^/]*$/, "") || "https://simulapool.lovable.app";
-    console.log("[CUSTOMER-PORTAL] Origin:", origin, "User:", user.email);
+    const origin = getSafeCallbackOrigin(req);
     const portalSession = await stripe.billingPortal.sessions.create({
       customer: customers.data[0].id,
       return_url: `${origin}/admin`,
@@ -45,7 +44,8 @@ serve(async (req) => {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (error) {
-    return new Response(JSON.stringify({ error: (error as Error).message }), {
+    console.error("[CUSTOMER-PORTAL] Error:", error instanceof Error ? error.message : String(error));
+    return new Response(JSON.stringify({ error: "Erro ao acessar portal de pagamento." }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 500,
     });

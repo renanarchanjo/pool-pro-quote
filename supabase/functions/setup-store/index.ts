@@ -182,7 +182,7 @@ serve(async (req) => {
         },
         headers: { Authorization: authHeader },
       });
-      console.log(`[SETUP-STORE] Welcome email sent to ${user.email}`);
+      console.log(`[SETUP-STORE] Welcome email sent to user ${user.id}`);
     } catch (emailErr) {
       console.error("[SETUP-STORE] Welcome email failed (non-blocking):", emailErr);
     }

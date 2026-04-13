@@ -3,7 +3,7 @@ import Stripe from "https://esm.sh/stripe@18.5.0";
 import { createClient } from "npm:@supabase/supabase-js@2.57.2";
 
 
-import { getCorsHeaders } from "../_shared/cors.ts";
+import { getCorsHeaders, getSafeCallbackOrigin } from "../_shared/cors.ts";
 
 serve(async (req) => {
   const corsHeaders = getCorsHeaders(req);
@@ -17,14 +17,17 @@ serve(async (req) => {
       Deno.env.get("SUPABASE_ANON_KEY") ?? ""
     );
 
-    const authHeader = req.headers.get("Authorization")!;
+    const authHeader = req.headers.get("Authorization");
+    if (!authHeader || !authHeader.startsWith("Bearer ")) throw new Error("Unauthorized");
     const token = authHeader.replace("Bearer ", "");
     const { data } = await supabaseClient.auth.getUser(token);
     const user = data.user;
     if (!user?.email) throw new Error("Usuário não autenticado");
 
     const { quantity } = await req.json();
-    if (!quantity || quantity < 1) throw new Error("Quantidade inválida");
+    if (!quantity || typeof quantity !== "number" || quantity < 1 || quantity > 50) {
+      throw new Error("Quantidade inválida");
+    }
 
     const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") || "", { apiVersion: "2025-08-27.basil" });
 
@@ -35,8 +38,7 @@ serve(async (req) => {
     }
 
     const memberPriceId = Deno.env.get("STRIPE_MEMBER_PRICE_ID") || "price_1TEdLDDLDBZHKYifSFWJIK2d";
-    const origin = req.headers.get("origin") || req.headers.get("referer")?.replace(/\/[^/]*$/, "") || "https://simulapool.lovable.app";
-    console.log("[CREATE-MEMBER-CHECKOUT] Origin:", origin, "User:", user.email, "Qty:", quantity);
+    const origin = getSafeCallbackOrigin(req);
 
     const session = await stripe.checkout.sessions.create({
       customer: customerId,
@@ -57,7 +59,8 @@ serve(async (req) => {
       status: 200,
     });
   } catch (error) {
-    return new Response(JSON.stringify({ error: (error as Error).message }), {
+    console.error("[CREATE-MEMBER-CHECKOUT] Error:", error instanceof Error ? error.message : String(error));
+    return new Response(JSON.stringify({ error: "Erro ao criar sessão de pagamento." }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 500,
     });

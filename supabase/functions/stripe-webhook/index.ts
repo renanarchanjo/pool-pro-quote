@@ -72,7 +72,7 @@ serve(async (req) => {
           })
           .eq("id", await getStoreIdByEmail(supabase, customerEmail));
 
-        console.log(`[STRIPE-WEBHOOK] Checkout completed: ${customerEmail}`);
+        console.log(`[STRIPE-WEBHOOK] Checkout completed for subscription: ${subscriptionId}`);
         break;
       }
 

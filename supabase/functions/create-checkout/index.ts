@@ -3,7 +3,7 @@ import Stripe from "https://esm.sh/stripe@18.5.0";
 import { createClient } from "npm:@supabase/supabase-js@2.57.2";
 
 
-import { getCorsHeaders } from "../_shared/cors.ts";
+import { getCorsHeaders, getSafeCallbackOrigin } from "../_shared/cors.ts";
 
 serve(async (req) => {
   const corsHeaders = getCorsHeaders(req);
@@ -17,7 +17,8 @@ serve(async (req) => {
       Deno.env.get("SUPABASE_ANON_KEY") ?? ""
     );
 
-    const authHeader = req.headers.get("Authorization")!;
+    const authHeader = req.headers.get("Authorization");
+    if (!authHeader || !authHeader.startsWith("Bearer ")) throw new Error("Unauthorized");
     const token = authHeader.replace("Bearer ", "");
     const { data } = await supabaseClient.auth.getUser(token);
     const user = data.user;
@@ -25,6 +26,9 @@ serve(async (req) => {
 
     const { priceId } = await req.json();
     if (!priceId) throw new Error("priceId is required");
+    if (typeof priceId !== "string" || !priceId.startsWith("price_")) {
+      throw new Error("Invalid priceId format");
+    }
 
     const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") || "", { apiVersion: "2025-08-27.basil" });
 
@@ -34,8 +38,7 @@ serve(async (req) => {
       customerId = customers.data[0].id;
     }
 
-    const origin = req.headers.get("origin") || req.headers.get("referer")?.replace(/\/[^/]*$/, "") || "https://simulapool.lovable.app";
-    console.log("[CREATE-CHECKOUT] Origin:", origin, "User:", user.email, "PriceId:", priceId);
+    const origin = getSafeCallbackOrigin(req);
 
     const session = await stripe.checkout.sessions.create({
       customer: customerId,
@@ -51,7 +54,8 @@ serve(async (req) => {
       status: 200,
     });
   } catch (error) {
-    return new Response(JSON.stringify({ error: (error as Error).message }), {
+    console.error("[CREATE-CHECKOUT] Error:", error instanceof Error ? error.message : String(error));
+    return new Response(JSON.stringify({ error: "Erro ao criar sessão de pagamento." }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 500,
     });

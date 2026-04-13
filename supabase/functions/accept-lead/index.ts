@@ -205,7 +205,7 @@ serve(async (req) => {
             },
             headers: { Authorization: authHeader },
           });
-          console.log(`[ACCEPT-LEAD] Lead email sent to ${ownerAuth.user.email}`);
+          console.log(`[ACCEPT-LEAD] Lead email sent to owner ${ownerAuth.user.id}`);
         }
       }
     } catch (emailErr) {

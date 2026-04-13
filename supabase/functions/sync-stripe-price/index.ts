@@ -48,6 +48,11 @@ serve(async (req) => {
       throw new Error("plan_id and new_price_monthly are required");
     }
 
+    // Validate price bounds: 0 (free) to R$9.999,99
+    if (typeof new_price_monthly !== "number" || new_price_monthly < 0 || new_price_monthly > 9999.99) {
+      throw new Error("Preço deve ser entre R$0 e R$9.999,99");
+    }
+
     logStep("Starting price sync", { plan_id, new_price_monthly, plan_name });
 
     const { data: plan, error: planError } = await supabase
@@ -168,8 +173,13 @@ serve(async (req) => {
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (error) {
-    logStep("ERROR", { message: (error as Error).message });
-    return new Response(JSON.stringify({ error: (error as Error).message }), {
+    const msg = error instanceof Error ? error.message : String(error);
+    logStep("ERROR", { message: msg });
+    const safeMessages = ["plan_id and new_price_monthly are required", "Preço deve ser entre", "Unauthorized", "Plan not found"];
+    const clientMessage = safeMessages.some((s) => msg.includes(s))
+      ? msg
+      : "Erro ao sincronizar preço. Tente novamente.";
+    return new Response(JSON.stringify({ error: clientMessage }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 500,
     });

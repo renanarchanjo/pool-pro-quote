@@ -94,6 +94,16 @@ Deno.serve(async (req) => {
       throw new Error("Email, senha e nome são obrigatórios");
     }
 
+    // Validate email format
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      throw new Error("Formato de email inválido");
+    }
+
+    // Validate password strength: min 8 chars, at least one letter and one number
+    if (typeof password !== "string" || password.length < 8 || !/[a-zA-Z]/.test(password) || !/\d/.test(password)) {
+      throw new Error("Senha deve ter no mínimo 8 caracteres, incluindo letra e número");
+    }
+
     // Verificar limite de membros (count eficiente)
     const { count: memberCount } = await supabaseAdmin
       .from("profiles")
@@ -135,8 +145,26 @@ Deno.serve(async (req) => {
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (error: any) {
+    const msg = error?.message ?? String(error);
+    console.error("[INVITE-TEAM-MEMBER] Error:", msg);
+    // Only surface safe user-facing messages
+    const safeMessages = [
+      "Não autorizado",
+      "Apenas administradores podem gerenciar membros",
+      "Loja não encontrada",
+      "Muitas tentativas. Aguarde.",
+      "Dados inválidos",
+      "Usuário não pertence à sua loja",
+      "Email, senha e nome são obrigatórios",
+      "Limite de 10 usuários por loja atingido",
+      "Este email já está cadastrado",
+      "Senha deve ter no mínimo 8 caracteres, incluindo letra e número",
+    ];
+    const clientMessage = safeMessages.some((s) => msg.includes(s))
+      ? msg
+      : "Erro ao gerenciar membro. Tente novamente.";
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ error: clientMessage }),
       { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   }
