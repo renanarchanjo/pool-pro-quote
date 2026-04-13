@@ -68,6 +68,7 @@ interface ProposalViewProps {
   partners?: Partner[];
   includedItemsTotal?: number;
   proposalId?: string | null;
+  storeId?: string | null;
   hideWhatsApp?: boolean;
   hideDownloadPdf?: boolean;
 }

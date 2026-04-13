@@ -5,16 +5,21 @@ const supabaseAnonKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
 
 /**
  * Uploads a PDF blob to the "proposals" storage bucket and returns a signed URL (48h TTL).
- * Uses anonymous client (no auth required) since the simulator is public.
+ * Path format: {storeId}/{proposalId}.pdf
  */
 export async function savePdfToStorage(
+  storeId: string,
   proposalId: string,
   pdfBlob: Blob,
   onProgress?: (percent: number) => void,
 ): Promise<string> {
-  const fileName = `proposal-${proposalId}.pdf`;
+  const fileName = `${storeId}/${proposalId}.pdf`;
 
   if (onProgress) {
+    // Use authenticated session token for XHR upload
+    const { data: { session } } = await supabase.auth.getSession();
+    const accessToken = session?.access_token || supabaseAnonKey;
+
     const uploadUrl = `${supabaseUrl}/storage/v1/object/proposals/${fileName}`;
 
     await new Promise<void>((resolve, reject) => {
@@ -22,7 +27,7 @@ export async function savePdfToStorage(
       xhr.open("POST", uploadUrl, true);
       xhr.setRequestHeader("Content-Type", "application/pdf");
       xhr.setRequestHeader("apikey", supabaseAnonKey);
-      xhr.setRequestHeader("Authorization", `Bearer ${supabaseAnonKey}`);
+      xhr.setRequestHeader("Authorization", `Bearer ${accessToken}`);
       xhr.setRequestHeader("x-upsert", "true");
 
       xhr.upload.onprogress = (e) => {
