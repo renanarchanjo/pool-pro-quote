@@ -234,7 +234,7 @@ const TeamPerformance = () => {
       </div>
 
       {/* Hidden PDF report */}
-      <div ref={reportRef} className="hidden">
+      <div ref={reportRef} aria-hidden="true" style={{ position: "fixed", left: "-9999px", top: 0, width: "1100px", overflow: "hidden", pointerEvents: "none", zIndex: -1 }}>
         <TeamPerformancePdfReport
           dateLabel={dateLabel}
           totals={{ leads: totals.leads, closed: totals.closed, revenue: totals.revenue, predicted: totals.predicted, conversionRate: teamConversion }}
