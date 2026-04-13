@@ -473,6 +473,7 @@ const AdminDashboard = () => {
               brandName={brand?.name}
               brandPartnerId={brand?.partner_id}
               partners={partners}
+              storeId={store?.id}
               storeWhatsapp={store?.whatsapp}
             />
           </div>
