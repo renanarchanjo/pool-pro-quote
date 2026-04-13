@@ -97,13 +97,18 @@ const MatrizStores = () => {
   }, []);
 
   const loadStores = async () => {
-    const { data } = await (supabase
-      .from("stores")
-      .select("*, subscription_plans(name, price_monthly, slug)") as any)
-      .order("created_at", { ascending: false });
-
-    setStores((data as any) || []);
-    setLoading(false);
+    try {
+      const { data, error } = await (supabase
+        .from("stores")
+        .select("id, name, slug, city, state, cnpj, razao_social, nome_fantasia, whatsapp, plan_status, plan_id, created_at, plan_started_at, stripe_subscription_id, lead_plan_active, lead_limit_monthly, subscription_plans(name, price_monthly, slug)") as any)
+        .order("created_at", { ascending: false });
+      if (error) console.error("Error loading stores:", error);
+      setStores((data as any) || []);
+    } catch (e) {
+      console.error("Error loading stores:", e);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const openEdit = (store: StoreRow) => {
@@ -159,21 +164,20 @@ const MatrizStores = () => {
     if (!deletingStore) return;
     setDeleting(true);
     try {
-      // Delete related data first
-      await supabase.from("proposals").delete().eq("store_id", deletingStore.id);
-      await supabase.from("store_settings").delete().eq("store_id", deletingStore.id);
-      await supabase.from("pool_models").delete().eq("store_id", deletingStore.id);
-      await supabase.from("categories").delete().eq("store_id", deletingStore.id);
-      await supabase.from("brands").delete().eq("store_id", deletingStore.id);
-      await supabase.from("optionals").delete().eq("store_id", deletingStore.id);
-      await supabase.from("optional_groups").delete().eq("store_id", deletingStore.id);
-      await supabase.from("model_optionals").delete().eq("store_id", deletingStore.id);
-
-      // Delete profiles linked to this store
-      await supabase.from("profiles").delete().eq("store_id", deletingStore.id);
+      // Delete related data first (order matters for FK constraints)
+      const storeId = deletingStore.id;
+      const tables = [
+        "proposals", "store_settings", "pool_models", "categories",
+        "brands", "optionals", "optional_groups", "model_optionals", "profiles",
+      ] as const;
+      for (const table of tables) {
+        const key = table === "profiles" ? "store_id" : "store_id";
+        const { error: delErr } = await supabase.from(table).delete().eq(key, storeId);
+        if (delErr) console.error(`Error deleting ${table}:`, delErr);
+      }
 
       // Delete the store
-      const { error } = await supabase.from("stores").delete().eq("id", deletingStore.id);
+      const { error } = await supabase.from("stores").delete().eq("id", storeId);
       if (error) throw error;
 
       toast.success(`Loja "${deletingStore.name}" excluída com sucesso!`);

@@ -83,16 +83,30 @@ const MatrizDashboard = () => {
   };
 
   const loadAll = useCallback(async () => {
-    const [storesRes, proposalsRes, paymentsRes] = await Promise.all([
-      supabase.from("stores").select("id, name, city, state, plan_status, plan_id, created_at, plan_started_at, stripe_subscription_id, subscription_plans(name, price_monthly, slug)"),
-      supabase.from("proposals").select("id, store_id, total_price, created_at, status, is_test").eq("is_test", false),
-      supabase.from("payment_history").select("id, store_id, amount, status, payment_date"),
-    ]);
-    setData({ stores: (storesRes.data as any) || [], proposals: proposalsRes.data || [], payments: paymentsRes.data || [] });
-    setLoading(false);
+    try {
+      const [storesRes, proposalsRes, paymentsRes] = await Promise.all([
+        supabase.from("stores").select("id, name, city, state, plan_status, plan_id, created_at, plan_started_at, stripe_subscription_id, subscription_plans(name, price_monthly, slug)"),
+        supabase.from("proposals").select("id, store_id, total_price, created_at, status, is_test").eq("is_test", false),
+        supabase.from("payment_history").select("id, store_id, amount, status, payment_date"),
+      ]);
+      if (storesRes.error) console.error("Error loading stores:", storesRes.error);
+      if (proposalsRes.error) console.error("Error loading proposals:", proposalsRes.error);
+      if (paymentsRes.error) console.error("Error loading payments:", paymentsRes.error);
+      setData({ stores: (storesRes.data as any) || [], proposals: proposalsRes.data || [], payments: paymentsRes.data || [] });
+    } catch (e) {
+      console.error("Error loading dashboard:", e);
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
-  useEffect(() => { loadAll(); const i = setInterval(loadAll, 30000); return () => clearInterval(i); }, [loadAll]);
+  useEffect(() => {
+    let cancelled = false;
+    const load = () => { if (!cancelled) loadAll(); };
+    load();
+    const i = setInterval(load, 30000);
+    return () => { cancelled = true; clearInterval(i); };
+  }, [loadAll]);
 
   /* ── date range helper ── */
   const dateRange = useMemo(() => {

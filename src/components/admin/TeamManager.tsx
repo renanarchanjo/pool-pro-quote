@@ -108,6 +108,7 @@ const TeamManager = () => {
       ]);
 
       if (profilesRes.error) throw profilesRes.error;
+      if (commRes.error) console.error("Error loading commissions:", commRes.error);
       const commSettings = commRes.data || [];
       setCommissionSettings(commSettings);
 

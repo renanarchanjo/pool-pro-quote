@@ -108,7 +108,8 @@ const BrandCategoryManager = ({ mode = "brands" }: { mode?: "brands" | "categori
     if (selectedBrands.length === 0) return;
     try {
       if (action === "delete") {
-        await Promise.all(selectedBrands.map(id => supabase.from("brands").delete().eq("id", id)));
+        const { error } = await supabase.from("brands").delete().in("id", selectedBrands);
+        if (error) throw error;
         toast.success(`${selectedBrands.length} marca(s) excluída(s)`);
       } else {
         const active = action === "activate";
@@ -127,7 +128,8 @@ const BrandCategoryManager = ({ mode = "brands" }: { mode?: "brands" | "categori
     if (selectedCategories.length === 0) return;
     try {
       if (action === "delete") {
-        await Promise.all(selectedCategories.map(id => supabase.from("categories").delete().eq("id", id)));
+        const { error } = await supabase.from("categories").delete().in("id", selectedCategories);
+        if (error) throw error;
         toast.success(`${selectedCategories.length} categoria(s) excluída(s)`);
       } else {
         const active = action === "activate";

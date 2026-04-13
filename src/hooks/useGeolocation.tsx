@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef } from "react";
 
 interface LocationData {
   state: string;
@@ -33,8 +33,15 @@ export const useGeolocation = (): UseGeolocationReturn => {
   const [location, setLocation] = useState<LocationData | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const lastCallRef = useRef(0);
 
   const detectLocation = useCallback(async (): Promise<LocationData | null> => {
+    // Throttle: at most one Nominatim call per 3 seconds
+    const now = Date.now();
+    if (now - lastCallRef.current < 3000) {
+      return location;
+    }
+    lastCallRef.current = now;
     setLoading(true);
     setError(null);
 

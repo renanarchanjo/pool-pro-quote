@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
@@ -9,7 +9,7 @@ const PendingLeadsAlert = () => {
   const [open, setOpen] = useState(false);
   const [pendingCount, setPendingCount] = useState(0);
   const [storeId, setStoreId] = useState<string | null>(null);
-  const [lastCheckedCount, setLastCheckedCount] = useState(0);
+  const lastCheckedCountRef = useRef(0);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -39,14 +39,14 @@ const PendingLeadsAlert = () => {
     if (newCount > 0) {
       setPendingCount(newCount);
       const isOnLeadsPage = location.pathname.includes("/admin/leads");
-      if (!isOnLeadsPage && (!showOnlyIfNew || newCount > lastCheckedCount)) {
+      if (!isOnLeadsPage && (!showOnlyIfNew || newCount > lastCheckedCountRef.current)) {
         setOpen(true);
       }
     }
-    setLastCheckedCount(newCount);
-  }, [storeId, lastCheckedCount, location.pathname]);
+    lastCheckedCountRef.current = newCount;
+  }, [storeId, location.pathname]);
 
-  // Initial check on mount — no delay needed
+  // Initial check on mount
   useEffect(() => {
     checkPendingLeads(false);
   }, []);

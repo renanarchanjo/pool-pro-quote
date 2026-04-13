@@ -76,7 +76,7 @@ const PartnersManager = () => {
     } else {
       const sorted = (partnersRes.data as Partner[]) || [];
       setPartners(sorted);
-      setOriginalPartners(JSON.parse(JSON.stringify(sorted)));
+      setOriginalPartners(structuredClone(sorted));
     }
 
     if (!catsRes.error && catsRes.data) {
@@ -218,7 +218,7 @@ const PartnersManager = () => {
       requestAnimationFrame(() => {
         const sorted = [...partners].sort((a, b) => a.ranking - b.ranking);
         setPartners(sorted);
-        setOriginalPartners(JSON.parse(JSON.stringify(sorted)));
+        setOriginalPartners(structuredClone(sorted));
         requestAnimationFrame(() => setAnimating(false));
       });
 

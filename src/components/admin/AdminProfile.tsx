@@ -30,7 +30,7 @@ const AdminProfile = () => {
     if (storeSettings) setLogoUrl(storeSettings.logo_url || "");
     supabase.auth.getUser().then(({ data }) => {
       if (data.user) setUserEmail(data.user.email || "");
-    });
+    }).catch(() => { /* auth state handled elsewhere */ });
   }, [profile, storeSettings]);
 
   const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {

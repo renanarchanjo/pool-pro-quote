@@ -55,20 +55,28 @@ const MatrizPlans = () => {
 
   const loadData = async () => {
     setLoading(true);
-    const [plansRes, settingsRes, leadPlansRes] = await Promise.all([
-      (supabase as any).from("subscription_plans").select("*").order("display_order"),
-      (supabase as any).from("platform_settings").select("*"),
-      (supabase as any).from("lead_plans").select("*").order("display_order"),
-    ]);
-    if (plansRes.data) setPlans(plansRes.data);
-    if (settingsRes.data) {
-      setSettings(settingsRes.data);
-      const form: Record<string, string> = {};
-      settingsRes.data.forEach((s: PlatformSetting) => { form[s.key] = s.value; });
-      setSettingsForm(form);
+    try {
+      const [plansRes, settingsRes, leadPlansRes] = await Promise.all([
+        (supabase as any).from("subscription_plans").select("id, name, slug, price_monthly, max_proposals_per_month, max_users, active, display_order, stripe_product_id, stripe_price_id").order("display_order"),
+        (supabase as any).from("platform_settings").select("id, key, value"),
+        (supabase as any).from("lead_plans").select("id, name, price_monthly, lead_limit, excess_price, active, display_order, stripe_product_id, stripe_price_id").order("display_order"),
+      ]);
+      if (plansRes.error) console.error("Error loading plans:", plansRes.error);
+      if (settingsRes.error) console.error("Error loading settings:", settingsRes.error);
+      if (leadPlansRes.error) console.error("Error loading lead plans:", leadPlansRes.error);
+      if (plansRes.data) setPlans(plansRes.data);
+      if (settingsRes.data) {
+        setSettings(settingsRes.data);
+        const form: Record<string, string> = {};
+        settingsRes.data.forEach((s: PlatformSetting) => { form[s.key] = s.value; });
+        setSettingsForm(form);
+      }
+      if (leadPlansRes.data) setLeadPlans(leadPlansRes.data);
+    } catch (e) {
+      console.error("Error loading data:", e);
+    } finally {
+      setLoading(false);
     }
-    if (leadPlansRes.data) setLeadPlans(leadPlansRes.data);
-    setLoading(false);
   };
 
   useEffect(() => { loadData(); }, []);

@@ -83,25 +83,31 @@ const MatrizLeads = () => {
 
   const loadData = async () => {
     setLoading(true);
-    const [leadsRes, distRes, storesRes] = await Promise.all([
-      supabase.from("proposals").select("*, pool_models(name), stores(name, city, state)").is("created_by", null).order("created_at", { ascending: false }).limit(3000) as any,
-      (supabase as any).from("lead_distributions").select("*, stores(name, city)").limit(5000),
-      (supabase as any).from("stores").select("id, name, city, state, lead_plan_active, lead_limit_monthly").order("name"),
-    ]);
-    if (leadsRes.data) setLeads(leadsRes.data as Lead[]);
-    if (distRes.data) setDistributions(distRes.data);
-    if (storesRes.error) console.error("[MatrizLeads] stores error:", storesRes.error);
-    if (storesRes.data) {
-      console.log("[MatrizLeads] stores loaded:", storesRes.data.length);
-      setStores(storesRes.data);
+    try {
+      const [leadsRes, distRes, storesRes] = await Promise.all([
+        supabase.from("proposals").select("id, customer_name, customer_city, customer_whatsapp, total_price, created_at, status, store_id, model_id, pool_models(name), stores(name, city, state)").is("created_by", null).order("created_at", { ascending: false }).limit(3000) as any,
+        (supabase as any).from("lead_distributions").select("id, proposal_id, store_id, status, accepted_by, accepted_at, created_at, stores(name, city)").limit(5000),
+        (supabase as any).from("stores").select("id, name, city, state, lead_plan_active, lead_limit_monthly").order("name"),
+      ]);
+      if (leadsRes.error) console.error("Error loading leads:", leadsRes.error);
+      if (distRes.error) console.error("Error loading distributions:", distRes.error);
+      if (storesRes.error) console.error("Error loading stores:", storesRes.error);
+      if (leadsRes.data) setLeads(leadsRes.data as Lead[]);
+      if (distRes.data) setDistributions(distRes.data);
+      if (storesRes.data) setStores(storesRes.data);
+    } catch (e) {
+      console.error("Error loading data:", e);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   useEffect(() => {
-    loadData();
-    const interval = setInterval(() => loadData(), 30000);
-    return () => clearInterval(interval);
+    let cancelled = false;
+    const load = () => { if (!cancelled) loadData(); };
+    load();
+    const interval = setInterval(load, 30000);
+    return () => { cancelled = true; clearInterval(interval); };
   }, []);
 
   // Distribution map - only active (pending/accepted) distributions count

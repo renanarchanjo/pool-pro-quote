@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Skeleton } from "@/components/ui/skeleton";
 import { MapPin, Store, Search } from "lucide-react";
@@ -31,18 +31,23 @@ const MatrizMapPage = () => {
     setLoading(false);
   };
 
+  const reloadTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   useEffect(() => {
     loadStores();
 
-    // Realtime: auto-update when stores change
+    // Realtime: auto-update when stores change (debounced to avoid rapid reloads)
     const channel = supabase
       .channel("stores-map-realtime")
       .on("postgres_changes", { event: "*", schema: "public", table: "stores" }, () => {
-        loadStores();
+        if (reloadTimerRef.current) clearTimeout(reloadTimerRef.current);
+        reloadTimerRef.current = setTimeout(() => loadStores(), 2000);
       })
       .subscribe();
 
-    return () => { supabase.removeChannel(channel); };
+    return () => {
+      if (reloadTimerRef.current) clearTimeout(reloadTimerRef.current);
+      supabase.removeChannel(channel);
+    };
   }, []);
 
   const stateMap = useMemo(() => {

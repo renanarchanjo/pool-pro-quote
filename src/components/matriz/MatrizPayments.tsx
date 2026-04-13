@@ -38,13 +38,18 @@ const MatrizPayments = () => {
   }, []);
 
   const loadPayments = async () => {
-    const { data } = await supabase
-      .from("payment_history")
-      .select("*, stores(name), subscription_plans(name)")
-      .order("payment_date", { ascending: false });
-
-    setPayments((data as any) || []);
-    setLoading(false);
+    try {
+      const { data, error } = await supabase
+        .from("payment_history")
+        .select("id, store_id, amount, status, payment_date, plan_id, stripe_invoice_id, stores(name), subscription_plans(name)")
+        .order("payment_date", { ascending: false });
+      if (error) console.error("Error loading payments:", error);
+      setPayments((data as any) || []);
+    } catch (e) {
+      console.error("Error loading payments:", e);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const formatDate = (d: string | null) =>

@@ -140,7 +140,8 @@ const SubscriptionManager = () => {
         .single()
         .then(({ data }) => {
           setLeadPlanActive(!!data?.lead_plan_active);
-        });
+        })
+        .catch(() => { /* handled by subscription check */ });
     }
   }, [store]);
 

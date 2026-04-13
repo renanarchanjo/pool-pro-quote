@@ -73,6 +73,9 @@ const TeamPerformance = () => {
         supabase.from("lead_distributions").select("id, proposal_id, store_id, status, accepted_by, accepted_at, created_at").eq("store_id", store.id),
         supabase.from("proposals").select("id, status, total_price, created_at, customer_name, created_by").eq("store_id", store.id),
       ]);
+      if (membersRes.error) console.error("Error loading members:", membersRes.error);
+      if (distRes.error) console.error("Error loading distributions:", distRes.error);
+      if (proposalsRes.error) console.error("Error loading proposals:", proposalsRes.error);
       setMembers(membersRes.data || []);
       setDistributions(distRes.data || []);
       setProposals(proposalsRes.data || []);

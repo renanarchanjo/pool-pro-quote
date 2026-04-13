@@ -110,7 +110,8 @@ const OptionalManager = () => {
     if (selected.length === 0) return;
     try {
       if (action === "delete") {
-        await Promise.all(selected.map(id => supabase.from("optionals").delete().eq("id", id)));
+        const { error } = await supabase.from("optionals").delete().in("id", selected);
+        if (error) throw error;
         toast.success(`${selected.length} opcional(is) excluído(s)`);
       } else {
         const active = action === "activate";

@@ -60,6 +60,10 @@ const TeamCommissions = () => {
         supabase.from("lead_distributions").select("id, proposal_id, accepted_by, status, accepted_at, created_at").eq("store_id", store.id),
         supabase.from("proposals").select("id, status, total_price, created_at, customer_name, created_by").eq("store_id", store.id),
       ]);
+      if (membersRes.error) console.error("Error loading members:", membersRes.error);
+      if (settingsRes.error) console.error("Error loading commission settings:", settingsRes.error);
+      if (distRes.error) console.error("Error loading distributions:", distRes.error);
+      if (proposalsRes.error) console.error("Error loading proposals:", proposalsRes.error);
       setMembers(membersRes.data || []);
       setCommissionSettings((settingsRes.data as any) || []);
       setDistributions(distRes.data || []);
