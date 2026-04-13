@@ -108,6 +108,7 @@ const AppInner = () => {
         </PageTransition>
       </Suspense>
       </ErrorBoundary>
+      <CookieBanner />
     </BrowserRouter>
   );
 };
