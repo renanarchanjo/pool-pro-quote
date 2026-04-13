@@ -110,6 +110,7 @@ const ProposalPreviewModal = ({
               brandName={brand?.name}
               brandPartnerId={brand?.partner_id}
               partners={partners}
+              storeId={store?.id}
               storeWhatsapp={store?.whatsapp}
               hideDownloadPdf={hideDownloadPdf}
               hideWhatsApp={hideWhatsApp}
