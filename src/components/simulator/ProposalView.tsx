@@ -6,6 +6,7 @@ import { savePdfToStorage } from "@/lib/savePdfToStorage";
 import { PDF_IMAGE_FALLBACK, toBase64Safe } from "@/lib/pdfImageUtils";
 import { formatPhoneForWhatsApp } from "@/lib/formatPhone";
 import { supabase } from "@/integrations/supabase/client";
+import * as Sentry from "@sentry/react";
 import { toast } from "sonner";
 import simulapoolLogoFooter from "@/assets/simulapool-logo-footer.png?inline";
 import ProposalPdfTemplate from "./ProposalPdfTemplate";
@@ -312,6 +313,10 @@ const ProposalView = ({
         return; // success — exit
       } catch (err) {
         console.error(`Erro WhatsApp (tentativa ${attempts}):`, err);
+        Sentry.captureException(err, {
+          tags: { feature: "whatsapp_send" },
+          extra: { proposalId, storeId, attempt: attempts },
+        });
 
         // If mobile and we still have retries, continue
         if (isMobile && attempts < maxAttempts) {
