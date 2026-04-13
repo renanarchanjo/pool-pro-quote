@@ -59,10 +59,10 @@ const Matriz = () => {
       if (cancelled) return;
       if (!session) { navigate("/loginmatriz"); return; }
 
-      // Check MFA assurance level — super_admin must have aal2 if MFA is enrolled
+      // Super admin DEVE ter aal2 — redireciona se não verificado ou não enrolled
       const { data: mfaData } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
       if (cancelled) return;
-      if (mfaData?.nextLevel === "aal2" && mfaData?.currentLevel === "aal1") {
+      if (mfaData?.currentLevel !== "aal2") {
         navigate("/loginmatriz", { replace: true });
         return;
       }

@@ -59,12 +59,41 @@ const MobileApp = () => {
     }
     setLoading(true);
     try {
-      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      const { data: signInData, error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) throw error;
+
+      // Verificar role do usuário após login
+      const userId = signInData.user?.id;
+      if (userId) {
+        const { data: roleData } = await supabase
+          .from("user_roles")
+          .select("role")
+          .eq("user_id", userId)
+          .single();
+
+        if (roleData?.role === "super_admin") {
+          // Super admin deve usar o login da Matriz com MFA
+          const { data: mfaData } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
+          if (mfaData?.nextLevel === "aal2" && mfaData?.currentLevel === "aal1") {
+            navigate("/loginmatriz");
+            return;
+          }
+          // Se MFA já verificado (aal2), redireciona para matriz
+          if (mfaData?.currentLevel === "aal2") {
+            navigate("/matriz");
+            return;
+          }
+          // Super admin sem MFA enrolled — redireciona para loginmatriz para configurar
+          navigate("/loginmatriz");
+          return;
+        }
+      }
+
       toast.success("Login realizado com sucesso!");
       navigate("/admin");
-    } catch (error: any) {
-      toast.error(error.message === "Invalid login credentials"
+    } catch (error: unknown) {
+      const msg = error instanceof Error ? error.message : "";
+      toast.error(msg === "Invalid login credentials"
         ? "E-mail ou senha incorretos"
         : "Erro ao fazer login");
     } finally {

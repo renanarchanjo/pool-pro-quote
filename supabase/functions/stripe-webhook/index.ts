@@ -244,14 +244,14 @@ async function getStoreIdByEmail(
 ): Promise<string | null> {
   if (!email) return null;
 
-  const { data: authUser } = await supabase.auth.admin.listUsers();
-  const user = authUser?.users?.find((u: any) => u.email === email);
-  if (!user) return null;
+  // Query direta por email — evita listar todos os users do sistema
+  const { data: userData, error } = await supabase.auth.admin.getUserByEmail(email);
+  if (error || !userData?.user) return null;
 
   const { data: profile } = await supabase
     .from("profiles")
     .select("store_id")
-    .eq("id", user.id)
+    .eq("id", userData.user.id)
     .single();
 
   return profile?.store_id ?? null;

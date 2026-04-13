@@ -221,6 +221,39 @@ const ManualProposal = () => {
 
     setSubmitting(true);
     try {
+      // Verificar limite de propostas do plano antes de criar
+      const { data: storeData } = await supabase
+        .from("stores")
+        .select("plan_id")
+        .eq("id", profile.store_id)
+        .single();
+
+      if (storeData?.plan_id) {
+        const { data: planData } = await supabase
+          .from("subscription_plans")
+          .select("max_proposals_per_month")
+          .eq("id", storeData.plan_id)
+          .single();
+
+        if (planData?.max_proposals_per_month) {
+          const monthStart = new Date();
+          monthStart.setDate(1);
+          monthStart.setHours(0, 0, 0, 0);
+
+          const { count } = await supabase
+            .from("proposals")
+            .select("id", { count: "exact", head: true })
+            .eq("store_id", profile.store_id)
+            .gte("created_at", monthStart.toISOString());
+
+          if ((count || 0) >= planData.max_proposals_per_month) {
+            toast.error(`Limite de ${planData.max_proposals_per_month} propostas/mês atingido. Faça upgrade do plano.`);
+            setSubmitting(false);
+            return;
+          }
+        }
+      }
+
       const allSelectedOpts = [
         ...selectedOptionalsList.map(o => ({ id: o.id, name: o.name, price: o.price })),
         ...selectedModelOptsList.map((o: any) => ({ id: o.id, name: o.name, price: o.price })),

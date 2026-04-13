@@ -38,133 +38,219 @@ async function detectarEventos(supabase: any, periodo: string) {
   const now = new Date();
   const events: NormalizedEvent[] = [];
 
-  // Buscar todos os owners com store
-  const { data: profiles } = await supabase
-    .from("profiles")
-    .select("id, store_id, full_name")
-    .not("store_id", "is", null);
-
-  if (!profiles?.length) return events;
-
-  for (const profile of profiles) {
-    const storeId = profile.store_id;
-    const userId = profile.id;
-
-    // Verificar se é owner
-    const { data: roleData } = await supabase
+  // 1. Batch: buscar todos profiles com store + roles em paralelo
+  const [{ data: profiles }, { data: allRoles }] = await Promise.all([
+    supabase
+      .from("profiles")
+      .select("id, store_id, full_name")
+      .not("store_id", "is", null),
+    supabase
       .from("user_roles")
-      .select("role")
-      .eq("user_id", userId)
-      .in("role", ["owner", "super_admin"]);
+      .select("user_id, role")
+      .in("role", ["owner", "super_admin"]),
+  ]);
 
-    if (!roleData?.length) continue;
+  if (!profiles?.length || !allRoles?.length) return events;
 
-    // --- Leads novos (últimas 24h ou desde último cron) ---
-    const hoursBack = periodo === "manha" ? 16 : periodo === "acompanhamento" ? 7 : 4;
-    const since = new Date(now.getTime() - hoursBack * 60 * 60 * 1000).toISOString();
+  // Indexar roles por user_id para lookup O(1)
+  const rolesByUser = new Map<string, string[]>();
+  for (const r of allRoles) {
+    const arr = rolesByUser.get(r.user_id) || [];
+    arr.push(r.role);
+    rolesByUser.set(r.user_id, arr);
+  }
 
-    // Para owners: checar lead_distributions
-    const isOwner = roleData.some((r: any) => r.role === "owner");
-    const isSuperAdmin = roleData.some((r: any) => r.role === "super_admin");
+  // Filtrar apenas profiles que são owner ou super_admin
+  const relevantProfiles = profiles.filter(
+    (p: { id: string }) => rolesByUser.has(p.id)
+  );
 
-    if (isOwner) {
-      const { data: newLeads, count: leadsCount } = await supabase
-        .from("lead_distributions")
-        .select("id", { count: "exact" })
-        .eq("store_id", storeId)
-        .eq("status", "pending")
-        .gte("created_at", since);
+  if (!relevantProfiles.length) return events;
 
-      if (leadsCount && leadsCount > 0) {
+  // 2. Coletar store_ids dos owners para queries batch
+  const ownerProfiles = relevantProfiles.filter(
+    (p: { id: string }) => rolesByUser.get(p.id)?.includes("owner")
+  );
+  const ownerStoreIds = ownerProfiles.map((p: { store_id: string }) => p.store_id);
+
+  const hoursBack = periodo === "manha" ? 16 : periodo === "acompanhamento" ? 7 : 4;
+  const since = new Date(now.getTime() - hoursBack * 60 * 60 * 1000).toISOString();
+  const oneDayAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000).toISOString();
+  const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000).toISOString();
+
+  // 3. Batch queries para todos os owners de uma vez (usando RPC ou queries agrupadas)
+  // Buscar contagens por store_id em batch
+  const [
+    { data: pendingLeads },
+    { data: pendingProposals },
+    { data: lostProposals },
+    { data: totalProposals30d },
+    { data: closedProposals30d },
+  ] = ownerStoreIds.length > 0
+    ? await Promise.all([
+        // Leads pendentes por loja
+        supabase
+          .from("lead_distributions")
+          .select("store_id")
+          .in("store_id", ownerStoreIds)
+          .eq("status", "pending")
+          .gte("created_at", since),
+        // Propostas novas paradas >24h
+        supabase
+          .from("proposals")
+          .select("store_id")
+          .in("store_id", ownerStoreIds)
+          .eq("status", "nova")
+          .lt("created_at", oneDayAgo),
+        // Propostas perdidas recentes
+        supabase
+          .from("proposals")
+          .select("store_id")
+          .in("store_id", ownerStoreIds)
+          .eq("status", "perdida")
+          .gte("created_at", since),
+        // Total de propostas (30d)
+        supabase
+          .from("proposals")
+          .select("store_id")
+          .in("store_id", ownerStoreIds)
+          .gte("created_at", thirtyDaysAgo),
+        // Propostas fechadas (30d)
+        supabase
+          .from("proposals")
+          .select("store_id")
+          .in("store_id", ownerStoreIds)
+          .eq("status", "fechada")
+          .gte("created_at", thirtyDaysAgo),
+      ])
+    : [{ data: [] }, { data: [] }, { data: [] }, { data: [] }, { data: [] }];
+
+  // 4. Agrupar contagens por store_id em memória
+  function countByStore(rows: { store_id: string }[] | null): Map<string, number> {
+    const map = new Map<string, number>();
+    for (const row of rows || []) {
+      map.set(row.store_id, (map.get(row.store_id) || 0) + 1);
+    }
+    return map;
+  }
+
+  const leadsCountMap = countByStore(pendingLeads);
+  const pendingCountMap = countByStore(pendingProposals);
+  const lostCountMap = countByStore(lostProposals);
+  const totalCountMap = countByStore(totalProposals30d);
+  const closedCountMap = countByStore(closedProposals30d);
+
+  // 5. Gerar eventos por owner (sem queries no loop)
+  for (const profile of ownerProfiles) {
+    const { id: userId, store_id: storeId } = profile;
+
+    const leadsCount = leadsCountMap.get(storeId) || 0;
+    if (leadsCount > 0) {
+      events.push({
+        tipo: "leads_novos",
+        userId,
+        payload: { count: leadsCount, storeId },
+        timestamp: now,
+      });
+    }
+
+    const pendingCount = pendingCountMap.get(storeId) || 0;
+    if (pendingCount > 0) {
+      events.push({
+        tipo: "propostas_pendentes",
+        userId,
+        payload: { count: pendingCount, storeId },
+        timestamp: now,
+      });
+    }
+
+    const lostCount = lostCountMap.get(storeId) || 0;
+    if (lostCount > 0) {
+      events.push({
+        tipo: "propostas_perdidas",
+        userId,
+        payload: { count: lostCount, storeId },
+        timestamp: now,
+      });
+    }
+
+    const totalProps = totalCountMap.get(storeId) || 0;
+    const closedProps = closedCountMap.get(storeId) || 0;
+    if (totalProps > 5) {
+      const conversionRate = closedProps / totalProps;
+      if (conversionRate < 0.1) {
         events.push({
-          tipo: "leads_novos",
+          tipo: "queda_performance",
           userId,
-          payload: { count: leadsCount, storeId },
+          payload: {
+            conversionRate: Math.round(conversionRate * 100),
+            totalProposals: totalProps,
+            closedProposals: closedProps,
+            storeId,
+          },
           timestamp: now,
         });
       }
+    }
+  }
 
-      // Propostas não enviadas (status = "nova" há mais de 24h)
-      const oneDayAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000).toISOString();
-      const { count: pendingCount } = await supabase
-        .from("proposals")
-        .select("id", { count: "exact" })
-        .eq("store_id", storeId)
-        .eq("status", "nova")
-        .lt("created_at", oneDayAgo);
+  // 6. Planos expirando nos próximos 7 dias (alerta para owners)
+  if (ownerStoreIds.length > 0) {
+    const sevenDaysFromNow = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000).toISOString();
+    const { data: expiringStores } = await supabase
+      .from("stores")
+      .select("id, plan_expires_at, plan_status")
+      .in("id", ownerStoreIds)
+      .eq("plan_status", "active")
+      .not("plan_expires_at", "is", null)
+      .lte("plan_expires_at", sevenDaysFromNow)
+      .gt("plan_expires_at", now.toISOString());
 
-      if (pendingCount && pendingCount > 0) {
-        events.push({
-          tipo: "propostas_pendentes",
-          userId,
-          payload: { count: pendingCount, storeId },
-          timestamp: now,
-        });
-      }
-
-      // Propostas perdidas (últimas 24h)
-      const { count: lostCount } = await supabase
-        .from("proposals")
-        .select("id", { count: "exact" })
-        .eq("store_id", storeId)
-        .eq("status", "perdida")
-        .gte("created_at", since);
-
-      if (lostCount && lostCount > 0) {
-        events.push({
-          tipo: "propostas_perdidas",
-          userId,
-          payload: { count: lostCount, storeId },
-          timestamp: now,
-        });
-      }
-
-      // Performance: taxa de conversão
-      const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000).toISOString();
-      const { count: totalProposals } = await supabase
-        .from("proposals")
-        .select("id", { count: "exact" })
-        .eq("store_id", storeId)
-        .gte("created_at", thirtyDaysAgo);
-
-      const { count: closedProposals } = await supabase
-        .from("proposals")
-        .select("id", { count: "exact" })
-        .eq("store_id", storeId)
-        .eq("status", "fechada")
-        .gte("created_at", thirtyDaysAgo);
-
-      if (totalProposals && totalProposals > 5) {
-        const conversionRate = (closedProposals || 0) / totalProposals;
-        if (conversionRate < 0.1) {
+    if (expiringStores?.length) {
+      const expiringStoreIds = new Set(expiringStores.map((s: { id: string }) => s.id));
+      for (const profile of ownerProfiles) {
+        if (expiringStoreIds.has(profile.store_id)) {
+          const storeInfo = expiringStores.find((s: { id: string }) => s.id === profile.store_id);
+          const daysLeft = Math.ceil(
+            (new Date(storeInfo.plan_expires_at).getTime() - now.getTime()) / (24 * 60 * 60 * 1000)
+          );
           events.push({
-            tipo: "queda_performance",
-            userId,
-            payload: { conversionRate: Math.round(conversionRate * 100), totalProposals, closedProposals, storeId },
+            tipo: "plano_expirando",
+            userId: profile.id,
+            payload: { daysLeft, storeId: profile.store_id },
             timestamp: now,
           });
         }
       }
     }
+  }
 
-    // Para super_admin: resumo geral
-    if (isSuperAdmin && periodo === "resumo") {
-      const { count: totalNewLeads } = await supabase
-        .from("proposals")
-        .select("id", { count: "exact" })
-        .eq("status", "nova")
-        .gte("created_at", new Date(now.getTime() - 24 * 60 * 60 * 1000).toISOString());
+  // 7. Resumo diário para super_admin (query única fora do loop)
+  if (periodo === "resumo") {
+    const superAdminProfiles = relevantProfiles.filter(
+      (p: { id: string }) => rolesByUser.get(p.id)?.includes("super_admin")
+    );
 
-      const { count: totalStores } = await supabase
-        .from("stores")
-        .select("id", { count: "exact" });
+    if (superAdminProfiles.length > 0) {
+      const [{ count: totalNewLeads }, { count: totalStores }] = await Promise.all([
+        supabase
+          .from("proposals")
+          .select("id", { count: "exact" })
+          .eq("status", "nova")
+          .gte("created_at", oneDayAgo),
+        supabase
+          .from("stores")
+          .select("id", { count: "exact" }),
+      ]);
 
-      events.push({
-        tipo: "resumo_diario",
-        userId,
-        payload: { totalNewLeads: totalNewLeads || 0, totalStores: totalStores || 0 },
-        timestamp: now,
-      });
+      for (const profile of superAdminProfiles) {
+        events.push({
+          tipo: "resumo_diario",
+          userId: profile.id,
+          payload: { totalNewLeads: totalNewLeads || 0, totalStores: totalStores || 0 },
+          timestamp: now,
+        });
+      }
     }
   }
 
@@ -187,6 +273,7 @@ function normalizarEventos(eventos: NormalizedEvent[]): NormalizedEvent[] {
 function definirPrioridade(tipo: string): "CRITICO" | "URGENTE" | "NORMAL" {
   switch (tipo) {
     case "queda_performance": return "CRITICO";
+    case "plano_expirando": return "URGENTE";
     case "propostas_perdidas": return "URGENTE";
     default: return "NORMAL";
   }
@@ -215,6 +302,10 @@ function gerarMensagem(eventosDoUsuario: NormalizedEvent[]): { titulo: string; m
       case "queda_performance":
         parts.push(`⚠️ Conversão em ${ev.payload.conversionRate}%`);
         alertType = "queda_performance";
+        break;
+      case "plano_expirando":
+        parts.push(`⏰ Plano expira em ${ev.payload.daysLeft} dia(s)`);
+        alertType = "plano_expirando";
         break;
       case "resumo_diario":
         parts.push(`📊 ${ev.payload.totalNewLeads} leads hoje | ${ev.payload.totalStores} lojas`);

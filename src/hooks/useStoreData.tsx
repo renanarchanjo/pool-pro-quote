@@ -106,8 +106,11 @@ export const useStoreData = () => {
   }, [resetState]);
 
   useEffect(() => {
+    let initialFetchDone = false;
+
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       if (session) {
+        initialFetchDone = true;
         setLoading(true);
         void fetchStoreData();
       } else {
@@ -116,7 +119,9 @@ export const useStoreData = () => {
       }
     });
 
+    // Só busca via getSession se onAuthStateChange ainda não disparou
     supabase.auth.getSession().then(({ data: { session } }) => {
+      if (initialFetchDone) return;
       if (session) {
         setLoading(true);
         void fetchStoreData();
