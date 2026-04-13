@@ -1,7 +1,7 @@
 import { supabase } from "@/integrations/supabase/client";
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string | undefined;
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY as string | undefined;
 
 /**
  * Uploads a PDF blob to the "proposals" storage bucket and returns a signed URL (48h TTL).
@@ -12,6 +12,10 @@ export async function savePdfToStorage(
   pdfBlob: Blob,
   onProgress?: (percent: number) => void,
 ): Promise<string> {
+  if (!supabaseUrl || !supabaseAnonKey) {
+    throw new Error("Configuração do Supabase ausente. Verifique as variáveis de ambiente.");
+  }
+
   const fileName = `proposal-${proposalId}.pdf`;
 
   if (onProgress) {

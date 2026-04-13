@@ -94,9 +94,11 @@ const AdminDashboard = () => {
 
   useEffect(() => {
     if (!store) return;
-    loadData();
-    const interval = setInterval(() => loadData(), 30000);
-    return () => clearInterval(interval);
+    let cancelled = false;
+    const load = () => { if (!cancelled) loadData(); };
+    load();
+    const interval = setInterval(load, 30000);
+    return () => { cancelled = true; clearInterval(interval); };
   }, [store]);
 
   const loadData = async () => {
@@ -120,6 +122,9 @@ const AdminDashboard = () => {
       ]);
 
       if (proposalsRes.error) throw proposalsRes.error;
+      if (distRes.error) console.error("Error loading distributions:", distRes.error);
+      if (teamRes.error) console.error("Error loading team:", teamRes.error);
+      if (partnersRes.error) console.error("Error loading partners:", partnersRes.error);
 
       const rawProposals = (proposalsRes.data as any) || [];
       const needsResolve = rawProposals.filter((p: any) =>

@@ -155,6 +155,10 @@ const AdminLeads = () => {
         .eq("store_id", store.id),
       supabase.from("partners").select("id, name, logo_url, banner_1_url, banner_2_url, display_percent").eq("active", true).order("display_order"),
     ]);
+    if (leadsRes.error) console.error("Error loading leads:", leadsRes.error);
+    if (storeRes.error) console.error("Error loading store info:", storeRes.error);
+    if (teamRes.error) console.error("Error loading team:", teamRes.error);
+    if (partnersRes.error) console.error("Error loading partners:", partnersRes.error);
     if (leadsRes.data) setLeads(leadsRes.data);
     if (storeRes.data) setStoreInfo(storeRes.data);
     if (teamRes.data) setTeamMembers(teamRes.data);
@@ -164,9 +168,11 @@ const AdminLeads = () => {
 
   useEffect(() => {
     if (!store) return;
-    loadData();
-    const interval = setInterval(() => loadData(), 30000);
-    return () => clearInterval(interval);
+    let cancelled = false;
+    const load = () => { if (!cancelled) loadData(); };
+    load();
+    const interval = setInterval(load, 30000);
+    return () => { cancelled = true; clearInterval(interval); };
   }, [store]);
 
   const handleAccept = async (distId: string) => {

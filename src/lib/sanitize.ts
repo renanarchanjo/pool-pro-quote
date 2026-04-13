@@ -2,7 +2,14 @@ export const sanitizeText = (input: string, maxLength = 500): string => {
   return input
     .trim()
     .slice(0, maxLength)
-    .replace(/[<>]/g, "");
+    // Strip HTML tags entirely (handles nested/malformed tags)
+    .replace(/<[^>]*>?/g, "")
+    // Remove null bytes and control characters (except newline/tab)
+    .replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, "")
+    // Strip javascript: / data: URI patterns
+    .replace(/(?:javascript|data|vbscript)\s*:/gi, "")
+    // Strip common event handler patterns
+    .replace(/on\w+\s*=/gi, "");
 };
 
 export const sanitizePhone = (phone: string): string => {

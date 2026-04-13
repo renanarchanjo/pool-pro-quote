@@ -222,11 +222,14 @@ export function useOneSignal() {
     }
   }, [hasSavedSubscription, initialized, loadSavedSubscription, statusMessage, support, syncSubscription]);
 
+  const syncDone = useRef(false);
   useEffect(() => {
+    if (syncDone.current) return;
     if (initialized && (permission === "granted" || hasSavedSubscription)) {
+      syncDone.current = true;
       void syncSubscription();
     }
-  }, [hasSavedSubscription, initialized, permission, syncSubscription]);
+  }, [initialized, permission, hasSavedSubscription, syncSubscription]);
 
   const isStandalone = typeof window !== "undefined" && (window.matchMedia("(display-mode: standalone)").matches || (window.navigator as any).standalone === true);
   return {
