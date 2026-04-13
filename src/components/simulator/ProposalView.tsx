@@ -68,6 +68,7 @@ interface ProposalViewProps {
   partners?: Partner[];
   includedItemsTotal?: number;
   proposalId?: string | null;
+  storeId?: string | null;
   hideWhatsApp?: boolean;
   hideDownloadPdf?: boolean;
 }
@@ -90,6 +91,7 @@ const ProposalView = ({
   partners = [],
   includedItemsTotal = 0,
   proposalId,
+  storeId,
   hideWhatsApp = false,
   hideDownloadPdf = false,
 }: ProposalViewProps) => {
@@ -255,7 +257,7 @@ const ProposalView = ({
   };
 
   const handleSendWhatsApp = async () => {
-    if (!proposalId || whatsAppState !== "idle" || isGeneratingPdf) return;
+    if (!proposalId || !storeId || whatsAppState !== "idle" || isGeneratingPdf) return;
     const element = document.getElementById("proposal-content");
     if (!element) return;
 
@@ -285,7 +287,7 @@ const ProposalView = ({
         });
 
         setWhatsappStatus("Enviando para WhatsApp...");
-        const signedUrl = await savePdfToStorage(proposalId, pdfBlob, (p) => setUploadProgress(p));
+        const signedUrl = await savePdfToStorage(storeId, proposalId, pdfBlob, (p) => setUploadProgress(p));
 
         const result = await supabase.functions.invoke("send-whatsapp", {
           body: {

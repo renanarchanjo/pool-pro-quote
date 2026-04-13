@@ -296,7 +296,7 @@ const AdminDashboard = () => {
         sectionSelector: "[data-pdf-page]",
       });
 
-      const publicUrl = await savePdfToStorage(proposal.id, pdfBlob);
+      const publicUrl = await savePdfToStorage(store!.id, proposal.id, pdfBlob);
 
       const { error } = await supabase.functions.invoke("send-whatsapp", {
         body: {
@@ -473,6 +473,7 @@ const AdminDashboard = () => {
               brandName={brand?.name}
               brandPartnerId={brand?.partner_id}
               partners={partners}
+              storeId={store?.id}
               storeWhatsapp={store?.whatsapp}
             />
           </div>

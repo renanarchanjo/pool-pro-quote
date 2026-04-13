@@ -317,6 +317,7 @@ const SimuladorLoja = () => {
           partners={partners}
           includedItemsTotal={includedItemsTotal}
           proposalId={proposalId}
+          storeId={store.id}
           storeWhatsapp={store.whatsapp}
         />
       </>

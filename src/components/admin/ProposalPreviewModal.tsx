@@ -5,7 +5,7 @@ import ProposalView from "@/components/simulator/ProposalView";
 interface ProposalPreviewModalProps {
   proposal: any;
   onClose: () => void;
-  store: { name?: string; city?: string; state?: string; whatsapp?: string } | null;
+  store: { id?: string; name?: string; city?: string; state?: string; whatsapp?: string } | null;
   storeSettings: any;
   partners: any[];
   hideDownloadPdf?: boolean;
@@ -110,6 +110,7 @@ const ProposalPreviewModal = ({
               brandName={brand?.name}
               brandPartnerId={brand?.partner_id}
               partners={partners}
+              storeId={store?.id}
               storeWhatsapp={store?.whatsapp}
               hideDownloadPdf={hideDownloadPdf}
               hideWhatsApp={hideWhatsApp}
