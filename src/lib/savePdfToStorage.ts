@@ -1,4 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
+import * as Sentry from "@sentry/react";
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
@@ -61,6 +62,10 @@ export async function savePdfToStorage(
 
     if (error) {
       console.error("Storage upload error details:", error);
+      Sentry.captureException(error, {
+        tags: { feature: "pdf_upload" },
+        extra: { storeId, proposalId, fileName },
+      });
       throw new Error(`Storage error: ${error.message}`);
     }
   }
@@ -70,7 +75,12 @@ export async function savePdfToStorage(
     .createSignedUrl(fileName, 172800);
 
   if (signError || !signedData?.signedUrl) {
-    throw new Error(`Signed URL error: ${signError?.message || "unknown"}`);
+    const err = new Error(`Signed URL error: ${signError?.message || "unknown"}`);
+    Sentry.captureException(err, {
+      tags: { feature: "pdf_signed_url" },
+      extra: { storeId, proposalId, fileName },
+    });
+    throw err;
   }
 
   return signedData.signedUrl;

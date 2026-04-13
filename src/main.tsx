@@ -1,7 +1,30 @@
 import { createRoot } from "react-dom/client";
 import { registerSW } from "virtual:pwa-register";
+import * as Sentry from "@sentry/react";
 import App from "./App.tsx";
 import "./index.css";
+
+// ── Sentry error monitoring ──
+Sentry.init({
+  dsn: "https://46c7c3d4feccd13f9e5a41fa97cb96d5@o4511214197473280.ingest.us.sentry.io/4511214214381568",
+  environment: import.meta.env.MODE,
+  enabled: import.meta.env.PROD,
+  tracesSampleRate: 0.2,
+  replaysOnErrorSampleRate: 1.0,
+  integrations: [
+    Sentry.browserTracingIntegration(),
+    Sentry.replayIntegration({
+      maskAllText: false,
+      blockAllMedia: false,
+    }),
+  ],
+  beforeSend(event) {
+    if (event.request?.headers) {
+      delete event.request.headers["Authorization"];
+    }
+    return event;
+  },
+});
 
 // ── Dynamic viewport height (fixes mobile browser bar) ──
 function setAppVh() {

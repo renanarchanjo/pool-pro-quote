@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
+import * as Sentry from "@sentry/react";
 
 interface AuthState {
   userId: string | null;
@@ -27,12 +28,16 @@ export const useAuth = (redirectTo?: string): AuthState => {
         isAuthenticated: !!session,
         loading: false,
       });
+      if (session?.user) {
+        Sentry.setUser({ id: session.user.id, email: session.user.email });
+      }
     });
 
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((event, session) => {
       if (event === "SIGNED_OUT") {
+        Sentry.setUser(null);
         setState({ userId: null, isAuthenticated: false, loading: false });
         if (redirectTo) navigate(redirectTo, { replace: true });
         return;
