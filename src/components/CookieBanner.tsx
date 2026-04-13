@@ -30,7 +30,10 @@ const CookieBanner = () => {
   const dismiss = useCallback((accepted: boolean) => {
     setExiting(true);
     localStorage.setItem("cookie_consent", accepted ? "accepted" : "rejected");
-    if (accepted) enableAnalytics();
+    if (accepted) {
+      enableAnalytics();
+      requestLocationPermission();
+    }
     setTimeout(() => setVisible(false), 300);
   }, []);
 
