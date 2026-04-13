@@ -67,7 +67,16 @@ const AppInner = () => {
 
   return (
     <BrowserRouter>
-      <ErrorBoundary fallbackTitle="Erro na aplicação">
+      <Sentry.ErrorBoundary
+        fallback={({ resetError }) => (
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: "100vh", gap: 16, padding: 24 }}>
+            <h2>Algo deu errado</h2>
+            <p style={{ color: "#6B7280", textAlign: "center" }}>Nossa equipe foi notificada automaticamente.</p>
+            <button onClick={resetError} style={{ padding: "8px 24px", borderRadius: 8, background: "#0ea5e9", color: "#fff", border: "none", cursor: "pointer" }}>Tentar novamente</button>
+          </div>
+        )}
+        showDialog={false}
+      >
       <Suspense fallback={<SuspenseFallback />}>
         <PageTransition>
           <Routes>
