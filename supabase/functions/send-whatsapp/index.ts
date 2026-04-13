@@ -1,7 +1,7 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "npm:@supabase/supabase-js@2.57.2";
 import { checkRateLimit } from "../_shared/rateLimiter.ts";
-import { corsHeaders } from "../_shared/cors.ts";
+import { getCorsHeaders } from "../_shared/cors.ts";
 
 const ZAPI_INSTANCE_ID = (Deno.env.get("ZAPI_INSTANCE_ID") ?? "").trim();
 const ZAPI_TOKEN = (Deno.env.get("ZAPI_TOKEN") ?? "").trim();
@@ -11,16 +11,9 @@ async function sendText(phone: string, message: string) {
   const digits = phone.replace(/\D/g, "");
   const formattedPhone = digits.startsWith("55") ? digits : "55" + digits;
   console.log("Enviando para:", formattedPhone);
-  console.log("Client-Token length:", ZAPI_CLIENT_TOKEN.length, "value preview:", ZAPI_CLIENT_TOKEN.substring(0, 6) + "...");
 
   const url = `https://api.z-api.io/instances/${ZAPI_INSTANCE_ID}/token/${ZAPI_TOKEN}/send-text`;
-
-  const body = {
-    phone: formattedPhone,
-    message: message,
-  };
-  console.log("URL:", url);
-  console.log("Body:", JSON.stringify(body));
+  const body = { phone: formattedPhone, message };
 
   const res = await fetch(url, {
     method: "POST",
@@ -57,7 +50,7 @@ async function sendDocument(
       phone: formattedPhone,
       document: documentUrl,
       fileName: filename,
-      caption: caption,
+      caption,
     }),
   });
 
@@ -66,24 +59,21 @@ async function sendDocument(
   return json;
 }
 
-// Types that can be called without user auth (public simulator)
 const PUBLIC_TYPES = ["enviar_proposta"];
 
 serve(async (req) => {
-  console.log("ZAPI_CLIENT_TOKEN:", Deno.env.get("ZAPI_CLIENT_TOKEN") ? "OK" : "VAZIO");
+  const origin = req.headers.get("origin");
+  const corsHeaders = getCorsHeaders(origin);
 
   if (req.method === "OPTIONS") {
-    return new Response(null, { headers: corsHeaders });
+    return new Response("ok", { headers: corsHeaders });
   }
 
   try {
     const authHeader = req.headers.get("Authorization");
-
-    // Parse body first to check type before auth
     const { type, data } = await req.json();
+    const isPublicType = PUBLIC_TYPES.includes(type);
 
-    // Auth: require for non-public types
-    // Rate limit public types by IP
     if (isPublicType) {
       const supabaseAdmin = createClient(
         Deno.env.get("SUPABASE_URL") ?? "",
@@ -109,7 +99,6 @@ serve(async (req) => {
         { global: { headers: { Authorization: authHeader } } }
       );
 
-      // Allow service_role or authenticated user
       const isServiceRole = authHeader.includes(Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "NOPE");
       if (!isServiceRole) {
         const { data: { user }, error } = await supabase.auth.getUser();
@@ -162,12 +151,10 @@ serve(async (req) => {
       }
 
       case "enviar_proposta": {
-        // Validate required fields
         if (!data.customerPhone || !data.customerName || !data.storeName || !data.pdfUrl) {
           throw new Error("Campos obrigatórios: customerPhone, customerName, storeName, pdfUrl");
         }
 
-        // Send intro text first
         await sendText(
           data.customerPhone,
           `🏊 *Proposta de Piscina - ${data.storeName}*\n\n` +
@@ -177,7 +164,6 @@ serve(async (req) => {
           `_${data.storeName} · via SimulaPool_`
         );
 
-        // Then send the PDF document
         result = await sendDocument(
           data.customerPhone,
           data.pdfUrl,
