@@ -5,7 +5,7 @@ import ProposalView from "@/components/simulator/ProposalView";
 interface ProposalPreviewModalProps {
   proposal: any;
   onClose: () => void;
-  store: { name?: string; city?: string; state?: string; whatsapp?: string } | null;
+  store: { id?: string; name?: string; city?: string; state?: string; whatsapp?: string } | null;
   storeSettings: any;
   partners: any[];
   hideDownloadPdf?: boolean;
