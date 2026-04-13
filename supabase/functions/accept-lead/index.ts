@@ -1,10 +1,12 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "npm:@supabase/supabase-js@2.57.2";
+import Stripe from "https://esm.sh/stripe@18.5.0";
 import { checkRateLimit } from "../_shared/rateLimiter.ts";
 
-import { corsHeaders } from "../_shared/cors.ts";
+import { getCorsHeaders } from "../_shared/cors.ts";
 
 serve(async (req) => {
+  const corsHeaders = getCorsHeaders(req);
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
@@ -105,7 +107,7 @@ serve(async (req) => {
     // Get store info
     const { data: store } = await supabaseAdmin
       .from("stores")
-      .select("lead_limit_monthly, lead_price_excess, lead_plan_active")
+      .select("lead_limit_monthly, lead_price_excess, lead_plan_active, stripe_customer_id, name")
       .eq("id", dist.store_id)
       .single();
 
@@ -144,9 +146,28 @@ serve(async (req) => {
       details: { consumed, limit, is_excess: isExcess, excess_price: isExcess ? excessPrice : 0 },
     });
 
-    // TODO: Stripe metered billing for excess leads
-    if (isExcess) {
-      console.log(`[ACCEPT-LEAD] Excess lead for store ${dist.store_id}: ${consumed}/${limit}. Charge: ${excessPrice}`);
+    // Cobrança de lead excedente via Stripe invoice item
+    if (isExcess && store.stripe_customer_id) {
+      const stripeKey = Deno.env.get("STRIPE_SECRET_KEY");
+      if (stripeKey) {
+        try {
+          const stripe = new Stripe(stripeKey, { apiVersion: "2025-08-27.basil" });
+          // Valor em centavos (BRL)
+          const amountCents = Math.round(excessPrice * 100);
+          await stripe.invoiceItems.create({
+            customer: store.stripe_customer_id,
+            amount: amountCents,
+            currency: "brl",
+            description: `Lead excedente #${consumed} — ${store.name || "Loja"} (${new Date().toLocaleDateString("pt-BR")})`,
+          });
+          console.log(`[ACCEPT-LEAD] Excess lead billed: store=${dist.store_id}, amount=R$${excessPrice}, lead=${consumed}/${limit}`);
+        } catch (stripeErr) {
+          // Não bloquear aceite de lead por erro de cobrança
+          console.error("[ACCEPT-LEAD] Stripe billing error (non-blocking):", stripeErr);
+        }
+      }
+    } else if (isExcess) {
+      console.log(`[ACCEPT-LEAD] Excess lead for store ${dist.store_id}: ${consumed}/${limit}. No Stripe customer — charge skipped.`);
     }
 
     // Send new lead email to store owner (fire-and-forget)

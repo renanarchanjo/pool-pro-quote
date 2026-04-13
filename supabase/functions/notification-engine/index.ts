@@ -80,12 +80,15 @@ async function detectarEventos(supabase: any, periodo: string) {
 
   // 3. Batch queries para todos os owners de uma vez (usando RPC ou queries agrupadas)
   // Buscar contagens por store_id em batch
+  const twoDaysAgo = new Date(now.getTime() - 48 * 60 * 60 * 1000).toISOString();
+
   const [
     { data: pendingLeads },
     { data: pendingProposals },
     { data: lostProposals },
     { data: totalProposals30d },
     { data: closedProposals30d },
+    { data: stalledProposals },
   ] = ownerStoreIds.length > 0
     ? await Promise.all([
         // Leads pendentes por loja
@@ -122,8 +125,15 @@ async function detectarEventos(supabase: any, periodo: string) {
           .in("store_id", ownerStoreIds)
           .eq("status", "fechada")
           .gte("created_at", thirtyDaysAgo),
+        // Follow-up: propostas em_andamento paradas >48h
+        supabase
+          .from("proposals")
+          .select("store_id")
+          .in("store_id", ownerStoreIds)
+          .eq("status", "em_andamento")
+          .lt("updated_at", twoDaysAgo),
       ])
-    : [{ data: [] }, { data: [] }, { data: [] }, { data: [] }, { data: [] }];
+    : [{ data: [] }, { data: [] }, { data: [] }, { data: [] }, { data: [] }, { data: [] }];
 
   // 4. Agrupar contagens por store_id em memória
   function countByStore(rows: { store_id: string }[] | null): Map<string, number> {
@@ -139,6 +149,7 @@ async function detectarEventos(supabase: any, periodo: string) {
   const lostCountMap = countByStore(lostProposals);
   const totalCountMap = countByStore(totalProposals30d);
   const closedCountMap = countByStore(closedProposals30d);
+  const stalledCountMap = countByStore(stalledProposals);
 
   // 5. Gerar eventos por owner (sem queries no loop)
   for (const profile of ownerProfiles) {
@@ -170,6 +181,17 @@ async function detectarEventos(supabase: any, periodo: string) {
         tipo: "propostas_perdidas",
         userId,
         payload: { count: lostCount, storeId },
+        timestamp: now,
+      });
+    }
+
+    // Follow-up: propostas em_andamento paradas há mais de 48h
+    const stalledCount = stalledCountMap.get(storeId) || 0;
+    if (stalledCount > 0) {
+      events.push({
+        tipo: "followup_propostas",
+        userId,
+        payload: { count: stalledCount, storeId },
         timestamp: now,
       });
     }
@@ -275,6 +297,7 @@ function definirPrioridade(tipo: string): "CRITICO" | "URGENTE" | "NORMAL" {
     case "queda_performance": return "CRITICO";
     case "plano_expirando": return "URGENTE";
     case "propostas_perdidas": return "URGENTE";
+    case "followup_propostas": return "NORMAL";
     default: return "NORMAL";
   }
 }
@@ -302,6 +325,10 @@ function gerarMensagem(eventosDoUsuario: NormalizedEvent[]): { titulo: string; m
       case "queda_performance":
         parts.push(`⚠️ Conversão em ${ev.payload.conversionRate}%`);
         alertType = "queda_performance";
+        break;
+      case "followup_propostas":
+        parts.push(`🔄 ${ev.payload.count} proposta(s) parada(s) há +48h`);
+        alertType = "followup_propostas";
         break;
       case "plano_expirando":
         parts.push(`⏰ Plano expira em ${ev.payload.daysLeft} dia(s)`);

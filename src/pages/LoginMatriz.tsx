@@ -50,16 +50,16 @@ const LoginMatriz = () => {
           .single();
 
         if (roleData) {
-          // Check if MFA is verified for this session
           const { data: mfaData } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
-          if (mfaData?.currentLevel === "aal2" || mfaData?.nextLevel === "aal1") {
-            // Either already verified MFA or no MFA enrolled
+
+          // Sessão já com aal2 verificado — redireciona direto
+          if (mfaData?.currentLevel === "aal2") {
             navigate("/matriz", { replace: true });
             return;
           }
-          // MFA enrolled but not verified - need to verify
+
+          // MFA enrolled mas não verificado — iniciar challenge
           if (mfaData?.nextLevel === "aal2" && mfaData?.currentLevel === "aal1") {
-            const factors = mfaData.currentAuthenticationMethods;
             const { data: factorsData } = await supabase.auth.mfa.listFactors();
             if (factorsData?.totp && factorsData.totp.length > 0) {
               const factor = factorsData.totp[0];
@@ -71,6 +71,24 @@ const LoginMatriz = () => {
                 setCheckingSession(false);
                 return;
               }
+            }
+          }
+
+          // MFA não enrolled — forçar setup
+          if (mfaData?.nextLevel === "aal1") {
+            const { data: enrollData, error: enrollError } = await supabase.auth.mfa.enroll({
+              factorType: "totp",
+              friendlyName: "SIMULAPOOL Matriz",
+            });
+            if (!enrollError && enrollData) {
+              setMfaFactorId(enrollData.id);
+              setQrCodeUri(enrollData.totp.qr_code);
+              setTotpSecret(enrollData.totp.secret);
+              const { data: challengeData } = await supabase.auth.mfa.challenge({ factorId: enrollData.id });
+              if (challengeData) setMfaChallengeId(challengeData.id);
+              setView("mfa-setup");
+              setCheckingSession(false);
+              return;
             }
           }
         }
