@@ -47,6 +47,8 @@ const exportSectionedPDF = async ({
     (s) => s.offsetWidth > 0 && s.offsetHeight > 0,
   );
 
+  console.log("[PDF] sections encontradas:", sections.length);
+
   if (sections.length === 0) {
     throw new Error(`Nenhuma seção encontrada para o seletor ${sectionSelector}`);
   }
@@ -60,6 +62,7 @@ const exportSectionedPDF = async ({
       const section = sections[index];
       const captureWidth = Math.max(section.offsetWidth, section.scrollWidth);
       const captureHeight = Math.max(section.offsetHeight, section.scrollHeight);
+      console.log("[PDF] capturando seção", index, "— tamanho:", captureWidth, "x", captureHeight);
       const canvas = await html2canvas(section, {
         scale,
         useCORS: true,
@@ -73,7 +76,11 @@ const exportSectionedPDF = async ({
         windowHeight: captureHeight,
         scrollX: 0,
         scrollY: -window.scrollY,
+      }).catch((err: unknown) => {
+        console.error("[PDF] ERRO no html2canvas seção", index, ":", err);
+        throw err;
       });
+      console.log("[PDF] canvas gerado:", canvas.width, "x", canvas.height);
 
       if (index > 0) {
         pdf.addPage("a4", orientation);
