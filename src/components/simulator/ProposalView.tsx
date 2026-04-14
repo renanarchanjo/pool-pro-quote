@@ -258,6 +258,12 @@ const ProposalView = ({
   };
 
   const handleSendWhatsApp = async () => {
+    console.log("[WPP] 1. handleSendWhatsApp iniciado");
+    console.log("[WPP] 1. userAgent:", navigator.userAgent);
+    console.log("[WPP] 1. proposalId:", proposalId);
+    console.log("[WPP] 1. customerPhone:", customerData.whatsapp);
+    console.log("[WPP] 1. storeWhatsapp:", storeWhatsapp);
+
     if (!proposalId || !storeId || whatsAppState !== "idle" || isGeneratingPdf) return;
     const element = document.getElementById("proposal-content");
     if (!element) return;
@@ -281,27 +287,45 @@ const ProposalView = ({
         await preparePdfAssets();
         await waitForPdfCaptureReady();
 
+        console.log("[WPP] 2. preparePdfAssets concluído");
+        console.log("[WPP] 2. elemento proposal-content existe:", !!document.getElementById("proposal-content"));
+        console.log("[WPP] 2. largura do elemento:", document.getElementById("proposal-content")?.offsetWidth);
+
+        console.log("[WPP] 3. Iniciando generatePDFBlob");
         const pdfBlob = await generatePDFBlob({
           element,
           orientation: "portrait",
           sectionSelector: "[data-pdf-page]",
         });
+        console.log("[WPP] 3. Blob gerado:", pdfBlob?.size, "bytes", pdfBlob?.type);
+        if (!pdfBlob || pdfBlob.size === 0) {
+          console.error("[WPP] 3. ERRO: blob inválido");
+        }
 
         setWhatsappStatus("Enviando para WhatsApp...");
+        console.log("[WPP] 4. Iniciando upload para storage");
         const signedUrl = await savePdfToStorage(storeId, proposalId, pdfBlob, (p) => setUploadProgress(p));
+        console.log("[WPP] 4. URL do PDF:", signedUrl);
+
+        const invokeBody = {
+          type: "enviar_proposta",
+          data: {
+            customerPhone: formatPhoneForWhatsApp(customerData.whatsapp),
+            customerName: customerData.name,
+            storeName: storeName || "SimulaPool",
+            pdfUrl: signedUrl,
+          },
+        };
+        console.log("[WPP] 5. Invocando send-whatsapp com:", JSON.stringify(invokeBody));
 
         const result = await supabase.functions.invoke("send-whatsapp", {
-          body: {
-            type: "enviar_proposta",
-            data: {
-              customerPhone: formatPhoneForWhatsApp(customerData.whatsapp),
-              customerName: customerData.name,
-              storeName: storeName || "SimulaPool",
-              pdfUrl: signedUrl,
-            },
-          },
+          body: invokeBody,
         });
-        if (result.error) throw new Error(result.error.message || "Erro na Edge Function");
+        console.log("[WPP] 5. Resposta da Edge Function:", JSON.stringify(result.data));
+        if (result.error) {
+          console.error("[WPP] 5. ERRO na Edge Function:", result.error);
+          throw new Error(result.error.message || "Erro na Edge Function");
+        }
 
         setWhatsappStatus("✓ Enviado!");
         setWhatsAppState("sent");
