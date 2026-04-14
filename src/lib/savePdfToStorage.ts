@@ -8,34 +8,36 @@ const MAX_RETRIES = 3;
 const RETRY_DELAYS = [1000, 2000, 4000];
 
 /**
- * Ensures we have a valid auth session, refreshing if necessary.
- * Returns a valid access token or throws.
+ * Gets the best available access token.
+ * Returns session token if authenticated, or anon key for public flows.
  */
-async function getValidAccessToken(): Promise<string> {
-  const { data: { session } } = await supabase.auth.getSession();
+async function getBestAccessToken(): Promise<string> {
+  try {
+    const { data: { session } } = await supabase.auth.getSession();
 
-  if (session?.access_token) {
-    // Check if token expires within 60 seconds
-    const expiresAt = session.expires_at ?? 0;
-    const nowSecs = Math.floor(Date.now() / 1000);
-    if (expiresAt > nowSecs + 60) {
-      return session.access_token;
+    if (session?.access_token) {
+      const expiresAt = session.expires_at ?? 0;
+      const nowSecs = Math.floor(Date.now() / 1000);
+      if (expiresAt > nowSecs + 60) {
+        console.log("[WPP] 4. Usando token de sessão autenticada");
+        return session.access_token;
+      }
+
+      // Try refresh
+      console.log("[WPP] 4. Token próximo de expirar, tentando refresh...");
+      const { data: refreshData } = await supabase.auth.refreshSession();
+      if (refreshData.session?.access_token) {
+        console.log("[WPP] 4. Sessão renovada com sucesso");
+        return refreshData.session.access_token;
+      }
     }
+  } catch (e) {
+    console.warn("[WPP] 4. Erro ao obter sessão:", e);
   }
 
-  // Try to refresh the session
-  console.log("[WPP] 4. Sessão expirada ou ausente, tentando refresh...");
-  const { data: refreshData, error: refreshError } = await supabase.auth.refreshSession();
-
-  if (refreshError || !refreshData.session?.access_token) {
-    console.error("[WPP] 4. Falha no refresh da sessão:", refreshError?.message);
-    throw new Error(
-      `Sessão expirada. Faça login novamente. (${refreshError?.message || "sem sessão"})`,
-    );
-  }
-
-  console.log("[WPP] 4. Sessão renovada com sucesso");
-  return refreshData.session.access_token;
+  // Fallback: use anon key (public flow — relies on storage policies)
+  console.log("[WPP] 4. Sem sessão autenticada, usando anon key (fluxo público)");
+  return supabaseAnonKey;
 }
 
 /**
