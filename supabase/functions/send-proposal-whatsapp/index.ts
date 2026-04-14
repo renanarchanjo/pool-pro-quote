@@ -88,10 +88,6 @@ serve(async (req) => {
       throw new Error("Backend storage não configurado");
     }
 
-    if (!ZAPI_INSTANCE_ID || !ZAPI_TOKEN || !ZAPI_CLIENT_TOKEN) {
-      throw new Error("Z-API não configurada");
-    }
-
     const supabaseAdmin = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
       auth: { persistSession: false },
     });
@@ -109,12 +105,20 @@ serve(async (req) => {
     const customerPhone = String(formData.get("customerPhone") || "").trim();
     const customerName = String(formData.get("customerName") || "").trim();
     const storeName = String(formData.get("storeName") || "").trim();
+    const uploadOnly = ["1", "true", "yes"].includes(
+      String(formData.get("uploadOnly") || "")
+        .trim()
+        .toLowerCase(),
+    );
 
     if (!(pdfFile instanceof File)) {
       throw new Error("Arquivo PDF obrigatório");
     }
-    if (!storeId || !proposalId || !customerPhone || !customerName || !storeName) {
-      throw new Error("Campos obrigatórios: storeId, proposalId, customerPhone, customerName, storeName");
+    if (!storeId || !proposalId) {
+      throw new Error("Campos obrigatórios: storeId, proposalId");
+    }
+    if (!uploadOnly && (!customerPhone || !customerName || !storeName)) {
+      throw new Error("Campos obrigatórios: customerPhone, customerName, storeName");
     }
     if (pdfFile.size === 0) {
       throw new Error("PDF vazio");
@@ -126,6 +130,7 @@ serve(async (req) => {
     console.log("[SEND-PROPOSAL-WHATSAPP] Recebido:", JSON.stringify({
       storeId,
       proposalId,
+      uploadOnly,
       customerPhone,
       pdfSize: pdfFile.size,
       pdfType: pdfFile.type,
@@ -160,6 +165,15 @@ serve(async (req) => {
     const pdfCheck = await fetch(pdfUrl, { method: "HEAD" });
     if (!pdfCheck.ok) {
       throw new Error(`PDF inacessível após upload (${pdfCheck.status})`);
+    }
+
+    if (uploadOnly) {
+      console.log("[SEND-PROPOSAL-WHATSAPP] Upload-only concluído com sucesso");
+      return jsonResponse({ success: true, uploadOnly: true, pdfUrl }, 200, corsHeaders);
+    }
+
+    if (!ZAPI_INSTANCE_ID || !ZAPI_TOKEN || !ZAPI_CLIENT_TOKEN) {
+      throw new Error("Z-API não configurada");
     }
 
     await sendText(

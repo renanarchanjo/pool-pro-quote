@@ -6,7 +6,6 @@ import { DashboardSkeleton } from "./AdminLoadingSkeleton";
 import { useStoreData } from "@/hooks/useStoreData";
 import { toast } from "sonner";
 import { exportPDF, generatePDFBlob } from "@/lib/exportPDF";
-import { savePdfToStorage } from "@/lib/savePdfToStorage";
 import { formatPhoneForWhatsApp } from "@/lib/formatPhone";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
@@ -296,23 +295,21 @@ const AdminDashboard = () => {
         sectionSelector: "[data-pdf-page]",
       });
 
-      const publicUrl = await savePdfToStorage(store!.id, proposal.id, pdfBlob);
+      const formData = new FormData();
+      formData.append("pdf", new File([pdfBlob], `proposta-${proposal.id}.pdf`, { type: "application/pdf" }));
+      formData.append("storeId", store!.id);
+      formData.append("proposalId", proposal.id);
+      formData.append("customerPhone", formatPhoneForWhatsApp(proposal.customer_whatsapp));
+      formData.append("customerName", proposal.customer_name);
+      formData.append("storeName", store?.name || "SimulaPool");
 
-      const { error } = await supabase.functions.invoke("send-whatsapp", {
-        body: {
-          type: "enviar_proposta",
-          data: {
-            customerPhone: formatPhoneForWhatsApp(proposal.customer_whatsapp),
-            customerName: proposal.customer_name,
-            storeName: store?.name || "SimulaPool",
-            pdfUrl: publicUrl,
-          },
-        },
+      const { data, error } = await supabase.functions.invoke("send-proposal-whatsapp", {
+        body: formData,
       });
 
       if (error) throw error;
+      if (!data?.success) throw new Error(data?.error || "Erro ao enviar proposta via WhatsApp");
 
-      // Update status to "enviada"
       await updateStatus(proposal.id, "enviada");
       toast.success("Proposta enviada para o WhatsApp do cliente!");
     } catch (err) {
