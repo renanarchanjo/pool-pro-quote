@@ -6,7 +6,6 @@ import { DashboardSkeleton } from "./AdminLoadingSkeleton";
 import { useStoreData } from "@/hooks/useStoreData";
 import { toast } from "sonner";
 import { exportPDF, generatePDFBlob } from "@/lib/exportPDF";
-import { savePdfToStorage } from "@/lib/savePdfToStorage";
 import { formatPhoneForWhatsApp } from "@/lib/formatPhone";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
