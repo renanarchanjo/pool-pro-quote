@@ -77,20 +77,24 @@ const exportSectionedPDF = async ({
       const captureWidth = Math.max(section.offsetWidth, section.scrollWidth);
       const captureHeight = Math.max(section.offsetHeight, section.scrollHeight);
       console.log("[PDF] capturando seção", index, "— tamanho:", captureWidth, "x", captureHeight);
-      const canvas = await html2canvas(section, {
-        scale,
-        useCORS: true,
-        allowTaint: false,
-        backgroundColor: "#ffffff",
-        logging: false,
-        imageTimeout: 15000,
-        width: captureWidth,
-        height: captureHeight,
-        windowWidth: captureWidth,
-        windowHeight: captureHeight,
-        scrollX: 0,
-        scrollY: -window.scrollY,
-      }).catch((err: unknown) => {
+      const canvas = await withTimeout(
+        html2canvas(section, {
+          scale,
+          useCORS: true,
+          allowTaint: false,
+          backgroundColor: "#ffffff",
+          logging: false,
+          imageTimeout: 15000,
+          width: captureWidth,
+          height: captureHeight,
+          windowWidth: captureWidth,
+          windowHeight: captureHeight,
+          scrollX: 0,
+          scrollY: -window.scrollY,
+        }),
+        HTML2CANVAS_TIMEOUT,
+        `seção ${index}`,
+      ).catch((err: unknown) => {
         console.error("[PDF] ERRO no html2canvas seção", index, ":", err);
         throw err;
       });
@@ -114,18 +118,22 @@ const exportSectionedPDF = async ({
 
   for (const section of sections) {
     section.getBoundingClientRect();
-    const canvas = await html2canvas(section, {
-      scale,
-      useCORS: true,
-      allowTaint: false,
-      backgroundColor: "#ffffff",
-      logging: false,
-      imageTimeout: 15000,
-      windowWidth: section.scrollWidth,
-      windowHeight: section.scrollHeight,
-      scrollX: 0,
-      scrollY: -window.scrollY,
-    });
+    const canvas = await withTimeout(
+      html2canvas(section, {
+        scale,
+        useCORS: true,
+        allowTaint: false,
+        backgroundColor: "#ffffff",
+        logging: false,
+        imageTimeout: 15000,
+        windowWidth: section.scrollWidth,
+        windowHeight: section.scrollHeight,
+        scrollX: 0,
+        scrollY: -window.scrollY,
+      }),
+      HTML2CANVAS_TIMEOUT,
+      "seção não-paginada",
+    );
 
     const imgWidthMm = contentWidth;
     const imgHeightMm = (canvas.height * imgWidthMm) / canvas.width;
