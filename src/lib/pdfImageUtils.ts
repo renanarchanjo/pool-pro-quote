@@ -239,11 +239,11 @@ export const toBase64Safe = async (url: string): Promise<string> => {
   }
 
   if (!result) {
-    console.warn("[PDF DEBUG] FALLBACK FINAL para:", url);
+    console.error("[IMG] FALHOU todas as tentativas:", url);
     return PDF_IMAGE_FALLBACK;
   }
 
-  console.log("[PDF DEBUG] Resultado genérico OK:", url, "(" + result.length + " chars)");
+  console.log("[IMG] convertida com sucesso:", url?.substring(0, 60), "— tamanho:", result.length);
   await pdfImageCacheSet(url, result);
   return result;
 };
