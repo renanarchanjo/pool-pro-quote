@@ -110,8 +110,8 @@ export async function savePdfToStorage(
 
   console.log("[WPP] 4. Blob válido:", pdfBlob.size, "bytes. Obtendo sessão...");
 
-  // Get valid access token (with refresh if needed)
-  const accessToken = await getValidAccessToken();
+  // Get best available access token (auth or anon fallback)
+  const accessToken = await getBestAccessToken();
 
   const uploadUrl = `${supabaseUrl}/storage/v1/object/proposals/${fileName}`;
   let lastError: Error | null = null;
