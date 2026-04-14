@@ -36,6 +36,20 @@ const waitForStablePaint = async (delay?: number) => {
   await new Promise((r) => setTimeout(r, d));
 };
 
+const HTML2CANVAS_TIMEOUT = 30000;
+
+function withTimeout<T>(promise: Promise<T>, ms: number, label: string): Promise<T> {
+  return new Promise<T>((resolve, reject) => {
+    const timer = setTimeout(() => {
+      reject(new Error(`Timeout (${ms}ms) ao capturar: ${label}`));
+    }, ms);
+    promise.then(
+      (v) => { clearTimeout(timer); resolve(v); },
+      (e) => { clearTimeout(timer); reject(e); },
+    );
+  });
+}
+
 const exportSectionedPDF = async ({
   element,
   filename,
