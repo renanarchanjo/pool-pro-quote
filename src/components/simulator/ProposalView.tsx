@@ -278,7 +278,7 @@ const ProposalView = ({
     await new Promise((r) => requestAnimationFrame(r));
 
     let attempts = 0;
-    const maxAttempts = isMobile ? 2 : 1;
+    const maxAttempts = 2; // Retry on both mobile and desktop
 
     while (attempts < maxAttempts) {
       attempts++;
@@ -300,6 +300,7 @@ const ProposalView = ({
         console.log("[WPP] 3. Blob gerado:", pdfBlob?.size, "bytes", pdfBlob?.type);
         if (!pdfBlob || pdfBlob.size === 0) {
           console.error("[WPP] 3. ERRO: blob inválido");
+          throw new Error("PDF gerado está vazio");
         }
 
         setWhatsappStatus("Enviando para WhatsApp...");
@@ -327,6 +328,12 @@ const ProposalView = ({
           throw new Error(result.error.message || "Erro na Edge Function");
         }
 
+        // Check if Z-API returned an error inside the data
+        if (result.data && !result.data.success) {
+          console.error("[WPP] 5. Z-API retornou erro:", JSON.stringify(result.data));
+          throw new Error("Z-API falhou ao enviar mensagem");
+        }
+
         setWhatsappStatus("✓ Enviado!");
         setWhatsAppState("sent");
         toast.success("Proposta enviada para seu WhatsApp!");
@@ -336,22 +343,23 @@ const ProposalView = ({
         }, 3000);
         return; // success — exit
       } catch (err) {
-        console.error(`Erro WhatsApp (tentativa ${attempts}):`, err);
+        console.error(`[WPP] Erro (tentativa ${attempts}/${maxAttempts}):`, err);
         Sentry.captureException(err, {
           tags: { feature: "whatsapp_send" },
-          extra: { proposalId, storeId, attempt: attempts },
+          extra: { proposalId, storeId, attempt: attempts, isMobile },
         });
 
-        // If mobile and we still have retries, continue
-        if (isMobile && attempts < maxAttempts) {
-          setWhatsappStatus("Tentando novamente...");
-          await new Promise((r) => setTimeout(r, 1000));
+        if (attempts < maxAttempts) {
+          const delay = attempts * 1500;
+          setWhatsappStatus(`Tentando novamente em ${delay / 1000}s...`);
+          setUploadProgress(0);
+          await new Promise((r) => setTimeout(r, delay));
           continue;
         }
 
-        // Mobile fallback: open WhatsApp with link instead of PDF
+        // All retries exhausted — fallback
         if (isMobile) {
-          console.warn("Mobile fallback: opening WhatsApp with link");
+          console.warn("[WPP] Fallback mobile: abrindo WhatsApp com link");
           const proposalUrl = `${window.location.origin}/proposta/${proposalId}`;
           const phone = formatPhoneForWhatsApp(customerData.whatsapp);
           const fallbackMessage = `Olá ${customerData.name}! Segue o link da sua proposta:\n${proposalUrl}`;
@@ -359,9 +367,10 @@ const ProposalView = ({
             `https://wa.me/${phone}?text=${encodeURIComponent(fallbackMessage)}`,
             "_blank"
           );
-          toast.info("PDF falhou no mobile. Abrindo WhatsApp com link da proposta.");
+          toast.info("Abrindo WhatsApp com link da proposta.");
         } else {
-          toast.error("Erro ao enviar proposta. Tente novamente.");
+          const errMsg = err instanceof Error ? err.message : "Erro desconhecido";
+          toast.error(`Falha ao enviar: ${errMsg}. Tente novamente.`);
         }
 
         setWhatsAppState("idle");

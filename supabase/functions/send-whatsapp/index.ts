@@ -155,6 +155,16 @@ serve(async (req) => {
           throw new Error("Campos obrigatórios: customerPhone, customerName, storeName, pdfUrl");
         }
 
+        // Validate PDF URL is accessible before sending to Z-API
+        console.log("[SEND-WHATSAPP] Validando acesso ao PDF:", data.pdfUrl.substring(0, 80));
+        const pdfCheck = await fetch(data.pdfUrl, { method: "HEAD" });
+        if (!pdfCheck.ok) {
+          console.error("[SEND-WHATSAPP] PDF inacessível:", pdfCheck.status, pdfCheck.statusText);
+          throw new Error(`PDF inacessível (${pdfCheck.status}). O upload pode ter falhado.`);
+        }
+        const pdfSize = pdfCheck.headers.get("content-length");
+        console.log("[SEND-WHATSAPP] PDF acessível, tamanho:", pdfSize, "bytes");
+
         await sendText(
           data.customerPhone,
           `🏊 *Proposta de Piscina - ${data.storeName}*\n\n` +
