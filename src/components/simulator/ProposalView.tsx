@@ -2,7 +2,6 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { FileDown, ArrowLeft, Loader2, Check } from "lucide-react";
 import { exportPDF, generatePDFBlob } from "@/lib/exportPDF";
-import { savePdfToStorage } from "@/lib/savePdfToStorage";
 import { PDF_IMAGE_FALLBACK, toBase64Safe } from "@/lib/pdfImageUtils";
 import { formatPhoneForWhatsApp } from "@/lib/formatPhone";
 import { supabase } from "@/integrations/supabase/client";
@@ -304,30 +303,32 @@ const ProposalView = ({
         }
 
         setWhatsappStatus("Enviando para WhatsApp...");
-        console.log("[WPP] 4. Iniciando upload para storage");
-        const signedUrl = await savePdfToStorage(storeId, proposalId, pdfBlob, (p) => setUploadProgress(p));
-        console.log("[WPP] 4. URL do PDF:", signedUrl);
+        setUploadProgress(40);
 
-        const invokeBody = {
-          type: "enviar_proposta",
-          data: {
-            customerPhone: formatPhoneForWhatsApp(customerData.whatsapp),
-            customerName: customerData.name,
-            storeName: storeName || "SimulaPool",
-            pdfUrl: signedUrl,
-          },
-        };
-        console.log("[WPP] 5. Invocando send-whatsapp com:", JSON.stringify(invokeBody));
+        const formData = new FormData();
+        formData.append("pdf", new File([pdfBlob], `proposta-${proposalId}.pdf`, { type: "application/pdf" }));
+        formData.append("storeId", storeId);
+        formData.append("proposalId", proposalId);
+        formData.append("customerPhone", formatPhoneForWhatsApp(customerData.whatsapp));
+        formData.append("customerName", customerData.name);
+        formData.append("storeName", storeName || "SimulaPool");
 
-        const result = await supabase.functions.invoke("send-whatsapp", {
-          body: invokeBody,
+        console.log("[WPP] 4. Enviando PDF para send-proposal-whatsapp");
+        const result = await supabase.functions.invoke("send-proposal-whatsapp", {
+          body: formData,
         });
+        setUploadProgress(100);
+        console.log("[WPP] 4. URL do PDF:", result.data?.pdfUrl);
         console.log("[WPP] 5. Resposta da Edge Function:", JSON.stringify(result.data));
         if (result.error) {
           console.error("[WPP] 5. ERRO na Edge Function:", result.error);
           throw new Error(result.error.message || "Erro na Edge Function");
         }
 
+        if (result.data && !result.data.success) {
+          console.error("[WPP] 5. ERRO na Edge Function:", JSON.stringify(result.data));
+          throw new Error(result.data.error || "Falha ao enviar proposta por WhatsApp");
+        }
         // Check if Z-API returned an error inside the data
         if (result.data && !result.data.success) {
           console.error("[WPP] 5. Z-API retornou erro:", JSON.stringify(result.data));
