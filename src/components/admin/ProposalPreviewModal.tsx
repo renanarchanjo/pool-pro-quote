@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { ZoomIn, ZoomOut, X } from "lucide-react";
+import { useIsMobile } from "@/hooks/use-mobile";
 import ProposalView from "@/components/simulator/ProposalView";
 
 interface ProposalPreviewModalProps {
@@ -22,6 +23,31 @@ const ProposalPreviewModal = ({
   hideWhatsApp = true,
 }: ProposalPreviewModalProps) => {
   const [zoomed, setZoomed] = useState(false);
+  const isMobile = useIsMobile();
+  const contentRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [fitScale, setFitScale] = useState(0.35);
+
+  useEffect(() => {
+    if (!isMobile || zoomed) return;
+    const measure = () => {
+      const container = containerRef.current;
+      const content = contentRef.current;
+      if (!container || !content) return;
+      const containerH = container.clientHeight;
+      const containerW = container.clientWidth;
+      // Render at scale 1 to measure natural size
+      const naturalW = content.scrollWidth;
+      const naturalH = content.scrollHeight;
+      if (naturalW === 0 || naturalH === 0) return;
+      const scaleW = containerW / naturalW;
+      const scaleH = containerH / naturalH;
+      setFitScale(Math.min(scaleW, scaleH, 0.65));
+    };
+    // Delay to let content render
+    const timer = setTimeout(measure, 150);
+    return () => clearTimeout(timer);
+  }, [isMobile, zoomed]);
 
   if (!proposal) return null;
 
@@ -81,16 +107,30 @@ const ProposalPreviewModal = ({
         </div>
 
         {/* Proposal content */}
-        <div className="flex-1 overflow-y-auto overflow-x-hidden overscroll-contain">
+        <div ref={containerRef} className="flex-1 overflow-y-auto overflow-x-hidden overscroll-contain"
+          style={isMobile && !zoomed ? { overflow: "hidden" } : undefined}
+        >
           <div
-            style={{
-              transform: zoomed ? "scale(1)" : "scale(0.65)",
-              transformOrigin: "top center",
-              width: zoomed ? "100%" : "154%",
-              marginLeft: zoomed ? "0" : "-27%",
-              minHeight: zoomed ? "auto" : "154%",
-              transition: "transform 250ms ease, width 250ms ease, margin 250ms ease",
-            }}
+            ref={contentRef}
+            style={
+              isMobile && !zoomed
+                ? {
+                    transform: `scale(${fitScale})`,
+                    transformOrigin: "top center",
+                    width: `${100 / fitScale}%`,
+                    marginLeft: `${-(100 / fitScale - 100) / 2}%`,
+                    height: "fit-content",
+                    transition: "transform 250ms ease, width 250ms ease, margin 250ms ease",
+                  }
+                : {
+                    transform: zoomed ? "scale(1)" : "scale(0.65)",
+                    transformOrigin: "top center",
+                    width: zoomed ? "100%" : "154%",
+                    marginLeft: zoomed ? "0" : "-27%",
+                    minHeight: zoomed ? "auto" : "154%",
+                    transition: "transform 250ms ease, width 250ms ease, margin 250ms ease",
+                  }
+            }
           >
             <ProposalView
               model={model}
