@@ -107,16 +107,30 @@ const ProposalPreviewModal = ({
         </div>
 
         {/* Proposal content */}
-        <div className="flex-1 overflow-y-auto overflow-x-hidden overscroll-contain">
+        <div ref={containerRef} className="flex-1 overflow-y-auto overflow-x-hidden overscroll-contain"
+          style={isMobile && !zoomed ? { overflow: "hidden" } : undefined}
+        >
           <div
-            style={{
-              transform: zoomed ? "scale(1)" : "scale(0.65)",
-              transformOrigin: "top center",
-              width: zoomed ? "100%" : "154%",
-              marginLeft: zoomed ? "0" : "-27%",
-              minHeight: zoomed ? "auto" : "154%",
-              transition: "transform 250ms ease, width 250ms ease, margin 250ms ease",
-            }}
+            ref={contentRef}
+            style={
+              isMobile && !zoomed
+                ? {
+                    transform: `scale(${fitScale})`,
+                    transformOrigin: "top center",
+                    width: `${100 / fitScale}%`,
+                    marginLeft: `${-(100 / fitScale - 100) / 2}%`,
+                    height: "fit-content",
+                    transition: "transform 250ms ease, width 250ms ease, margin 250ms ease",
+                  }
+                : {
+                    transform: zoomed ? "scale(1)" : "scale(0.65)",
+                    transformOrigin: "top center",
+                    width: zoomed ? "100%" : "154%",
+                    marginLeft: zoomed ? "0" : "-27%",
+                    minHeight: zoomed ? "auto" : "154%",
+                    transition: "transform 250ms ease, width 250ms ease, margin 250ms ease",
+                  }
+            }
           >
             <ProposalView
               model={model}
