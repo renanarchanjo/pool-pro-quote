@@ -103,6 +103,20 @@ const ProposalView = ({
   const [whatsAppState, setWhatsAppState] = useState<"idle" | "sending" | "sent">("idle");
   const [whatsappStatus, setWhatsappStatus] = useState<string | null>(null);
   const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
+  const isMobile = useIsMobile();
+  const [mobileScale, setMobileScale] = useState(1);
+  const mainRef = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    if (!isMobile) { setMobileScale(1); return; }
+    const update = () => {
+      const vw = window.innerWidth;
+      setMobileScale(Math.min(vw / 794, 1));
+    };
+    update();
+    window.addEventListener("resize", update);
+    return () => window.removeEventListener("resize", update);
+  }, [isMobile]);
   const [uploadProgress, setUploadProgress] = useState(0);
 
   const today = new Date().toLocaleDateString("pt-BR");
