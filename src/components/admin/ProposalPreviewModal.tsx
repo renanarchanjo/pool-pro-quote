@@ -23,6 +23,31 @@ const ProposalPreviewModal = ({
   hideWhatsApp = true,
 }: ProposalPreviewModalProps) => {
   const [zoomed, setZoomed] = useState(false);
+  const isMobile = useIsMobile();
+  const contentRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [fitScale, setFitScale] = useState(0.35);
+
+  useEffect(() => {
+    if (!isMobile || zoomed) return;
+    const measure = () => {
+      const container = containerRef.current;
+      const content = contentRef.current;
+      if (!container || !content) return;
+      const containerH = container.clientHeight;
+      const containerW = container.clientWidth;
+      // Render at scale 1 to measure natural size
+      const naturalW = content.scrollWidth;
+      const naturalH = content.scrollHeight;
+      if (naturalW === 0 || naturalH === 0) return;
+      const scaleW = containerW / naturalW;
+      const scaleH = containerH / naturalH;
+      setFitScale(Math.min(scaleW, scaleH, 0.65));
+    };
+    // Delay to let content render
+    const timer = setTimeout(measure, 150);
+    return () => clearTimeout(timer);
+  }, [isMobile, zoomed]);
 
   if (!proposal) return null;
 
