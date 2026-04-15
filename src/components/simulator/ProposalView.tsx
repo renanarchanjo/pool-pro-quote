@@ -1,4 +1,5 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, useCallback } from "react";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { Button } from "@/components/ui/button";
 import { FileDown, ArrowLeft, Loader2, Check } from "lucide-react";
 import { exportPDF, generatePDFBlob } from "@/lib/exportPDF";
