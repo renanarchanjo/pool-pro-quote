@@ -448,13 +448,13 @@ const ProposalView = ({
       </nav>
 
       {/* ── PREVIEW = PDF (responsive on mobile, fixed 794px template) ── */}
-      <main className="print:p-0" style={{ overflowX: "hidden", padding: "16px 0" }}>
+      <main ref={mainRef} className="print:p-0" style={{ overflowX: "hidden", padding: isMobile ? "8px 0 0" : "16px 0" }}>
         <div
-          className="proposal-scaled-wrapper"
           style={{
             width: "794px",
-            margin: "0 auto",
-            transformOrigin: "top center",
+            transformOrigin: "top left",
+            transform: mobileScale < 1 ? `scale(${mobileScale})` : undefined,
+            margin: mobileScale < 1 ? "0" : "0 auto",
           }}
         >
           <ProposalPdfTemplate
@@ -475,23 +475,6 @@ const ProposalView = ({
             resolveSrc={resolveSrc}
           />
         </div>
-        <style>{`
-          @media (max-width: 820px) {
-            .proposal-scaled-wrapper {
-              transform: scale(calc(100vw / 794));
-              transform-origin: top left !important;
-              width: 794px !important;
-              margin: 0 !important;
-            }
-          }
-          @media print {
-            .proposal-scaled-wrapper {
-              transform: none !important;
-              width: 794px !important;
-              margin: 0 auto !important;
-            }
-          }
-        `}</style>
       </main>
     </div>
   );
