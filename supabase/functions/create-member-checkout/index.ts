@@ -37,7 +37,8 @@ serve(async (req) => {
       customerId = customers.data[0].id;
     }
 
-    const memberPriceId = Deno.env.get("STRIPE_MEMBER_PRICE_ID") || "price_1TEdLDDLDBZHKYifSFWJIK2d";
+    const memberPriceId = Deno.env.get("STRIPE_MEMBER_PRICE_ID");
+    if (!memberPriceId) throw new Error("STRIPE_MEMBER_PRICE_ID not configured");
     const origin = getSafeCallbackOrigin(req);
 
     const session = await stripe.checkout.sessions.create({

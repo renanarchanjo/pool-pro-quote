@@ -609,7 +609,13 @@ serve(async (req) => {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
-    const { periodo = "manual", tipo, userId, leadCount, bypassCooldown, bypassDailyLimit, bypassDeduplication } = parsedBody as any;
+    const { periodo = "manual", tipo, userId, leadCount, bypassCooldown: rawBypassCooldown, bypassDailyLimit: rawBypassDailyLimit, bypassDeduplication: rawBypassDedup } = parsedBody as any;
+
+    // Bypass flags honored for: service role OR user sending to themselves
+    const isSelfTarget = !isServiceRole && userData?.user?.id && userId === userData.user.id;
+    const bypassCooldown = (isServiceRole || isSelfTarget) && rawBypassCooldown;
+    const bypassDailyLimit = (isServiceRole || isSelfTarget) && rawBypassDailyLimit;
+    const bypassDeduplication = (isServiceRole || isSelfTarget) && rawBypassDedup;
 
     // Validate: non-service-role users can only send to themselves
     if (!isServiceRole && tipo === "lead_recebido" && userId && userId !== userData?.user?.id) {

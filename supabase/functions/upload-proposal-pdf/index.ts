@@ -15,6 +15,33 @@ serve(async (req) => {
       auth: { persistSession: false },
     });
 
+    // === AUTHENTICATION ===
+    const authHeader = req.headers.get("Authorization");
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      return new Response(
+        JSON.stringify({ error: "Unauthorized" }),
+        {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          status: 401,
+        },
+      );
+    }
+
+    const token = authHeader.replace("Bearer ", "");
+    const { data: { user } } = await supabase.auth.getUser(token);
+    const anonKey = Deno.env.get("SUPABASE_ANON_KEY") ?? "";
+    const isAnon = !user && token === anonKey;
+
+    if (!user && !isAnon) {
+      return new Response(
+        JSON.stringify({ error: "Unauthorized" }),
+        {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          status: 401,
+        },
+      );
+    }
+
     // Rate limit: 10 uploads per minute per IP
     const clientIp =
       req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
@@ -63,6 +90,36 @@ serve(async (req) => {
         {
           headers: { ...corsHeaders, "Content-Type": "application/json" },
           status: 400,
+        },
+      );
+    }
+
+    // Verify proposal exists and was created recently (anti-abuse)
+    const thirtyMinAgo = new Date(Date.now() - 30 * 60 * 1000).toISOString();
+    const { data: proposal, error: proposalError } = await supabase
+      .from("proposals")
+      .select("id")
+      .eq("id", proposalId)
+      .gte("created_at", thirtyMinAgo)
+      .maybeSingle();
+
+    if (proposalError || !proposal) {
+      return new Response(
+        JSON.stringify({ error: "Proposta não encontrada ou expirada" }),
+        {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          status: 404,
+        },
+      );
+    }
+
+    // Max 10MB base64 payload (~7.5MB file)
+    if (pdfBase64.length > 10 * 1024 * 1024) {
+      return new Response(
+        JSON.stringify({ error: "PDF excede o tamanho máximo permitido" }),
+        {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          status: 413,
         },
       );
     }
