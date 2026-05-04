@@ -17,6 +17,11 @@ interface Store {
   plan_status: string | null;
   plan_expires_at: string | null;
   nome_fantasia: string | null;
+  razao_social: string | null;
+  cnpj: string | null;
+  address: string | null;
+  cep: string | null;
+  company_email: string | null;
 }
 
 interface StoreSettings {
