@@ -134,12 +134,27 @@ const finalStep: Step = {
 
 const OwnerOnboardingModal = ({ userId, storeId, storeName }: Props) => {
   const navigate = useNavigate();
+  const [leadsEnabled, setLeadsEnabled] = useState<boolean | null>(null);
+  const steps = leadsEnabled
+    ? [...baseSteps, leadsStep, finalStep]
+    : [...baseSteps, finalStep];
   const [step, setStep] = useState(0);
   const [completedSteps, setCompletedSteps] = useState<boolean[]>(() => steps.map(() => false));
   const [checking, setChecking] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [collapsed, setCollapsed] = useState(false);
   const [hidden, setHidden] = useState(true);
+
+  // Fetch lead plan status
+  useEffect(() => {
+    if (!storeId) return;
+    supabase
+      .from("stores")
+      .select("lead_plan_active")
+      .eq("id", storeId)
+      .maybeSingle()
+      .then(({ data }) => setLeadsEnabled(!!data?.lead_plan_active));
+  }, [storeId]);
 
   const progressKey = `${PROGRESS_KEY}:${userId}`;
   const completedKey = `${COMPLETED_KEY}:${userId}`;
