@@ -30,7 +30,7 @@ export default function ContractClausesEditor({ storeId, open, onOpenChange }: P
         .eq("store_id", storeId)
         .maybeSingle();
       if (cancelled) return;
-      const stored = (data?.clauses as ContractClause[] | undefined) || [];
+      const stored = (data?.clauses as unknown as ContractClause[] | undefined) || [];
       setClauses(stored.length ? stored : DEFAULT_CONTRACT_CLAUSES);
       setLoading(false);
     })();
