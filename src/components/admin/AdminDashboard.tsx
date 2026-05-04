@@ -330,9 +330,18 @@ const AdminDashboard = () => {
     <div className="space-y-4 md:space-y-6">
       {/* Header with filters */}
       <div className="space-y-3">
-        <p className="text-sm text-muted-foreground">
-          Olá, <span className="font-medium text-foreground">{profile?.full_name || "Lojista"}</span>
-        </p>
+        <div>
+          <h1 className="text-[20px] md:text-[24px] font-bold text-foreground leading-tight">
+            {(() => {
+              const h = new Date().getHours();
+              const greeting = h < 12 ? "Bom dia" : h < 18 ? "Boa tarde" : "Boa noite";
+              return `${greeting}, ${profile?.full_name || "Lojista"} 👋`;
+            })()}
+          </h1>
+          <p className="text-[12px] md:text-[13px] text-muted-foreground capitalize mt-0.5">
+            {format(new Date(), "EEEE, d 'de' MMMM 'de' yyyy", { locale: ptBR })}
+          </p>
+        </div>
         <div className="flex items-center gap-2 flex-wrap">
           {isOwner && teamMembers.length > 1 && (
             <Select value={filterMember} onValueChange={setFilterMember}>
