@@ -43,6 +43,8 @@ interface ContractRow {
   buyer_name: string;
   pool_model: string | null;
   total_value: number;
+  created_by: string | null;
+  member_name: string;
 }
 
 interface Installment { cheque_number: string; value: string; due_date: string }
