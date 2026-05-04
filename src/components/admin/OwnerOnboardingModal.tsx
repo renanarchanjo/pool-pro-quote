@@ -1,7 +1,6 @@
 import { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import {
   Building2,
@@ -11,10 +10,12 @@ import {
   Users,
   Sparkles,
   ArrowRight,
-  ArrowLeft,
   CheckCircle2,
   Loader2,
   AlertCircle,
+  ChevronDown,
+  ChevronUp,
+  Rocket,
 } from "lucide-react";
 
 interface Props {
@@ -23,8 +24,9 @@ interface Props {
   storeName?: string | null;
 }
 
-const PROGRESS_KEY = "owner_onboarding_progress_v1";
-const COMPLETED_KEY = "owner_onboarding_completed_v1";
+const PROGRESS_KEY = "owner_onboarding_progress_v2";
+const COMPLETED_KEY = "owner_onboarding_completed_v2";
+const COLLAPSED_KEY = "owner_onboarding_collapsed_v2";
 
 type StepCheck = (storeId: string) => Promise<{ done: boolean; hint?: string }>;
 
@@ -40,10 +42,9 @@ interface Step {
 const steps: Step[] = [
   {
     icon: Building2,
-    title: "Complete os dados da sua loja",
-    description:
-      "Preencha CNPJ, endereço, CEP, telefone e e-mail em Minha Conta. Esses dados serão usados em propostas e contratos.",
-    action: { label: "Ir para Minha Conta", path: "/admin/perfil" },
+    title: "Dados da sua loja",
+    description: "CNPJ, endereço, CEP, telefone e e-mail em Minha Conta.",
+    action: { label: "Abrir Minha Conta", path: "/admin/perfil" },
     check: async (storeId) => {
       const { data } = await supabase
         .from("stores")
@@ -51,17 +52,13 @@ const steps: Step[] = [
         .eq("id", storeId)
         .maybeSingle();
       const ok = !!(data?.cnpj && data?.address && data?.cep && (data?.whatsapp || data?.company_email));
-      return {
-        done: ok,
-        hint: ok ? undefined : "Faltam dados obrigatórios (CNPJ, endereço, CEP e telefone/e-mail).",
-      };
+      return { done: ok, hint: ok ? undefined : "Faltam CNPJ, endereço, CEP e telefone/e-mail." };
     },
   },
   {
     icon: Palette,
-    title: "Personalize a identidade visual",
-    description:
-      "Ainda em Minha Conta, envie seu logo. Ele aparecerá nas propostas e nos materiais enviados ao cliente.",
+    title: "Identidade visual",
+    description: "Envie o logo da sua loja em Minha Conta.",
     action: { label: "Enviar logo", path: "/admin/perfil" },
     check: async (storeId) => {
       const { data } = await supabase
@@ -69,15 +66,14 @@ const steps: Step[] = [
         .select("logo_url")
         .eq("store_id", storeId)
         .maybeSingle();
-      return { done: !!data?.logo_url, hint: "Envie o logo da sua loja em Minha Conta." };
+      return { done: !!data?.logo_url, hint: "Envie o logo da loja." };
     },
   },
   {
     icon: Layers,
-    title: "Cadastre Marcas e Categorias",
-    description:
-      "Organize seu catálogo criando ao menos uma marca e categoria antes de cadastrar modelos.",
-    action: { label: "Cadastrar Marcas", path: "/admin/marcas" },
+    title: "Marcas e categorias",
+    description: "Cadastre ao menos uma marca e categoria.",
+    action: { label: "Cadastrar marcas", path: "/admin/marcas" },
     check: async (storeId) => {
       const { count } = await supabase
         .from("brands")
@@ -88,10 +84,9 @@ const steps: Step[] = [
   },
   {
     icon: Package,
-    title: "Adicione seus Modelos",
-    description:
-      "Cadastre os modelos com preço, medidas, itens inclusos e opcionais. Eles ficarão disponíveis no simulador.",
-    action: { label: "Cadastrar Modelos", path: "/admin/modelos" },
+    title: "Modelos no catálogo",
+    description: "Cadastre os modelos com preço, medidas e itens inclusos.",
+    action: { label: "Cadastrar modelos", path: "/admin/modelos" },
     check: async (storeId) => {
       const { count } = await supabase
         .from("pool_models")
@@ -102,18 +97,16 @@ const steps: Step[] = [
   },
   {
     icon: Users,
-    title: "Convide sua equipe (opcional)",
-    description:
-      "Adicione vendedores em Minha Equipe e configure comissões. Você pode pular esta etapa e voltar depois.",
-    action: { label: "Gerenciar Equipe", path: "/admin/equipe" },
+    title: "Convide sua equipe",
+    description: "Adicione vendedores e configure comissões. (opcional)",
+    action: { label: "Gerenciar equipe", path: "/admin/equipe" },
     optional: true,
     check: async () => ({ done: true }),
   },
   {
     icon: Sparkles,
     title: "Tudo pronto!",
-    description:
-      "Sua loja está configurada. Comece a gerar propostas e acompanhe os leads no Dashboard.",
+    description: "Sua loja está configurada. Comece a gerar propostas.",
     action: { label: "Ir para o Dashboard", path: "/admin" },
     check: async () => ({ done: true }),
   },
@@ -121,48 +114,69 @@ const steps: Step[] = [
 
 const OwnerOnboardingModal = ({ userId, storeId, storeName }: Props) => {
   const navigate = useNavigate();
-  const [open, setOpen] = useState(false);
   const [step, setStep] = useState(0);
+  const [completedSteps, setCompletedSteps] = useState<boolean[]>(() => steps.map(() => false));
   const [checking, setChecking] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [collapsed, setCollapsed] = useState(false);
+  const [hidden, setHidden] = useState(true);
 
   const progressKey = `${PROGRESS_KEY}:${userId}`;
   const completedKey = `${COMPLETED_KEY}:${userId}`;
+  const collapsedKey = `${COLLAPSED_KEY}:${userId}`;
 
-  // Auto-resume / open on first login
+  // Initial load
   useEffect(() => {
     if (!userId || !storeId) return;
-    if (localStorage.getItem(completedKey)) return;
-    const saved = parseInt(localStorage.getItem(progressKey) || "0", 10);
-    setStep(Number.isFinite(saved) ? Math.min(Math.max(saved, 0), steps.length - 1) : 0);
-    const t = setTimeout(() => setOpen(true), 600);
-    return () => clearTimeout(t);
-  }, [userId, storeId, completedKey, progressKey]);
+    if (localStorage.getItem(completedKey)) {
+      setHidden(true);
+      return;
+    }
+    try {
+      const saved = JSON.parse(localStorage.getItem(progressKey) || "{}");
+      if (Array.isArray(saved.completedSteps)) {
+        setCompletedSteps(saved.completedSteps.length === steps.length ? saved.completedSteps : steps.map(() => false));
+      }
+      if (typeof saved.step === "number") setStep(Math.min(Math.max(saved.step, 0), steps.length - 1));
+    } catch {}
+    setCollapsed(localStorage.getItem(collapsedKey) === "1");
+    setHidden(false);
+  }, [userId, storeId, completedKey, progressKey, collapsedKey]);
 
-  // Persist current step
+  // Persist progress
   useEffect(() => {
-    if (userId) localStorage.setItem(progressKey, String(step));
-  }, [step, userId, progressKey]);
+    if (!userId || hidden) return;
+    localStorage.setItem(progressKey, JSON.stringify({ step, completedSteps }));
+  }, [step, completedSteps, userId, progressKey, hidden]);
 
-  const finish = useCallback(() => {
-    if (userId) localStorage.setItem(completedKey, "1");
-    setOpen(false);
-  }, [userId, completedKey]);
+  // Auto-finish only when ALL steps manually completed
+  useEffect(() => {
+    if (hidden) return;
+    if (completedSteps.every(Boolean)) {
+      localStorage.setItem(completedKey, "1");
+      setHidden(true);
+    }
+  }, [completedSteps, completedKey, hidden]);
+
+  const toggleCollapsed = useCallback(() => {
+    setCollapsed((c) => {
+      const next = !c;
+      localStorage.setItem(collapsedKey, next ? "1" : "0");
+      return next;
+    });
+  }, [collapsedKey]);
 
   const handleConfirm = async () => {
     if (!storeId) return;
     setError(null);
     const current = steps[step];
-    const isLast = step === steps.length - 1;
 
-    // optional or last step: just advance/finish
-    if (current.optional || isLast) {
-      if (isLast) {
-        finish();
-        navigate(current.action.path);
-      } else {
-        setStep((s) => s + 1);
-      }
+    // Optional or final: mark and advance/finalize
+    if (current.optional || step === steps.length - 1) {
+      const updated = [...completedSteps];
+      updated[step] = true;
+      setCompletedSteps(updated);
+      if (step < steps.length - 1) setStep(step + 1);
       return;
     }
 
@@ -173,148 +187,173 @@ const OwnerOnboardingModal = ({ userId, storeId, storeName }: Props) => {
         setError(hint || "Conclua esta etapa antes de continuar.");
         return;
       }
-      setStep((s) => s + 1);
-    } catch (e: any) {
+      const updated = [...completedSteps];
+      updated[step] = true;
+      setCompletedSteps(updated);
+      if (step < steps.length - 1) setStep(step + 1);
+    } catch {
       setError("Não foi possível validar agora. Tente novamente.");
     } finally {
       setChecking(false);
     }
   };
 
-  const handleGoToAction = () => {
-    setOpen(false);
-    navigate(steps[step].action.path);
+  const goToStep = (i: number) => {
+    setError(null);
+    setStep(i);
   };
+
+  if (hidden || !userId || !storeId) return null;
 
   const current = steps[step];
   const Icon = current.icon;
   const isLast = step === steps.length - 1;
+  const completedCount = completedSteps.filter(Boolean).length;
+  const totalPct = Math.round((completedCount / steps.length) * 100);
 
   return (
-    <Dialog
-      open={open}
-      onOpenChange={(o) => {
-        if (o) setOpen(true);
-        else setOpen(false);
-      }}
+    <div
+      className="fixed z-[60] right-4 bottom-4 md:right-6 md:bottom-6 w-[calc(100vw-32px)] sm:w-[380px] max-w-[380px]"
+      style={{ marginBottom: "calc(var(--bottom-nav-height, 0px) + var(--safe-area-bottom, 0px))" }}
     >
-      <DialogContent className="sm:max-w-[480px] p-0 overflow-hidden" onInteractOutside={(e) => e.preventDefault()}>
-        <div className="bg-gradient-to-br from-primary/10 via-primary/5 to-transparent px-6 pt-6 pb-4">
-          <DialogHeader className="space-y-2 text-left">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.1em] text-primary">
-              Bem-vindo{storeName ? `, ${storeName}` : ""}
-            </p>
-            <DialogTitle className="text-[20px] font-bold tracking-tight">
-              Configuração guiada da sua loja
-            </DialogTitle>
-            <DialogDescription className="text-[13px]">
-              Conclua cada etapa para liberar a próxima. Você pode pausar e retomar quando quiser.
-            </DialogDescription>
-          </DialogHeader>
-
-          <div className="flex items-center gap-1.5 mt-4">
-            {steps.map((_, i) => (
-              <div
-                key={i}
-                className={`h-1.5 flex-1 rounded-full transition-colors ${
-                  i < step ? "bg-primary" : i === step ? "bg-primary/60" : "bg-border"
-                }`}
-              />
-            ))}
+      <div className="bg-card border border-border rounded-2xl shadow-2xl overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-300">
+        {/* Header */}
+        <button
+          onClick={toggleCollapsed}
+          className="w-full flex items-center gap-3 px-4 py-3 bg-gradient-to-br from-primary/10 via-primary/5 to-transparent hover:from-primary/15 transition-colors text-left"
+        >
+          <div className="w-9 h-9 rounded-xl bg-primary/15 flex items-center justify-center shrink-0">
+            <Rocket className="w-4 h-4 text-primary" strokeWidth={2.2} />
           </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-primary leading-none">
+              Configuração da loja
+            </p>
+            <p className="text-[13px] font-bold text-foreground truncate mt-0.5">
+              {completedCount}/{steps.length} etapas concluídas
+            </p>
+          </div>
+          <span className="text-[11px] font-semibold text-muted-foreground tabular-nums mr-1">
+            {totalPct}%
+          </span>
+          {collapsed ? (
+            <ChevronUp className="w-4 h-4 text-muted-foreground" />
+          ) : (
+            <ChevronDown className="w-4 h-4 text-muted-foreground" />
+          )}
+        </button>
+
+        {/* Progress bar */}
+        <div className="h-1 bg-border">
+          <div
+            className="h-full bg-primary transition-all duration-500"
+            style={{ width: `${totalPct}%` }}
+          />
         </div>
 
-        <div className="px-6 py-5">
-          <div className="flex items-start gap-4">
-            <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
-              <Icon className="w-6 h-6 text-primary" strokeWidth={2} />
+        {!collapsed && (
+          <>
+            {/* Steps list */}
+            <div className="px-2 py-2 max-h-[180px] overflow-y-auto">
+              {steps.map((s, i) => {
+                const done = completedSteps[i];
+                const active = i === step;
+                return (
+                  <button
+                    key={i}
+                    onClick={() => goToStep(i)}
+                    className={`w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-left transition-colors ${
+                      active ? "bg-primary/10" : "hover:bg-muted"
+                    }`}
+                  >
+                    <div
+                      className={`w-5 h-5 rounded-full flex items-center justify-center shrink-0 text-[10px] font-bold ${
+                        done
+                          ? "bg-emerald-500 text-white"
+                          : active
+                          ? "bg-primary text-primary-foreground"
+                          : "bg-muted text-muted-foreground"
+                      }`}
+                    >
+                      {done ? <CheckCircle2 className="w-3 h-3" /> : i + 1}
+                    </div>
+                    <span
+                      className={`text-[12px] font-medium truncate flex-1 ${
+                        done ? "text-muted-foreground line-through" : "text-foreground"
+                      }`}
+                    >
+                      {s.title}
+                    </span>
+                    {s.optional && !done && (
+                      <span className="text-[9px] font-semibold text-muted-foreground bg-muted px-1.5 py-0.5 rounded">
+                        opcional
+                      </span>
+                    )}
+                  </button>
+                );
+              })}
             </div>
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2 mb-1 flex-wrap">
-                <span className="text-[11px] font-semibold text-muted-foreground tabular-nums">
-                  Etapa {step + 1} de {steps.length}
-                </span>
-                {current.optional && (
-                  <span className="text-[10px] font-semibold text-muted-foreground bg-muted px-1.5 py-0.5 rounded">
-                    Opcional
-                  </span>
-                )}
-                {isLast && (
-                  <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-emerald-600">
-                    <CheckCircle2 className="w-3 h-3" /> Final
-                  </span>
-                )}
+
+            {/* Active step detail */}
+            <div className="px-4 py-3 border-t border-border">
+              <div className="flex items-start gap-3 mb-2">
+                <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                  <Icon className="w-4 h-4 text-primary" strokeWidth={2} />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                    Etapa {step + 1} de {steps.length}
+                  </p>
+                  <h3 className="text-[13px] font-bold text-foreground leading-tight">{current.title}</h3>
+                  <p className="text-[12px] text-muted-foreground leading-snug mt-0.5">
+                    {current.description}
+                  </p>
+                </div>
               </div>
-              <h3 className="text-[15px] font-bold text-foreground mb-1.5">{current.title}</h3>
-              <p className="text-[13px] text-muted-foreground leading-relaxed">{current.description}</p>
 
               {error && (
-                <div className="mt-3 flex items-start gap-2 text-[12px] text-amber-700 dark:text-amber-400 bg-amber-500/10 border border-amber-500/20 px-2.5 py-2 rounded-md">
-                  <AlertCircle className="w-3.5 h-3.5 shrink-0 mt-0.5" />
+                <div className="flex items-start gap-2 text-[11px] text-amber-700 dark:text-amber-400 bg-amber-500/10 border border-amber-500/20 px-2 py-1.5 rounded-md mb-2">
+                  <AlertCircle className="w-3 h-3 shrink-0 mt-0.5" />
                   <span>{error}</span>
                 </div>
               )}
 
-              {!isLast && (
+              <div className="flex items-center gap-2">
                 <Button
                   variant="outline"
                   size="sm"
-                  className="mt-3 w-full"
-                  onClick={handleGoToAction}
+                  className="flex-1 h-8 text-[12px]"
+                  onClick={() => navigate(current.action.path)}
                 >
                   {current.action.label}
-                  <ArrowRight className="w-3.5 h-3.5 ml-1" />
+                  <ArrowRight className="w-3 h-3 ml-1" />
                 </Button>
-              )}
+                <Button
+                  size="sm"
+                  className="h-8 text-[12px]"
+                  onClick={handleConfirm}
+                  disabled={checking || completedSteps[step]}
+                >
+                  {checking ? (
+                    <Loader2 className="w-3 h-3 animate-spin" />
+                  ) : completedSteps[step] ? (
+                    <>
+                      <CheckCircle2 className="w-3 h-3 mr-1" /> Feito
+                    </>
+                  ) : current.optional ? (
+                    "Pular"
+                  ) : isLast ? (
+                    "Concluir"
+                  ) : (
+                    "Já fiz"
+                  )}
+                </Button>
+              </div>
             </div>
-          </div>
-        </div>
-
-        <div className="px-6 pb-6 flex items-center justify-between gap-2 border-t border-border pt-4">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => {
-              setError(null);
-              setStep((s) => Math.max(0, s - 1));
-            }}
-            disabled={step === 0}
-          >
-            <ArrowLeft className="w-4 h-4 mr-1" />
-            Voltar
-          </Button>
-
-          <div className="flex items-center gap-2">
-            <Button variant="ghost" size="sm" onClick={() => setOpen(false)}>
-              Continuar depois
-            </Button>
-            <Button size="sm" onClick={handleConfirm} disabled={checking}>
-              {checking ? (
-                <>
-                  <Loader2 className="w-4 h-4 mr-1 animate-spin" />
-                  Verificando…
-                </>
-              ) : isLast ? (
-                <>
-                  Concluir guia
-                  <CheckCircle2 className="w-4 h-4 ml-1" />
-                </>
-              ) : current.optional ? (
-                <>
-                  Pular e continuar
-                  <ArrowRight className="w-4 h-4 ml-1" />
-                </>
-              ) : (
-                <>
-                  Já fiz, verificar
-                  <CheckCircle2 className="w-4 h-4 ml-1" />
-                </>
-              )}
-            </Button>
-          </div>
-        </div>
-      </DialogContent>
-    </Dialog>
+          </>
+        )}
+      </div>
+    </div>
   );
 };
 
