@@ -23,15 +23,67 @@ const AdminProfile = () => {
   const [changingPassword, setChangingPassword] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  // Company / contract data
+  const [razaoSocial, setRazaoSocial] = useState("");
+  const [cnpj, setCnpj] = useState("");
+  const [address, setAddress] = useState("");
+  const [city, setCity] = useState("");
+  const [state, setState] = useState("");
+  const [cep, setCep] = useState("");
+  const [whatsapp, setWhatsapp] = useState("");
+  const [companyEmail, setCompanyEmail] = useState("");
+  const [fetchingCnpj, setFetchingCnpj] = useState(false);
+
   const isOwner = role === "owner";
 
   useEffect(() => {
     if (profile) setFullName(profile.full_name || "");
     if (storeSettings) setLogoUrl(storeSettings.logo_url || "");
+    if (store) {
+      setRazaoSocial(store.razao_social || "");
+      setCnpj(store.cnpj || "");
+      setAddress(store.address || "");
+      setCity(store.city || "");
+      setState(store.state || "");
+      setCep(store.cep || "");
+      setWhatsapp(store.whatsapp || "");
+      setCompanyEmail(store.company_email || "");
+    }
     supabase.auth.getUser().then(({ data }) => {
       if (data.user) setUserEmail(data.user.email || "");
     });
-  }, [profile, storeSettings]);
+  }, [profile, storeSettings, store]);
+
+  const handleFetchCnpj = async () => {
+    const clean = (cnpj || "").replace(/\D/g, "");
+    if (clean.length !== 14) {
+      toast.error("Informe um CNPJ válido (14 dígitos)");
+      return;
+    }
+    setFetchingCnpj(true);
+    try {
+      const r = await fetch(`https://publica.cnpj.ws/cnpj/${clean}`);
+      if (!r.ok) throw new Error("CNPJ não encontrado");
+      const j = await r.json();
+      const e = j.estabelecimento || {};
+      const ruaNumero = [e.tipo_logradouro, e.logradouro, e.numero].filter(Boolean).join(" ");
+      const partes = [ruaNumero, e.complemento, e.bairro ? `Bairro ${e.bairro}` : null].filter(Boolean);
+      const cepDigits = (e.cep || "").replace(/\D/g, "");
+      const cepFmt = cepDigits.length === 8 ? `${cepDigits.slice(0, 5)}-${cepDigits.slice(5)}` : "";
+      setRazaoSocial(j.razao_social || razaoSocial);
+      setAddress(partes.join(", "));
+      setCity(e.cidade?.nome || city);
+      setState(e.estado?.sigla || state);
+      setCep(cepFmt);
+      if (e.ddd1 && e.telefone1) setWhatsapp(`(${e.ddd1}) ${e.telefone1}`);
+      if (e.email) setCompanyEmail(e.email);
+      toast.success("Dados preenchidos pelo CNPJ");
+    } catch (err: any) {
+      toast.error("Falha ao consultar CNPJ: " + (err?.message || "tente novamente"));
+    } finally {
+      setFetchingCnpj(false);
+    }
+  };
 
   const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
