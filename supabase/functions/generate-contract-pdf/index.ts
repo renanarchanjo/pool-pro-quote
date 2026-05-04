@@ -218,18 +218,7 @@ Deno.serve(async (req) => {
       `A ${seller.company_name || "—"} é empresa que atua no comércio e instalação de piscinas e acessórios. O COMPRADOR, agindo de boa-fé, declara estar ciente das características do produto adquirido, do direito de cancelamento previsto no Código de Defesa do Consumidor e da legislação aplicável a esta relação contratual.`
     );
 
-    // ===== Cláusulas =====
-    writeTitle("DO OBJETO", { size: SIZE_BODY, align: "left", gapBefore: 4, gapAfter: 2 });
-    writeParagraph(
-      `CLÁUSULA 1ª. A VENDEDORA vende ao COMPRADOR uma Piscina modelo ${product.pool_model || "—"}, marca ${product.brand || "—"}, tamanho ${product.size || "—"}, na cor ${product.color || "—"}.`
-    );
-    writeParagraph(
-      "Parágrafo único. Estão inclusos no objeto deste contrato os serviços de entrega e instalação da piscina, conforme padrão técnico do fabricante, ressalvadas as exclusões previstas neste instrumento."
-    );
-
-    writeTitle("DO VALOR E CONDIÇÕES DE PAGAMENTO", { size: SIZE_BODY, align: "left", gapBefore: 4, gapAfter: 2 });
-    writeParagraph(`CLÁUSULA 2ª. O valor total ajustado entre as partes é de ${fmtCurrency(product.total_value || 0)}.`);
-    writeParagraph(`Parágrafo primeiro. As condições de pagamento são: ${product.payment_conditions || "—"}.`);
+    // ===== Cláusulas (placeholder rendering happens further below) =====
 
     const installments = Array.isArray(product.payment_installments) ? product.payment_installments : [];
     if (installments.length) {
