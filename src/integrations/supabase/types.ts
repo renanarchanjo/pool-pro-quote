@@ -1907,8 +1907,11 @@ export type Database = {
       }
       stores: {
         Row: {
+          address: string | null
+          cep: string | null
           city: string | null
           cnpj: string | null
+          company_email: string | null
           coverage_radius_active: boolean
           coverage_radius_km: number
           created_at: string | null
@@ -1933,8 +1936,11 @@ export type Database = {
           whatsapp: string | null
         }
         Insert: {
+          address?: string | null
+          cep?: string | null
           city?: string | null
           cnpj?: string | null
+          company_email?: string | null
           coverage_radius_active?: boolean
           coverage_radius_km?: number
           created_at?: string | null
@@ -1959,8 +1965,11 @@ export type Database = {
           whatsapp?: string | null
         }
         Update: {
+          address?: string | null
+          cep?: string | null
           city?: string | null
           cnpj?: string | null
+          company_email?: string | null
           coverage_radius_active?: boolean
           coverage_radius_km?: number
           created_at?: string | null

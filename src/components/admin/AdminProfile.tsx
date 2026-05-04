@@ -4,7 +4,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Loader2, Upload, Building2, User, Image as ImageIcon, Mail, Lock, Eye, EyeOff, Copy, ExternalLink, Share2, Link as LinkIcon } from "lucide-react";
+import { Loader2, Upload, Building2, User, Image as ImageIcon, Mail, Lock, Eye, EyeOff, Copy, ExternalLink, Share2, Link as LinkIcon, Search, MapPin, Phone, FileText } from "lucide-react";
 import { toast } from "sonner";
 import { useStoreData } from "@/hooks/useStoreData";
 import { validateImageFile } from "@/lib/validateImageFile";
@@ -23,15 +23,67 @@ const AdminProfile = () => {
   const [changingPassword, setChangingPassword] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  // Company / contract data
+  const [razaoSocial, setRazaoSocial] = useState("");
+  const [cnpj, setCnpj] = useState("");
+  const [address, setAddress] = useState("");
+  const [city, setCity] = useState("");
+  const [state, setState] = useState("");
+  const [cep, setCep] = useState("");
+  const [whatsapp, setWhatsapp] = useState("");
+  const [companyEmail, setCompanyEmail] = useState("");
+  const [fetchingCnpj, setFetchingCnpj] = useState(false);
+
   const isOwner = role === "owner";
 
   useEffect(() => {
     if (profile) setFullName(profile.full_name || "");
     if (storeSettings) setLogoUrl(storeSettings.logo_url || "");
+    if (store) {
+      setRazaoSocial(store.razao_social || "");
+      setCnpj(store.cnpj || "");
+      setAddress(store.address || "");
+      setCity(store.city || "");
+      setState(store.state || "");
+      setCep(store.cep || "");
+      setWhatsapp(store.whatsapp || "");
+      setCompanyEmail(store.company_email || "");
+    }
     supabase.auth.getUser().then(({ data }) => {
       if (data.user) setUserEmail(data.user.email || "");
     });
-  }, [profile, storeSettings]);
+  }, [profile, storeSettings, store]);
+
+  const handleFetchCnpj = async () => {
+    const clean = (cnpj || "").replace(/\D/g, "");
+    if (clean.length !== 14) {
+      toast.error("Informe um CNPJ válido (14 dígitos)");
+      return;
+    }
+    setFetchingCnpj(true);
+    try {
+      const r = await fetch(`https://publica.cnpj.ws/cnpj/${clean}`);
+      if (!r.ok) throw new Error("CNPJ não encontrado");
+      const j = await r.json();
+      const e = j.estabelecimento || {};
+      const ruaNumero = [e.tipo_logradouro, e.logradouro, e.numero].filter(Boolean).join(" ");
+      const partes = [ruaNumero, e.complemento, e.bairro ? `Bairro ${e.bairro}` : null].filter(Boolean);
+      const cepDigits = (e.cep || "").replace(/\D/g, "");
+      const cepFmt = cepDigits.length === 8 ? `${cepDigits.slice(0, 5)}-${cepDigits.slice(5)}` : "";
+      setRazaoSocial(j.razao_social || razaoSocial);
+      setAddress(partes.join(", "));
+      setCity(e.cidade?.nome || city);
+      setState(e.estado?.sigla || state);
+      setCep(cepFmt);
+      if (e.ddd1 && e.telefone1) setWhatsapp(`(${e.ddd1}) ${e.telefone1}`);
+      if (e.email) setCompanyEmail(e.email);
+      toast.success("Dados preenchidos pelo CNPJ");
+    } catch (err: any) {
+      toast.error("Falha ao consultar CNPJ: " + (err?.message || "tente novamente"));
+    } finally {
+      setFetchingCnpj(false);
+    }
+  };
 
   const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -78,6 +130,24 @@ const AdminProfile = () => {
         .update({ logo_url: logoUrl || null })
         .eq("store_id", store.id);
       if (settingsError) throw settingsError;
+
+      // Save company/contract data (only owners pass RLS)
+      if (isOwner) {
+        const { error: storeError } = await supabase
+          .from("stores")
+          .update({
+            razao_social: razaoSocial || null,
+            cnpj: (cnpj || "").replace(/\D/g, "") || null,
+            address: address || null,
+            city: city || null,
+            state: state || null,
+            cep: cep || null,
+            whatsapp: whatsapp || null,
+            company_email: companyEmail || null,
+          })
+          .eq("id", store.id);
+        if (storeError) throw storeError;
+      }
 
       toast.success("Perfil atualizado com sucesso!");
       refetch();
@@ -147,6 +217,90 @@ const AdminProfile = () => {
                 O nome da loja não pode ser alterado por aqui.
               </p>
             </div>
+
+            {/* Dados Cadastrais (usados nos contratos) */}
+            {isOwner && (
+              <div className="border-t border-border pt-5 space-y-4">
+                <div>
+                  <h3 className="text-sm font-semibold flex items-center gap-2">
+                    <FileText className="w-4 h-4 text-primary" />
+                    Dados Cadastrais (usados nos contratos)
+                  </h3>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Estes dados serão preenchidos automaticamente em todos os contratos gerados pela sua loja.
+                  </p>
+                </div>
+
+                <div className="space-y-2">
+                  <Label>CNPJ</Label>
+                  <div className="flex gap-2">
+                    <Input
+                      value={cnpj}
+                      onChange={(e) => setCnpj(e.target.value)}
+                      placeholder="00.000.000/0000-00"
+                    />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={handleFetchCnpj}
+                      disabled={fetchingCnpj}
+                      className="gap-1 shrink-0"
+                    >
+                      {fetchingCnpj ? <Loader2 className="w-4 h-4 animate-spin" /> : <Search className="w-4 h-4" />}
+                      Buscar dados
+                    </Button>
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    Clique em "Buscar dados" para preencher automaticamente Razão Social, endereço, CEP, telefone e e-mail.
+                  </p>
+                </div>
+
+                <div className="space-y-2">
+                  <Label>Razão Social</Label>
+                  <Input value={razaoSocial} onChange={(e) => setRazaoSocial(e.target.value)} placeholder="Razão social da empresa" />
+                </div>
+
+                <div className="space-y-2">
+                  <Label className="flex items-center gap-2">
+                    <MapPin className="w-4 h-4 text-muted-foreground" />
+                    Endereço completo (rua, número, bairro)
+                  </Label>
+                  <Input value={address} onChange={(e) => setAddress(e.target.value)} placeholder="Rua, número, bairro" />
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                  <div className="space-y-2">
+                    <Label>Cidade</Label>
+                    <Input value={city} onChange={(e) => setCity(e.target.value)} />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Estado (UF)</Label>
+                    <Input value={state} onChange={(e) => setState(e.target.value.toUpperCase())} maxLength={2} />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>CEP</Label>
+                    <Input value={cep} onChange={(e) => setCep(e.target.value)} placeholder="00000-000" />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <div className="space-y-2">
+                    <Label className="flex items-center gap-2">
+                      <Phone className="w-4 h-4 text-muted-foreground" />
+                      Telefone / WhatsApp
+                    </Label>
+                    <Input value={whatsapp} onChange={(e) => setWhatsapp(e.target.value)} placeholder="(00) 00000-0000" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="flex items-center gap-2">
+                      <Mail className="w-4 h-4 text-muted-foreground" />
+                      E-mail comercial
+                    </Label>
+                    <Input value={companyEmail} onChange={(e) => setCompanyEmail(e.target.value)} placeholder="contato@empresa.com" />
+                  </div>
+                </div>
+              </div>
+            )}
 
             {logoUrl && (
               <div className="space-y-2">
