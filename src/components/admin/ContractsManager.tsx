@@ -569,6 +569,14 @@ const ContractsManager = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {store?.id && (
+        <ContractClausesEditor
+          storeId={store.id}
+          open={clausesOpen}
+          onOpenChange={setClausesOpen}
+        />
+      )}
     </div>
   );
 };
