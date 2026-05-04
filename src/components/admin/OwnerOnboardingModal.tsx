@@ -56,20 +56,6 @@ const steps: Step[] = [
     },
   },
   {
-    icon: Palette,
-    title: "Identidade visual",
-    description: "Envie o logo da sua loja em Minha Conta.",
-    action: { label: "Enviar logo", path: "/admin/perfil" },
-    check: async (storeId) => {
-      const { data } = await supabase
-        .from("store_settings")
-        .select("logo_url")
-        .eq("store_id", storeId)
-        .maybeSingle();
-      return { done: !!data?.logo_url, hint: "Envie o logo da loja." };
-    },
-  },
-  {
     icon: Layers,
     title: "Marcas e categorias",
     description: "Cadastre ao menos uma marca e categoria.",
