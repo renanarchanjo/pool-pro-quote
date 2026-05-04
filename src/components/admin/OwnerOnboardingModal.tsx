@@ -27,9 +27,9 @@ interface Props {
   storeName?: string | null;
 }
 
-const PROGRESS_KEY = "owner_onboarding_progress_v2";
-const COMPLETED_KEY = "owner_onboarding_completed_v2";
-const COLLAPSED_KEY = "owner_onboarding_collapsed_v2";
+const PROGRESS_KEY = "owner_onboarding_progress_v3";
+const COMPLETED_KEY = "owner_onboarding_completed_v3";
+const COLLAPSED_KEY = "owner_onboarding_collapsed_v3";
 
 type StepCheck = (storeId: string) => Promise<{ done: boolean; hint?: string }>;
 
@@ -42,7 +42,7 @@ interface Step {
   check: StepCheck;
 }
 
-const steps: Step[] = [
+const baseSteps: Step[] = [
   {
     icon: Building2,
     title: "Dados da sua loja",
@@ -93,13 +93,44 @@ const steps: Step[] = [
     check: async () => ({ done: true }),
   },
   {
-    icon: Sparkles,
-    title: "Tudo pronto!",
-    description: "Sua loja está configurada. Comece a gerar propostas.",
-    action: { label: "Ir para o Dashboard", path: "/admin" },
+    icon: FileText,
+    title: "Gere sua primeira proposta",
+    description: "Crie propostas profissionais em PDF para enviar aos clientes via WhatsApp ou e-mail.",
+    action: { label: "Ir para Propostas", path: "/admin/propostas" },
+    check: async (storeId) => {
+      const { count } = await supabase
+        .from("proposals")
+        .select("id", { count: "exact", head: true })
+        .eq("store_id", storeId);
+      return { done: (count || 0) > 0, hint: "Crie ao menos uma proposta para concluir esta etapa." };
+    },
+  },
+  {
+    icon: FileSignature,
+    title: "Gere seu primeiro contrato",
+    description: "Transforme propostas aprovadas em contratos de compra e venda em PDF.",
+    action: { label: "Ir para Contratos", path: "/admin/contratos" },
+    optional: true,
     check: async () => ({ done: true }),
   },
 ];
+
+const leadsStep: Step = {
+  icon: Megaphone,
+  title: "Tráfego e Leads",
+  description: "Receba leads qualificados gerados pela nossa rede de tráfego pago, distribuídos automaticamente para sua equipe.",
+  action: { label: "Ver Leads", path: "/admin/leads" },
+  optional: true,
+  check: async () => ({ done: true }),
+};
+
+const finalStep: Step = {
+  icon: Sparkles,
+  title: "Tudo pronto!",
+  description: "Sua loja está configurada. Bora vender!",
+  action: { label: "Ir para o Dashboard", path: "/admin" },
+  check: async () => ({ done: true }),
+};
 
 const OwnerOnboardingModal = ({ userId, storeId, storeName }: Props) => {
   const navigate = useNavigate();
