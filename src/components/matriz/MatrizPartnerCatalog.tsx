@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -17,9 +17,10 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Loader2, Plus, Trash2, ChevronDown, ChevronRight, Pencil, Check, X,
-  Package, FolderTree, Box, Sparkles, Image as ImageIcon, Ruler, Calendar,
+  Package, FolderTree, Box, Sparkles, Image as ImageIcon, Ruler, Calendar, Upload,
 } from "lucide-react";
 import { toast } from "sonner";
+
 
 interface Partner { id: string; name: string }
 interface OptionalItem {
@@ -88,6 +89,9 @@ const MatrizPartnerCatalog = () => {
   const [editingOptId, setEditingOptId] = useState<string | null>(null);
   const [inclForm, setInclForm] = useState({ name: "", description: "", quantity: "1", item_type: "material" });
   const [editingInclId, setEditingInclId] = useState<string | null>(null);
+
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [importing, setImporting] = useState(false);
 
   useEffect(() => {
     (async () => {
@@ -362,6 +366,109 @@ const MatrizPartnerCatalog = () => {
     setModelForm(p => ({ ...p, [field]: p[field].filter((_, i) => i !== idx) }));
   };
 
+  // ---- IMPORT CATALOG (JSON exported from a store) ----
+  const handleImportClick = () => fileInputRef.current?.click();
+
+  const handleImportFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file || !partnerId) return;
+    if (!confirm("Importar este catálogo para a marca selecionada? Itens existentes serão preservados; novos serão adicionados.")) return;
+    setImporting(true);
+    const tId = toast.loading("Importando catálogo...");
+    try {
+      const text = await file.text();
+      const data = JSON.parse(text);
+      if (!data?.brands || !Array.isArray(data.brands)) throw new Error("JSON inválido: brands ausente");
+
+      const bid = await ensureBrand(partnerId);
+      if (!bid) throw new Error("Falha ao preparar marca");
+
+      let cats = 0, models = 0, opts = 0, incs = 0, groups = 0, tmpls = 0;
+
+      for (const b of data.brands) {
+        for (const c of (b.categories || [])) {
+          const { data: newCat, error: cErr } = await supabase.from("partner_catalog_categories")
+            .insert({ partner_catalog_brand_id: bid, name: c.name, description: c.description || null, display_order: cats })
+            .select("id").single();
+          if (cErr) throw cErr;
+          cats++;
+          for (const m of (c.models || [])) {
+            const { data: newM, error: mErr } = await supabase.from("partner_catalog_models").insert({
+              partner_catalog_category_id: newCat.id,
+              name: m.name,
+              length: m.length, width: m.width, depth: m.depth,
+              photo_url: m.photo_url || null,
+              delivery_days: m.delivery_days, installation_days: m.installation_days,
+              payment_terms: m.payment_terms, notes: m.notes,
+              differentials: m.differentials || [],
+              not_included_items: m.not_included_items || [],
+              display_order: m.display_order ?? models,
+            }).select("id").single();
+            if (mErr) throw mErr;
+            models++;
+            const optRows = (m.optionals || []).map((o: any, i: number) => ({
+              partner_catalog_model_id: newM.id, name: o.name, description: o.description || null,
+              item_type: o.item_type || "material", is_default: false, display_order: o.display_order ?? i,
+            }));
+            if (optRows.length) {
+              const { error } = await supabase.from("partner_catalog_model_optionals").insert(optRows);
+              if (error) throw error;
+              opts += optRows.length;
+            }
+            const incRows = (m.included_item_entries || []).map((it: any, i: number) => ({
+              partner_catalog_model_id: newM.id, name: it.name, quantity: it.quantity ?? 1,
+              item_type: it.item_type || "material", display_order: it.display_order ?? i,
+            }));
+            if (incRows.length) {
+              const { error } = await supabase.from("partner_catalog_model_included_items").insert(incRows);
+              if (error) throw error;
+              incs += incRows.length;
+            }
+          }
+        }
+      }
+
+      // Optional groups (global to partner)
+      for (const g of (data.optional_groups || [])) {
+        const { data: newG, error: gErr } = await supabase.from("partner_catalog_optional_groups")
+          .insert({ partner_id: partnerId, name: g.name }).select("id").single();
+        if (gErr) throw gErr;
+        groups++;
+        const oRows = (g.optionals || []).map((o: any) => ({
+          partner_catalog_optional_group_id: newG.id, name: o.name, description: o.description || null,
+        }));
+        if (oRows.length) {
+          const { error } = await supabase.from("partner_catalog_optionals").insert(oRows);
+          if (error) throw error;
+        }
+      }
+
+      // Item templates
+      for (const t of (data.included_item_templates || [])) {
+        const { data: newT, error: tErr } = await supabase.from("partner_catalog_item_templates")
+          .insert({ partner_id: partnerId, name: t.name }).select("id").single();
+        if (tErr) throw tErr;
+        tmpls++;
+        const tiRows = (t.items || []).map((i: any) => ({
+          partner_catalog_item_template_id: newT.id, name: i.name, description: null,
+        }));
+        if (tiRows.length) {
+          const { error } = await supabase.from("partner_catalog_item_template_items").insert(tiRows);
+          if (error) throw error;
+        }
+      }
+
+      toast.success(`Importado: ${cats} categorias, ${models} modelos, ${opts} opcionais, ${incs} itens, ${groups} grupos, ${tmpls} templates`, { id: tId });
+      await loadCatalog();
+    } catch (err: any) {
+      console.error(err);
+      toast.error("Erro ao importar: " + (err?.message || "desconhecido"), { id: tId });
+    } finally {
+      setImporting(false);
+    }
+  };
+
   if (loading) {
     return <div className="space-y-4 p-4 md:p-6"><Skeleton className="h-10 w-72" /><Skeleton className="h-[400px]" /></div>;
   }
@@ -398,14 +505,19 @@ const MatrizPartnerCatalog = () => {
         </div>
 
         {partnerId && (
-          <div className="flex items-end gap-2 pt-2 border-t border-border">
-            <div className="flex-1">
+          <div className="flex items-end gap-2 pt-2 border-t border-border flex-wrap">
+            <div className="flex-1 min-w-[220px]">
               <Label className="text-xs flex items-center gap-1.5"><FolderTree className="w-3.5 h-3.5" /> Nova Categoria</Label>
               <Input value={newCategory} onChange={e => setNewCategory(e.target.value)} placeholder="Ex: Fibra de Vidro"
                 onKeyDown={e => { if (e.key === "Enter") addCategory(); }} className="mt-1" />
             </div>
             <Button onClick={addCategory} disabled={!newCategory.trim()} className="gap-1">
               <Plus className="w-4 h-4" /> Categoria
+            </Button>
+            <input ref={fileInputRef} type="file" accept="application/json,.json" className="hidden" onChange={handleImportFile} />
+            <Button variant="outline" onClick={handleImportClick} disabled={importing} className="gap-1">
+              {importing ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
+              Importar Catálogo
             </Button>
           </div>
         )}
