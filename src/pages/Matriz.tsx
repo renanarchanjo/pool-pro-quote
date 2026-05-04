@@ -12,6 +12,7 @@ const MatrizStores = lazy(() => import("@/components/matriz/MatrizStores"));
 const MatrizCoverage = lazy(() => import("@/components/matriz/MatrizCoverage"));
 const MatrizPayments = lazy(() => import("@/components/matriz/MatrizPayments"));
 const PartnersManager = lazy(() => import("@/components/matriz/PartnersManager"));
+const MatrizPartnerCatalog = lazy(() => import("@/components/matriz/MatrizPartnerCatalog"));
 const MatrizLeads = lazy(() => import("@/components/matriz/MatrizLeads"));
 const MatrizPlans = lazy(() => import("@/components/matriz/MatrizPlans"));
 const MatrizMapPage = lazy(() => import("@/components/matriz/MatrizMapPage"));
@@ -30,6 +31,7 @@ const PAGE_TITLES: Record<string, string> = {
   "lojistas": "Lojistas Ativos",
   "pagamentos": "Pagamentos",
   "parceiros": "Parceiros",
+  "catalogo-parceiros": "Catálogo de Parceiros",
   "leads": "Leads",
   "planos": "Planos e Preços",
   "mapa": "Mapa de Lojistas",
@@ -121,6 +123,7 @@ const Matriz = () => {
               <Route path="cobertura" element={<MatrizCoverage />} />
               <Route path="pagamentos" element={<MatrizPayments />} />
               <Route path="parceiros" element={<PartnersManager />} />
+              <Route path="catalogo-parceiros" element={<MatrizPartnerCatalog />} />
               <Route path="leads" element={<MatrizLeads />} />
               <Route path="planos" element={<MatrizPlans />} />
               <Route path="mapa" element={<MatrizMapPage />} />

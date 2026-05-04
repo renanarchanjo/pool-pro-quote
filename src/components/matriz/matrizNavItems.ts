@@ -1,6 +1,6 @@
 import {
   LayoutGrid, CircleAlert, Building2, Users, Wallet,
-  MapPinned, Filter, Radar,
+  MapPinned, Filter, Radar, Package,
   type LucideIcon,
 } from "lucide-react";
 
@@ -21,6 +21,7 @@ export function getMatrizNavGroups(): MatrizNavGroup[] {
     { title: "Lojas Ativas", url: "/matriz/lojistas", icon: Building2 },
     { title: "Cobertura", url: "/matriz/cobertura", icon: Radar },
     { title: "Parceiros", url: "/matriz/parceiros", icon: Users },
+    { title: "Catálogo de Parceiros", url: "/matriz/catalogo-parceiros", icon: Package },
     { title: "Mapa de Lojistas", url: "/matriz/mapa", icon: MapPinned },
   ];
 
