@@ -20,7 +20,7 @@ import {
   Package, FolderTree, Box, Sparkles, Image as ImageIcon, Ruler, Calendar, Upload,
 } from "lucide-react";
 import { toast } from "sonner";
-import { useRef } from "react";
+
 
 interface Partner { id: string; name: string }
 interface OptionalItem {
