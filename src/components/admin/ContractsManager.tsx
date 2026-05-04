@@ -442,6 +442,7 @@ const ContractsManager = () => {
                   <TableHead>Comprador</TableHead>
                   <TableHead>Modelo</TableHead>
                   <TableHead>Valor</TableHead>
+                  {isOwner && <TableHead>Membro</TableHead>}
                   <TableHead>Status</TableHead>
                   <TableHead>Data</TableHead>
                   <TableHead className="text-right">Ações</TableHead>
@@ -453,6 +454,7 @@ const ContractsManager = () => {
                     <TableCell className="font-medium">{r.buyer_name}</TableCell>
                     <TableCell>{r.pool_model || "—"}</TableCell>
                     <TableCell>{fmtBRL(r.total_value)}</TableCell>
+                    {isOwner && <TableCell className="text-xs">{r.member_name}</TableCell>}
                     <TableCell><Badge className={STATUS_BADGE[r.status]} variant="outline">{STATUS_LABEL[r.status]}</Badge></TableCell>
                     <TableCell className="text-xs text-muted-foreground">{fmtDate(r.created_at)}</TableCell>
                     <TableCell className="text-right">
