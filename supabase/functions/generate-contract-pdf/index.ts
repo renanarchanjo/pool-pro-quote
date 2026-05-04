@@ -67,144 +67,267 @@ Deno.serve(async (req) => {
     const buyer: any = buyerRes.data || {};
     const product: any = productRes.data || {};
 
-    // Build PDF
+    // === PDF (ABNT NBR 14724) ===
+    // Margens: superior 3cm, esquerda 3cm, inferior 2cm, direita 2cm
+    // Fonte: Times 12pt no corpo / 14pt títulos. Espaçamento 1,5. Justificado.
+    // Recuo de primeira linha: 1,25cm. Numeração de páginas no canto superior direito.
     const doc = new jsPDF({ unit: "mm", format: "a4" });
     const PAGE_W = 210;
-    const M = 18;
-    const W = PAGE_W - M * 2;
-    let y = M;
+    const PAGE_H = 297;
+    const M_TOP = 30;
+    const M_LEFT = 30;
+    const M_RIGHT = 20;
+    const M_BOTTOM = 20;
+    const W = PAGE_W - M_LEFT - M_RIGHT;
+    const INDENT = 12.5; // 1,25 cm
+    const FONT = "times";
+    const SIZE_BODY = 12;
+    const SIZE_TITLE = 14;
+    const LINE_FACTOR = 1.5; // espaçamento 1,5 ABNT
+    const lineHeight = (size: number) => (size * 0.3528) * LINE_FACTOR; // pt→mm * 1.5
+
+    let y = M_TOP;
+    let pageNum = 1;
+
+    const drawPageNumber = () => {
+      // ABNT: numeração no canto superior direito a partir da 2ª folha
+      if (pageNum > 1) {
+        doc.setFont(FONT, "normal");
+        doc.setFontSize(10);
+        doc.text(String(pageNum), PAGE_W - M_RIGHT, 15, { align: "right" });
+      }
+    };
+    drawPageNumber();
+
+    const newPage = () => {
+      doc.addPage();
+      pageNum += 1;
+      y = M_TOP;
+      drawPageNumber();
+    };
 
     const ensureSpace = (h: number) => {
-      if (y + h > 285) { doc.addPage(); y = M; }
+      if (y + h > PAGE_H - M_BOTTOM) newPage();
     };
-    const writeText = (text: string, opts: { size?: number; bold?: boolean; align?: "left" | "center" | "right"; gap?: number } = {}) => {
-      const size = opts.size ?? 10;
-      doc.setFont("helvetica", opts.bold ? "bold" : "normal");
+
+    // Justified paragraph with optional first-line indent
+    const writeParagraph = (
+      text: string,
+      opts: { size?: number; bold?: boolean; align?: "left" | "center" | "right" | "justify"; indent?: boolean; gapAfter?: number } = {}
+    ) => {
+      const size = opts.size ?? SIZE_BODY;
+      const bold = !!opts.bold;
+      const align = opts.align ?? "justify";
+      const indent = opts.indent ?? (align === "justify");
+      doc.setFont(FONT, bold ? "bold" : "normal");
       doc.setFontSize(size);
-      const lines = doc.splitTextToSize(text, W) as string[];
-      const lineH = size * 0.45;
-      ensureSpace(lines.length * lineH + (opts.gap ?? 1));
-      const x = opts.align === "center" ? PAGE_W / 2 : opts.align === "right" ? PAGE_W - M : M;
-      doc.text(lines, x, y, { align: opts.align ?? "left" });
-      y += lines.length * lineH + (opts.gap ?? 1);
+      const lh = lineHeight(size);
+
+      // Split honoring indent on the FIRST visual line
+      const firstWidth = indent ? W - INDENT : W;
+      // Use splitTextToSize for both, but force first line to fit firstWidth
+      const allLines = doc.splitTextToSize(text, W) as string[];
+
+      // Re-flow: build lines manually to allow first-line indent + justify
+      const words = text.replace(/\s+/g, " ").trim().split(" ");
+      const lines: string[] = [];
+      let current = "";
+      let isFirst = true;
+      const widthFor = () => (isFirst && indent ? firstWidth : W);
+      for (const w of words) {
+        const test = current ? current + " " + w : w;
+        if (doc.getTextWidth(test) <= widthFor()) {
+          current = test;
+        } else {
+          lines.push(current);
+          current = w;
+          isFirst = false;
+        }
+      }
+      if (current) lines.push(current);
+
+      ensureSpace(lines.length * lh + (opts.gapAfter ?? 0));
+
+      lines.forEach((line, idx) => {
+        const x = (idx === 0 && indent) ? M_LEFT + INDENT : M_LEFT;
+        const isLast = idx === lines.length - 1;
+
+        if (align === "center") {
+          doc.text(line, PAGE_W / 2, y, { align: "center" });
+        } else if (align === "right") {
+          doc.text(line, PAGE_W - M_RIGHT, y, { align: "right" });
+        } else if (align === "justify" && !isLast && line.includes(" ")) {
+          // Manual justification
+          const targetWidth = (idx === 0 && indent) ? firstWidth : W;
+          const lineWords = line.split(" ");
+          const textWidth = doc.getTextWidth(line);
+          const extraSpace = targetWidth - textWidth;
+          const gaps = lineWords.length - 1;
+          if (gaps > 0 && extraSpace > 0) {
+            const spaceWidth = doc.getTextWidth(" ");
+            let cursor = x;
+            lineWords.forEach((wd, wi) => {
+              doc.text(wd, cursor, y);
+              if (wi < lineWords.length - 1) {
+                cursor += doc.getTextWidth(wd) + spaceWidth + extraSpace / gaps;
+              }
+            });
+          } else {
+            doc.text(line, x, y);
+          }
+        } else {
+          doc.text(line, x, y);
+        }
+        y += lh;
+      });
+      if (opts.gapAfter) y += opts.gapAfter;
     };
-    const writeKV = (label: string, value: string) => {
-      writeText(`${label}: ${value || "—"}`, { size: 10 });
+
+    const writeTitle = (text: string, opts: { size?: number; align?: "left" | "center"; gapBefore?: number; gapAfter?: number } = {}) => {
+      const size = opts.size ?? SIZE_TITLE;
+      const gapB = opts.gapBefore ?? 4;
+      const gapA = opts.gapAfter ?? 3;
+      y += gapB;
+      writeParagraph(text.toUpperCase(), { size, bold: true, align: opts.align ?? "center", indent: false, gapAfter: gapA });
     };
-    const hr = () => {
-      ensureSpace(4);
-      doc.setDrawColor(180); doc.line(M, y, PAGE_W - M, y); y += 3;
+
+    const writeSubtitle = (text: string) => {
+      y += 3;
+      writeParagraph(text, { size: SIZE_BODY, bold: true, align: "left", indent: false, gapAfter: 2 });
     };
 
-    // Header
-    writeText(seller.company_name || "—", { size: 16, bold: true, align: "center", gap: 2 });
-    writeText("CONTRATO DE COMPRA E VENDA DE PISCINA E ACESSÓRIOS", { size: 12, bold: true, align: "center", gap: 4 });
-    hr();
+    // ===== Capa / Cabeçalho =====
+    writeParagraph(seller.company_name || "—", { size: 14, bold: true, align: "center", indent: false, gapAfter: 2 });
+    writeParagraph("CONTRATO DE COMPRA E VENDA DE PISCINA E ACESSÓRIOS", { size: 14, bold: true, align: "center", indent: false, gapAfter: 6 });
 
-    // Parties
-    writeText("PARTES CONTRATANTES", { size: 11, bold: true, gap: 2 });
-    writeText(`Vendedor(a): ${seller.company_name || "—"}, inscrita no CNPJ nº ${seller.cnpj || "—"}, com sede na ${seller.address || "—"}, ${seller.city || "—"}, ${seller.state || "—"}, CEP ${seller.cep || "—"}.`);
-    writeText(`Comprador(a): ${buyer.name || "—"} — RG: ${buyer.rg || "—"} — CPF: ${buyer.cpf || "—"}`);
-    writeText(`Endereço: ${buyer.address || "—"}, ${buyer.city || "—"} — Telefone: ${buyer.phone || "—"}`);
-    y += 2; hr();
-
-    // Preâmbulo
-    writeText("PREÂMBULO", { size: 11, bold: true, gap: 2 });
-    writeText(
-      `A ${seller.company_name || "—"} é empresa que atua no comércio e instalação de piscinas e acessórios. ` +
-      `O Comprador, agindo de boa fé, declara estar ciente das características do produto adquirido, ` +
-      `do direito de cancelamento previsto no Código de Defesa do Consumidor e da legislação aplicável a esta relação contratual.`
+    // ===== Qualificação das Partes =====
+    writeSubtitle("1. DAS PARTES");
+    writeParagraph(
+      `VENDEDOR(A): ${seller.company_name || "—"}, pessoa jurídica de direito privado, inscrita no CNPJ sob o nº ${seller.cnpj || "—"}, com sede na ${seller.address || "—"}, ${seller.city || "—"} – ${seller.state || "—"}, CEP ${seller.cep || "—"}, doravante denominada simplesmente VENDEDORA.`
     );
-    y += 2;
-
-    // Cláusula 1
-    writeText("CLÁUSULA 1ª – DO OBJETO", { size: 11, bold: true, gap: 2 });
-    writeText(
-      `A empresa ${seller.company_name || "—"} vende ao Comprador acima identificado uma Piscina ` +
-      `modelo ${product.pool_model || "—"}, marca ${product.brand || "—"}, tamanho ${product.size || "—"}, na cor ${product.color || "—"}.`
+    writeParagraph(
+      `COMPRADOR(A): ${buyer.name || "—"}, portador(a) do RG nº ${buyer.rg || "—"} e inscrito(a) no CPF sob o nº ${buyer.cpf || "—"}, residente e domiciliado(a) na ${buyer.address || "—"}, ${buyer.city || "—"}, telefone ${buyer.phone || "—"}, doravante denominado(a) simplesmente COMPRADOR(A).`
     );
-    writeText(
-      `Estão inclusos no objeto deste contrato os serviços de entrega e instalação da piscina, ` +
-      `conforme padrão técnico do fabricante, ressalvadas as exclusões previstas neste instrumento.`
+    writeParagraph(
+      "As partes acima identificadas têm, entre si, justo e acertado o presente Contrato de Compra e Venda, que se regerá pelas cláusulas seguintes e pelas condições descritas no presente."
     );
-    y += 2;
 
-    // Cláusula 2
-    writeText("CLÁUSULA 2ª – DO VALOR E CONDIÇÕES DE PAGAMENTO", { size: 11, bold: true, gap: 2 });
-    writeText(`Valor total: ${fmtCurrency(product.total_value || 0)}`);
-    writeText(`Condições de pagamento: ${product.payment_conditions || "—"}`);
+    // ===== Preâmbulo =====
+    writeSubtitle("2. PREÂMBULO");
+    writeParagraph(
+      `A ${seller.company_name || "—"} é empresa que atua no comércio e instalação de piscinas e acessórios. O COMPRADOR, agindo de boa-fé, declara estar ciente das características do produto adquirido, do direito de cancelamento previsto no Código de Defesa do Consumidor e da legislação aplicável a esta relação contratual.`
+    );
+
+    // ===== Cláusulas =====
+    writeTitle("DO OBJETO", { size: SIZE_BODY, align: "left", gapBefore: 4, gapAfter: 2 });
+    writeParagraph(
+      `CLÁUSULA 1ª. A VENDEDORA vende ao COMPRADOR uma Piscina modelo ${product.pool_model || "—"}, marca ${product.brand || "—"}, tamanho ${product.size || "—"}, na cor ${product.color || "—"}.`
+    );
+    writeParagraph(
+      "Parágrafo único. Estão inclusos no objeto deste contrato os serviços de entrega e instalação da piscina, conforme padrão técnico do fabricante, ressalvadas as exclusões previstas neste instrumento."
+    );
+
+    writeTitle("DO VALOR E CONDIÇÕES DE PAGAMENTO", { size: SIZE_BODY, align: "left", gapBefore: 4, gapAfter: 2 });
+    writeParagraph(`CLÁUSULA 2ª. O valor total ajustado entre as partes é de ${fmtCurrency(product.total_value || 0)}.`);
+    writeParagraph(`Parágrafo primeiro. As condições de pagamento são: ${product.payment_conditions || "—"}.`);
 
     const installments = Array.isArray(product.payment_installments) ? product.payment_installments : [];
     if (installments.length) {
+      y += 2;
+      writeParagraph("Parágrafo segundo. Discriminação dos cheques/parcelas:", { indent: false });
       y += 1;
-      writeText("Cheques:", { size: 10, bold: true, gap: 1 });
-      doc.setFont("helvetica", "bold"); doc.setFontSize(9);
-      ensureSpace(6);
-      doc.text("Nº Cheque", M, y); doc.text("Valor", M + 70, y); doc.text("Vencimento", M + 110, y);
+      doc.setFont(FONT, "bold"); doc.setFontSize(10);
+      ensureSpace(8);
+      const colN = M_LEFT;
+      const colV = M_LEFT + 70;
+      const colD = M_LEFT + 115;
+      doc.text("Nº Cheque/Parcela", colN, y);
+      doc.text("Valor", colV, y);
+      doc.text("Vencimento", colD, y);
       y += 4;
-      doc.setFont("helvetica", "normal");
+      doc.setDrawColor(150);
+      doc.line(M_LEFT, y, PAGE_W - M_RIGHT, y);
+      y += 3;
+      doc.setFont(FONT, "normal");
       for (const it of installments) {
-        ensureSpace(5);
-        doc.text(String(it.cheque_number || "—"), M, y);
-        doc.text(fmtCurrency(Number(it.value) || 0), M + 70, y);
-        doc.text(it.due_date ? fmtDateBR(it.due_date) : "—", M + 110, y);
-        y += 4;
+        ensureSpace(6);
+        doc.text(String(it.cheque_number || "—"), colN, y);
+        doc.text(fmtCurrency(Number(it.value) || 0), colV, y);
+        doc.text(it.due_date ? fmtDateBR(it.due_date) : "—", colD, y);
+        y += 5;
       }
-      y += 1;
+      y += 2;
     }
 
-    // Cláusulas fixas (3-11)
     const cn = seller.company_name || "—";
-    const fixedClauses: Array<[string, string]> = [
-      ["CLÁUSULA 3ª – DA ENTREGA E INSTALAÇÃO",
-        `A ${cn} se compromete a entregar e instalar o produto objeto deste contrato no prazo combinado entre as partes, salvo caso fortuito ou força maior.`],
-      ["CLÁUSULA 4ª – DAS OBRIGAÇÕES DO COMPRADOR",
-        `O Comprador deverá providenciar local adequado para instalação, com nivelamento, ponto de água e energia, conforme orientações fornecidas pela ${cn}.`],
-      ["CLÁUSULA 5ª – DAS EXCLUSÕES",
-        `Não estão inclusos neste contrato serviços civis, alvenaria, terraplenagem, escavação, deck, iluminação, aquecimento ou tratamento químico, salvo se expressamente descritos nas condições de pagamento.`],
-      ["CLÁUSULA 6ª – DA GARANTIA",
-        `O produto possui garantia conforme termos do fabricante. A garantia não cobre danos por uso indevido, falta de manutenção ou alterações realizadas por terceiros sem autorização da ${cn}.`],
-      ["CLÁUSULA 7ª – DO CANCELAMENTO E RESCISÃO",
-        `O cancelamento por parte do Comprador, antes da entrega, implicará retenção dos valores já pagos a título de despesas administrativas e serviços já executados pela ${cn}, na forma da lei.`],
-      ["CLÁUSULA 8ª – DA INADIMPLÊNCIA",
-        `O atraso no pagamento de qualquer parcela acarretará multa de 2%, juros de mora de 1% ao mês e correção monetária, sem prejuízo da execução dos títulos representativos da dívida.`],
-      ["CLÁUSULA 9ª – DA TRANSFERÊNCIA DE PROPRIEDADE",
-        `A transferência da propriedade do bem somente ocorrerá após o pagamento integral do preço ajustado, ficando a ${cn} com a posse jurídica do bem até a quitação total.`],
-      ["CLÁUSULA 10ª – DAS DISPOSIÇÕES GERAIS",
-        `Este contrato obriga as partes, seus herdeiros e sucessores. Qualquer alteração somente terá validade se firmada por escrito por ambas as partes.`],
-      ["CLÁUSULA 11ª – DO FORO",
-        `Fica eleito o foro da comarca de ${product.city_forum || "—"} para dirimir quaisquer dúvidas oriundas deste contrato, com renúncia expressa a qualquer outro, por mais privilegiado que seja.`],
+    const clauseGroups: Array<{ title: string; clauseNum: number; text: string }> = [
+      { title: "DA ENTREGA E INSTALAÇÃO", clauseNum: 3,
+        text: `A VENDEDORA se compromete a entregar e instalar o produto objeto deste contrato no prazo combinado entre as partes, salvo caso fortuito ou força maior, nos termos do art. 393 do Código Civil.` },
+      { title: "DAS OBRIGAÇÕES DO COMPRADOR", clauseNum: 4,
+        text: `O COMPRADOR deverá providenciar local adequado para instalação, com nivelamento, ponto de água e energia, conforme orientações fornecidas pela VENDEDORA.` },
+      { title: "DAS EXCLUSÕES", clauseNum: 5,
+        text: `Não estão inclusos neste contrato serviços civis, alvenaria, terraplenagem, escavação, deck, iluminação, aquecimento ou tratamento químico, salvo se expressamente descritos nas condições de pagamento.` },
+      { title: "DA GARANTIA", clauseNum: 6,
+        text: `O produto possui garantia conforme termos do fabricante. A garantia não cobre danos por uso indevido, falta de manutenção ou alterações realizadas por terceiros sem autorização da VENDEDORA.` },
+      { title: "DO CANCELAMENTO E RESCISÃO", clauseNum: 7,
+        text: `O cancelamento por parte do COMPRADOR, antes da entrega, implicará retenção dos valores já pagos a título de despesas administrativas e serviços já executados pela VENDEDORA, na forma da lei.` },
+      { title: "DA INADIMPLÊNCIA", clauseNum: 8,
+        text: `O atraso no pagamento de qualquer parcela acarretará multa de 2% (dois por cento), juros de mora de 1% (um por cento) ao mês e correção monetária, sem prejuízo da execução dos títulos representativos da dívida.` },
+      { title: "DA TRANSFERÊNCIA DE PROPRIEDADE", clauseNum: 9,
+        text: `A transferência da propriedade do bem somente ocorrerá após o pagamento integral do preço ajustado, ficando a VENDEDORA com a posse jurídica do bem até a quitação total.` },
+      { title: "DAS DISPOSIÇÕES GERAIS", clauseNum: 10,
+        text: `Este contrato obriga as partes, seus herdeiros e sucessores. Qualquer alteração somente terá validade se firmada por escrito por ambas as partes.` },
+      { title: "DO FORO", clauseNum: 11,
+        text: `Fica eleito o foro da comarca de ${product.city_forum || "—"} para dirimir quaisquer dúvidas oriundas deste contrato, com renúncia expressa a qualquer outro, por mais privilegiado que seja.` },
     ];
-    for (const [title, text] of fixedClauses) {
-      writeText(title, { size: 11, bold: true, gap: 1 });
-      writeText(text, { gap: 2 });
+
+    for (const c of clauseGroups) {
+      writeTitle(c.title, { size: SIZE_BODY, align: "left", gapBefore: 4, gapAfter: 2 });
+      writeParagraph(`CLÁUSULA ${c.clauseNum}ª. ${c.text.replace(/\b${cn}\b/g, "VENDEDORA")}`);
     }
 
-    // Footer
-    y += 2; hr();
-    writeText(
-      `${seller.address || "—"} – ${seller.city || "—"} – ${seller.state || "—"}, CEP ${seller.cep || "—"}. ` +
-      `Fone: ${seller.phone || "—"} | ${seller.website || "—"} – Email: ${seller.email || "—"}`,
-      { size: 9, align: "center", gap: 2 }
-    );
+    // ===== Local e data =====
+    y += 6;
+    writeParagraph(`${product.city_forum || "—"}, ${fmtDateBR(product.contract_date)}.`, { align: "right", indent: false, gapAfter: 10 });
 
-    writeText(`${product.city_forum || "—"}, ${fmtDateBR(product.contract_date)}.`, { size: 10, gap: 6 });
-
-    // Signatures
+    // ===== Assinaturas =====
     const sigBlock = (label1: string, label2: string) => {
-      ensureSpace(22);
-      doc.setFont("helvetica", "normal"); doc.setFontSize(10);
-      doc.line(M, y, M + 80, y);
-      doc.line(PAGE_W - M - 80, y, PAGE_W - M, y);
-      y += 4;
-      doc.text(label1, M, y);
-      doc.text(label2, PAGE_W - M - 80, y);
+      ensureSpace(28);
       y += 8;
+      doc.setDrawColor(0);
+      doc.line(M_LEFT, y, M_LEFT + 70, y);
+      doc.line(PAGE_W - M_RIGHT - 70, y, PAGE_W - M_RIGHT, y);
+      y += 5;
+      doc.setFont(FONT, "normal"); doc.setFontSize(10);
+      const wrap1 = doc.splitTextToSize(label1, 70) as string[];
+      const wrap2 = doc.splitTextToSize(label2, 70) as string[];
+      const maxLines = Math.max(wrap1.length, wrap2.length);
+      for (let i = 0; i < maxLines; i++) {
+        if (wrap1[i]) doc.text(wrap1[i], M_LEFT, y + i * 4);
+        if (wrap2[i]) doc.text(wrap2[i], PAGE_W - M_RIGHT - 70, y + i * 4);
+      }
+      y += maxLines * 4 + 6;
     };
 
-    sigBlock(`Vendedor: ${seller.company_name || "—"} — CNPJ ${seller.cnpj || "—"}`,
-             `Comprador: ${buyer.name || "—"} — CPF ${buyer.cpf || "—"}`);
-    sigBlock("Testemunha 1 — Nome / CPF", "Testemunha 2 — Nome / CPF");
+    sigBlock(
+      `VENDEDORA\n${seller.company_name || "—"}\nCNPJ: ${seller.cnpj || "—"}`,
+      `COMPRADOR(A)\n${buyer.name || "—"}\nCPF: ${buyer.cpf || "—"}`
+    );
+    sigBlock("Testemunha 1\nNome: ____________________________\nCPF: ____________________________",
+             "Testemunha 2\nNome: ____________________________\nCPF: ____________________________");
+
+    // ===== Rodapé com dados da empresa (todas as páginas) =====
+    const totalPages = (doc as any).internal.getNumberOfPages();
+    for (let p = 1; p <= totalPages; p++) {
+      doc.setPage(p);
+      doc.setFont(FONT, "normal");
+      doc.setFontSize(8);
+      doc.setTextColor(100);
+      const footer = `${seller.address || "—"} – ${seller.city || "—"}/${seller.state || "—"} – CEP ${seller.cep || "—"} | Fone: ${seller.phone || "—"}${seller.email ? " | " + seller.email : ""}`;
+      doc.text(footer, PAGE_W / 2, PAGE_H - 10, { align: "center", maxWidth: PAGE_W - 30 });
+      doc.setTextColor(0);
+    }
+
 
     const pdfBytes = doc.output("arraybuffer");
     const path = `${contract.store_id}/${contract.id}.pdf`;
