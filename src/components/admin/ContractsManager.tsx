@@ -92,23 +92,43 @@ const ContractsManager = () => {
   const load = async () => {
     if (!store?.id) return;
     setLoading(true);
-    const { data, error } = await supabase
+    const { data: { session } } = await supabase.auth.getSession();
+    const userId = session?.user?.id;
+    let query = supabase
       .from("contracts")
-      .select("id, status, created_at, pdf_path, signed_pdf_path, contract_buyer_data(name), contract_product_data(pool_model, total_value)")
+      .select("id, status, created_at, pdf_path, signed_pdf_path, created_by, contract_buyer_data(name), contract_product_data(pool_model, total_value)")
       .eq("store_id", store.id)
       .order("created_at", { ascending: false });
+    // Colaborador: vê só os próprios contratos
+    if (!isOwner && userId) query = query.eq("created_by", userId);
+    const { data, error } = await query;
     if (error) { toast.error("Erro ao carregar contratos"); setLoading(false); return; }
-    setRows((data || []).map((r: any) => ({
+
+    const rowsBase = (data || []).map((r: any) => ({
       id: r.id, status: r.status, created_at: r.created_at,
       pdf_path: r.pdf_path, signed_pdf_path: r.signed_pdf_path,
       buyer_name: r.contract_buyer_data?.name || "—",
       pool_model: r.contract_product_data?.pool_model || null,
       total_value: Number(r.contract_product_data?.total_value || 0),
-    })));
+      created_by: r.created_by || null,
+      member_name: "—",
+    }));
+
+    // Para owner: buscar nomes dos membros
+    if (isOwner) {
+      const ids = Array.from(new Set(rowsBase.map(r => r.created_by).filter(Boolean))) as string[];
+      if (ids.length > 0) {
+        const { data: profs } = await supabase.from("profiles").select("id, full_name").in("id", ids);
+        const map = new Map((profs || []).map((p: any) => [p.id, p.full_name || "—"]));
+        rowsBase.forEach(r => { if (r.created_by) r.member_name = map.get(r.created_by) || "—"; });
+      }
+    }
+
+    setRows(rowsBase);
     setLoading(false);
   };
 
-  useEffect(() => { load(); /* eslint-disable-next-line */ }, [store?.id]);
+  useEffect(() => { load(); /* eslint-disable-next-line */ }, [store?.id, isOwner]);
 
   const filtered = useMemo(() => filter === "all" ? rows : rows.filter(r => r.status === filter), [rows, filter]);
 
