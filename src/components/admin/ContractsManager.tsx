@@ -320,13 +320,26 @@ const ContractsManager = () => {
     } finally { setBusyId(null); }
   };
 
-  const downloadPdf = async (path: string | null) => {
+  const downloadPdf = async (path: string | null, opts?: { buyerName?: string; date?: string; signed?: boolean }) => {
     if (!path) return toast.error("PDF não disponível");
     try {
       const { data, error } = await supabase.storage.from("contracts").download(path);
       if (error || !data) throw error || new Error("falha ao baixar");
       const blobUrl = URL.createObjectURL(data);
-      const fileName = path.split("/").pop() || "contrato.pdf";
+
+      // Nome amigável: Contrato_Cliente_DD-MM-AAAA[_Assinado].pdf
+      const slugify = (s: string) =>
+        (s || "Cliente")
+          .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+          .replace(/[^a-zA-Z0-9]+/g, "_")
+          .replace(/^_+|_+$/g, "")
+          .slice(0, 60) || "Cliente";
+      const dateRaw = opts?.date ? new Date(opts.date) : new Date();
+      const dd = String(dateRaw.getDate()).padStart(2, "0");
+      const mm = String(dateRaw.getMonth() + 1).padStart(2, "0");
+      const yyyy = dateRaw.getFullYear();
+      const fileName = `Contrato_${slugify(opts?.buyerName || "")}_${dd}-${mm}-${yyyy}${opts?.signed ? "_Assinado" : ""}.pdf`;
+
       const a = document.createElement("a");
       a.href = blobUrl;
       a.download = fileName;
@@ -426,8 +439,8 @@ const ContractsManager = () => {
                         busy={busyId === r.id}
                         isOwner={isOwner}
                         onGenerate={() => generatePdf(r.id)}
-                        onDownload={() => downloadPdf(r.pdf_path)}
-                        onDownloadSigned={() => downloadPdf(r.signed_pdf_path)}
+                        onDownload={() => downloadPdf(r.pdf_path, { buyerName: r.buyer_name, date: r.created_at })}
+                        onDownloadSigned={() => downloadPdf(r.signed_pdf_path, { buyerName: r.buyer_name, date: r.created_at, signed: true })}
                         onSetStatus={(s) => setStatus(r.id, s)}
                         onDelete={() => removeContract(r.id)}
                         onUploadSigned={(f) => uploadSigned(r.id, f)}
