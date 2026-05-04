@@ -20,8 +20,8 @@ export function getMatrizNavGroups(): MatrizNavGroup[] {
     { title: "Dashboard", url: "/matriz", icon: LayoutGrid },
     { title: "Lojas Ativas", url: "/matriz/lojistas", icon: Building2 },
     { title: "Cobertura", url: "/matriz/cobertura", icon: Radar },
-    { title: "Parceiros", url: "/matriz/parceiros", icon: Users },
-    { title: "Catálogo de Parceiros", url: "/matriz/catalogo-parceiros", icon: Package },
+    { title: "Marcas", url: "/matriz/parceiros", icon: Users },
+    { title: "Catálogo de Marcas", url: "/matriz/catalogo-parceiros", icon: Package },
     { title: "Mapa de Lojistas", url: "/matriz/mapa", icon: MapPinned },
   ];
 
