@@ -16,6 +16,9 @@ import {
   ChevronDown,
   ChevronUp,
   Rocket,
+  FileText,
+  FileSignature,
+  Megaphone,
 } from "lucide-react";
 
 interface Props {
