@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import ThemeToggle from "@/components/ThemeToggle";
 import { LogOut, ChevronDown } from "lucide-react";
+import BrandLogo from "@/components/BrandLogo";
 import {
   Sidebar,
   SidebarContent,
@@ -134,7 +135,10 @@ const AdminSidebar = () => {
 
   return (
     <Sidebar collapsible="none" className="!w-[220px] !bg-sidebar !border-r !border-sidebar-border">
-      <SidebarHeader className="border-b border-border p-4">
+      <SidebarHeader className="border-b border-border p-3 space-y-3">
+        <div className="flex justify-center pt-1">
+          <BrandLogo size="sm" />
+        </div>
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
             <span className="text-[13px] font-semibold text-primary">{initials}</span>
