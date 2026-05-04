@@ -12,6 +12,7 @@ const MatrizStores = lazy(() => import("@/components/matriz/MatrizStores"));
 const MatrizCoverage = lazy(() => import("@/components/matriz/MatrizCoverage"));
 const MatrizPayments = lazy(() => import("@/components/matriz/MatrizPayments"));
 const PartnersManager = lazy(() => import("@/components/matriz/PartnersManager"));
+const MatrizPartnerCatalog = lazy(() => import("@/components/matriz/MatrizPartnerCatalog"));
 const MatrizLeads = lazy(() => import("@/components/matriz/MatrizLeads"));
 const MatrizPlans = lazy(() => import("@/components/matriz/MatrizPlans"));
 const MatrizMapPage = lazy(() => import("@/components/matriz/MatrizMapPage"));
