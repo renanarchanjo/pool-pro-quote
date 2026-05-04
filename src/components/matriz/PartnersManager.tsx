@@ -142,6 +142,12 @@ const PartnersManager = () => {
       const logoUrl = await uploadLogo(newLogoFile, partnerData.id);
       const { error: updateError } = await supabase.from("partners").update({ logo_url: logoUrl }).eq("id", partnerData.id);
       if (updateError) throw updateError;
+      // Auto-create matching catalog brand for this partner
+      await supabase.from("partner_catalog_brands").insert({
+        partner_id: partnerData.id,
+        name: newName.trim(),
+        display_order: 0,
+      });
       toast.success("Parceiro cadastrado com sucesso!");
       setNewName(""); setNewLogoFile(null); setNewLogoPreview(null);
       if (fileInputRef.current) fileInputRef.current.value = "";
