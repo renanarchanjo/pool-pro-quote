@@ -77,7 +77,6 @@ const StorePartnersManager = () => {
       }
 
       setLinkedIds(prev => new Set([...prev, partnerId]));
-      toast.success(`Parceiro "${partner.name}" vinculado! Marca criada no catálogo.`);
     } else {
       // Unlink - just remove the store_partners link, keep catalog data
       const { error } = await supabase.from("store_partners").delete().eq("store_id", store.id).eq("partner_id", partnerId);
