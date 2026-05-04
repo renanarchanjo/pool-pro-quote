@@ -6,13 +6,14 @@ import { Input } from "@/components/ui/input";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
-import BrazilMap from "./BrazilMap";
+import BrazilLeafletMap from "./BrazilLeafletMap";
 
 
 
 interface StoreRow {
   id: string; name: string; city: string | null; state: string | null;
   plan_status: string | null; created_at: string | null;
+  latitude: number | null; longitude: number | null;
   subscription_plans: { name: string; slug: string } | null;
 }
 
@@ -25,7 +26,7 @@ const MatrizMapPage = () => {
   const loadStores = async () => {
     const { data } = await supabase
       .from("stores")
-      .select("id, name, city, state, plan_status, created_at, subscription_plans(name, slug)")
+      .select("id, name, city, state, plan_status, created_at, latitude, longitude, subscription_plans(name, slug)")
       .order("created_at", { ascending: false });
     setStores(((data as any) || []));
     setLoading(false);
@@ -121,7 +122,7 @@ const MatrizMapPage = () => {
         <div className="lg:col-span-2 bg-card border border-border rounded-xl p-6">
           <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">DISTRIBUIÇÃO GEOGRÁFICA</span>
           <h3 className="text-[15px] font-semibold text-foreground mt-1 mb-4">Lojistas por estado</h3>
-          <BrazilMap stateData={Object.fromEntries(stateMap)} stores={stores.map(s => ({ id: s.id, name: s.name, city: s.city, state: s.state }))} />
+          <BrazilLeafletMap stores={stores.map(s => ({ id: s.id, name: s.name, city: s.city, state: s.state, latitude: s.latitude, longitude: s.longitude }))} />
         </div>
 
         <div className="bg-card border border-border rounded-xl p-6">
