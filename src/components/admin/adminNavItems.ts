@@ -1,6 +1,6 @@
 import {
   LayoutGrid, FilePlus, Layers, Boxes, Package, UserCircle, Users, UsersRound,
-  CreditCard, Receipt, TrendingUp, DollarSign, Handshake, FolderTree,
+  CreditCard, Receipt, TrendingUp, DollarSign, Handshake, FolderTree, FileText,
   type LucideIcon,
 } from "lucide-react";
 
