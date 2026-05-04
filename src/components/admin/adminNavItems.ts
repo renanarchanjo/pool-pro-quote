@@ -22,6 +22,7 @@ export function getAdminNavGroups(isOwner: boolean): SidebarNavGroup[] {
     { title: "Dashboard", url: "/admin", icon: LayoutGrid },
     { title: "Gerar Nova Proposta", url: "/admin/gerar-proposta", icon: FilePlus },
     { title: "Leads (Tráfego)", url: "/admin/leads", icon: Users },
+    { title: "Contratos", url: "/admin/contratos", icon: FileText },
   ];
 
   const catalogItems: SidebarNavItem[] = isOwner
