@@ -295,8 +295,23 @@ const DashboardPipeline = ({ proposals, onUpdateStatus, onViewProposal, onExport
                       return (
                         <tr key={p.id} className="h-[52px] border-b border-border/50 transition-all duration-150 hover:bg-accent/50">
                           <td className="px-4">
-                            <p className="text-[14px] font-medium text-foreground">{p.customer_name}</p>
-                            <p className="text-[12px] text-muted-foreground">{p.customer_city}</p>
+                            <div className="flex items-center gap-2.5">
+                              <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                                <span className="text-[11px] font-semibold text-primary">
+                                  {(p.customer_name || "?")
+                                    .split(" ")
+                                    .map((w) => w[0])
+                                    .filter(Boolean)
+                                    .slice(0, 2)
+                                    .join("")
+                                    .toUpperCase()}
+                                </span>
+                              </div>
+                              <div className="min-w-0">
+                                <p className="text-[14px] font-medium text-foreground truncate">{p.customer_name}</p>
+                                <p className="text-[12px] text-muted-foreground truncate">{p.customer_city}</p>
+                              </div>
+                            </div>
                           </td>
                           <td className="px-4 text-[14px]">
                             {hasModel ? <span className="text-foreground">{modelName}</span> : <span className="opacity-30">—</span>}
@@ -319,8 +334,8 @@ const DashboardPipeline = ({ proposals, onUpdateStatus, onViewProposal, onExport
                               </SelectContent>
                             </Select>
                           </td>
-                          <td className="px-4 text-[14px] text-muted-foreground whitespace-nowrap">
-                            {new Date(p.created_at).toLocaleDateString("pt-BR")}
+                          <td className="px-4 text-[12px] text-muted-foreground whitespace-nowrap">
+                            {days === 0 ? "hoje" : days === 1 ? "ontem" : `há ${days} dias`}
                           </td>
                           <td className="px-4">
                             <span className="text-[14px] font-medium" style={{ color: ds.color }}>{ds.text}</span>
