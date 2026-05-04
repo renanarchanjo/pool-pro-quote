@@ -608,6 +608,11 @@ const ContractActions = ({ row, busy, isOwner, onGenerate, onDownload, onDownloa
       {row.status === "cancelado" && (
         <Button size="sm" variant="ghost" disabled>Cancelado</Button>
       )}
+      {isOwner && row.status !== "rascunho" && (
+        <Button size="sm" variant="ghost" onClick={onDelete} disabled={busy} title="Excluir contrato" className="text-destructive hover:text-destructive">
+          <Trash2 className="w-3.5 h-3.5" />
+        </Button>
+      )}
     </div>
   );
 };
