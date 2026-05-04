@@ -13,10 +13,11 @@ import {
 } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import {
-  FileText, Plus, Trash2, Download, Upload, FileCheck2, Ban, Loader2,
+  FileText, Plus, Trash2, Download, Upload, FileCheck2, Ban, Loader2, ScrollText,
 } from "lucide-react";
 import { toast } from "sonner";
 import { useStoreData } from "@/hooks/useStoreData";
+import ContractClausesEditor from "./ContractClausesEditor";
 
 type Status = "rascunho" | "enviado" | "aguardando_assinatura" | "assinado" | "cancelado";
 const STATUS_LABEL: Record<Status, string> = {
