@@ -294,9 +294,9 @@ const PartnersManager = () => {
     <div className="space-y-6 p-4 md:p-8">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-[18px] font-semibold text-foreground">Parceiros</h1>
+          <h1 className="text-[18px] font-semibold text-foreground">Marcas</h1>
           <p className="text-[13px] text-muted-foreground">
-            Gerencie os parceiros, categorias e rankings de exibição nas propostas
+            Gerencie marcas, categorias e rankings de exibição nas propostas
           </p>
         </div>
         {hasDirtyChanges && (
