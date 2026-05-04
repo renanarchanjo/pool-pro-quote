@@ -61,6 +61,7 @@ const StorePartnersManager = () => {
         .maybeSingle();
 
       if (existingBrand) {
+        // Re-activate if it was inactive, set partner_id
         await supabase.from("brands").update({ active: true, logo_url: partner.logo_url, partner_id: partnerId } as any).eq("id", existingBrand.id);
       } else {
         const { error: brandError } = await supabase
@@ -70,32 +71,13 @@ const StorePartnersManager = () => {
       }
 
       setLinkedIds(prev => new Set([...prev, partnerId]));
-
-      // 3. Apply default partner catalog (if any)
-      try {
-        const { data: applyData, error: applyErr } = await supabase.functions.invoke("apply-partner-catalog", {
-          body: { partner_id: partnerId, store_id: store.id },
-        });
-        if (applyErr) {
-          console.warn("apply-partner-catalog error:", applyErr);
-          toast.success(`Parceiro "${partner.name}" vinculado!`);
-        } else if (applyData?.applied) {
-          const c = applyData.counts || {};
-          toast.success(`Parceiro "${partner.name}" vinculado! Catálogo padrão aplicado: ${c.brands || 0} marca(s), ${c.models || 0} modelo(s).`);
-        } else {
-          toast.success(`Parceiro "${partner.name}" vinculado! Marca criada no catálogo.`);
-        }
-      } catch (e) {
-        console.warn("apply-partner-catalog call failed:", e);
-        toast.success(`Parceiro "${partner.name}" vinculado!`);
-      }
+      toast.success(`Parceiro "${partner.name}" vinculado! Marca criada no catálogo.`);
     } else {
-      // Unlink: remove store_partners link. Locked items remain in DB but are
-      // hidden from the simulator (filtered out in Lojista flow when partner inactive).
+      // Unlink - just remove the store_partners link, keep catalog data
       const { error } = await supabase.from("store_partners").delete().eq("store_id", store.id).eq("partner_id", partnerId);
       if (error) { toast.error("Erro ao desvincular parceiro"); setToggling(null); return; }
       setLinkedIds(prev => { const n = new Set(prev); n.delete(partnerId); return n; });
-      toast.success("Parceiro desvinculado! O catálogo permanece travado e oculto na simulação.");
+      toast.success("Parceiro desvinculado! Os dados do catálogo foram mantidos.");
     }
     setToggling(null);
   };

@@ -62,7 +62,6 @@ export type Database = {
           logo_url: string | null
           name: string
           partner_id: string | null
-          partner_locked: boolean
           store_id: string | null
           updated_at: string | null
         }
@@ -74,7 +73,6 @@ export type Database = {
           logo_url?: string | null
           name: string
           partner_id?: string | null
-          partner_locked?: boolean
           store_id?: string | null
           updated_at?: string | null
         }
@@ -86,7 +84,6 @@ export type Database = {
           logo_url?: string | null
           name?: string
           partner_id?: string | null
-          partner_locked?: boolean
           store_id?: string | null
           updated_at?: string | null
         }
@@ -115,7 +112,6 @@ export type Database = {
           description: string | null
           id: string
           name: string
-          partner_locked: boolean
           store_id: string | null
           updated_at: string | null
         }
@@ -126,7 +122,6 @@ export type Database = {
           description?: string | null
           id?: string
           name: string
-          partner_locked?: boolean
           store_id?: string | null
           updated_at?: string | null
         }
@@ -137,7 +132,6 @@ export type Database = {
           description?: string | null
           id?: string
           name?: string
-          partner_locked?: boolean
           store_id?: string | null
           updated_at?: string | null
         }
@@ -209,7 +203,6 @@ export type Database = {
           item_type: string
           margin_percent: number
           name: string
-          partner_locked: boolean
           price: number
           quantity: number
           store_id: string
@@ -223,7 +216,6 @@ export type Database = {
           item_type?: string
           margin_percent?: number
           name: string
-          partner_locked?: boolean
           price?: number
           quantity?: number
           store_id: string
@@ -237,7 +229,6 @@ export type Database = {
           item_type?: string
           margin_percent?: number
           name?: string
-          partner_locked?: boolean
           price?: number
           quantity?: number
           store_id?: string
@@ -266,7 +257,6 @@ export type Database = {
           id: string
           name: string
           not_included_items: string[] | null
-          partner_locked: boolean
           store_id: string
           updated_at: string | null
         }
@@ -275,7 +265,6 @@ export type Database = {
           id?: string
           name: string
           not_included_items?: string[] | null
-          partner_locked?: boolean
           store_id: string
           updated_at?: string | null
         }
@@ -284,7 +273,6 @@ export type Database = {
           id?: string
           name?: string
           not_included_items?: string[] | null
-          partner_locked?: boolean
           store_id?: string
           updated_at?: string | null
         }
@@ -461,7 +449,6 @@ export type Database = {
           margin_percent: number
           model_id: string
           name: string
-          partner_locked: boolean
           price: number
           quantity: number
           store_id: string | null
@@ -477,7 +464,6 @@ export type Database = {
           margin_percent?: number
           model_id: string
           name: string
-          partner_locked?: boolean
           price?: number
           quantity?: number
           store_id?: string | null
@@ -493,7 +479,6 @@ export type Database = {
           margin_percent?: number
           model_id?: string
           name?: string
-          partner_locked?: boolean
           price?: number
           quantity?: number
           store_id?: string | null
@@ -528,7 +513,6 @@ export type Database = {
           margin_percent: number | null
           model_id: string
           name: string
-          partner_locked: boolean
           price: number
           store_id: string | null
           updated_at: string | null
@@ -544,7 +528,6 @@ export type Database = {
           margin_percent?: number | null
           model_id: string
           name: string
-          partner_locked?: boolean
           price?: number
           store_id?: string | null
           updated_at?: string | null
@@ -560,7 +543,6 @@ export type Database = {
           margin_percent?: number | null
           model_id?: string
           name?: string
-          partner_locked?: boolean
           price?: number
           store_id?: string | null
           updated_at?: string | null
@@ -623,7 +605,6 @@ export type Database = {
           display_order: number | null
           id: string
           name: string
-          partner_locked: boolean
           selection_type: string
           store_id: string | null
           updated_at: string | null
@@ -635,7 +616,6 @@ export type Database = {
           display_order?: number | null
           id?: string
           name: string
-          partner_locked?: boolean
           selection_type: string
           store_id?: string | null
           updated_at?: string | null
@@ -647,7 +627,6 @@ export type Database = {
           display_order?: number | null
           id?: string
           name?: string
-          partner_locked?: boolean
           selection_type?: string
           store_id?: string | null
           updated_at?: string | null
@@ -674,7 +653,6 @@ export type Database = {
           item_type: string
           margin_percent: number | null
           name: string
-          partner_locked: boolean
           price: number
           store_id: string | null
           updated_at: string | null
@@ -691,7 +669,6 @@ export type Database = {
           item_type?: string
           margin_percent?: number | null
           name: string
-          partner_locked?: boolean
           price: number
           store_id?: string | null
           updated_at?: string | null
@@ -708,7 +685,6 @@ export type Database = {
           item_type?: string
           margin_percent?: number | null
           name?: string
-          partner_locked?: boolean
           price?: number
           store_id?: string | null
           updated_at?: string | null
@@ -727,366 +703,6 @@ export type Database = {
             columns: ["store_id"]
             isOneToOne: false
             referencedRelation: "stores"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      partner_catalog_brands: {
-        Row: {
-          created_at: string
-          description: string | null
-          display_order: number
-          id: string
-          name: string
-          partner_id: string
-          updated_at: string
-        }
-        Insert: {
-          created_at?: string
-          description?: string | null
-          display_order?: number
-          id?: string
-          name: string
-          partner_id: string
-          updated_at?: string
-        }
-        Update: {
-          created_at?: string
-          description?: string | null
-          display_order?: number
-          id?: string
-          name?: string
-          partner_id?: string
-          updated_at?: string
-        }
-        Relationships: []
-      }
-      partner_catalog_categories: {
-        Row: {
-          created_at: string
-          description: string | null
-          display_order: number
-          id: string
-          name: string
-          partner_catalog_brand_id: string
-          updated_at: string
-        }
-        Insert: {
-          created_at?: string
-          description?: string | null
-          display_order?: number
-          id?: string
-          name: string
-          partner_catalog_brand_id: string
-          updated_at?: string
-        }
-        Update: {
-          created_at?: string
-          description?: string | null
-          display_order?: number
-          id?: string
-          name?: string
-          partner_catalog_brand_id?: string
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "partner_catalog_categories_partner_catalog_brand_id_fkey"
-            columns: ["partner_catalog_brand_id"]
-            isOneToOne: false
-            referencedRelation: "partner_catalog_brands"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      partner_catalog_item_template_items: {
-        Row: {
-          created_at: string
-          description: string | null
-          display_order: number
-          id: string
-          item_type: string
-          name: string
-          partner_catalog_item_template_id: string
-          quantity: number
-        }
-        Insert: {
-          created_at?: string
-          description?: string | null
-          display_order?: number
-          id?: string
-          item_type?: string
-          name: string
-          partner_catalog_item_template_id: string
-          quantity?: number
-        }
-        Update: {
-          created_at?: string
-          description?: string | null
-          display_order?: number
-          id?: string
-          item_type?: string
-          name?: string
-          partner_catalog_item_template_id?: string
-          quantity?: number
-        }
-        Relationships: [
-          {
-            foreignKeyName: "partner_catalog_item_template_partner_catalog_item_templat_fkey"
-            columns: ["partner_catalog_item_template_id"]
-            isOneToOne: false
-            referencedRelation: "partner_catalog_item_templates"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      partner_catalog_item_templates: {
-        Row: {
-          created_at: string
-          id: string
-          name: string
-          not_included_items: string[] | null
-          partner_id: string
-        }
-        Insert: {
-          created_at?: string
-          id?: string
-          name: string
-          not_included_items?: string[] | null
-          partner_id: string
-        }
-        Update: {
-          created_at?: string
-          id?: string
-          name?: string
-          not_included_items?: string[] | null
-          partner_id?: string
-        }
-        Relationships: []
-      }
-      partner_catalog_model_included_items: {
-        Row: {
-          created_at: string
-          description: string | null
-          display_order: number
-          id: string
-          item_type: string
-          name: string
-          partner_catalog_model_id: string
-          quantity: number
-        }
-        Insert: {
-          created_at?: string
-          description?: string | null
-          display_order?: number
-          id?: string
-          item_type?: string
-          name: string
-          partner_catalog_model_id: string
-          quantity?: number
-        }
-        Update: {
-          created_at?: string
-          description?: string | null
-          display_order?: number
-          id?: string
-          item_type?: string
-          name?: string
-          partner_catalog_model_id?: string
-          quantity?: number
-        }
-        Relationships: [
-          {
-            foreignKeyName: "partner_catalog_model_included_it_partner_catalog_model_id_fkey"
-            columns: ["partner_catalog_model_id"]
-            isOneToOne: false
-            referencedRelation: "partner_catalog_models"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      partner_catalog_model_optionals: {
-        Row: {
-          created_at: string
-          description: string | null
-          display_order: number
-          id: string
-          is_default: boolean
-          item_type: string
-          name: string
-          partner_catalog_model_id: string
-        }
-        Insert: {
-          created_at?: string
-          description?: string | null
-          display_order?: number
-          id?: string
-          is_default?: boolean
-          item_type?: string
-          name: string
-          partner_catalog_model_id: string
-        }
-        Update: {
-          created_at?: string
-          description?: string | null
-          display_order?: number
-          id?: string
-          is_default?: boolean
-          item_type?: string
-          name?: string
-          partner_catalog_model_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "partner_catalog_model_optionals_partner_catalog_model_id_fkey"
-            columns: ["partner_catalog_model_id"]
-            isOneToOne: false
-            referencedRelation: "partner_catalog_models"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      partner_catalog_models: {
-        Row: {
-          attributes: Json | null
-          created_at: string
-          delivery_days: number | null
-          depth: number | null
-          description: string | null
-          differentials: string[] | null
-          display_order: number
-          id: string
-          included_items: string[] | null
-          installation_days: number | null
-          length: number | null
-          name: string
-          not_included_items: string[] | null
-          notes: string | null
-          partner_catalog_category_id: string
-          payment_terms: string | null
-          photo_url: string | null
-          updated_at: string
-          width: number | null
-        }
-        Insert: {
-          attributes?: Json | null
-          created_at?: string
-          delivery_days?: number | null
-          depth?: number | null
-          description?: string | null
-          differentials?: string[] | null
-          display_order?: number
-          id?: string
-          included_items?: string[] | null
-          installation_days?: number | null
-          length?: number | null
-          name: string
-          not_included_items?: string[] | null
-          notes?: string | null
-          partner_catalog_category_id: string
-          payment_terms?: string | null
-          photo_url?: string | null
-          updated_at?: string
-          width?: number | null
-        }
-        Update: {
-          attributes?: Json | null
-          created_at?: string
-          delivery_days?: number | null
-          depth?: number | null
-          description?: string | null
-          differentials?: string[] | null
-          display_order?: number
-          id?: string
-          included_items?: string[] | null
-          installation_days?: number | null
-          length?: number | null
-          name?: string
-          not_included_items?: string[] | null
-          notes?: string | null
-          partner_catalog_category_id?: string
-          payment_terms?: string | null
-          photo_url?: string | null
-          updated_at?: string
-          width?: number | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "partner_catalog_models_partner_catalog_category_id_fkey"
-            columns: ["partner_catalog_category_id"]
-            isOneToOne: false
-            referencedRelation: "partner_catalog_categories"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      partner_catalog_optional_groups: {
-        Row: {
-          created_at: string
-          description: string | null
-          display_order: number
-          id: string
-          name: string
-          partner_id: string
-          selection_type: string
-        }
-        Insert: {
-          created_at?: string
-          description?: string | null
-          display_order?: number
-          id?: string
-          name: string
-          partner_id: string
-          selection_type?: string
-        }
-        Update: {
-          created_at?: string
-          description?: string | null
-          display_order?: number
-          id?: string
-          name?: string
-          partner_id?: string
-          selection_type?: string
-        }
-        Relationships: []
-      }
-      partner_catalog_optionals: {
-        Row: {
-          created_at: string
-          description: string | null
-          display_order: number
-          id: string
-          item_type: string
-          name: string
-          partner_catalog_optional_group_id: string
-          warning_note: string | null
-        }
-        Insert: {
-          created_at?: string
-          description?: string | null
-          display_order?: number
-          id?: string
-          item_type?: string
-          name: string
-          partner_catalog_optional_group_id: string
-          warning_note?: string | null
-        }
-        Update: {
-          created_at?: string
-          description?: string | null
-          display_order?: number
-          id?: string
-          item_type?: string
-          name?: string
-          partner_catalog_optional_group_id?: string
-          warning_note?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "partner_catalog_optionals_partner_catalog_optional_group_i_fkey"
-            columns: ["partner_catalog_optional_group_id"]
-            isOneToOne: false
-            referencedRelation: "partner_catalog_optional_groups"
             referencedColumns: ["id"]
           },
         ]
@@ -1268,8 +884,6 @@ export type Database = {
           name: string
           not_included_items: string[] | null
           notes: string | null
-          partner_locked: boolean
-          partner_locked_source: string | null
           payment_terms: string | null
           photo_url: string | null
           store_id: string | null
@@ -1294,8 +908,6 @@ export type Database = {
           name: string
           not_included_items?: string[] | null
           notes?: string | null
-          partner_locked?: boolean
-          partner_locked_source?: string | null
           payment_terms?: string | null
           photo_url?: string | null
           store_id?: string | null
@@ -1320,8 +932,6 @@ export type Database = {
           name?: string
           not_included_items?: string[] | null
           notes?: string | null
-          partner_locked?: boolean
-          partner_locked_source?: string | null
           payment_terms?: string | null
           photo_url?: string | null
           store_id?: string | null
@@ -2049,7 +1659,6 @@ export type Database = {
         }
         Returns: undefined
       }
-      partner_has_catalog: { Args: { _partner_id: string }; Returns: boolean }
       remove_team_member: { Args: { _member_id: string }; Returns: undefined }
       store_exists: { Args: { _store_id: string }; Returns: boolean }
     }

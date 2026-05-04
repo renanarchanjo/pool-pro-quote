@@ -108,29 +108,19 @@
     }
     </script>
 
+    <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
     <script>
-      (function () {
-        var host = window.location.hostname;
-        var shouldLoadOneSignal = host === "www.simulapool.com" || host === "simulapool.com" || host === "simulapool.lovable.app";
-
-        if (!shouldLoadOneSignal) return;
-
-        window.OneSignalDeferred = window.OneSignalDeferred || [];
-        window.OneSignalDeferred.push(async function(OneSignal) {
-          await OneSignal.init({
-            appId: "5f4c1578-23d5-49ff-b055-49a63c4c3074",
-            serviceWorkerPath: "/OneSignalSDKWorker.js",
-            serviceWorkerParam: { scope: "/" },
-            notificationClickHandlerMatch: "origin",
-            notificationClickHandlerAction: "focus",
-          });
+      window.OneSignalDeferred = window.OneSignalDeferred || [];
+      OneSignalDeferred.push(async function(OneSignal) {
+        await OneSignal.init({
+          appId: "5f4c1578-23d5-49ff-b055-49a63c4c3074",
+          serviceWorkerPath: "/OneSignalSDKWorker.js",
+          serviceWorkerParam: { scope: "/" },
+          allowLocalhostAsSecureOrigin: true,
+          notificationClickHandlerMatch: "origin",
+          notificationClickHandlerAction: "focus",
         });
-
-        var script = document.createElement("script");
-        script.src = "https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js";
-        script.defer = true;
-        document.head.appendChild(script);
-      })();
+      });
     </script>
 
     <style>

@@ -17,7 +17,6 @@ const MatrizPlans = lazy(() => import("@/components/matriz/MatrizPlans"));
 const MatrizMapPage = lazy(() => import("@/components/matriz/MatrizMapPage"));
 const MatrizReports = lazy(() => import("@/components/matriz/MatrizReports"));
 const MatrizInadimplencia = lazy(() => import("@/components/matriz/MatrizInadimplencia"));
-const PartnerCatalog = lazy(() => import("@/components/matriz/PartnerCatalog"));
 
 const SubpageFallback = () => (
   <div className="flex justify-center py-12">
@@ -122,7 +121,6 @@ const Matriz = () => {
               <Route path="cobertura" element={<MatrizCoverage />} />
               <Route path="pagamentos" element={<MatrizPayments />} />
               <Route path="parceiros" element={<PartnersManager />} />
-              <Route path="parceiros/:partnerId/catalogo" element={<PartnerCatalog />} />
               <Route path="leads" element={<MatrizLeads />} />
               <Route path="planos" element={<MatrizPlans />} />
               <Route path="mapa" element={<MatrizMapPage />} />

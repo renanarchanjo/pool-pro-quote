@@ -5,10 +5,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
-import { Plus, Pencil, Loader2, Trash2, ChevronDown, ChevronRight, Tag, CheckSquare, Square, FileDown } from "lucide-react";
+import { Plus, Pencil, Loader2, Trash2, ChevronDown, ChevronRight, Tag, CheckSquare, Square } from "lucide-react";
 import { toast } from "sonner";
 import { useStoreData } from "@/hooks/useStoreData";
-import { downloadStoreCatalog } from "@/lib/exportStoreCatalog";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -246,30 +245,8 @@ const BrandCategoryManager = ({ mode = "brands" }: { mode?: "brands" | "categori
     );
   }
 
-  const [exporting, setExporting] = useState(false);
-  const handleExportCatalog = async () => {
-    if (!store) return;
-    setExporting(true);
-    try {
-      await downloadStoreCatalog(store.id, store.name);
-      toast.success("Catálogo exportado!");
-    } catch (e: any) {
-      toast.error("Erro ao exportar: " + (e?.message || "desconhecido"));
-    } finally {
-      setExporting(false);
-    }
-  };
-
   return (
     <div className="space-y-8">
-      {mode === "brands" && (
-        <div className="flex justify-end">
-          <Button variant="outline" onClick={handleExportCatalog} disabled={exporting} className="gap-2">
-            {exporting ? <Loader2 className="w-4 h-4 animate-spin" /> : <FileDown className="w-4 h-4" />}
-            Exportar Catálogo
-          </Button>
-        </div>
-      )}
       {/* MARCA FORM - only in brands mode */}
       {mode === "brands" && (
         <Card className="p-6">

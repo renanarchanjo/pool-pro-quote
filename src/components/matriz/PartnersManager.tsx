@@ -1,5 +1,4 @@
 import { useState, useEffect, useRef, useCallback, SyntheticEvent } from "react";
-import { Link } from "react-router-dom";
 import { Skeleton } from "@/components/ui/skeleton";
 import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
@@ -7,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { Loader2, Plus, Upload, Trash2, Image as ImageIcon, Trophy, Pencil, Check, Save, FolderPlus, Tag, Boxes } from "lucide-react";
+import { Loader2, Plus, Upload, Trash2, Image as ImageIcon, Trophy, Pencil, Check, Save, FolderPlus, Tag } from "lucide-react";
 import { toast } from "sonner";
 import { validateImageFile } from "@/lib/validateImageFile";
 
@@ -345,11 +344,11 @@ const PartnersManager = () => {
           <div className="text-sm flex-1">
             <p className="font-semibold text-foreground">Sistema de Ranking, Frequência e Categorias</p>
             <p className="text-muted-foreground mt-1">
-              Cada parceiro pode ter um <strong>Catálogo Padrão</strong>. Ao importar o JSON do catálogo, modelos, opcionais e itens inclusos
-              ficam prontos para serem aplicados à loja no momento da ativação do parceiro.
+              Cada parceiro funciona como uma <strong>Marca</strong>. Ao cadastrar categorias aqui, quando um lojista selecionar esse parceiro,
+              a marca e suas categorias serão <strong>criadas automaticamente</strong> no catálogo da loja.
             </p>
             <p className="text-muted-foreground mt-1">
-              Itens travados por parceiro mantêm a estrutura protegida, permitindo ao lojista ajustar apenas os valores comerciais permitidos.
+              O lojista então cadastra livremente seus <strong>modelos, opcionais e preços</strong> dentro dessas categorias.
             </p>
             {(() => {
               const totalPercent = partners.filter(p => p.active).reduce((sum, p) => sum + p.display_percent, 0);
@@ -458,11 +457,6 @@ const PartnersManager = () => {
                       )}
                     </div>
                     <div className="flex items-center gap-1 shrink-0">
-                      <Button asChild variant="outline" size="sm" className="text-xs gap-1">
-                        <Link to={`/matriz/parceiros/${partner.id}/catalogo`}>
-                          <Boxes className="w-3.5 h-3.5" /> Catálogo
-                        </Link>
-                      </Button>
                       {isEditing ? (
                         <Button variant="outline" size="sm" onClick={() => setEditingId(null)} className="text-xs gap-1"><Check className="w-3.5 h-3.5" /> OK</Button>
                       ) : (
@@ -570,11 +564,6 @@ const PartnersManager = () => {
                         <span className="text-[10px] text-muted-foreground">{partner.active ? "Ativo" : "Oculto"}</span>
                       </div>
                       <div className="flex items-center gap-0.5">
-                        <Button asChild variant="ghost" size="icon" className="h-7 w-7">
-                          <Link to={`/matriz/parceiros/${partner.id}/catalogo`} aria-label={`Catálogo padrão de ${partner.name}`}>
-                            <Boxes className="w-3.5 h-3.5" />
-                          </Link>
-                        </Button>
                         {isEditing ? (
                           <Button variant="outline" size="sm" onClick={() => setEditingId(null)} className="h-7 text-[11px] gap-1"><Check className="w-3 h-3" /> OK</Button>
                         ) : (
