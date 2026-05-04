@@ -256,19 +256,37 @@ const ContractsManager = () => {
       });
       if (pErr) throw pErr;
 
-      // Seller data — try CNPJ public API, fallback to store
-      const { data: storeFull } = await supabase.from("stores").select("cnpj, razao_social, name, city, state, whatsapp").eq("id", store.id).maybeSingle();
-      const sellerData = (await fetchSellerData(storeFull?.cnpj || "")) || {
-        company_name: storeFull?.razao_social || storeFull?.name || store.name || "",
-        cnpj: (storeFull?.cnpj || "").replace(/\D/g, ""),
-        address: "",
-        city: storeFull?.city || store.city || "",
-        state: storeFull?.state || store.state || "",
-        cep: "",
-        phone: storeFull?.whatsapp || store.whatsapp || "",
-        website: "",
-        email: "",
-      };
+      // Seller data — usa dados salvos da loja (Minha Conta); fallback API CNPJ
+      const { data: storeFull } = await supabase
+        .from("stores")
+        .select("cnpj, razao_social, name, address, city, state, cep, whatsapp, company_email")
+        .eq("id", store.id)
+        .maybeSingle();
+
+      const hasStoredData = !!(storeFull?.address && storeFull?.cep);
+      const sellerData = hasStoredData
+        ? {
+            company_name: storeFull?.razao_social || storeFull?.name || store.name || "",
+            cnpj: (storeFull?.cnpj || "").replace(/\D/g, ""),
+            address: storeFull?.address || "",
+            city: storeFull?.city || "",
+            state: storeFull?.state || "",
+            cep: storeFull?.cep || "",
+            phone: storeFull?.whatsapp || "",
+            website: "",
+            email: storeFull?.company_email || "",
+          }
+        : (await fetchSellerData(storeFull?.cnpj || "")) || {
+            company_name: storeFull?.razao_social || storeFull?.name || store.name || "",
+            cnpj: (storeFull?.cnpj || "").replace(/\D/g, ""),
+            address: storeFull?.address || "",
+            city: storeFull?.city || store.city || "",
+            state: storeFull?.state || store.state || "",
+            cep: storeFull?.cep || "",
+            phone: storeFull?.whatsapp || store.whatsapp || "",
+            website: "",
+            email: storeFull?.company_email || "",
+          };
       const { error: sErr } = await supabase.from("contract_seller_data").insert({ contract_id: cid, ...sellerData });
       if (sErr) throw sErr;
 
