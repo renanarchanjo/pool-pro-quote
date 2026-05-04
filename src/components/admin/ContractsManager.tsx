@@ -314,9 +314,11 @@ const ContractsManager = () => {
 
       if (generatePdf) {
         const { data, error } = await supabase.functions.invoke("generate-contract-pdf", { body: { contract_id: cid } });
-        if (error || !data?.url) throw new Error(error?.message || "Falha ao gerar PDF");
+        if (error) throw new Error(error?.message || "Falha ao gerar PDF");
         toast.success("Contrato gerado", { id: tId });
-        window.open(data.url, "_blank");
+        const { data: row } = await supabase.from("contracts").select("pdf_path, contract_buyer_data(name)").eq("id", cid).maybeSingle();
+        const buyerName = (row as any)?.contract_buyer_data?.name || "";
+        if (row?.pdf_path) await downloadPdf(row.pdf_path, { buyerName, date: new Date().toISOString() });
       } else {
         toast.success("Rascunho salvo", { id: tId });
       }
@@ -333,9 +335,11 @@ const ContractsManager = () => {
     const tId = toast.loading("Gerando PDF...");
     try {
       const { data, error } = await supabase.functions.invoke("generate-contract-pdf", { body: { contract_id: id } });
-      if (error || !data?.url) throw new Error(error?.message || "Falha");
+      if (error) throw new Error(error?.message || "Falha");
       toast.success("PDF gerado", { id: tId });
-      window.open(data.url, "_blank");
+      const { data: row } = await supabase.from("contracts").select("pdf_path, created_at, contract_buyer_data(name)").eq("id", id).maybeSingle();
+      const buyerName = (row as any)?.contract_buyer_data?.name || "";
+      if (row?.pdf_path) await downloadPdf(row.pdf_path, { buyerName, date: row.created_at });
       await load();
     } catch (e: any) {
       toast.error("Erro: " + (e?.message || "desconhecido"), { id: tId });
