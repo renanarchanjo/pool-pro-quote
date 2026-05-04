@@ -6,7 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { Loader2, Plus, Upload, Trash2, Image as ImageIcon, Trophy, Pencil, Check, Save, FolderPlus, Tag } from "lucide-react";
+import { Loader2, Plus, Upload, Trash2, Image as ImageIcon, Trophy, Pencil, Check, Save, FolderPlus, Tag, Package } from "lucide-react";
+import PartnerCatalogManager from "./PartnerCatalogManager";
 import { toast } from "sonner";
 import { validateImageFile } from "@/lib/validateImageFile";
 
@@ -59,6 +60,8 @@ const PartnersManager = () => {
   const [categories, setCategories] = useState<Record<string, PartnerCategory[]>>({});
   const [newCatName, setNewCatName] = useState<Record<string, string>>({});
   const [expandedPartner, setExpandedPartner] = useState<string | null>(null);
+
+  const [catalogPartner, setCatalogPartner] = useState<{ id: string; name: string } | null>(null);
 
   useEffect(() => {
     fetchPartners();
