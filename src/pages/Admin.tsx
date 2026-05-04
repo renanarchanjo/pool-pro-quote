@@ -155,6 +155,7 @@ const Admin = () => {
               <Route path="gerar-proposta" element={<ManualProposal />} />
               <Route path="leads" element={<AdminLeads />} />
               <Route path="faturas" element={<InvoiceHistory />} />
+              <Route path="contratos" element={<ContractsManager />} />
               <Route path="perfil" element={<AdminProfile />} />
               {!isOwner && (
                 <>
