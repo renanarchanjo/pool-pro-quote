@@ -288,9 +288,21 @@ const ContractsManager = () => {
 
   const downloadPdf = async (path: string | null) => {
     if (!path) return toast.error("PDF não disponível");
-    const { data, error } = await supabase.storage.from("contracts").createSignedUrl(path, 60 * 60);
-    if (error || !data?.signedUrl) return toast.error("Erro ao gerar link");
-    window.open(data.signedUrl, "_blank");
+    try {
+      const { data, error } = await supabase.storage.from("contracts").download(path);
+      if (error || !data) throw error || new Error("falha ao baixar");
+      const blobUrl = URL.createObjectURL(data);
+      const fileName = path.split("/").pop() || "contrato.pdf";
+      const a = document.createElement("a");
+      a.href = blobUrl;
+      a.download = fileName;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(blobUrl), 60_000);
+    } catch (e: any) {
+      toast.error("Erro ao baixar PDF: " + (e?.message || "desconhecido"));
+    }
   };
 
   const setStatus = async (id: string, status: Status) => {
