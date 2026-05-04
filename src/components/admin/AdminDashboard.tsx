@@ -420,12 +420,6 @@ const AdminDashboard = () => {
           />
         </div>
 
-        {isOwner && store?.id && (
-          <div style={{ pageBreakInside: "avoid" }}>
-            <DashboardPlanUsage storeId={store.id} />
-          </div>
-        )}
-
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 md:gap-4" style={{ pageBreakInside: "avoid" }}>
           <DashboardFunnel proposals={filteredProposals} />
           <DashboardActivity proposals={filteredProposals} />
