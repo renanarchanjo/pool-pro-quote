@@ -1,6 +1,6 @@
 import {
   LayoutGrid, CircleAlert, Building2, Users, Wallet,
-  MapPinned, Filter, Radar,
+  MapPinned, Filter, Radar, Package,
   type LucideIcon,
 } from "lucide-react";
 
