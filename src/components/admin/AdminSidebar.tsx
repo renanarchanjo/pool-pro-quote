@@ -149,7 +149,7 @@ const AdminSidebar = () => {
       <SidebarContent className="px-2">
         {groups.map((g) => {
           if (isMobile && g.hideOnMobile) return null;
-          return <div key={g.label}>{renderGroup(g.label, g.items)}</div>;
+          return <div key={g.label}>{renderGroup(g)}</div>;
         })}
       </SidebarContent>
 
