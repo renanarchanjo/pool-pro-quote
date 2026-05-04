@@ -38,7 +38,7 @@ const LojistaHeader = () => {
             </Link>
 
             <Link
-              to="/login"
+              to="/login?as=lojista"
               className="h-11 px-5 text-[15px] font-medium rounded-full text-white/80 hover:text-white transition-all duration-200 inline-flex items-center gap-2 border border-white/15 hover:border-white/30 hover:bg-white/[0.06]"
             >
               <User className="w-4 h-4" /> Minha Conta
@@ -80,7 +80,7 @@ const LojistaHeader = () => {
               Planos e Preços
             </Link>
             <Link
-              to="/login"
+              to="/login?as=lojista"
               onClick={() => setMobileMenuOpen(false)}
               className="text-[15px] font-semibold text-white/70 hover:text-white px-5 py-3 transition-colors flex items-center gap-2"
             >
