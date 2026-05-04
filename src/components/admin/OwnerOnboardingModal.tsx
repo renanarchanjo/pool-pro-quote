@@ -160,9 +160,9 @@ const OwnerOnboardingModal = ({ userId, storeId, storeName }: Props) => {
   const completedKey = `${COMPLETED_KEY}:${userId}`;
   const collapsedKey = `${COLLAPSED_KEY}:${userId}`;
 
-  // Initial load
+  // Initial load (waits until leadsEnabled is known to know total steps)
   useEffect(() => {
-    if (!userId || !storeId) return;
+    if (!userId || !storeId || leadsEnabled === null) return;
     if (localStorage.getItem(completedKey)) {
       setHidden(true);
       return;
@@ -170,13 +170,17 @@ const OwnerOnboardingModal = ({ userId, storeId, storeName }: Props) => {
     try {
       const saved = JSON.parse(localStorage.getItem(progressKey) || "{}");
       if (Array.isArray(saved.completedSteps)) {
-        setCompletedSteps(saved.completedSteps.length === steps.length ? saved.completedSteps : steps.map(() => false));
+        // Pad/truncate saved progress to current step count
+        const next = steps.map((_, i) => !!saved.completedSteps[i]);
+        setCompletedSteps(next);
+      } else {
+        setCompletedSteps(steps.map(() => false));
       }
       if (typeof saved.step === "number") setStep(Math.min(Math.max(saved.step, 0), steps.length - 1));
     } catch {}
     setCollapsed(localStorage.getItem(collapsedKey) === "1");
     setHidden(false);
-  }, [userId, storeId, completedKey, progressKey, collapsedKey]);
+  }, [userId, storeId, leadsEnabled, completedKey, progressKey, collapsedKey, steps.length]);
 
   // Persist progress
   useEffect(() => {
