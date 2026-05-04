@@ -505,14 +505,19 @@ const MatrizPartnerCatalog = () => {
         </div>
 
         {partnerId && (
-          <div className="flex items-end gap-2 pt-2 border-t border-border">
-            <div className="flex-1">
+          <div className="flex items-end gap-2 pt-2 border-t border-border flex-wrap">
+            <div className="flex-1 min-w-[220px]">
               <Label className="text-xs flex items-center gap-1.5"><FolderTree className="w-3.5 h-3.5" /> Nova Categoria</Label>
               <Input value={newCategory} onChange={e => setNewCategory(e.target.value)} placeholder="Ex: Fibra de Vidro"
                 onKeyDown={e => { if (e.key === "Enter") addCategory(); }} className="mt-1" />
             </div>
             <Button onClick={addCategory} disabled={!newCategory.trim()} className="gap-1">
               <Plus className="w-4 h-4" /> Categoria
+            </Button>
+            <input ref={fileInputRef} type="file" accept="application/json,.json" className="hidden" onChange={handleImportFile} />
+            <Button variant="outline" onClick={handleImportClick} disabled={importing} className="gap-1">
+              {importing ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
+              Importar Catálogo
             </Button>
           </div>
         )}
