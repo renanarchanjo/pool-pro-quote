@@ -131,6 +131,24 @@ const AdminProfile = () => {
         .eq("store_id", store.id);
       if (settingsError) throw settingsError;
 
+      // Save company/contract data (only owners pass RLS)
+      if (isOwner) {
+        const { error: storeError } = await supabase
+          .from("stores")
+          .update({
+            razao_social: razaoSocial || null,
+            cnpj: (cnpj || "").replace(/\D/g, "") || null,
+            address: address || null,
+            city: city || null,
+            state: state || null,
+            cep: cep || null,
+            whatsapp: whatsapp || null,
+            company_email: companyEmail || null,
+          })
+          .eq("id", store.id);
+        if (storeError) throw storeError;
+      }
+
       toast.success("Perfil atualizado com sucesso!");
       refetch();
     } catch (error: any) {
