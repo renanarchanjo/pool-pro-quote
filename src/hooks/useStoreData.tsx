@@ -75,7 +75,7 @@ export const useStoreData = () => {
       const [{ data: storeData, error: storeError }, { data: settingsData, error: settingsError }, { data: roleData, error: roleError }] = await Promise.all([
         supabase
           .from("stores")
-          .select("id, name, slug, city, state, whatsapp, plan_status, plan_expires_at, nome_fantasia")
+          .select("id, name, slug, city, state, whatsapp, plan_status, plan_expires_at, nome_fantasia, razao_social, cnpj, address, cep, company_email")
           .eq("id", profileData.store_id)
           .maybeSingle(),
         supabase
