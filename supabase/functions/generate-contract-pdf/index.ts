@@ -218,36 +218,6 @@ Deno.serve(async (req) => {
       `A ${seller.company_name || "—"} é empresa que atua no comércio e instalação de piscinas e acessórios. O COMPRADOR, agindo de boa-fé, declara estar ciente das características do produto adquirido, do direito de cancelamento previsto no Código de Defesa do Consumidor e da legislação aplicável a esta relação contratual.`
     );
 
-    // ===== Cláusulas (placeholder rendering happens further below) =====
-
-    const installments = Array.isArray(product.payment_installments) ? product.payment_installments : [];
-    if (installments.length) {
-      y += 2;
-      writeParagraph("Parágrafo segundo. Discriminação dos cheques/parcelas:", { indent: false });
-      y += 1;
-      doc.setFont(FONT, "bold"); doc.setFontSize(10);
-      ensureSpace(8);
-      const colN = M_LEFT;
-      const colV = M_LEFT + 70;
-      const colD = M_LEFT + 115;
-      doc.text("Nº Cheque/Parcela", colN, y);
-      doc.text("Valor", colV, y);
-      doc.text("Vencimento", colD, y);
-      y += 4;
-      doc.setDrawColor(150);
-      doc.line(M_LEFT, y, PAGE_W - M_RIGHT, y);
-      y += 3;
-      doc.setFont(FONT, "normal");
-      for (const it of installments) {
-        ensureSpace(6);
-        doc.text(String(it.cheque_number || "—"), colN, y);
-        doc.text(fmtCurrency(Number(it.value) || 0), colV, y);
-        doc.text(it.due_date ? fmtDateBR(it.due_date) : "—", colD, y);
-        y += 5;
-      }
-      y += 2;
-    }
-
     // Default clauses (must mirror src/lib/contractClauseDefaults.ts)
     const DEFAULT_CLAUSES: Array<{ title: string; text: string }> = [
       { title: "DO OBJETO", text: "A VENDEDORA vende ao COMPRADOR uma Piscina modelo {{modelo}}, marca {{marca}}, tamanho {{tamanho}}, na cor {{cor}}.\n\nParágrafo único. Estão inclusos no objeto deste contrato os serviços de entrega e instalação da piscina, conforme padrão técnico do fabricante, ressalvadas as exclusões previstas neste instrumento." },
@@ -287,22 +257,45 @@ Deno.serve(async (req) => {
     const interpolate = (s: string) =>
       Object.entries(placeholders).reduce((acc, [k, v]) => acc.split(k).join(v), s);
 
-    // First two clauses already use the headers above (Object + Value).
-    // To preserve current PDF structure: render ALL clauses from the list,
-    // skipping titles that match what we already rendered hardcoded above.
-    // Actually — simpler: replace the hardcoded "DO OBJETO" + "DO VALOR" sections
-    // by using the clauses list entirely. We already wrote headers above, so render from index 2.
-    let clauseNum = 3;
-    for (let i = 2; i < customClauses.length; i++) {
-      const c = customClauses[i];
+    const installments = Array.isArray(product.payment_installments) ? product.payment_installments : [];
+
+    customClauses.forEach((c, i) => {
+      const num = i + 1;
       writeTitle(c.title, { size: SIZE_BODY, align: "left", gapBefore: 4, gapAfter: 2 });
       const paragraphs = interpolate(c.text).split(/\n\n+/);
       paragraphs.forEach((p, idx) => {
-        const prefix = idx === 0 ? `CLÁUSULA ${clauseNum}ª. ` : "";
+        const prefix = idx === 0 ? `CLÁUSULA ${num}ª. ` : "";
         writeParagraph(prefix + p.trim());
       });
-      clauseNum++;
-    }
+
+      // After clause 2 (Valor), render installments table if any
+      if (num === 2 && installments.length) {
+        y += 2;
+        writeParagraph("Parágrafo segundo. Discriminação dos cheques/parcelas:", { indent: false });
+        y += 1;
+        doc.setFont(FONT, "bold"); doc.setFontSize(10);
+        ensureSpace(8);
+        const colN = M_LEFT;
+        const colV = M_LEFT + 70;
+        const colD = M_LEFT + 115;
+        doc.text("Nº Cheque/Parcela", colN, y);
+        doc.text("Valor", colV, y);
+        doc.text("Vencimento", colD, y);
+        y += 4;
+        doc.setDrawColor(150);
+        doc.line(M_LEFT, y, PAGE_W - M_RIGHT, y);
+        y += 3;
+        doc.setFont(FONT, "normal");
+        for (const it of installments) {
+          ensureSpace(6);
+          doc.text(String(it.cheque_number || "—"), colN, y);
+          doc.text(fmtCurrency(Number(it.value) || 0), colV, y);
+          doc.text(it.due_date ? fmtDateBR(it.due_date) : "—", colD, y);
+          y += 5;
+        }
+        y += 2;
+      }
+    });
 
     // ===== Local e data =====
     y += 6;
