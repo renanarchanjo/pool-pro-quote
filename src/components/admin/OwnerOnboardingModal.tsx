@@ -16,6 +16,9 @@ import {
   ChevronDown,
   ChevronUp,
   Rocket,
+  FileText,
+  FileSignature,
+  Megaphone,
 } from "lucide-react";
 
 interface Props {
@@ -24,9 +27,9 @@ interface Props {
   storeName?: string | null;
 }
 
-const PROGRESS_KEY = "owner_onboarding_progress_v2";
-const COMPLETED_KEY = "owner_onboarding_completed_v2";
-const COLLAPSED_KEY = "owner_onboarding_collapsed_v2";
+const PROGRESS_KEY = "owner_onboarding_progress_v3";
+const COMPLETED_KEY = "owner_onboarding_completed_v3";
+const COLLAPSED_KEY = "owner_onboarding_collapsed_v3";
 
 type StepCheck = (storeId: string) => Promise<{ done: boolean; hint?: string }>;
 
@@ -39,7 +42,7 @@ interface Step {
   check: StepCheck;
 }
 
-const steps: Step[] = [
+const baseSteps: Step[] = [
   {
     icon: Building2,
     title: "Dados da sua loja",
@@ -90,16 +93,51 @@ const steps: Step[] = [
     check: async () => ({ done: true }),
   },
   {
-    icon: Sparkles,
-    title: "Tudo pronto!",
-    description: "Sua loja está configurada. Comece a gerar propostas.",
-    action: { label: "Ir para o Dashboard", path: "/admin" },
+    icon: FileText,
+    title: "Gere sua primeira proposta",
+    description: "Crie propostas profissionais em PDF para enviar aos clientes via WhatsApp ou e-mail.",
+    action: { label: "Ir para Propostas", path: "/admin/propostas" },
+    check: async (storeId) => {
+      const { count } = await supabase
+        .from("proposals")
+        .select("id", { count: "exact", head: true })
+        .eq("store_id", storeId);
+      return { done: (count || 0) > 0, hint: "Crie ao menos uma proposta para concluir esta etapa." };
+    },
+  },
+  {
+    icon: FileSignature,
+    title: "Gere seu primeiro contrato",
+    description: "Transforme propostas aprovadas em contratos de compra e venda em PDF.",
+    action: { label: "Ir para Contratos", path: "/admin/contratos" },
+    optional: true,
     check: async () => ({ done: true }),
   },
 ];
 
+const leadsStep: Step = {
+  icon: Megaphone,
+  title: "Tráfego e Leads",
+  description: "Receba leads qualificados gerados pela nossa rede de tráfego pago, distribuídos automaticamente para sua equipe.",
+  action: { label: "Ver Leads", path: "/admin/leads" },
+  optional: true,
+  check: async () => ({ done: true }),
+};
+
+const finalStep: Step = {
+  icon: Sparkles,
+  title: "Tudo pronto!",
+  description: "Sua loja está configurada. Bora vender!",
+  action: { label: "Ir para o Dashboard", path: "/admin" },
+  check: async () => ({ done: true }),
+};
+
 const OwnerOnboardingModal = ({ userId, storeId, storeName }: Props) => {
   const navigate = useNavigate();
+  const [leadsEnabled, setLeadsEnabled] = useState<boolean | null>(null);
+  const steps = leadsEnabled
+    ? [...baseSteps, leadsStep, finalStep]
+    : [...baseSteps, finalStep];
   const [step, setStep] = useState(0);
   const [completedSteps, setCompletedSteps] = useState<boolean[]>(() => steps.map(() => false));
   const [checking, setChecking] = useState(false);
@@ -107,13 +145,24 @@ const OwnerOnboardingModal = ({ userId, storeId, storeName }: Props) => {
   const [collapsed, setCollapsed] = useState(false);
   const [hidden, setHidden] = useState(true);
 
+  // Fetch lead plan status
+  useEffect(() => {
+    if (!storeId) return;
+    supabase
+      .from("stores")
+      .select("lead_plan_active")
+      .eq("id", storeId)
+      .maybeSingle()
+      .then(({ data }) => setLeadsEnabled(!!data?.lead_plan_active));
+  }, [storeId]);
+
   const progressKey = `${PROGRESS_KEY}:${userId}`;
   const completedKey = `${COMPLETED_KEY}:${userId}`;
   const collapsedKey = `${COLLAPSED_KEY}:${userId}`;
 
-  // Initial load
+  // Initial load (waits until leadsEnabled is known to know total steps)
   useEffect(() => {
-    if (!userId || !storeId) return;
+    if (!userId || !storeId || leadsEnabled === null) return;
     if (localStorage.getItem(completedKey)) {
       setHidden(true);
       return;
@@ -121,13 +170,17 @@ const OwnerOnboardingModal = ({ userId, storeId, storeName }: Props) => {
     try {
       const saved = JSON.parse(localStorage.getItem(progressKey) || "{}");
       if (Array.isArray(saved.completedSteps)) {
-        setCompletedSteps(saved.completedSteps.length === steps.length ? saved.completedSteps : steps.map(() => false));
+        // Pad/truncate saved progress to current step count
+        const next = steps.map((_, i) => !!saved.completedSteps[i]);
+        setCompletedSteps(next);
+      } else {
+        setCompletedSteps(steps.map(() => false));
       }
       if (typeof saved.step === "number") setStep(Math.min(Math.max(saved.step, 0), steps.length - 1));
     } catch {}
     setCollapsed(localStorage.getItem(collapsedKey) === "1");
     setHidden(false);
-  }, [userId, storeId, completedKey, progressKey, collapsedKey]);
+  }, [userId, storeId, leadsEnabled, completedKey, progressKey, collapsedKey, steps.length]);
 
   // Persist progress
   useEffect(() => {
