@@ -96,7 +96,7 @@ const baseSteps: Step[] = [
     icon: FileText,
     title: "Gere sua primeira proposta",
     description: "Crie propostas profissionais em PDF para enviar aos clientes via WhatsApp ou e-mail.",
-    action: { label: "Ir para Propostas", path: "/admin/propostas" },
+    action: { label: "Gerar Proposta", path: "/admin/gerar-proposta" },
     check: async (storeId) => {
       const { count } = await supabase
         .from("proposals")
