@@ -84,6 +84,7 @@ const ContractsManager = () => {
   const [filter, setFilter] = useState<"all" | Status>("all");
 
   const [open, setOpen] = useState(false);
+  const [clausesOpen, setClausesOpen] = useState(false);
   const [form, setForm] = useState<FormState>(emptyForm);
   const [saving, setSaving] = useState(false);
   const [proposals, setProposals] = useState<any[]>([]);
