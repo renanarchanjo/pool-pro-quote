@@ -13,10 +13,11 @@ import {
 } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import {
-  FileText, Plus, Trash2, Download, Upload, FileCheck2, Ban, Loader2,
+  FileText, Plus, Trash2, Download, Upload, FileCheck2, Ban, Loader2, ScrollText,
 } from "lucide-react";
 import { toast } from "sonner";
 import { useStoreData } from "@/hooks/useStoreData";
+import ContractClausesEditor from "./ContractClausesEditor";
 
 type Status = "rascunho" | "enviado" | "aguardando_assinatura" | "assinado" | "cancelado";
 const STATUS_LABEL: Record<Status, string> = {
@@ -83,6 +84,7 @@ const ContractsManager = () => {
   const [filter, setFilter] = useState<"all" | Status>("all");
 
   const [open, setOpen] = useState(false);
+  const [clausesOpen, setClausesOpen] = useState(false);
   const [form, setForm] = useState<FormState>(emptyForm);
   const [saving, setSaving] = useState(false);
   const [proposals, setProposals] = useState<any[]>([]);
@@ -419,7 +421,14 @@ const ContractsManager = () => {
           </h1>
           <p className="text-[13px] text-muted-foreground">Gere e gerencie contratos de compra e venda.</p>
         </div>
-        <Button onClick={openNew} className="gap-1"><Plus className="w-4 h-4" /> Novo Contrato</Button>
+        <div className="flex items-center gap-2">
+          {isOwner && (
+            <Button variant="outline" onClick={() => setClausesOpen(true)} className="gap-1">
+              <ScrollText className="w-4 h-4" /> Editar Cláusulas
+            </Button>
+          )}
+          <Button onClick={openNew} className="gap-1"><Plus className="w-4 h-4" /> Novo Contrato</Button>
+        </div>
       </div>
 
       <Card className="p-3 md:p-4">
@@ -560,6 +569,14 @@ const ContractsManager = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {store?.id && (
+        <ContractClausesEditor
+          storeId={store.id}
+          open={clausesOpen}
+          onOpenChange={setClausesOpen}
+        />
+      )}
     </div>
   );
 };

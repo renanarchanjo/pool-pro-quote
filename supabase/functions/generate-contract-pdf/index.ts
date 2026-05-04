@@ -218,73 +218,84 @@ Deno.serve(async (req) => {
       `A ${seller.company_name || "—"} é empresa que atua no comércio e instalação de piscinas e acessórios. O COMPRADOR, agindo de boa-fé, declara estar ciente das características do produto adquirido, do direito de cancelamento previsto no Código de Defesa do Consumidor e da legislação aplicável a esta relação contratual.`
     );
 
-    // ===== Cláusulas =====
-    writeTitle("DO OBJETO", { size: SIZE_BODY, align: "left", gapBefore: 4, gapAfter: 2 });
-    writeParagraph(
-      `CLÁUSULA 1ª. A VENDEDORA vende ao COMPRADOR uma Piscina modelo ${product.pool_model || "—"}, marca ${product.brand || "—"}, tamanho ${product.size || "—"}, na cor ${product.color || "—"}.`
-    );
-    writeParagraph(
-      "Parágrafo único. Estão inclusos no objeto deste contrato os serviços de entrega e instalação da piscina, conforme padrão técnico do fabricante, ressalvadas as exclusões previstas neste instrumento."
-    );
-
-    writeTitle("DO VALOR E CONDIÇÕES DE PAGAMENTO", { size: SIZE_BODY, align: "left", gapBefore: 4, gapAfter: 2 });
-    writeParagraph(`CLÁUSULA 2ª. O valor total ajustado entre as partes é de ${fmtCurrency(product.total_value || 0)}.`);
-    writeParagraph(`Parágrafo primeiro. As condições de pagamento são: ${product.payment_conditions || "—"}.`);
-
-    const installments = Array.isArray(product.payment_installments) ? product.payment_installments : [];
-    if (installments.length) {
-      y += 2;
-      writeParagraph("Parágrafo segundo. Discriminação dos cheques/parcelas:", { indent: false });
-      y += 1;
-      doc.setFont(FONT, "bold"); doc.setFontSize(10);
-      ensureSpace(8);
-      const colN = M_LEFT;
-      const colV = M_LEFT + 70;
-      const colD = M_LEFT + 115;
-      doc.text("Nº Cheque/Parcela", colN, y);
-      doc.text("Valor", colV, y);
-      doc.text("Vencimento", colD, y);
-      y += 4;
-      doc.setDrawColor(150);
-      doc.line(M_LEFT, y, PAGE_W - M_RIGHT, y);
-      y += 3;
-      doc.setFont(FONT, "normal");
-      for (const it of installments) {
-        ensureSpace(6);
-        doc.text(String(it.cheque_number || "—"), colN, y);
-        doc.text(fmtCurrency(Number(it.value) || 0), colV, y);
-        doc.text(it.due_date ? fmtDateBR(it.due_date) : "—", colD, y);
-        y += 5;
-      }
-      y += 2;
-    }
-
-    const cn = seller.company_name || "—";
-    const clauseGroups: Array<{ title: string; clauseNum: number; text: string }> = [
-      { title: "DA ENTREGA E INSTALAÇÃO", clauseNum: 3,
-        text: `A VENDEDORA se compromete a entregar e instalar o produto objeto deste contrato no prazo combinado entre as partes, salvo caso fortuito ou força maior, nos termos do art. 393 do Código Civil.` },
-      { title: "DAS OBRIGAÇÕES DO COMPRADOR", clauseNum: 4,
-        text: `O COMPRADOR deverá providenciar local adequado para instalação, com nivelamento, ponto de água e energia, conforme orientações fornecidas pela VENDEDORA.` },
-      { title: "DAS EXCLUSÕES", clauseNum: 5,
-        text: `Não estão inclusos neste contrato serviços civis, alvenaria, terraplenagem, escavação, deck, iluminação, aquecimento ou tratamento químico, salvo se expressamente descritos nas condições de pagamento.` },
-      { title: "DA GARANTIA", clauseNum: 6,
-        text: `O produto possui garantia conforme termos do fabricante. A garantia não cobre danos por uso indevido, falta de manutenção ou alterações realizadas por terceiros sem autorização da VENDEDORA.` },
-      { title: "DO CANCELAMENTO E RESCISÃO", clauseNum: 7,
-        text: `O cancelamento por parte do COMPRADOR, antes da entrega, implicará retenção dos valores já pagos a título de despesas administrativas e serviços já executados pela VENDEDORA, na forma da lei.` },
-      { title: "DA INADIMPLÊNCIA", clauseNum: 8,
-        text: `O atraso no pagamento de qualquer parcela acarretará multa de 2% (dois por cento), juros de mora de 1% (um por cento) ao mês e correção monetária, sem prejuízo da execução dos títulos representativos da dívida.` },
-      { title: "DA TRANSFERÊNCIA DE PROPRIEDADE", clauseNum: 9,
-        text: `A transferência da propriedade do bem somente ocorrerá após o pagamento integral do preço ajustado, ficando a VENDEDORA com a posse jurídica do bem até a quitação total.` },
-      { title: "DAS DISPOSIÇÕES GERAIS", clauseNum: 10,
-        text: `Este contrato obriga as partes, seus herdeiros e sucessores. Qualquer alteração somente terá validade se firmada por escrito por ambas as partes.` },
-      { title: "DO FORO", clauseNum: 11,
-        text: `Fica eleito o foro da comarca de ${product.city_forum || "—"} para dirimir quaisquer dúvidas oriundas deste contrato, com renúncia expressa a qualquer outro, por mais privilegiado que seja.` },
+    // Default clauses (must mirror src/lib/contractClauseDefaults.ts)
+    const DEFAULT_CLAUSES: Array<{ title: string; text: string }> = [
+      { title: "DO OBJETO", text: "A VENDEDORA vende ao COMPRADOR uma Piscina modelo {{modelo}}, marca {{marca}}, tamanho {{tamanho}}, na cor {{cor}}.\n\nParágrafo único. Estão inclusos no objeto deste contrato os serviços de entrega e instalação da piscina, conforme padrão técnico do fabricante, ressalvadas as exclusões previstas neste instrumento." },
+      { title: "DO VALOR E CONDIÇÕES DE PAGAMENTO", text: "O valor total ajustado entre as partes é de {{valor_total}}.\n\nParágrafo primeiro. As condições de pagamento são: {{condicoes_pagamento}}." },
+      { title: "DA ENTREGA E INSTALAÇÃO", text: "A VENDEDORA se compromete a entregar e instalar o produto objeto deste contrato no prazo combinado entre as partes, salvo caso fortuito ou força maior, nos termos do art. 393 do Código Civil." },
+      { title: "DAS OBRIGAÇÕES DO COMPRADOR", text: "O COMPRADOR deverá providenciar local adequado para instalação, com nivelamento, ponto de água e energia, conforme orientações fornecidas pela VENDEDORA." },
+      { title: "DAS EXCLUSÕES", text: "Não estão inclusos neste contrato serviços civis, alvenaria, terraplenagem, escavação, deck, iluminação, aquecimento ou tratamento químico, salvo se expressamente descritos nas condições de pagamento." },
+      { title: "DA GARANTIA", text: "O produto possui garantia conforme termos do fabricante. A garantia não cobre danos por uso indevido, falta de manutenção ou alterações realizadas por terceiros sem autorização da VENDEDORA." },
+      { title: "DO CANCELAMENTO E RESCISÃO", text: "O cancelamento por parte do COMPRADOR, antes da entrega, implicará retenção dos valores já pagos a título de despesas administrativas e serviços já executados pela VENDEDORA, na forma da lei." },
+      { title: "DA INADIMPLÊNCIA", text: "O atraso no pagamento de qualquer parcela acarretará multa de 2% (dois por cento), juros de mora de 1% (um por cento) ao mês e correção monetária, sem prejuízo da execução dos títulos representativos da dívida." },
+      { title: "DA TRANSFERÊNCIA DE PROPRIEDADE", text: "A transferência da propriedade do bem somente ocorrerá após o pagamento integral do preço ajustado, ficando a VENDEDORA com a posse jurídica do bem até a quitação total." },
+      { title: "DAS DISPOSIÇÕES GERAIS", text: "Este contrato obriga as partes, seus herdeiros e sucessores. Qualquer alteração somente terá validade se firmada por escrito por ambas as partes." },
+      { title: "DO FORO", text: "Fica eleito o foro da comarca de {{cidade_foro}} para dirimir quaisquer dúvidas oriundas deste contrato, com renúncia expressa a qualquer outro, por mais privilegiado que seja." },
     ];
 
-    for (const c of clauseGroups) {
+    // Load store override (if exists)
+    const { data: storeClausesRow } = await admin
+      .from("store_contract_clauses").select("clauses")
+      .eq("store_id", contract.store_id).maybeSingle();
+
+    const customClauses = Array.isArray(storeClausesRow?.clauses) && storeClausesRow!.clauses.length > 0
+      ? (storeClausesRow!.clauses as Array<{ title: string; text: string }>)
+      : DEFAULT_CLAUSES;
+
+    // Replace placeholders
+    const placeholders: Record<string, string> = {
+      "{{vendedora}}": seller.company_name || "—",
+      "{{comprador}}": buyer.name || "—",
+      "{{cidade_foro}}": product.city_forum || "—",
+      "{{modelo}}": product.pool_model || "—",
+      "{{marca}}": product.brand || "—",
+      "{{tamanho}}": product.size || "—",
+      "{{cor}}": product.color || "—",
+      "{{valor_total}}": fmtCurrency(product.total_value || 0),
+      "{{condicoes_pagamento}}": product.payment_conditions || "—",
+    };
+    const interpolate = (s: string) =>
+      Object.entries(placeholders).reduce((acc, [k, v]) => acc.split(k).join(v), s);
+
+    const installments = Array.isArray(product.payment_installments) ? product.payment_installments : [];
+
+    customClauses.forEach((c, i) => {
+      const num = i + 1;
       writeTitle(c.title, { size: SIZE_BODY, align: "left", gapBefore: 4, gapAfter: 2 });
-      writeParagraph(`CLÁUSULA ${c.clauseNum}ª. ${c.text}`);
-    }
+      const paragraphs = interpolate(c.text).split(/\n\n+/);
+      paragraphs.forEach((p, idx) => {
+        const prefix = idx === 0 ? `CLÁUSULA ${num}ª. ` : "";
+        writeParagraph(prefix + p.trim());
+      });
+
+      // After clause 2 (Valor), render installments table if any
+      if (num === 2 && installments.length) {
+        y += 2;
+        writeParagraph("Parágrafo segundo. Discriminação dos cheques/parcelas:", { indent: false });
+        y += 1;
+        doc.setFont(FONT, "bold"); doc.setFontSize(10);
+        ensureSpace(8);
+        const colN = M_LEFT;
+        const colV = M_LEFT + 70;
+        const colD = M_LEFT + 115;
+        doc.text("Nº Cheque/Parcela", colN, y);
+        doc.text("Valor", colV, y);
+        doc.text("Vencimento", colD, y);
+        y += 4;
+        doc.setDrawColor(150);
+        doc.line(M_LEFT, y, PAGE_W - M_RIGHT, y);
+        y += 3;
+        doc.setFont(FONT, "normal");
+        for (const it of installments) {
+          ensureSpace(6);
+          doc.text(String(it.cheque_number || "—"), colN, y);
+          doc.text(fmtCurrency(Number(it.value) || 0), colV, y);
+          doc.text(it.due_date ? fmtDateBR(it.due_date) : "—", colD, y);
+          y += 5;
+        }
+        y += 2;
+      }
+    });
 
     // ===== Local e data =====
     y += 6;
