@@ -421,7 +421,14 @@ const ContractsManager = () => {
           </h1>
           <p className="text-[13px] text-muted-foreground">Gere e gerencie contratos de compra e venda.</p>
         </div>
-        <Button onClick={openNew} className="gap-1"><Plus className="w-4 h-4" /> Novo Contrato</Button>
+        <div className="flex items-center gap-2">
+          {isOwner && (
+            <Button variant="outline" onClick={() => setClausesOpen(true)} className="gap-1">
+              <ScrollText className="w-4 h-4" /> Editar Cláusulas
+            </Button>
+          )}
+          <Button onClick={openNew} className="gap-1"><Plus className="w-4 h-4" /> Novo Contrato</Button>
+        </div>
       </div>
 
       <Card className="p-3 md:p-4">
