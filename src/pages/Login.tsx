@@ -12,6 +12,7 @@ import PwaInstallBanner from "@/components/PwaInstallBanner";
 import PageSEO from "@/components/PageSEO";
 
 type View = "login" | "forgot" | "forgot-sent";
+type LoginContext = "lojista" | "matriz" | null;
 
 const heroGradient = "#0A1628";
 
@@ -27,6 +28,10 @@ const Login = () => {
   const [checkingSession, setCheckingSession] = useState(true);
   const [view, setView] = useState<View>("login");
   const [resetEmail, setResetEmail] = useState("");
+  const [loginContext] = useState<LoginContext>(() => {
+    const context = new URLSearchParams(window.location.search).get("as");
+    return context === "lojista" || context === "matriz" ? context : null;
+  });
   const navigate = useNavigate();
 
   const redirectByRole = useCallback(async (userId: string) => {
@@ -36,14 +41,21 @@ const Login = () => {
       .eq("user_id", userId);
 
     const isSuperAdmin = roleData?.some((r: any) => r.role === "super_admin");
+
+    if (loginContext === "lojista" && isSuperAdmin) {
+      await supabase.auth.signOut({ scope: "local" });
+      setCheckingSession(false);
+      toast.error("Sessão Matriz encerrada. Entre com uma conta de lojista.");
+      return;
+    }
+
     navigate(isSuperAdmin ? "/matriz" : "/admin", { replace: true });
-  }, [navigate]);
+  }, [loginContext, navigate]);
 
   useEffect(() => {
     // If user arrives via "?as=lojista" (from /lojista landing), force lojista context:
     // sign out any existing super_admin session so they can log in as a store owner.
-    const params = new URLSearchParams(window.location.search);
-    const forceContext = params.get("as"); // "lojista" | "matriz" | null
+    const forceContext = loginContext;
 
     // Clear history so back button can't return to admin/matriz after logout
     window.history.replaceState(null, "", "/login");
@@ -70,15 +82,13 @@ const Login = () => {
     });
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (session) {
-        void redirectByRole(session.user.id);
-      } else {
+      if (!session) {
         setCheckingSession(false);
       }
     });
 
     return () => subscription.unsubscribe();
-  }, [redirectByRole]);
+  }, [loginContext, redirectByRole]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -87,7 +97,7 @@ const Login = () => {
       return;
     }
     setLoading(true);
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
     setLoading(false);
     if (error) {
       if (error.message?.toLowerCase().includes("email not confirmed")) {
@@ -98,6 +108,9 @@ const Login = () => {
       return;
     }
     toast.success("Login realizado!");
+    if (data.user) {
+      await redirectByRole(data.user.id);
+    }
   };
 
   const handleForgotPassword = async (e: React.FormEvent) => {
