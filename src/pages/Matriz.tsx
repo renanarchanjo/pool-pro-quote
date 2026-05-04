@@ -123,6 +123,7 @@ const Matriz = () => {
               <Route path="cobertura" element={<MatrizCoverage />} />
               <Route path="pagamentos" element={<MatrizPayments />} />
               <Route path="parceiros" element={<PartnersManager />} />
+              <Route path="catalogo-parceiros" element={<MatrizPartnerCatalog />} />
               <Route path="leads" element={<MatrizLeads />} />
               <Route path="planos" element={<MatrizPlans />} />
               <Route path="mapa" element={<MatrizMapPage />} />
