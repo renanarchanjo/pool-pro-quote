@@ -37,17 +37,19 @@ const ProtectedRoute = ({
         return;
       }
 
-      // Check MFA assurance level — redirect if user has MFA enrolled but session is only aal1
-      const { data: mfaData } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
+      // MFA is mandatory only for Matriz/super-admin access.
+      if (requiredRole === "super_admin") {
+        const { data: mfaData } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
 
-      if (cancelled) return;
+        if (cancelled) return;
 
-      if (
-        mfaData?.nextLevel === "aal2" &&
-        mfaData?.currentLevel === "aal1"
-      ) {
-        setStatus("mfa_required");
-        return;
+        if (
+          mfaData?.nextLevel === "aal2" &&
+          mfaData?.currentLevel === "aal1"
+        ) {
+          setStatus("mfa_required");
+          return;
+        }
       }
 
       if (requiredRole) {

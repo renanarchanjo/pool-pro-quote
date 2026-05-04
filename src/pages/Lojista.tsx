@@ -224,7 +224,7 @@ const Lojista = () => {
               <ArrowRight className="ml-2 w-5 h-5 transition-transform group-hover:translate-x-0.5" />
             </button>
             <button
-              onClick={() => navigate("/login")}
+              onClick={() => navigate("/login?as=lojista")}
               className="w-full sm:w-auto inline-flex items-center justify-center h-[52px] px-8 text-[15px] font-medium rounded-xl text-white transition-all duration-200"
               style={{
                 background: "rgba(255,255,255,0.08)",
@@ -531,7 +531,7 @@ const Lojista = () => {
               <ArrowRight className="ml-2 w-4 h-4 transition-transform group-hover:translate-x-0.5" />
             </button>
             <button
-              onClick={() => navigate("/login")}
+              onClick={() => navigate("/login?as=lojista")}
               className="inline-flex items-center justify-center h-12 px-8 text-[15px] font-semibold rounded-xl border border-border text-foreground transition-all duration-200 hover:border-primary/30 hover:text-primary"
             >
               Já tenho conta
