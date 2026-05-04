@@ -177,20 +177,36 @@ const ContractsManager = () => {
 
   const fetchSellerData = async (cnpj: string) => {
     const clean = (cnpj || "").replace(/\D/g, "");
-    if (!clean) return null;
+    if (!clean || clean.length !== 14) return null;
     try {
       const r = await fetch(`https://publica.cnpj.ws/cnpj/${clean}`);
       if (!r.ok) return null;
       const j = await r.json();
       const e = j.estabelecimento || {};
+      // Endereço completo: tipo + logradouro + número + complemento, bairro
+      const ruaNumero = [e.tipo_logradouro, e.logradouro, e.numero].filter(Boolean).join(" ");
+      const partes = [
+        ruaNumero,
+        e.complemento,
+        e.bairro ? `Bairro ${e.bairro}` : null,
+      ].filter(Boolean);
+      const address = partes.join(", ");
+      // CEP formatado 00000-000
+      const cepDigits = (e.cep || "").replace(/\D/g, "");
+      const cep = cepDigits.length === 8 ? `${cepDigits.slice(0, 5)}-${cepDigits.slice(5)}` : (e.cep || "");
+      // Telefone: tenta principal e secundário
+      let phone = "";
+      if (e.ddd1 && e.telefone1) phone = `(${e.ddd1}) ${e.telefone1}`;
+      else if (e.ddd2 && e.telefone2) phone = `(${e.ddd2}) ${e.telefone2}`;
+      else phone = store?.whatsapp || "";
       return {
         company_name: j.razao_social || store?.name || "",
         cnpj: clean,
-        address: [e.tipo_logradouro, e.logradouro, e.numero].filter(Boolean).join(" "),
+        address: address || "",
         city: e.cidade?.nome || store?.city || "",
         state: e.estado?.sigla || store?.state || "",
-        cep: e.cep || "",
-        phone: e.ddd1 && e.telefone1 ? `(${e.ddd1}) ${e.telefone1}` : (store?.whatsapp || ""),
+        cep,
+        phone,
         website: "",
         email: e.email || "",
       };
