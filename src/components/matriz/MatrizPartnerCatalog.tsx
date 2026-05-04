@@ -17,9 +17,10 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Loader2, Plus, Trash2, ChevronDown, ChevronRight, Pencil, Check, X,
-  Package, FolderTree, Box, Sparkles, Image as ImageIcon, Ruler, Calendar,
+  Package, FolderTree, Box, Sparkles, Image as ImageIcon, Ruler, Calendar, Upload,
 } from "lucide-react";
 import { toast } from "sonner";
+import { useRef } from "react";
 
 interface Partner { id: string; name: string }
 interface OptionalItem {
