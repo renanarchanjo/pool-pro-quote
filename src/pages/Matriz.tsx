@@ -31,6 +31,7 @@ const PAGE_TITLES: Record<string, string> = {
   "lojistas": "Lojistas Ativos",
   "pagamentos": "Pagamentos",
   "parceiros": "Parceiros",
+  "catalogo-parceiros": "Catálogo de Parceiros",
   "leads": "Leads",
   "planos": "Planos e Preços",
   "mapa": "Mapa de Lojistas",
