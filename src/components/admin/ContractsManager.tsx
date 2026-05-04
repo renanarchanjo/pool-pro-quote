@@ -207,14 +207,15 @@ const ContractsManager = () => {
       if (pErr) throw pErr;
 
       // Seller data — try CNPJ public API, fallback to store
-      const sellerData = (await fetchSellerData(store.cnpj || "")) || {
-        company_name: store.razao_social || store.name || "",
-        cnpj: (store.cnpj || "").replace(/\D/g, ""),
+      const { data: storeFull } = await supabase.from("stores").select("cnpj, razao_social, name, city, state, whatsapp").eq("id", store.id).maybeSingle();
+      const sellerData = (await fetchSellerData(storeFull?.cnpj || "")) || {
+        company_name: storeFull?.razao_social || storeFull?.name || store.name || "",
+        cnpj: (storeFull?.cnpj || "").replace(/\D/g, ""),
         address: "",
-        city: store.city || "",
-        state: store.state || "",
+        city: storeFull?.city || store.city || "",
+        state: storeFull?.state || store.state || "",
         cep: "",
-        phone: store.whatsapp || "",
+        phone: storeFull?.whatsapp || store.whatsapp || "",
         website: "",
         email: "",
       };
