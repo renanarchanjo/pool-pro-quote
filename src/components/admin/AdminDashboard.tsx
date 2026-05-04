@@ -420,10 +420,18 @@ const AdminDashboard = () => {
           />
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-2 md:gap-4" style={{ pageBreakInside: "avoid" }}>
+        {isOwner && store?.id && (
+          <div style={{ pageBreakInside: "avoid" }}>
+            <DashboardPlanUsage storeId={store.id} />
+          </div>
+        )}
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 md:gap-4" style={{ pageBreakInside: "avoid" }}>
           <DashboardFunnel proposals={filteredProposals} />
-          <DashboardAlerts proposals={filteredProposals} onSelectProposal={setViewingProposal} />
+          <DashboardActivity proposals={filteredProposals} />
         </div>
+
+        <DashboardAlerts proposals={filteredProposals} onSelectProposal={setViewingProposal} />
 
         <DashboardPipeline
           proposals={filteredProposals}
