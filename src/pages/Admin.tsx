@@ -130,13 +130,14 @@ const Admin = () => {
         className="relative flex items-center justify-between border-b border-border bg-background px-4 shrink-0"
         style={{ height: 'calc(56px + var(--safe-area-top))', paddingTop: 'var(--safe-area-top)' }}
       >
-        <div className="flex-1 min-w-0">
-          <h1 className="text-[16px] md:text-[18px] font-semibold text-foreground truncate">{pageTitle}</h1>
-        </div>
+        <div className="flex-1 min-w-0" />
 
-        {/* Centered brand logo */}
+        {/* Centered brand text */}
         <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none" style={{ marginTop: 'calc(var(--safe-area-top) / 2)' }}>
-          <BrandLogo size="sm" />
+          <span className="text-[20px] font-bold tracking-[-0.02em] leading-none">
+            <span className="text-foreground">Simula</span>
+            <span className="bg-gradient-to-r from-sky-400 via-cyan-400 to-blue-500 bg-clip-text text-transparent">Pool</span>
+          </span>
         </div>
 
         {/* Desktop menu trigger */}
