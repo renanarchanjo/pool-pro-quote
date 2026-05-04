@@ -470,6 +470,7 @@ const PartnersManager = () => {
                           onChange={(e) => { const file = e.target.files?.[0]; if (file) handleReplaceLogo(partner, file); }} />
                         <Button variant="ghost" size="sm" onClick={() => document.getElementById(`replace-logo-${partner.id}`)?.click()} disabled={saving}><Upload className="w-4 h-4" /></Button>
                       </div>
+                      <Button variant="ghost" size="icon" onClick={() => setCatalogPartner({ id: partner.id, name: partner.name })} className="h-8 w-8" title="Catálogo Padrão"><Package className="w-4 h-4 text-primary" /></Button>
                       <Switch checked={partner.active} onCheckedChange={() => handleToggleActive(partner)} />
                       <Button variant="ghost" size="icon" onClick={() => handleDelete(partner)} className="text-destructive hover:text-destructive hover:bg-destructive/10"><Trash2 className="w-4 h-4" /></Button>
                     </div>
@@ -575,6 +576,7 @@ const PartnersManager = () => {
                         <input type="file" accept="image/*" className="hidden" id={`replace-logo-mob-${partner.id}`}
                           onChange={(e) => { const file = e.target.files?.[0]; if (file) handleReplaceLogo(partner, file); }} />
                         <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => document.getElementById(`replace-logo-mob-${partner.id}`)?.click()} disabled={saving}><Upload className="w-3.5 h-3.5" /></Button>
+                        <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setCatalogPartner({ id: partner.id, name: partner.name })} title="Catálogo"><Package className="w-3.5 h-3.5 text-primary" /></Button>
                         <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive hover:text-destructive hover:bg-destructive/10" onClick={() => handleDelete(partner)}><Trash2 className="w-3.5 h-3.5" /></Button>
                       </div>
                     </div>
@@ -636,6 +638,14 @@ const PartnersManager = () => {
           </div>
         )}
       </Card>
+      {catalogPartner && (
+        <PartnerCatalogManager
+          partnerId={catalogPartner.id}
+          partnerName={catalogPartner.name}
+          open={!!catalogPartner}
+          onOpenChange={(o) => !o && setCatalogPartner(null)}
+        />
+      )}
     </div>
   );
 };
