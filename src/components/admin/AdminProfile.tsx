@@ -62,21 +62,52 @@ const AdminProfile = () => {
     }
     setFetchingCnpj(true);
     try {
-      const r = await fetch(`https://publica.cnpj.ws/cnpj/${clean}`);
-      if (!r.ok) throw new Error("CNPJ não encontrado");
-      const j = await r.json();
-      const e = j.estabelecimento || {};
-      const ruaNumero = [e.tipo_logradouro, e.logradouro, e.numero].filter(Boolean).join(" ");
-      const partes = [ruaNumero, e.complemento, e.bairro ? `Bairro ${e.bairro}` : null].filter(Boolean);
-      const cepDigits = (e.cep || "").replace(/\D/g, "");
+      // 1) BrasilAPI (CORS habilitado, gratuito, sem rate-limit agressivo)
+      let data: any = null;
+      try {
+        const r = await fetch(`https://brasilapi.com.br/api/cnpj/v1/${clean}`);
+        if (r.ok) data = await r.json();
+      } catch {}
+
+      // 2) Fallback: publica.cnpj.ws
+      if (!data) {
+        try {
+          const r2 = await fetch(`https://publica.cnpj.ws/cnpj/${clean}`);
+          if (r2.ok) {
+            const j = await r2.json();
+            const e = j.estabelecimento || {};
+            data = {
+              razao_social: j.razao_social,
+              logradouro: e.logradouro,
+              numero: e.numero,
+              complemento: e.complemento,
+              bairro: e.bairro,
+              municipio: e.cidade?.nome,
+              uf: e.estado?.sigla,
+              cep: e.cep,
+              ddd_telefone_1: e.ddd1 && e.telefone1 ? `${e.ddd1}${e.telefone1}` : "",
+              email: e.email,
+            };
+          }
+        } catch {}
+      }
+
+      if (!data) throw new Error("CNPJ não encontrado ou serviço indisponível");
+
+      const ruaNumero = [data.logradouro, data.numero].filter(Boolean).join(", ");
+      const partes = [ruaNumero, data.complemento, data.bairro ? `Bairro ${data.bairro}` : null].filter(Boolean);
+      const cepDigits = (data.cep || "").toString().replace(/\D/g, "");
       const cepFmt = cepDigits.length === 8 ? `${cepDigits.slice(0, 5)}-${cepDigits.slice(5)}` : "";
-      setRazaoSocial(j.razao_social || razaoSocial);
+      const telDigits = (data.ddd_telefone_1 || "").toString().replace(/\D/g, "");
+      const telFmt = telDigits.length >= 10 ? `(${telDigits.slice(0, 2)}) ${telDigits.slice(2)}` : "";
+
+      setRazaoSocial(data.razao_social || razaoSocial);
       setAddress(partes.join(", "));
-      setCity(e.cidade?.nome || city);
-      setState(e.estado?.sigla || state);
-      setCep(cepFmt);
-      if (e.ddd1 && e.telefone1) setWhatsapp(`(${e.ddd1}) ${e.telefone1}`);
-      if (e.email) setCompanyEmail(e.email);
+      setCity(data.municipio || city);
+      setState(data.uf || state);
+      if (cepFmt) setCep(cepFmt);
+      if (telFmt) setWhatsapp(telFmt);
+      if (data.email) setCompanyEmail(data.email);
       toast.success("Dados preenchidos pelo CNPJ");
     } catch (err: any) {
       toast.error("Falha ao consultar CNPJ: " + (err?.message || "tente novamente"));
