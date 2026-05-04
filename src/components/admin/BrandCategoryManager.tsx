@@ -5,7 +5,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
-import { Plus, Pencil, Loader2, Trash2, ChevronDown, ChevronRight, Tag, CheckSquare, Square } from "lucide-react";
+import { Plus, Pencil, Loader2, Trash2, ChevronDown, ChevronRight, Tag, CheckSquare, Square, Download } from "lucide-react";
+import { exportStoreCatalog, downloadCatalogJson } from "@/lib/exportCatalog";
 import { toast } from "sonner";
 import { useStoreData } from "@/hooks/useStoreData";
 import { Badge } from "@/components/ui/badge";
@@ -245,14 +246,33 @@ const BrandCategoryManager = ({ mode = "brands" }: { mode?: "brands" | "categori
     );
   }
 
+  
+  const handleExportCatalog = async () => {
+    if (!store) return;
+    try {
+      toast.loading("Gerando catálogo...", { id: "export-catalog" });
+      const catalog = await exportStoreCatalog(store.id, store.name);
+      downloadCatalogJson(catalog, store.name);
+      const total = catalog.brands.reduce((s, b) => s + b.categories.reduce((sc, c) => sc + c.models.length, 0), 0);
+      toast.success(`Catálogo exportado: ${catalog.brands.length} marcas, ${total} modelos`, { id: "export-catalog" });
+    } catch (e: any) {
+      toast.error("Erro ao exportar: " + (e?.message || "desconhecido"), { id: "export-catalog" });
+    }
+  };
+
   return (
     <div className="space-y-8">
       {/* MARCA FORM - only in brands mode */}
       {mode === "brands" && (
         <Card className="p-6">
-          <h2 className="text-2xl font-bold mb-4">
-            {editingBrand ? "Editar Marca" : "Nova Marca"}
-          </h2>
+          <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
+            <h2 className="text-2xl font-bold">
+              {editingBrand ? "Editar Marca" : "Nova Marca"}
+            </h2>
+            <Button type="button" variant="outline" size="sm" onClick={handleExportCatalog} className="gap-2">
+              <Download className="w-4 h-4" /> Exportar Catálogo
+            </Button>
+          </div>
           <form onSubmit={handleBrandSubmit} className="space-y-4">
             <div className="grid md:grid-cols-2 gap-4">
               <div>

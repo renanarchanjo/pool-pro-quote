@@ -6,7 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { Loader2, Plus, Upload, Trash2, Image as ImageIcon, Trophy, Pencil, Check, Save, FolderPlus, Tag } from "lucide-react";
+import { Loader2, Plus, Upload, Trash2, Image as ImageIcon, Trophy, Pencil, Check, Save, FolderPlus, Tag, Package } from "lucide-react";
+import PartnerCatalogManager from "./PartnerCatalogManager";
 import { toast } from "sonner";
 import { validateImageFile } from "@/lib/validateImageFile";
 
@@ -59,6 +60,8 @@ const PartnersManager = () => {
   const [categories, setCategories] = useState<Record<string, PartnerCategory[]>>({});
   const [newCatName, setNewCatName] = useState<Record<string, string>>({});
   const [expandedPartner, setExpandedPartner] = useState<string | null>(null);
+
+  const [catalogPartner, setCatalogPartner] = useState<{ id: string; name: string } | null>(null);
 
   useEffect(() => {
     fetchPartners();
@@ -467,6 +470,7 @@ const PartnersManager = () => {
                           onChange={(e) => { const file = e.target.files?.[0]; if (file) handleReplaceLogo(partner, file); }} />
                         <Button variant="ghost" size="sm" onClick={() => document.getElementById(`replace-logo-${partner.id}`)?.click()} disabled={saving}><Upload className="w-4 h-4" /></Button>
                       </div>
+                      <Button variant="ghost" size="icon" onClick={() => setCatalogPartner({ id: partner.id, name: partner.name })} className="h-8 w-8" title="Catálogo Padrão"><Package className="w-4 h-4 text-primary" /></Button>
                       <Switch checked={partner.active} onCheckedChange={() => handleToggleActive(partner)} />
                       <Button variant="ghost" size="icon" onClick={() => handleDelete(partner)} className="text-destructive hover:text-destructive hover:bg-destructive/10"><Trash2 className="w-4 h-4" /></Button>
                     </div>
@@ -572,6 +576,7 @@ const PartnersManager = () => {
                         <input type="file" accept="image/*" className="hidden" id={`replace-logo-mob-${partner.id}`}
                           onChange={(e) => { const file = e.target.files?.[0]; if (file) handleReplaceLogo(partner, file); }} />
                         <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => document.getElementById(`replace-logo-mob-${partner.id}`)?.click()} disabled={saving}><Upload className="w-3.5 h-3.5" /></Button>
+                        <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setCatalogPartner({ id: partner.id, name: partner.name })} title="Catálogo"><Package className="w-3.5 h-3.5 text-primary" /></Button>
                         <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive hover:text-destructive hover:bg-destructive/10" onClick={() => handleDelete(partner)}><Trash2 className="w-3.5 h-3.5" /></Button>
                       </div>
                     </div>
@@ -633,6 +638,14 @@ const PartnersManager = () => {
           </div>
         )}
       </Card>
+      {catalogPartner && (
+        <PartnerCatalogManager
+          partnerId={catalogPartner.id}
+          partnerName={catalogPartner.name}
+          open={!!catalogPartner}
+          onOpenChange={(o) => !o && setCatalogPartner(null)}
+        />
+      )}
     </div>
   );
 };
