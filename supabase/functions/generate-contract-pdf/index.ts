@@ -283,7 +283,7 @@ Deno.serve(async (req) => {
 
     for (const c of clauseGroups) {
       writeTitle(c.title, { size: SIZE_BODY, align: "left", gapBefore: 4, gapAfter: 2 });
-      writeParagraph(`CLÁUSULA ${c.clauseNum}ª. ${c.text.replace(/\b${cn}\b/g, "VENDEDORA")}`);
+      writeParagraph(`CLÁUSULA ${c.clauseNum}ª. ${c.text}`);
     }
 
     // ===== Local e data =====
