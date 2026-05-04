@@ -127,13 +127,47 @@ const ContractsManager = () => {
   const openNew = () => { setForm(emptyForm); setProposalQuery(""); setOpen(true); };
 
   const linkProposal = async (p: any) => {
+    // Fetch enriched proposal data (model + brand + dimensions)
+    const { data: full } = await supabase
+      .from("proposals")
+      .select(`
+        id, customer_name, customer_city, customer_whatsapp, total_price,
+        pool_models (
+          name, length, width, depth,
+          categories ( name, brands ( name ) )
+        )
+      `)
+      .eq("id", p.id)
+      .maybeSingle();
+
+    const src: any = full || p;
+    const pm: any = src.pool_models || null;
+    const brandName = pm?.categories?.brands?.name || pm?.categories?.name || "";
+    const modelName = pm?.name || "";
+    const dims =
+      pm?.length && pm?.width
+        ? `${pm.length}m x ${pm.width}m${pm.depth ? ` x ${pm.depth}m` : ""}`
+        : "";
+
     setForm(prev => ({
       ...prev,
-      proposal_id: p.id,
-      buyer: { ...prev.buyer, name: p.customer_name || prev.buyer.name, phone: p.customer_whatsapp || prev.buyer.phone },
-      product: { ...prev.product, total_value: prev.product.total_value || String(p.total_price || "") },
+      proposal_id: src.id,
+      buyer: {
+        ...prev.buyer,
+        name: src.customer_name || prev.buyer.name,
+        phone: src.customer_whatsapp || prev.buyer.phone,
+        city: src.customer_city || prev.buyer.city,
+      },
+      product: {
+        ...prev.product,
+        pool_model: modelName || prev.product.pool_model,
+        brand: brandName || prev.product.brand,
+        size: dims || prev.product.size,
+        total_value: String(src.total_price ?? prev.product.total_value ?? ""),
+        city_forum: prev.product.city_forum || src.customer_city || "",
+      },
     }));
-    toast.success("Proposta vinculada");
+    toast.success("Proposta vinculada — dados preenchidos");
   };
 
   const addInstallment = () => setForm(p => ({ ...p, installments: [...p.installments, { cheque_number: "", value: "", due_date: "" }] }));
