@@ -68,9 +68,11 @@ const MatrizMobileBottomNav = () => {
         </button>
       </nav>
 
-      <FloatingPanel open={panelOpen} onClose={() => setPanelOpen(false)}>
-        <MatrizSidebarContent onNavigate={() => setPanelOpen(false)} isMobile />
-      </FloatingPanel>
+      <div className="md:hidden">
+        <FloatingPanel open={panelOpen} onClose={() => setPanelOpen(false)}>
+          <MatrizSidebarContent onNavigate={() => setPanelOpen(false)} isMobile />
+        </FloatingPanel>
+      </div>
     </>
   );
 };
