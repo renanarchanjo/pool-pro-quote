@@ -92,7 +92,13 @@ export const NotificationPrompt = () => {
             Ative as notificações e seja avisado na hora que um lead chegar.
           </p>
           <button
-            onClick={() => ativarNotificacoes()}
+            onClick={async () => {
+              try {
+                await ativarNotificacoes();
+              } finally {
+                handleDismiss();
+              }
+            }}
             disabled={loading}
             className="mt-2 text-xs font-semibold text-primary-foreground bg-primary px-4 py-1.5 rounded-lg hover:opacity-90 transition disabled:opacity-50"
           >
