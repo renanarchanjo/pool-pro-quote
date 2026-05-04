@@ -13,6 +13,8 @@ import ProtectedRoute from "@/components/ProtectedRoute";
 import SuspenseFallback from "@/components/SuspenseFallback";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import { supabase } from "@/integrations/supabase/client";
+import { useMobileKeyboard } from "@/hooks/useMobileKeyboard";
+import { useRoutePrefetch } from "@/hooks/useRoutePrefetch";
 
 // Eager load landing page for instant first paint
 import Index from "./pages/Index";
@@ -39,7 +41,13 @@ const queryClient = new QueryClient({
       staleTime: 1000 * 60 * 2,
       gcTime: 1000 * 60 * 10,
       refetchOnWindowFocus: false,
+      refetchOnReconnect: true,
       retry: 1,
+      networkMode: "online",
+    },
+    mutations: {
+      retry: 0,
+      networkMode: "online",
     },
   },
 });
@@ -64,6 +72,8 @@ function useAuthRedirect() {
 
 const AppInner = () => {
   useAuthRedirect();
+  useMobileKeyboard();
+  useRoutePrefetch();
 
   return (
     <BrowserRouter>
