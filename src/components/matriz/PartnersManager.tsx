@@ -588,47 +588,6 @@ const PartnersManager = () => {
                     </div>
                   </div>
 
-                  {/* Categories section */}
-                  {isExpanded && (
-                    <div className="ml-14 mt-1 mb-2 p-4 rounded-lg border border-border/50 bg-muted/30 space-y-3 animate-fade-in">
-                      <h3 className="text-sm font-semibold flex items-center gap-2">
-                        <FolderPlus className="w-4 h-4 text-primary" />
-                        Categorias de {partner.name}
-                      </h3>
-                      <p className="text-xs text-muted-foreground">
-                        Essas categorias serão criadas automaticamente quando um lojista selecionar este parceiro.
-                      </p>
-
-                      {partnerCats.length > 0 && (
-                        <div className="space-y-1.5">
-                          {partnerCats.map((cat) => (
-                            <div key={cat.id} className="flex items-center gap-2 p-2 rounded-lg bg-background border border-border/50">
-                              <Tag className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
-                              <span className="text-sm flex-1 truncate">{cat.name}</span>
-                              <Button variant="ghost" size="icon" className="h-6 w-6 text-destructive hover:text-destructive"
-                                onClick={() => handleDeleteCategory(partner.id, cat.id, cat.name)}>
-                                <Trash2 className="w-3 h-3" />
-                              </Button>
-                            </div>
-                          ))}
-                        </div>
-                      )}
-
-                      <div className="flex items-center gap-2">
-                        <Input
-                          value={newCatName[partner.id] || ""}
-                          onChange={(e) => setNewCatName((prev) => ({ ...prev, [partner.id]: e.target.value }))}
-                          placeholder="Nome da categoria"
-                          className="h-8 text-sm flex-1"
-                          onKeyDown={(e) => { if (e.key === "Enter") handleAddCategory(partner.id); }}
-                        />
-                        <Button size="sm" variant="outline" onClick={() => handleAddCategory(partner.id)}
-                          disabled={!(newCatName[partner.id] || "").trim()} className="h-8 gap-1">
-                          <Plus className="w-3.5 h-3.5" /> Adicionar
-                        </Button>
-                      </div>
-                    </div>
-                  )}
                 </div>
               );
             })}
@@ -657,3 +616,4 @@ const PartnersManager = () => {
 };
 
 export default PartnersManager;
+
