@@ -10,6 +10,7 @@ import PendingLeadsAlert from "@/components/admin/PendingLeadsAlert";
 import MobileBottomNav from "@/components/admin/MobileBottomNav";
 import PwaInstallBanner from "@/components/PwaInstallBanner";
 import { NotificationPrompt } from "@/components/NotificationPrompt";
+import BrandLogo from "@/components/BrandLogo";
 
 // Lazy load ALL sub-pages for smaller initial bundle
 const AdminDashboard = lazy(() => import("@/components/admin/AdminDashboard"));
@@ -126,16 +127,22 @@ const Admin = () => {
     <div className="h-dvh flex flex-col w-full bg-secondary overflow-hidden">
       {/* App Header */}
       <header
-        className="flex items-center justify-between border-b border-border bg-background px-4 shrink-0"
+        className="relative flex items-center justify-between border-b border-border bg-background px-4 shrink-0"
         style={{ height: 'calc(56px + var(--safe-area-top))', paddingTop: 'var(--safe-area-top)' }}
       >
         <div className="flex-1 min-w-0">
           <h1 className="text-[16px] md:text-[18px] font-semibold text-foreground truncate">{pageTitle}</h1>
         </div>
+
+        {/* Centered brand logo */}
+        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none" style={{ marginTop: 'calc(var(--safe-area-top) / 2)' }}>
+          <BrandLogo size="sm" />
+        </div>
+
         {/* Desktop menu trigger */}
         <button
           onClick={() => setPanelOpen(true)}
-          className="hidden md:flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground px-3 py-2 rounded-lg border border-border hover:border-primary/30 transition-all duration-150"
+          className="hidden md:flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground px-3 py-2 rounded-lg border border-border hover:border-primary/30 transition-all duration-150 relative z-10"
         >
           <MenuIcon className="w-4 h-4" strokeWidth={1.5} />
           <span>Menu</span>
