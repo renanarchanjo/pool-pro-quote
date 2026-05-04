@@ -1,11 +1,12 @@
+import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import ThemeToggle from "@/components/ThemeToggle";
 import BrandLogo from "@/components/BrandLogo";
-import { LogOut } from "lucide-react";
+import { LogOut, ChevronDown } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useStoreData } from "@/hooks/useStoreData";
-import { getAdminNavGroups, type SidebarNavItem } from "./adminNavItems";
+import { getAdminNavGroups, type SidebarNavGroup, type SidebarNavItem } from "./adminNavItems";
 
 interface AdminSidebarContentProps {
   onNavigate?: () => void;
