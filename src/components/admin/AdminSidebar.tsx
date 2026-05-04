@@ -18,7 +18,7 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useStoreData } from "@/hooks/useStoreData";
-import { getAdminNavGroups, type SidebarNavItem } from "./adminNavItems";
+import { getAdminNavGroups, type SidebarNavGroup, type SidebarNavItem } from "./adminNavItems";
 
 const AdminSidebar = () => {
   const navigate = useNavigate();
