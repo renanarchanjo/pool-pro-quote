@@ -439,8 +439,8 @@ const ContractsManager = () => {
                         busy={busyId === r.id}
                         isOwner={isOwner}
                         onGenerate={() => generatePdf(r.id)}
-                        onDownload={() => downloadPdf(r.pdf_path)}
-                        onDownloadSigned={() => downloadPdf(r.signed_pdf_path)}
+                        onDownload={() => downloadPdf(r.pdf_path, { buyerName: r.buyer_name, date: r.created_at })}
+                        onDownloadSigned={() => downloadPdf(r.signed_pdf_path, { buyerName: r.buyer_name, date: r.created_at, signed: true })}
                         onSetStatus={(s) => setStatus(r.id, s)}
                         onDelete={() => removeContract(r.id)}
                         onUploadSigned={(f) => uploadSigned(r.id, f)}
