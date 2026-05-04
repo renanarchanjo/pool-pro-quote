@@ -1787,6 +1787,24 @@ export type Database = {
           },
         ]
       }
+      store_contract_clauses: {
+        Row: {
+          clauses: Json
+          store_id: string
+          updated_at: string
+        }
+        Insert: {
+          clauses?: Json
+          store_id: string
+          updated_at?: string
+        }
+        Update: {
+          clauses?: Json
+          store_id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       store_partners: {
         Row: {
           created_at: string
