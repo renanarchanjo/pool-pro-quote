@@ -52,22 +52,28 @@ const StorePartnersManager = () => {
       const { error: linkError } = await supabase.from("store_partners").insert({ store_id: store.id, partner_id: partnerId });
       if (linkError) { toast.error("Erro ao vincular parceiro"); setToggling(null); return; }
 
-      // 2. Create brand for this store if it doesn't exist
-      const { data: existingBrand } = await supabase
-        .from("brands")
-        .select("id")
-        .eq("store_id", store.id)
-        .eq("name", partner.name)
-        .maybeSingle();
-
-      if (existingBrand) {
-        // Re-activate if it was inactive, set partner_id
-        await supabase.from("brands").update({ active: true, logo_url: partner.logo_url, partner_id: partnerId } as any).eq("id", existingBrand.id);
-      } else {
-        const { error: brandError } = await supabase
-          .from("brands")
-          .insert({ name: partner.name, store_id: store.id, logo_url: partner.logo_url, active: true, partner_id: partnerId } as any);
-        if (brandError) { console.error("Erro ao criar marca:", brandError); }
+      // 2. Apply partner standard catalog (if any) via edge function
+      try {
+        toast.loading("Importando catálogo padrão do parceiro...", { id: "apply-cat" });
+        const { data, error: fnErr } = await supabase.functions.invoke("apply-partner-catalog", {
+          body: { store_id: store.id, partner_id: partnerId },
+        });
+        if (fnErr) throw fnErr;
+        if (data?.applied) {
+          const s = data.summary || {};
+          toast.success(`Catálogo importado: ${s.insertedBrands || 0} marcas, ${s.insertedModels || 0} modelos`, { id: "apply-cat" });
+        } else {
+          // Fallback: ensure brand exists for catalog
+          const { data: existingBrand } = await supabase.from("brands").select("id").eq("store_id", store.id).eq("name", partner.name).maybeSingle();
+          if (existingBrand) {
+            await supabase.from("brands").update({ active: true, logo_url: partner.logo_url, partner_id: partnerId } as any).eq("id", existingBrand.id);
+          } else {
+            await supabase.from("brands").insert({ name: partner.name, store_id: store.id, logo_url: partner.logo_url, active: true, partner_id: partnerId } as any);
+          }
+          toast.success(`Parceiro "${partner.name}" vinculado!`, { id: "apply-cat" });
+        }
+      } catch (e: any) {
+        toast.error("Vinculado, mas falha ao importar catálogo: " + (e?.message || "erro"), { id: "apply-cat" });
       }
 
       setLinkedIds(prev => new Set([...prev, partnerId]));
