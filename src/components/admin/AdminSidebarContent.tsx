@@ -144,7 +144,7 @@ const AdminSidebarContent = ({ onNavigate, isMobile = false }: AdminSidebarConte
       <div className="flex-1 overflow-y-auto px-1 py-1">
         {groups.map((g) => {
           if (isMobile && g.hideOnMobile) return null;
-          return <div key={g.label}>{renderGroup(g.label, g.items)}</div>;
+          return <div key={g.label}>{renderGroup(g)}</div>;
         })}
       </div>
 
