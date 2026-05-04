@@ -11,6 +11,7 @@ import MobileBottomNav from "@/components/admin/MobileBottomNav";
 import PwaInstallBanner from "@/components/PwaInstallBanner";
 import { NotificationPrompt } from "@/components/NotificationPrompt";
 import BrandLogo from "@/components/BrandLogo";
+import HeaderPlanBadge from "@/components/admin/HeaderPlanBadge";
 
 // Lazy load ALL sub-pages for smaller initial bundle
 const AdminDashboard = lazy(() => import("@/components/admin/AdminDashboard"));
@@ -140,14 +141,17 @@ const Admin = () => {
           </span>
         </div>
 
-        {/* Desktop menu trigger */}
-        <button
-          onClick={() => setPanelOpen(true)}
-          className="hidden md:flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground px-3 py-2 rounded-lg border border-border hover:border-primary/30 transition-all duration-150 relative z-10"
-        >
-          <MenuIcon className="w-4 h-4" strokeWidth={1.5} />
-          <span>Menu</span>
-        </button>
+        {/* Right-side actions */}
+        <div className="flex items-center gap-2 relative z-10">
+          {role === "owner" && store?.id && <HeaderPlanBadge storeId={store.id} />}
+          <button
+            onClick={() => setPanelOpen(true)}
+            className="hidden md:flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground px-3 py-2 rounded-lg border border-border hover:border-primary/30 transition-all duration-150"
+          >
+            <MenuIcon className="w-4 h-4" strokeWidth={1.5} />
+            <span>Menu</span>
+          </button>
+        </div>
       </header>
 
       {/* Scrollable content area */}
