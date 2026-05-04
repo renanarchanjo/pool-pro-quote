@@ -26,9 +26,13 @@ const MatrizSidebarContent = ({ onNavigate }: MatrizSidebarContentProps) => {
   };
 
   const handleLogout = async () => {
-    await supabase.auth.signOut();
+    try {
+      await supabase.auth.signOut({ scope: "local" });
+    } catch (err) {
+      console.warn("[Matriz] signOut error", err);
+    }
     toast.success("Logout realizado");
-    navigate("/login", { replace: true });
+    window.location.href = "/login";
   };
 
   const groups = getMatrizNavGroups();
