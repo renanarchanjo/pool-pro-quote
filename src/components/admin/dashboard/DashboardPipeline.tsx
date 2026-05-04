@@ -93,9 +93,14 @@ const DashboardPipeline = ({ proposals, onUpdateStatus, onViewProposal, onExport
     <div className="space-y-3">
       {/* Section label */}
       <div className="flex items-center justify-between">
-        <p className="text-[11px] font-semibold uppercase tracking-[0.06em] text-muted-foreground">
-          Propostas
-        </p>
+        <div className="flex items-center gap-2">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.06em] text-muted-foreground">
+            Propostas
+          </p>
+          <span className="inline-flex items-center justify-center min-w-[22px] h-[18px] px-1.5 text-[10px] font-bold text-primary bg-primary/10 rounded-full">
+            {proposals.length}
+          </span>
+        </div>
         <span className="text-[12px] text-muted-foreground">
           {filtered.length} de {proposals.length}
         </span>
