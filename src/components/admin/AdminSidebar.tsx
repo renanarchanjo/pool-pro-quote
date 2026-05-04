@@ -52,36 +52,80 @@ const AdminSidebar = () => {
     .toUpperCase();
 
   const groups = getAdminNavGroups(isOwner);
+  const catalogGroup = groups.find((g) => g.collapsible);
+  const catalogActive = catalogGroup?.items.some((i) => isActive(i.url));
+  const [catalogOpen, setCatalogOpen] = useState<boolean>(!!catalogActive);
 
-  const renderGroup = (label: string, items: SidebarNavItem[]) => {
-    if (items.length === 0) return null;
+  const renderItem = (item: SidebarNavItem, indent = false) => {
+    const active = isActive(item.url);
+    return (
+      <SidebarMenuItem key={item.title}>
+        <SidebarMenuButton
+          onClick={() => handleNav(item.url)}
+          isActive={active}
+          tooltip={item.title}
+          className={`cursor-pointer h-9 text-[13px] rounded-lg transition-all duration-150 ${indent ? "pl-7" : ""} ${
+            active
+              ? "bg-background border border-border font-semibold text-foreground"
+              : "text-muted-foreground hover:bg-accent font-normal border border-transparent"
+          }`}
+        >
+          <item.icon className={`h-4 w-4 shrink-0 ${active ? "text-primary" : "text-muted-foreground"}`} strokeWidth={1.5} />
+          <span>{item.title}</span>
+        </SidebarMenuButton>
+      </SidebarMenuItem>
+    );
+  };
+
+  const renderGroup = (group: SidebarNavGroup) => {
+    if (group.items.length === 0) return null;
+
+    if (group.collapsible) {
+      const ParentIcon = group.parentIcon;
+      const anyActive = group.items.some((i) => isActive(i.url));
+      return (
+        <SidebarGroup>
+          <SidebarGroupLabel className="text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground px-3 mt-4 mb-1">
+            {group.label}
+          </SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  onClick={() => setCatalogOpen((v) => !v)}
+                  isActive={anyActive}
+                  tooltip={group.label}
+                  className={`cursor-pointer h-9 text-[13px] rounded-lg transition-all duration-150 ${
+                    anyActive
+                      ? "bg-background border border-border font-semibold text-foreground"
+                      : "text-muted-foreground hover:bg-accent font-normal border border-transparent"
+                  }`}
+                >
+                  {ParentIcon && (
+                    <ParentIcon className={`h-4 w-4 shrink-0 ${anyActive ? "text-primary" : "text-muted-foreground"}`} strokeWidth={1.5} />
+                  )}
+                  <span className="flex-1">{group.label}</span>
+                  <ChevronDown
+                    className={`h-3.5 w-3.5 shrink-0 transition-transform duration-200 ${catalogOpen ? "" : "-rotate-90"}`}
+                    strokeWidth={2}
+                  />
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              {catalogOpen && group.items.map((item) => renderItem(item, true))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+      );
+    }
+
     return (
       <SidebarGroup>
         <SidebarGroupLabel className="text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground px-3 mt-4 mb-1">
-          {label}
+          {group.label}
         </SidebarGroupLabel>
         <SidebarGroupContent>
           <SidebarMenu>
-            {items.map((item) => {
-              const active = isActive(item.url);
-              return (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton
-                    onClick={() => handleNav(item.url)}
-                    isActive={active}
-                    tooltip={item.title}
-                    className={`cursor-pointer h-9 text-[13px] rounded-lg transition-all duration-150 ${
-                      active
-                        ? "bg-background border border-border font-semibold text-foreground"
-                        : "text-muted-foreground hover:bg-accent font-normal border border-transparent"
-                    }`}
-                  >
-                    <item.icon className={`h-4 w-4 shrink-0 ${active ? "text-primary" : "text-muted-foreground"}`} strokeWidth={1.5} />
-                    <span>{item.title}</span>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              );
-            })}
+            {group.items.map((item) => renderItem(item))}
           </SidebarMenu>
         </SidebarGroupContent>
       </SidebarGroup>
