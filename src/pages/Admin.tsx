@@ -198,7 +198,7 @@ const Admin = () => {
       <PwaInstallBanner />
       <NotificationPrompt />
       {role === "owner" && userId && (
-        <OwnerOnboardingModal userId={userId} storeName={store?.name} />
+        <OwnerOnboardingModal userId={userId} storeId={store?.id} storeName={store?.name} />
       )}
 
       {/* Desktop floating panel */}
