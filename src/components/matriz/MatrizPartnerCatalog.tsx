@@ -90,6 +90,9 @@ const MatrizPartnerCatalog = () => {
   const [inclForm, setInclForm] = useState({ name: "", description: "", quantity: "1", item_type: "material" });
   const [editingInclId, setEditingInclId] = useState<string | null>(null);
 
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [importing, setImporting] = useState(false);
+
   useEffect(() => {
     (async () => {
       const { data } = await supabase.from("partners").select("id, name").order("name");
