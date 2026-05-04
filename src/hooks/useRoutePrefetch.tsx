@@ -13,10 +13,12 @@ export function useRoutePrefetch() {
     if (conn?.saveData) return;
     if (conn?.effectiveType && /(^|-)2g$/.test(conn.effectiveType)) return;
 
-    const idle = (cb: () => void) =>
-      "requestIdleCallback" in window
-        ? (window as any).requestIdleCallback(cb, { timeout: 2500 })
-        : window.setTimeout(cb, 1500);
+    const idle = (cb: () => void) => {
+      if ("requestIdleCallback" in window) {
+        return (window as any).requestIdleCallback(cb, { timeout: 2500 });
+      }
+      return window.setTimeout(cb, 1500);
+    };
 
     const path = window.location.pathname;
 
