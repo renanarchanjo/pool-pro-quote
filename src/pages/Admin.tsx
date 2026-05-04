@@ -26,6 +26,7 @@ const SubscriptionManager = lazy(() => import("@/components/admin/SubscriptionMa
 const AdminLeads = lazy(() => import("@/components/admin/AdminLeads"));
 const InvoiceHistory = lazy(() => import("@/components/admin/InvoiceHistory"));
 const StorePartnersManager = lazy(() => import("@/components/admin/StorePartnersManager"));
+const ContractsManager = lazy(() => import("@/components/admin/ContractsManager"));
 
 const SubpageFallback = () => (
   <div className="flex justify-center py-12">
@@ -49,6 +50,7 @@ const PAGE_TITLES: Record<string, string> = {
   "parceiros": "Marcas Parceiras",
   "performance": "Performance",
   "comissao": "Comissão",
+  "contratos": "Contratos",
 };
 
 const Admin = () => {

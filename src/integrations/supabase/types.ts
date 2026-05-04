@@ -200,6 +200,198 @@ export type Database = {
           },
         ]
       }
+      contract_buyer_data: {
+        Row: {
+          address: string | null
+          city: string | null
+          contract_id: string
+          cpf: string | null
+          created_at: string
+          id: string
+          name: string
+          phone: string | null
+          rg: string | null
+        }
+        Insert: {
+          address?: string | null
+          city?: string | null
+          contract_id: string
+          cpf?: string | null
+          created_at?: string
+          id?: string
+          name: string
+          phone?: string | null
+          rg?: string | null
+        }
+        Update: {
+          address?: string | null
+          city?: string | null
+          contract_id?: string
+          cpf?: string | null
+          created_at?: string
+          id?: string
+          name?: string
+          phone?: string | null
+          rg?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contract_buyer_data_contract_id_fkey"
+            columns: ["contract_id"]
+            isOneToOne: true
+            referencedRelation: "contracts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      contract_product_data: {
+        Row: {
+          brand: string | null
+          city_forum: string | null
+          color: string | null
+          contract_date: string
+          contract_id: string
+          created_at: string
+          id: string
+          payment_conditions: string | null
+          payment_installments: Json
+          pool_model: string | null
+          size: string | null
+          total_value: number
+        }
+        Insert: {
+          brand?: string | null
+          city_forum?: string | null
+          color?: string | null
+          contract_date?: string
+          contract_id: string
+          created_at?: string
+          id?: string
+          payment_conditions?: string | null
+          payment_installments?: Json
+          pool_model?: string | null
+          size?: string | null
+          total_value?: number
+        }
+        Update: {
+          brand?: string | null
+          city_forum?: string | null
+          color?: string | null
+          contract_date?: string
+          contract_id?: string
+          created_at?: string
+          id?: string
+          payment_conditions?: string | null
+          payment_installments?: Json
+          pool_model?: string | null
+          size?: string | null
+          total_value?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contract_product_data_contract_id_fkey"
+            columns: ["contract_id"]
+            isOneToOne: true
+            referencedRelation: "contracts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      contract_seller_data: {
+        Row: {
+          address: string | null
+          cep: string | null
+          city: string | null
+          cnpj: string | null
+          company_name: string | null
+          contract_id: string
+          created_at: string
+          email: string | null
+          id: string
+          phone: string | null
+          state: string | null
+          website: string | null
+        }
+        Insert: {
+          address?: string | null
+          cep?: string | null
+          city?: string | null
+          cnpj?: string | null
+          company_name?: string | null
+          contract_id: string
+          created_at?: string
+          email?: string | null
+          id?: string
+          phone?: string | null
+          state?: string | null
+          website?: string | null
+        }
+        Update: {
+          address?: string | null
+          cep?: string | null
+          city?: string | null
+          cnpj?: string | null
+          company_name?: string | null
+          contract_id?: string
+          created_at?: string
+          email?: string | null
+          id?: string
+          phone?: string | null
+          state?: string | null
+          website?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contract_seller_data_contract_id_fkey"
+            columns: ["contract_id"]
+            isOneToOne: true
+            referencedRelation: "contracts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      contracts: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          id: string
+          pdf_path: string | null
+          proposal_id: string | null
+          sent_at: string | null
+          signed_at: string | null
+          signed_pdf_path: string | null
+          status: Database["public"]["Enums"]["contract_status"]
+          store_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          pdf_path?: string | null
+          proposal_id?: string | null
+          sent_at?: string | null
+          signed_at?: string | null
+          signed_pdf_path?: string | null
+          status?: Database["public"]["Enums"]["contract_status"]
+          store_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          pdf_path?: string | null
+          proposal_id?: string | null
+          sent_at?: string | null
+          signed_at?: string | null
+          signed_pdf_path?: string | null
+          status?: Database["public"]["Enums"]["contract_status"]
+          store_id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       included_item_template_items: {
         Row: {
           cost: number
@@ -2055,6 +2247,12 @@ export type Database = {
     }
     Enums: {
       app_role: "owner" | "seller" | "super_admin"
+      contract_status:
+        | "rascunho"
+        | "enviado"
+        | "aguardando_assinatura"
+        | "assinado"
+        | "cancelado"
       proposal_status:
         | "nova"
         | "enviada"
@@ -2189,6 +2387,13 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["owner", "seller", "super_admin"],
+      contract_status: [
+        "rascunho",
+        "enviado",
+        "aguardando_assinatura",
+        "assinado",
+        "cancelado",
+      ],
       proposal_status: [
         "nova",
         "enviada",
