@@ -246,7 +246,7 @@ const BrandCategoryManager = ({ mode = "brands" }: { mode?: "brands" | "categori
     );
   }
 
-  const [exporting, setExporting] = [false, () => {}] as any; // placeholder removed below
+  
   const handleExportCatalog = async () => {
     if (!store) return;
     try {
