@@ -1,5 +1,6 @@
 import { memo } from "react";
 import { Proposal, ProposalStatus, STATUS_CONFIG, formatCurrency } from "./types";
+import { TrendingDown } from "lucide-react";
 
 interface Props {
   proposals: Proposal[];
@@ -31,77 +32,85 @@ const DashboardFunnel = ({ proposals }: Props) => {
 
   return (
     <div className="bg-card border border-border rounded-xl p-4 md:p-5 h-full">
-      <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground mb-4">
-        Funil de Vendas
-      </p>
+      <div className="flex items-center justify-between mb-4">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+          Funil de Vendas
+        </p>
+        <span className="text-[11px] font-semibold bg-muted text-muted-foreground px-2 py-0.5 rounded">
+          {((counts.fechada / total) * 100).toFixed(1)}% conversão
+        </span>
+      </div>
 
-      <div className="space-y-2">
-        {FUNNEL_STAGES.map((stage) => {
+      <div className="space-y-3">
+        {FUNNEL_STAGES.map((stage, idx) => {
           const count = counts[stage.status];
           const config = STATUS_CONFIG[stage.status];
           const rev = revenue[stage.status];
           const fillPct = (count / maxCount) * 100;
 
+          // drop vs previous *active* stage
+          let dropPct: number | null = null;
+          if (idx > 0 && stage.status !== "perdida") {
+            const prev = FUNNEL_STAGES[idx - 1];
+            if (prev.status !== "perdida") {
+              const prevCount = counts[prev.status];
+              if (prevCount > 0) {
+                dropPct = ((prevCount - count) / prevCount) * 100;
+              }
+            }
+          }
+
           return (
             <div key={stage.status}>
-              {/* Desktop: single row */}
-              <div className="hidden md:flex items-center gap-3 h-10">
-                <span className="text-[16px] font-bold text-foreground min-w-[20px] text-right tabular-nums">
-                  {count}
-                </span>
-                <span className="text-[14px] font-medium text-foreground min-w-[130px]">
-                  {stage.label}
-                </span>
-                <div className="flex-1 h-1 bg-muted rounded-full overflow-hidden">
-                  {count > 0 && (
-                    <div
-                      className="h-full rounded-full transition-all duration-300"
-                      style={{
-                        width: `${Math.max(fillPct, 4)}%`,
-                        backgroundColor: config.color,
-                      }}
-                    />
-                  )}
-                </div>
-                <span className="text-[13px] font-medium text-muted-foreground min-w-[100px] text-right tabular-nums">
-                  {formatCurrency(rev)}
-                </span>
-              </div>
-
-              {/* Mobile: compact layout — number + name + bar, value below */}
-              <div className="flex md:hidden flex-col gap-1">
-                <div className="flex items-center gap-2.5">
-                  <span className="text-[14px] font-bold text-foreground min-w-[18px] text-right tabular-nums">
-                    {count}
-                  </span>
-                  <span className="text-[13px] font-medium text-foreground min-w-[100px]">
+              <div className="flex items-center justify-between mb-1.5">
+                <div className="flex items-center gap-2 min-w-0">
+                  <span
+                    className="w-2 h-2 rounded-full shrink-0"
+                    style={{ backgroundColor: config.color }}
+                  />
+                  <span className="text-[13px] font-medium text-foreground truncate">
                     {stage.label}
                   </span>
-                  <div className="flex-1 h-1 bg-muted rounded-full overflow-hidden">
-                    {count > 0 && (
-                      <div
-                        className="h-full rounded-full transition-all duration-300"
-                        style={{
-                          width: `${Math.max(fillPct, 4)}%`,
-                          backgroundColor: config.color,
-                        }}
-                      />
-                    )}
-                  </div>
                 </div>
-                <span className="text-[12px] text-muted-foreground pl-[30px] tabular-nums">
+                <div className="flex items-center gap-2 text-right shrink-0">
+                  <span className="text-[13px] font-bold text-foreground tabular-nums">
+                    {count}
+                  </span>
+                  <span className="text-[11px] text-muted-foreground tabular-nums hidden sm:inline">
+                    {formatCurrency(rev)}
+                  </span>
+                </div>
+              </div>
+              <div className="relative h-2.5 bg-muted rounded-full overflow-hidden">
+                <div
+                  className="h-full rounded-full transition-all duration-500 ease-out"
+                  style={{
+                    width: `${Math.max(fillPct, count > 0 ? 4 : 0)}%`,
+                    backgroundColor: config.color,
+                  }}
+                />
+              </div>
+              <div className="flex items-center justify-between mt-1 sm:hidden">
+                <span className="text-[11px] text-muted-foreground tabular-nums">
                   {formatCurrency(rev)}
                 </span>
               </div>
+              {dropPct !== null && dropPct > 0 && (
+                <div className="flex items-center gap-1 mt-1 ml-4">
+                  <TrendingDown className="w-3 h-3 text-muted-foreground" />
+                  <span className="text-[10px] text-muted-foreground">
+                    ↓ {dropPct.toFixed(0)}% vs etapa anterior
+                  </span>
+                </div>
+              )}
             </div>
           );
         })}
       </div>
 
-      <div className="mt-4 pt-3 border-t border-border flex items-center justify-between">
-        <span className="text-[12px] md:text-[13px] text-muted-foreground">{proposals.length} propostas no total</span>
-        <span className="text-[11px] font-semibold bg-muted text-muted-foreground px-2 py-0.5 rounded">
-          {((counts.fechada / total) * 100).toFixed(1)}% taxa geral
+      <div className="mt-4 pt-3 border-t border-border">
+        <span className="text-[12px] text-muted-foreground">
+          {proposals.length} proposta{proposals.length !== 1 ? "s" : ""} no total
         </span>
       </div>
     </div>

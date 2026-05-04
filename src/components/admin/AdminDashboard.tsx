@@ -15,8 +15,10 @@ import ProposalView from "@/components/simulator/ProposalView";
 import { Proposal, ProposalStatus, STATUS_CONFIG } from "./dashboard/types";
 import DashboardKPIs from "./dashboard/DashboardKPIs";
 import DashboardFunnel from "./dashboard/DashboardFunnel";
+import DashboardActivity from "./dashboard/DashboardActivity";
 import DashboardAlerts from "./dashboard/DashboardAlerts";
 import DashboardPipeline from "./dashboard/DashboardPipeline";
+import DashboardPlanUsage from "./dashboard/DashboardPlanUsage";
 import DashboardPdfReport from "./dashboard/DashboardPdfReport";
 import { format, startOfMonth, endOfMonth, subDays, subMonths, startOfDay, endOfDay } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -328,9 +330,18 @@ const AdminDashboard = () => {
     <div className="space-y-4 md:space-y-6">
       {/* Header with filters */}
       <div className="space-y-3">
-        <p className="text-sm text-muted-foreground">
-          Olá, <span className="font-medium text-foreground">{profile?.full_name || "Lojista"}</span>
-        </p>
+        <div>
+          <h1 className="text-[20px] md:text-[24px] font-bold text-foreground leading-tight">
+            {(() => {
+              const h = new Date().getHours();
+              const greeting = h < 12 ? "Bom dia" : h < 18 ? "Boa tarde" : "Boa noite";
+              return `${greeting}, ${profile?.full_name || "Lojista"} 👋`;
+            })()}
+          </h1>
+          <p className="text-[12px] md:text-[13px] text-muted-foreground capitalize mt-0.5">
+            {format(new Date(), "EEEE, d 'de' MMMM 'de' yyyy", { locale: ptBR })}
+          </p>
+        </div>
         <div className="flex items-center gap-2 flex-wrap">
           {isOwner && teamMembers.length > 1 && (
             <Select value={filterMember} onValueChange={setFilterMember}>
@@ -409,10 +420,18 @@ const AdminDashboard = () => {
           />
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-2 md:gap-4" style={{ pageBreakInside: "avoid" }}>
+        {isOwner && store?.id && (
+          <div style={{ pageBreakInside: "avoid" }}>
+            <DashboardPlanUsage storeId={store.id} />
+          </div>
+        )}
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 md:gap-4" style={{ pageBreakInside: "avoid" }}>
           <DashboardFunnel proposals={filteredProposals} />
-          <DashboardAlerts proposals={filteredProposals} onSelectProposal={setViewingProposal} />
+          <DashboardActivity proposals={filteredProposals} />
         </div>
+
+        <DashboardAlerts proposals={filteredProposals} onSelectProposal={setViewingProposal} />
 
         <DashboardPipeline
           proposals={filteredProposals}
