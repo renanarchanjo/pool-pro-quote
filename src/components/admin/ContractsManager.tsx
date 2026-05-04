@@ -314,9 +314,11 @@ const ContractsManager = () => {
 
       if (generatePdf) {
         const { data, error } = await supabase.functions.invoke("generate-contract-pdf", { body: { contract_id: cid } });
-        if (error || !data?.url) throw new Error(error?.message || "Falha ao gerar PDF");
+        if (error) throw new Error(error?.message || "Falha ao gerar PDF");
         toast.success("Contrato gerado", { id: tId });
-        window.open(data.url, "_blank");
+        const { data: row } = await supabase.from("contracts").select("pdf_path, contract_buyer_data(name)").eq("id", cid).maybeSingle();
+        const buyerName = (row as any)?.contract_buyer_data?.name || "";
+        if (row?.pdf_path) await downloadPdf(row.pdf_path, { buyerName, date: new Date().toISOString() });
       } else {
         toast.success("Rascunho salvo", { id: tId });
       }
