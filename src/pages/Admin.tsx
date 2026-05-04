@@ -50,6 +50,7 @@ const PAGE_TITLES: Record<string, string> = {
   "parceiros": "Marcas Parceiras",
   "performance": "Performance",
   "comissao": "Comissão",
+  "contratos": "Contratos",
 };
 
 const Admin = () => {
