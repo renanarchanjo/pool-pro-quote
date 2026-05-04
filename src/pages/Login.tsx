@@ -40,10 +40,29 @@ const Login = () => {
   }, [navigate]);
 
   useEffect(() => {
+    // If user arrives via "?as=lojista" (from /lojista landing), force lojista context:
+    // sign out any existing super_admin session so they can log in as a store owner.
+    const params = new URLSearchParams(window.location.search);
+    const forceContext = params.get("as"); // "lojista" | "matriz" | null
+
     // Clear history so back button can't return to admin/matriz after logout
     window.history.replaceState(null, "", "/login");
 
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
+      if (session && forceContext) {
+        const { data: roleData } = await supabase
+          .from("user_roles")
+          .select("role")
+          .eq("user_id", session.user.id);
+        const isSuperAdmin = roleData?.some((r: any) => r.role === "super_admin");
+        const wantsMatriz = forceContext === "matriz";
+        const mismatch = (wantsMatriz && !isSuperAdmin) || (!wantsMatriz && isSuperAdmin);
+        if (mismatch) {
+          await supabase.auth.signOut({ scope: "local" });
+          setCheckingSession(false);
+          return;
+        }
+      }
       if (session) {
         void redirectByRole(session.user.id);
       }
