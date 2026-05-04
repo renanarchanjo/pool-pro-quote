@@ -218,6 +218,90 @@ const AdminProfile = () => {
               </p>
             </div>
 
+            {/* Dados Cadastrais (usados nos contratos) */}
+            {isOwner && (
+              <div className="border-t border-border pt-5 space-y-4">
+                <div>
+                  <h3 className="text-sm font-semibold flex items-center gap-2">
+                    <FileText className="w-4 h-4 text-primary" />
+                    Dados Cadastrais (usados nos contratos)
+                  </h3>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Estes dados serão preenchidos automaticamente em todos os contratos gerados pela sua loja.
+                  </p>
+                </div>
+
+                <div className="space-y-2">
+                  <Label>CNPJ</Label>
+                  <div className="flex gap-2">
+                    <Input
+                      value={cnpj}
+                      onChange={(e) => setCnpj(e.target.value)}
+                      placeholder="00.000.000/0000-00"
+                    />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={handleFetchCnpj}
+                      disabled={fetchingCnpj}
+                      className="gap-1 shrink-0"
+                    >
+                      {fetchingCnpj ? <Loader2 className="w-4 h-4 animate-spin" /> : <Search className="w-4 h-4" />}
+                      Buscar dados
+                    </Button>
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    Clique em "Buscar dados" para preencher automaticamente Razão Social, endereço, CEP, telefone e e-mail.
+                  </p>
+                </div>
+
+                <div className="space-y-2">
+                  <Label>Razão Social</Label>
+                  <Input value={razaoSocial} onChange={(e) => setRazaoSocial(e.target.value)} placeholder="Razão social da empresa" />
+                </div>
+
+                <div className="space-y-2">
+                  <Label className="flex items-center gap-2">
+                    <MapPin className="w-4 h-4 text-muted-foreground" />
+                    Endereço completo (rua, número, bairro)
+                  </Label>
+                  <Input value={address} onChange={(e) => setAddress(e.target.value)} placeholder="Rua, número, bairro" />
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                  <div className="space-y-2">
+                    <Label>Cidade</Label>
+                    <Input value={city} onChange={(e) => setCity(e.target.value)} />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Estado (UF)</Label>
+                    <Input value={state} onChange={(e) => setState(e.target.value.toUpperCase())} maxLength={2} />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>CEP</Label>
+                    <Input value={cep} onChange={(e) => setCep(e.target.value)} placeholder="00000-000" />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <div className="space-y-2">
+                    <Label className="flex items-center gap-2">
+                      <Phone className="w-4 h-4 text-muted-foreground" />
+                      Telefone / WhatsApp
+                    </Label>
+                    <Input value={whatsapp} onChange={(e) => setWhatsapp(e.target.value)} placeholder="(00) 00000-0000" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="flex items-center gap-2">
+                      <Mail className="w-4 h-4 text-muted-foreground" />
+                      E-mail comercial
+                    </Label>
+                    <Input value={companyEmail} onChange={(e) => setCompanyEmail(e.target.value)} placeholder="contato@empresa.com" />
+                  </div>
+                </div>
+              </div>
+            )}
+
             {logoUrl && (
               <div className="space-y-2">
                 <Label className="flex items-center gap-2">
