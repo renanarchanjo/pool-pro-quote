@@ -12,6 +12,7 @@ import PwaInstallBanner from "@/components/PwaInstallBanner";
 import { NotificationPrompt } from "@/components/NotificationPrompt";
 import BrandLogo from "@/components/BrandLogo";
 import HeaderPlanBadge from "@/components/admin/HeaderPlanBadge";
+import OwnerOnboardingModal from "@/components/admin/OwnerOnboardingModal";
 
 // Lazy load ALL sub-pages for smaller initial bundle
 const AdminDashboard = lazy(() => import("@/components/admin/AdminDashboard"));
@@ -58,6 +59,7 @@ const PAGE_TITLES: Record<string, string> = {
 const Admin = () => {
   const [authLoading, setAuthLoading] = useState(true);
   const [panelOpen, setPanelOpen] = useState(false);
+  const [userId, setUserId] = useState<string | null>(null);
   const navigate = useNavigate();
   const location = useLocation();
   const { store, role, loading: storeLoading } = useStoreData();
@@ -76,7 +78,7 @@ const Admin = () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (cancelled) return;
       if (!session) { navigate("/login"); return; }
-
+      setUserId(session.user.id);
       const { data: roleData } = await supabase
         .from("user_roles")
         .select("role")
@@ -195,6 +197,9 @@ const Admin = () => {
       <MobileBottomNav />
       <PwaInstallBanner />
       <NotificationPrompt />
+      {role === "owner" && userId && (
+        <OwnerOnboardingModal userId={userId} storeName={store?.name} />
+      )}
 
       {/* Desktop floating panel */}
       <FloatingPanel open={panelOpen} onClose={() => setPanelOpen(false)}>
