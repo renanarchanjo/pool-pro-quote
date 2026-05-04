@@ -10,6 +10,7 @@ import PendingLeadsAlert from "@/components/admin/PendingLeadsAlert";
 import MobileBottomNav from "@/components/admin/MobileBottomNav";
 import PwaInstallBanner from "@/components/PwaInstallBanner";
 import { NotificationPrompt } from "@/components/NotificationPrompt";
+import BrandLogo from "@/components/BrandLogo";
 
 // Lazy load ALL sub-pages for smaller initial bundle
 const AdminDashboard = lazy(() => import("@/components/admin/AdminDashboard"));
