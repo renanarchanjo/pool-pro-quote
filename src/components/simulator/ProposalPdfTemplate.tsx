@@ -124,6 +124,8 @@ const ProposalPdfTemplate = ({
   bannersToShow,
   resolveSrc,
 }: ProposalPdfTemplateProps) => {
+  // Apenas opcionais com valor > 0 aparecem na proposta (mas o cálculo total preserva tudo)
+  const visibleOptionals = selectedOptionals.filter((o) => o.price > 0);
   const optionalsTotal = selectedOptionals.reduce((s, o) => s + o.price, 0);
   // If we have an authoritative saved total (e.g. from the DB), back-solve the
   // displayed "valor base" so that base + opcionais === total saved.
