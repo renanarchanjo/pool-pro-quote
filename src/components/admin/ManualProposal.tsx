@@ -88,6 +88,7 @@ const ManualProposal = () => {
   const [optionalGroups, setOptionalGroups] = useState<{ id: string; name: string; description: string | null; display_order: number }[]>([]);
   const [partners, setPartners] = useState<Partner[]>([]);
   const [includedItemsTotal, setIncludedItemsTotal] = useState(0);
+  const [includedItemsList, setIncludedItemsList] = useState<{ name: string; quantity: number; item_type: string }[]>([]);
 
   const [selectedBrandId, setSelectedBrandId] = useState<string>("");
   const [selectedCategoryId, setSelectedCategoryId] = useState<string>("");
