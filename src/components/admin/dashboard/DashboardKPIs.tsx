@@ -26,7 +26,7 @@ const DashboardKPIs = ({
   const isOwner = role === "owner";
 
   const faturamentoBruto = closed.reduce((s, p) => s + p.total_price, 0);
-  const totalWorked = proposals.filter((p) => p.status !== "nova").length;
+  const totalWorked = proposals.filter((p) => p.status === "fechada" || p.status === "perdida" || p.status === "em_negociacao").length;
   const conversionRate = totalWorked > 0 ? (closed.length / totalWorked) * 100 : 0;
   const ticketMedio = closed.length > 0 ? faturamentoBruto / closed.length : 0;
 
@@ -41,8 +41,8 @@ const DashboardKPIs = ({
   const fatCurr = closedCurr.reduce((s, p) => s + p.total_price, 0);
   const ticketPrev = closedPrev.length > 0 ? fatPrev / closedPrev.length : 0;
   const ticketCurr = closedCurr.length > 0 ? fatCurr / closedCurr.length : 0;
-  const workedPrev = previousSet.filter((p) => p.status !== "nova").length;
-  const workedCurr = currentSet.filter((p) => p.status !== "nova").length;
+  const workedPrev = previousSet.filter((p) => p.status === "fechada" || p.status === "perdida" || p.status === "em_negociacao").length;
+  const workedCurr = currentSet.filter((p) => p.status === "fechada" || p.status === "perdida" || p.status === "em_negociacao").length;
   const convPrev = workedPrev > 0 ? (closedPrev.length / workedPrev) * 100 : 0;
   const convCurr = workedCurr > 0 ? (closedCurr.length / workedCurr) * 100 : 0;
 

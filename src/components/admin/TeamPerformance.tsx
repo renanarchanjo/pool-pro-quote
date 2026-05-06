@@ -114,7 +114,7 @@ const TeamPerformance = () => {
       const revenuePredicted = memberProposals
         .filter(p => p.status !== "fechada" && p.status !== "perdida")
         .reduce((s, p) => s + p.total_price * (STATUS_PROB[p.status] || 0), 0);
-      const totalDecided = closed.length + lost.length;
+      const totalDecided = closed.length + lost.length + inNeg.length;
       const conversionRate = totalDecided > 0 ? (closed.length / totalDecided) * 100 : 0;
       const ticketMedio = closed.length > 0 ? revenueClosed / closed.length : 0;
       const responseTimes = acceptedDists
@@ -153,11 +153,12 @@ const TeamPerformance = () => {
 
   const totals = useMemo(() => filteredMetrics.reduce((acc, m) => ({
     leads: acc.leads + m.leadsAccepted, closed: acc.closed + m.closed,
-    lost: acc.lost + m.lost, revenue: acc.revenue + m.revenueClosed,
+    lost: acc.lost + m.lost, inNeg: acc.inNeg + m.inNegotiation,
+    revenue: acc.revenue + m.revenueClosed,
     predicted: acc.predicted + m.revenuePredicted,
-  }), { leads: 0, closed: 0, lost: 0, revenue: 0, predicted: 0 }), [filteredMetrics]);
+  }), { leads: 0, closed: 0, lost: 0, inNeg: 0, revenue: 0, predicted: 0 }), [filteredMetrics]);
 
-  const teamConversion = (totals.closed + totals.lost) > 0 ? (totals.closed / (totals.closed + totals.lost)) * 100 : 0;
+  const teamConversion = (totals.closed + totals.lost + totals.inNeg) > 0 ? (totals.closed / (totals.closed + totals.lost + totals.inNeg)) * 100 : 0;
 
   const dateLabel = dateRange?.from
     ? dateRange.to

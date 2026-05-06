@@ -43,7 +43,7 @@ const DashboardPdfReport = ({ proposals, profileName, storeName, dateLabel }: Pr
     .reduce((s, p) => s + p.total_price * STATUS_PROBABILITY[p.status], 0);
 
   const closedCount = thisMonth.filter((p) => p.status === "fechada").length;
-  const totalExclNew = thisMonth.filter((p) => p.status !== "nova").length;
+  const totalExclNew = thisMonth.filter((p) => p.status === "fechada" || p.status === "perdida" || p.status === "em_negociacao").length;
   const conversionRate = totalExclNew > 0 ? (closedCount / totalExclNew) * 100 : 0;
   const ticketMedio = closedCount > 0 ? revenueClosed / closedCount : 0;
   const lostCount = thisMonth.filter((p) => p.status === "perdida").length;
