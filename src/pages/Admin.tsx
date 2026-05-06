@@ -180,8 +180,7 @@ const Admin = () => {
               )}
               {isOwner && (
                 <>
-                  <Route path="marcas" element={<BrandCategoryManager mode="brands" />} />
-                  <Route path="categorias" element={<BrandCategoryManager mode="categories" />} />
+                  <Route path="marcas" element={<BrandsAndCategoriesPage />} />
                   <Route path="modelos" element={<PoolModelManager />} />
                   <Route path="opcionais" element={<OptionalManager />} />
                   <Route path="equipe" element={<TeamManager />} />
