@@ -398,11 +398,11 @@ const ProposalPdfTemplate = ({
 
             {/* NÃO INCLUSOS */}
             {model.not_included_items && model.not_included_items.length > 0 && (
-              <div>
+              <div style={{ pageBreakInside: "avoid", breakInside: "avoid" }}>
                 <p style={{ ...LABEL, marginBottom: "12px", color: "#B91C1C" }}>Não inclusos</p>
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "6px 32px" }}>
                   {model.not_included_items.map((item, i) => (
-                    <div key={i} style={{ fontSize: "12px", color: C_TEXT, position: "relative", paddingLeft: "14px" }}>
+                    <div key={i} style={{ fontSize: "12px", color: C_TEXT, position: "relative", paddingLeft: "14px", breakInside: "avoid" }}>
                       <span style={{ position: "absolute", left: 0, top: "8px", width: "5px", height: "5px", borderRadius: "50%", background: "#DC2626" }} />
                       {item}
                     </div>
