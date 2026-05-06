@@ -318,7 +318,7 @@ export const generatePDFBlob = async ({
     const blob = await (html2pdf() as any)
       .set({
         margin: [10, 10, 10, 10],
-        image: { type: "jpeg", quality: mobile ? 0.7 : 0.75 },
+        image: { type: "jpeg", quality: mobile ? 0.9 : 0.92 },
         html2canvas: {
           scale,
           useCORS: true,
