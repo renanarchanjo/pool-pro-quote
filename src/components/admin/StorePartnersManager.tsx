@@ -194,7 +194,7 @@ const StorePartnersManager = () => {
                         <p className="font-medium truncate">{partner.name}</p>
                         {isLinked && <CheckCircle2 className="w-4 h-4 text-primary shrink-0" />}
                       </div>
-                      <p className="text-xs text-muted-foreground">#{partner.ranking} no ranking</p>
+                      
                     </div>
                   </label>
                   {toggling === partner.id && <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />}
