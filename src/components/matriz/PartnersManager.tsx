@@ -444,7 +444,7 @@ const PartnersManager = () => {
                         <>
                           <p className="font-semibold truncate">{partner.name}</p>
                           <p className="text-xs text-muted-foreground">
-                            {RANKING_LABELS[partner.ranking] || `${partner.ranking}º Lugar`} · {partner.active ? "Ativo" : "Oculto"} · {partner.display_percent}%
+                            {RANKING_LABELS[partner.ranking] || `${partner.ranking}º Lugar`} · {partner.active ? "Ativo" : "Oculto"}
                           </p>
                           {partner.banner_1_url && <p className="text-[10px] text-muted-foreground mt-1 truncate">🖼 Banner configurado</p>}
                           <button onClick={() => setExpandedPartner(isExpanded ? null : partner.id)} className="mt-1 text-xs text-primary hover:underline flex items-center gap-1">
