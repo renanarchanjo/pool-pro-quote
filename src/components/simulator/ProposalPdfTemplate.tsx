@@ -396,22 +396,43 @@ const ProposalPdfTemplate = ({
               </div>
             )}
 
-            {/* NÃO INCLUSOS */}
-            {model.not_included_items && model.not_included_items.length > 0 && (
-              <div style={{ pageBreakInside: "avoid", breakInside: "avoid" }}>
-                <p style={{ ...LABEL, marginBottom: "12px", color: "#B91C1C" }}>Não inclusos</p>
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "6px 32px" }}>
-                  {model.not_included_items.map((item, i) => (
-                    <div key={i} style={{ fontSize: "12px", color: C_TEXT, position: "relative", paddingLeft: "14px", breakInside: "avoid" }}>
-                      <span style={{ position: "absolute", left: 0, top: "8px", width: "5px", height: "5px", borderRadius: "50%", background: "#DC2626" }} />
-                      {item}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
           </div>
         </div>
+
+        {/* PÁGINA INTERMEDIÁRIA: NÃO INCLUSOS (garante não cortar) */}
+        {model.not_included_items && model.not_included_items.length > 0 && (
+          <div data-pdf-page style={PAGE_STYLE}>
+            <div
+              style={{
+                height: "72px",
+                minHeight: "72px",
+                background: C_BLUE,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                padding: `0 ${PAD_X}px`,
+                color: "#FFFFFF",
+                flexShrink: 0,
+              }}
+            >
+              <div style={{ fontSize: "14px", fontWeight: 600 }}>Itens não inclusos</div>
+              <div style={{ fontSize: "11px", color: "rgba(255,255,255,0.85)" }}>
+                {storeName || "SIMULAPOOL"}
+              </div>
+            </div>
+            <div style={{ flex: 1, minHeight: 0, padding: `28px ${PAD_X}px`, display: "flex", flexDirection: "column" }}>
+              <p style={{ ...LABEL, marginBottom: "16px", color: "#B91C1C" }}>O que NÃO está incluso nesta proposta</p>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px 32px" }}>
+                {model.not_included_items.map((item, i) => (
+                  <div key={i} style={{ fontSize: "13px", color: C_TEXT, position: "relative", paddingLeft: "16px", lineHeight: 1.6 }}>
+                    <span style={{ position: "absolute", left: 0, top: "8px", width: "6px", height: "6px", borderRadius: "50%", background: "#DC2626" }} />
+                    {item}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
 
 
         <div data-pdf-page style={PAGE_STYLE}>
