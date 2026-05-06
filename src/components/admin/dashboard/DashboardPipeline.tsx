@@ -6,7 +6,7 @@ import {
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
 import {
-  Search, Eye, Download, CalendarIcon, X, FileText, ArrowUpDown,
+  Search, Eye, Download, CalendarIcon, X, FileText, ArrowUpDown, Users,
 } from "lucide-react";
 import {
   Proposal, ProposalStatus, STATUS_CONFIG,
@@ -22,7 +22,8 @@ interface Props {
   onUpdateStatus: (id: string, status: ProposalStatus) => void;
   onViewProposal: (p: Proposal) => void;
   onExportPDF: (p: Proposal) => void;
-  
+  members?: { id: string; full_name: string }[];
+  getMemberId?: (p: Proposal) => string | null;
 }
 
 const DATE_PRESETS = [
@@ -44,9 +45,10 @@ const formatDaysStyled = (days: number): { text: string; color: string } => {
   return { text: `${days}d`, color: "#DC2626" };
 };
 
-const DashboardPipeline = ({ proposals, onUpdateStatus, onViewProposal, onExportPDF }: Props) => {
+const DashboardPipeline = ({ proposals, onUpdateStatus, onViewProposal, onExportPDF, members = [], getMemberId }: Props) => {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [memberFilter, setMemberFilter] = useState<string>("all");
   const [sortMode, setSortMode] = useState<SortMode>("recente");
   const [datePreset, setDatePreset] = useState<string>("all");
   const [dateFrom, setDateFrom] = useState<Date | undefined>();
@@ -71,6 +73,9 @@ const DashboardPipeline = ({ proposals, onUpdateStatus, onViewProposal, onExport
 
   let filtered = proposals;
   if (statusFilter !== "all") filtered = filtered.filter((p) => p.status === statusFilter);
+  if (memberFilter !== "all" && getMemberId) {
+    filtered = filtered.filter((p) => getMemberId(p) === memberFilter);
+  }
   if (search.trim()) {
     const q = search.toLowerCase();
     filtered = filtered.filter((p) =>
@@ -146,6 +151,23 @@ const DashboardPipeline = ({ proposals, onUpdateStatus, onViewProposal, onExport
               <SelectItem value="tempo">Mais Antigo</SelectItem>
             </SelectContent>
           </Select>
+
+          {members.length > 0 && (
+            <Select value={memberFilter} onValueChange={setMemberFilter}>
+              <SelectTrigger className="w-auto min-w-[130px] h-8 text-[13px] bg-input border-border rounded-md text-foreground whitespace-nowrap shrink-0">
+                <div className="flex items-center gap-1.5">
+                  <Users className="w-3.5 h-3.5" />
+                  <SelectValue placeholder="Colaborador" />
+                </div>
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todos colaboradores</SelectItem>
+                {members.map((m) => (
+                  <SelectItem key={m.id} value={m.id}>{m.full_name || "Sem nome"}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
         </div>
 
         <Popover open={datePopoverOpen} onOpenChange={setDatePopoverOpen}>
