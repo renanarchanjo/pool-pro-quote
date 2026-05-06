@@ -1288,115 +1288,125 @@ const PoolModelManager = () => {
         if (filtered.length === 0) return <p className="text-muted-foreground text-center py-8">Nenhum modelo encontrado.</p>;
 
         return (
-          <div className="grid gap-3">
+          <div className="grid gap-4 grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
             {filtered.map((model) => {
-              const isExpanded = expandedModel === model.id;
               const brandName = getBrandName(model.category_id);
               const catName = categories.find((c) => c.id === model.category_id)?.name || "Sem categoria";
               const mOpts = modelOptionals.filter((o) => o.model_id === model.id);
               const mIncl = includedItems.filter((i) => i.model_id === model.id);
               const inclTotal = mIncl.reduce((s, i) => s + Number(i.price), 0);
               const displayPrice = model.base_price + inclTotal;
+              const isSelected = selectedModels.includes(model.id);
 
               return (
-                <Card key={model.id} className={`transition-all ${selectedModels.includes(model.id) ? "ring-2 ring-primary/30 border-primary bg-primary/5" : "border-border"}`}>
+                <Card
+                  key={model.id}
+                  className={`group overflow-hidden transition-all flex flex-col ${
+                    isSelected ? "ring-2 ring-primary border-primary" : "border-border hover:border-primary/40"
+                  } ${!model.active ? "opacity-60" : ""}`}
+                >
+                  {/* Photo */}
                   <div
-                    className="flex items-center gap-3 p-4 cursor-pointer"
+                    className="relative aspect-[4/3] bg-muted cursor-pointer overflow-hidden"
                     onClick={() => toggleSelectModel(model.id)}
                   >
-                    <Checkbox checked={selectedModels.includes(model.id)} className="shrink-0 pointer-events-none" />
-                    <div className="flex-1 min-w-0 flex items-center gap-2 flex-wrap" onClick={(e) => { e.stopPropagation(); setExpandedModel(isExpanded ? null : model.id); }}>
-                      <h3 className="font-semibold">{model.name}</h3>
-                      {brandName && <Badge variant="outline" className="text-xs">{brandName}</Badge>}
-                      <Badge variant="secondary" className="text-xs">{catName}</Badge>
-                      {mIncl.length > 0 && <Badge className="text-xs bg-emerald-100 text-emerald-700 dark:bg-emerald-900 dark:text-emerald-300">{mIncl.length} incluso(s)</Badge>}
-                      {mOpts.length > 0 && <Badge className="text-xs bg-accent text-accent-foreground">{mOpts.length} dimensionado(s)</Badge>}
-                      {!model.active && <Badge variant="destructive" className="text-xs">Inativo</Badge>}
-                    </div>
-                    <span className="font-bold text-primary whitespace-nowrap">R$ {fmt(displayPrice)}</span>
-                    <div className="flex items-center gap-2 shrink-0" onClick={(e) => e.stopPropagation()}>
-                      <Switch checked={model.active} onCheckedChange={() => toggleActive(model.id, model.active)} />
-                      <Button variant="outline" size="sm" onClick={() => handleEdit(model)}><Pencil className="w-4 h-4" /></Button>
-                      <AlertDialog>
-                        <AlertDialogTrigger asChild>
-                          <Button variant="outline" size="sm" className="text-destructive hover:text-destructive"><Trash2 className="w-4 h-4" /></Button>
-                        </AlertDialogTrigger>
-                        <AlertDialogContent>
-                          <AlertDialogHeader>
-                            <AlertDialogTitle>Excluir "{model.name}"?</AlertDialogTitle>
-                            <AlertDialogDescription>Esta ação não pode ser desfeita.</AlertDialogDescription>
-                          </AlertDialogHeader>
-                          <AlertDialogFooter>
-                            <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                            <AlertDialogAction onClick={() => handleDelete(model.id)} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">Excluir</AlertDialogAction>
-                          </AlertDialogFooter>
-                        </AlertDialogContent>
-                      </AlertDialog>
-                    </div>
-                  </div>
-                  {isExpanded && (
-                    <div className="px-4 pb-4 pt-0 border-t border-border/50 space-y-3">
-                      {model.cost > 0 && (
-                        <div className="flex gap-4 text-sm text-muted-foreground flex-wrap pt-3">
-                          <span>Custo piscina: R$ {fmt(model.cost)}</span>
-                          <span>Margem: {model.margin_percent}%</span>
-                          <span className="font-medium text-emerald-600">Lucro piscina: R$ {fmt(model.base_price - model.cost)}</span>
-                        </div>
-                      )}
-                      {mIncl.length > 0 && (
-                        <div>
-                          <span className="font-semibold text-sm">Itens Inclusos ({mIncl.length}):</span>
-                          <div className="space-y-1 mt-1">
-                            {mIncl.map((item) => (
-                              <div key={item.id} className="flex justify-between text-sm px-2 py-1 bg-muted/50 rounded">
-                                <span>{item.name}</span>
-                                <div className="flex gap-3 text-muted-foreground">
-                                  <span>C: R$ {fmt(Number(item.cost))}</span>
-                                  <span className="font-medium text-foreground">V: R$ {fmt(Number(item.price))}</span>
-                                </div>
-                              </div>
-                            ))}
-                            <div className="flex justify-between text-sm px-2 py-1 bg-primary/10 rounded font-bold">
-                              <span>Total (Piscina + Itens)</span>
-                              <span className="text-primary">R$ {fmt(displayPrice)}</span>
-                            </div>
-                          </div>
-                        </div>
-                      )}
-                      {(model.length || model.width || model.depth) && (
-                        <p className="text-sm text-muted-foreground">Dimensões: {model.length}m × {model.width}m × {model.depth}m</p>
-                      )}
-                      <div className="grid md:grid-cols-2 gap-2 text-sm text-muted-foreground">
-                        <div>Entrega: {model.delivery_days}d | Instalação: {model.installation_days}d</div>
-                        {model.payment_terms && <div>Pagamento: {model.payment_terms}</div>}
+                    {model.photo_url ? (
+                      <img
+                        src={model.photo_url}
+                        alt={model.name}
+                        className="w-full h-full object-cover transition-transform group-hover:scale-105"
+                        loading="lazy"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-muted-foreground/40 text-xs">
+                        Sem foto
                       </div>
-                      {model.differentials?.length > 0 && (
-                        <div>
-                          <span className="font-semibold text-sm">Diferenciais:</span>
-                          <div className="flex flex-wrap gap-1 mt-1">{model.differentials.map((d, i) => <Badge key={i} variant="secondary">{d}</Badge>)}</div>
-                        </div>
+                    )}
+                    <div className="absolute top-2 left-2" onClick={(e) => e.stopPropagation()}>
+                      <Checkbox
+                        checked={isSelected}
+                        onCheckedChange={() => toggleSelectModel(model.id)}
+                        className="bg-background/80 backdrop-blur-sm border-2"
+                      />
+                    </div>
+                    {!model.active && (
+                      <div className="absolute top-2 right-2">
+                        <Badge variant="destructive" className="text-[10px] h-5">Inativo</Badge>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Info */}
+                  <div className="p-3 flex flex-col gap-2 flex-1">
+                    <div className="min-w-0">
+                      <h3 className="font-semibold text-sm truncate" title={model.name}>{model.name}</h3>
+                      <p className="text-[11px] text-muted-foreground truncate">
+                        {brandName ? `${brandName} • ` : ""}{catName}
+                      </p>
+                    </div>
+
+                    <div className="flex flex-wrap gap-1">
+                      {mIncl.length > 0 && (
+                        <Badge className="text-[10px] h-5 bg-emerald-100 text-emerald-700 dark:bg-emerald-900 dark:text-emerald-300">
+                          {mIncl.length} incl.
+                        </Badge>
                       )}
                       {mOpts.length > 0 && (
-                        <div>
-                          <span className="font-semibold text-sm">Opcionais Dimensionados:</span>
-                          <div className="space-y-1 mt-1">
-                            {mOpts.map((o) => (
-                              <div key={o.id} className="flex justify-between text-sm px-2 py-1 bg-muted/50 rounded">
-                                <span>{o.name}</span>
-                                <span className="font-medium text-primary">R$ {fmt(o.price)}</span>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      )}
-                      {model.notes && (
-                        <div className="p-3 bg-muted/50 rounded-md">
-                          <span className="font-semibold text-sm">Observações:</span>
-                          <p className="text-sm mt-1">{model.notes}</p>
-                        </div>
+                        <Badge className="text-[10px] h-5 bg-accent text-accent-foreground">
+                          {mOpts.length} dim.
+                        </Badge>
                       )}
                     </div>
-                  )}
+
+                    <p className="font-bold text-primary text-sm mt-auto">R$ {fmt(displayPrice)}</p>
+
+                    {/* Actions */}
+                    <div className="flex items-center justify-between gap-1 pt-2 border-t border-border/50">
+                      <Switch
+                        checked={model.active}
+                        onCheckedChange={() => toggleActive(model.id, model.active)}
+                        aria-label="Ativar/Desativar"
+                      />
+                      <div className="flex gap-1">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8"
+                          onClick={() => handleEdit(model)}
+                          title="Editar"
+                        >
+                          <Pencil className="w-4 h-4" />
+                        </Button>
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10"
+                              title="Excluir"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Excluir "{model.name}"?</AlertDialogTitle>
+                              <AlertDialogDescription>Esta ação não pode ser desfeita.</AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                              <AlertDialogAction
+                                onClick={() => handleDelete(model.id)}
+                                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                              >
+                                Excluir
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
+                      </div>
+                    </div>
+                  </div>
                 </Card>
               );
             })}
