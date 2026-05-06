@@ -2,7 +2,8 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Loader2, Handshake, Image as ImageIcon, CheckCircle2 } from "lucide-react";
+import { Loader2, Handshake, Image as ImageIcon, CheckCircle2, RefreshCw } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { useStoreData } from "@/hooks/useStoreData";
 
@@ -20,6 +21,30 @@ const StorePartnersManager = () => {
   const [linkedIds, setLinkedIds] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
   const [toggling, setToggling] = useState<string | null>(null);
+  const [syncing, setSyncing] = useState<string | null>(null);
+
+  const handleSync = async (partnerId: string, partnerName: string) => {
+    if (!store?.id) return;
+    setSyncing(partnerId);
+    try {
+      toast.loading(`Atualizando catálogo de ${partnerName}...`, { id: "sync-cat" });
+      const { data, error } = await supabase.functions.invoke("apply-partner-catalog", {
+        body: { store_id: store.id, partner_id: partnerId, mode: "sync" },
+      });
+      if (error) throw error;
+      const s = data?.summary || {};
+      const total = (s.addedBrands || 0) + (s.addedCategories || 0) + (s.addedModels || 0) + (s.addedOptionalGroups || 0) + (s.addedTemplates || 0);
+      if (total === 0) {
+        toast.success("Catálogo já está atualizado — nenhum item novo.", { id: "sync-cat" });
+      } else {
+        toast.success(`Atualização concluída: ${s.addedModels || 0} novos modelos, ${s.addedCategories || 0} categorias, ${s.addedBrands || 0} marcas adicionadas.`, { id: "sync-cat" });
+      }
+    } catch (e: any) {
+      toast.error("Falha ao atualizar: " + (e?.message || "erro"), { id: "sync-cat" });
+    } finally {
+      setSyncing(null);
+    }
+  };
 
   useEffect(() => {
     if (store?.id) loadData();
@@ -145,33 +170,53 @@ const StorePartnersManager = () => {
             {partners.map((partner) => {
               const isLinked = linkedIds.has(partner.id);
               return (
-                <label
+                <div
                   key={partner.id}
-                  className={`flex items-center gap-4 p-4 rounded-xl border cursor-pointer transition-all hover:bg-muted/50 ${
-                    isLinked ? "bg-primary/5 border-primary/30" : "bg-background border-border/50"
+                  className={`flex items-center gap-4 p-4 rounded-xl border transition-all ${
+                    isLinked ? "bg-primary/5 border-primary/30" : "bg-background border-border/50 hover:bg-muted/50"
                   }`}
                 >
-                  <Checkbox
-                    checked={isLinked}
-                    disabled={toggling === partner.id}
-                    onCheckedChange={(checked) => handleToggle(partner.id, !!checked)}
-                  />
-                  <div className="w-10 h-10 rounded-lg bg-background border border-border/50 flex items-center justify-center overflow-hidden p-1 shrink-0">
-                    {partner.logo_url ? (
-                      <img src={partner.logo_url} alt={partner.name} className="max-w-full max-h-full object-contain" />
-                    ) : (
-                      <ImageIcon className="w-4 h-4 text-muted-foreground/40" />
-                    )}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2">
-                      <p className="font-medium truncate">{partner.name}</p>
-                      {isLinked && <CheckCircle2 className="w-4 h-4 text-primary shrink-0" />}
+                  <label className="flex items-center gap-4 flex-1 min-w-0 cursor-pointer">
+                    <Checkbox
+                      checked={isLinked}
+                      disabled={toggling === partner.id}
+                      onCheckedChange={(checked) => handleToggle(partner.id, !!checked)}
+                    />
+                    <div className="w-10 h-10 rounded-lg bg-background border border-border/50 flex items-center justify-center overflow-hidden p-1 shrink-0">
+                      {partner.logo_url ? (
+                        <img src={partner.logo_url} alt={partner.name} className="max-w-full max-h-full object-contain" />
+                      ) : (
+                        <ImageIcon className="w-4 h-4 text-muted-foreground/40" />
+                      )}
                     </div>
-                    <p className="text-xs text-muted-foreground">#{partner.ranking} no ranking</p>
-                  </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2">
+                        <p className="font-medium truncate">{partner.name}</p>
+                        {isLinked && <CheckCircle2 className="w-4 h-4 text-primary shrink-0" />}
+                      </div>
+                      <p className="text-xs text-muted-foreground">#{partner.ranking} no ranking</p>
+                    </div>
+                  </label>
                   {toggling === partner.id && <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />}
-                </label>
+                  {isLinked && (
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="outline"
+                      onClick={() => handleSync(partner.id, partner.name)}
+                      disabled={syncing === partner.id || toggling === partner.id}
+                      className="shrink-0"
+                      title="Importar novos modelos da Matriz sem apagar suas edições"
+                    >
+                      {syncing === partner.id ? (
+                        <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                      ) : (
+                        <RefreshCw className="w-3.5 h-3.5" />
+                      )}
+                      <span className="ml-1.5">Atualizar</span>
+                    </Button>
+                  )}
+                </div>
               );
             })}
           </div>
