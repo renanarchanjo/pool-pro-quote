@@ -1208,6 +1208,14 @@ const PoolModelManager = () => {
                     ))}
                   </div>
                 )}
+
+                {/* Final save */}
+                <div className="flex flex-wrap gap-2 pt-2 border-t border-border">
+                  <Button type="button" onClick={handleFinalSave} className="gradient-primary text-white">
+                    <Save className="w-4 h-4 mr-1" /> Salvar Alterações
+                  </Button>
+                  <Button type="button" variant="outline" onClick={resetForm}>Concluir</Button>
+                </div>
               </div>
             )}
           </TabsContent>
