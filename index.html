@@ -25,7 +25,11 @@
         img-src 'self' data: blob: 
           https://*.supabase.co 
           https://*.supabase.in
-          https://i.postimg.cc;
+          https://i.postimg.cc
+          https://*.basemaps.cartocdn.com
+          https://*.tile.openstreetmap.org
+          https://*.openstreetmap.org;
+        worker-src 'self' blob:;
         connect-src 'self' 
           https://*.supabase.co 
           https://*.supabase.in
@@ -33,7 +37,10 @@
           https://api.onesignal.com
           https://brasilapi.com.br
           https://servicodados.ibge.gov.br
-          https://nominatim.openstreetmap.org;
+          https://nominatim.openstreetmap.org
+          https://*.basemaps.cartocdn.com
+          https://*.tile.openstreetmap.org
+          https://*.openstreetmap.org;
         frame-ancestors 'none';
       ">
     <meta name="msapplication-tap-highlight" content="no" />
