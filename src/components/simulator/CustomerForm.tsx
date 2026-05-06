@@ -141,11 +141,18 @@ const CustomerForm = ({ onSubmit, onBack, model, optionals, includedItemsTotal =
           <div>
             <div className="flex items-center justify-between mb-1">
               <Label htmlFor="uf">Estado (UF) *</Label>
-              {geoLoading && (
-                <span className="text-xs text-muted-foreground flex items-center gap-1">
-                  <Loader2 className="w-3 h-3 animate-spin" /> Detectando...
-                </span>
-              )}
+              <button
+                type="button"
+                onClick={() => handleDetectLocation(false)}
+                disabled={geoLoading}
+                className="text-xs text-primary hover:underline flex items-center gap-1 disabled:opacity-50"
+              >
+                {geoLoading ? (
+                  <><Loader2 className="w-3 h-3 animate-spin" /> Detectando...</>
+                ) : (
+                  <><MapPin className="w-3 h-3" /> Usar minha localização</>
+                )}
+              </button>
             </div>
             <select
               id="uf"
