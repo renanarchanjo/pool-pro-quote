@@ -489,15 +489,26 @@ const PoolModelManager = () => {
         display_order: existingItem?.display_order ?? 0,
         item_type: inlineInclForm.item_type,
       };
-      const { error } = await supabase.from("model_included_items").update(data).eq("id", inlineEditIncl);
+      const { data: updated, error } = await supabase
+        .from("model_included_items")
+        .update(data)
+        .eq("id", inlineEditIncl)
+        .select();
       if (error) throw error;
+      if (!updated || updated.length === 0) {
+        toast.error("Sem permissão para editar este item. Apenas o proprietário da loja pode editar itens inclusos.");
+        return;
+      }
       setIncludedItems(prev => prev.map(item =>
         item.id === inlineEditIncl ? { ...item, ...data } : item
       ));
       toast.success("Item atualizado");
       setInlineEditIncl(null);
       if (existingItem) await syncIncludedItemsToModel(existingItem.model_id);
-    } catch { toast.error("Erro ao salvar item incluso"); }
+    } catch (err: any) {
+      console.error("Erro ao salvar item incluso:", err);
+      toast.error(`Erro ao salvar: ${err?.message || "tente novamente"}`);
+    }
   };
   const syncIncludedItemsToModel = async (modelId: string) => {
     try {
