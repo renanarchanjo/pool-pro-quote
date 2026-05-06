@@ -1161,7 +1161,7 @@ const PoolModelManager = () => {
                       <Select value={optForm.item_type} onValueChange={(v) => setOptForm({ ...optForm, item_type: v })}>
                         <SelectTrigger><SelectValue /></SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="material">Equip. e Produtos</SelectItem>
+                          <SelectItem value="material">Equipamentos</SelectItem>
                           <SelectItem value="mao_de_obra">Mão de Obra</SelectItem>
                         </SelectContent>
                       </Select>
