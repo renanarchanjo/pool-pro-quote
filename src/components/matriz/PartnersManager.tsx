@@ -390,16 +390,6 @@ const PartnersManager = () => {
                       partner.active ? "bg-background border-border/50" : "bg-muted/30 border-border/20 opacity-60"
                     }`}
                   >
-                    <div className="shrink-0 flex flex-col items-center gap-1">
-                      <div className={`w-10 h-10 rounded-lg flex items-center justify-center font-bold text-sm ${
-                        partner.ranking === 1 ? "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400" :
-                        partner.ranking === 2 ? "bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-300" :
-                        partner.ranking === 3 ? "bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400" :
-                        "bg-muted text-muted-foreground"
-                      }`}>
-                        #{partner.ranking}
-                      </div>
-                    </div>
                     <div className="flex flex-col items-center shrink-0 gap-0.5">
                       <div className="w-14 h-14 rounded-xl bg-background border border-border/50 flex items-center justify-center overflow-hidden p-1.5">
                         {partner.logo_url ? (
