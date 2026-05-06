@@ -73,6 +73,9 @@ const DashboardPipeline = ({ proposals, onUpdateStatus, onViewProposal, onExport
 
   let filtered = proposals;
   if (statusFilter !== "all") filtered = filtered.filter((p) => p.status === statusFilter);
+  if (memberFilter !== "all" && getMemberId) {
+    filtered = filtered.filter((p) => getMemberId(p) === memberFilter);
+  }
   if (search.trim()) {
     const q = search.toLowerCase();
     filtered = filtered.filter((p) =>
