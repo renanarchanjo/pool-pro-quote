@@ -426,14 +426,6 @@ const AdminDashboard = () => {
         </div>
 
         <DashboardAlerts proposals={filteredProposals} onSelectProposal={setViewingProposal} />
-
-        <DashboardPipeline
-          proposals={filteredProposals}
-          onUpdateStatus={updateStatus}
-          onViewProposal={setViewingProposal}
-          onExportPDF={handleExportProposalPDF}
-          
-        />
       </div>
 
       {/* Hidden proposal for PDF export */}
