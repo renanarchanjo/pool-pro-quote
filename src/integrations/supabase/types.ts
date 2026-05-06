@@ -1539,6 +1539,7 @@ export type Database = {
       }
       profiles: {
         Row: {
+          contract_terms_accepted_at: string | null
           created_at: string | null
           daily_lead_limit: number | null
           full_name: string | null
@@ -1547,6 +1548,7 @@ export type Database = {
           updated_at: string | null
         }
         Insert: {
+          contract_terms_accepted_at?: string | null
           created_at?: string | null
           daily_lead_limit?: number | null
           full_name?: string | null
@@ -1555,6 +1557,7 @@ export type Database = {
           updated_at?: string | null
         }
         Update: {
+          contract_terms_accepted_at?: string | null
           created_at?: string | null
           daily_lead_limit?: number | null
           full_name?: string | null
