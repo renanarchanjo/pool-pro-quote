@@ -58,8 +58,10 @@ if (isPreviewHost || isInIframe) {
     regs.forEach((r) => r.unregister());
   });
 } else {
-  // Auto-update: recarrega quando nova versão estiver disponível
+  // Auto-update: recarrega automaticamente quando nova versão for ativada
+  // (sem precisar limpar cookies/cache manualmente)
   registerSW({
+    immediate: true,
     onNeedRefresh() {
       window.location.reload();
     },
@@ -69,8 +71,17 @@ if (isPreviewHost || isInIframe) {
   });
 
   if ("serviceWorker" in navigator) {
+    let refreshing = false;
+    navigator.serviceWorker.addEventListener("controllerchange", () => {
+      if (refreshing) return;
+      refreshing = true;
+      window.location.reload();
+    });
+
     navigator.serviceWorker.ready.then((registration) => {
-      setInterval(() => registration.update(), 5 * 60 * 1000);
+      // Checa por atualizações a cada 60s para propagar rapidamente
+      registration.update();
+      setInterval(() => registration.update(), 60 * 1000);
     });
   }
 }
