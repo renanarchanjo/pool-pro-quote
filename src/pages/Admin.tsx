@@ -61,6 +61,7 @@ const PAGE_TITLES: Record<string, string> = {
 const Admin = () => {
   const [authLoading, setAuthLoading] = useState(true);
   const [panelOpen, setPanelOpen] = useState(false);
+  const [pwaGuideOpen, setPwaGuideOpen] = useState(false);
   const [userId, setUserId] = useState<string | null>(null);
   const navigate = useNavigate();
   const location = useLocation();
