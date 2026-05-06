@@ -88,6 +88,7 @@ const ManualProposal = () => {
   const [optionalGroups, setOptionalGroups] = useState<{ id: string; name: string; description: string | null; display_order: number }[]>([]);
   const [partners, setPartners] = useState<Partner[]>([]);
   const [includedItemsTotal, setIncludedItemsTotal] = useState(0);
+  const [includedItemsList, setIncludedItemsList] = useState<{ name: string; quantity: number; item_type: string }[]>([]);
 
   const [selectedBrandId, setSelectedBrandId] = useState<string>("");
   const [selectedCategoryId, setSelectedCategoryId] = useState<string>("");
@@ -126,14 +127,17 @@ const ManualProposal = () => {
   }, [optionals]);
 
   useEffect(() => {
-    if (!selectedModel) { setIncludedItemsTotal(0); return; }
+    if (!selectedModel) { setIncludedItemsTotal(0); setIncludedItemsList([]); return; }
     const fetchInclTotal = async () => {
       const { data } = await supabase
         .from("model_included_items")
-        .select("price")
+        .select("name, quantity, price, item_type")
         .eq("model_id", selectedModel.id)
-        .eq("active", true);
-      setIncludedItemsTotal((data || []).reduce((sum, item) => sum + Number(item.price), 0));
+        .eq("active", true)
+        .order("display_order");
+      const items = data || [];
+      setIncludedItemsTotal(items.reduce((sum, item) => sum + Number(item.price), 0));
+      setIncludedItemsList(items.map(i => ({ name: i.name, quantity: Number(i.quantity) || 1, item_type: i.item_type || "material" })));
     };
     fetchInclTotal();
   }, [selectedModel?.id]);
@@ -302,9 +306,16 @@ const ManualProposal = () => {
         {(() => {
           const cat = categories.find(c => c.id === selectedModel.category_id);
           const brand = cat?.brand_id ? brands.find(b => b.id === cat.brand_id) : null;
+          const inclFormatted = includedItemsList.map(i => {
+            const prefix = i.item_type === "mao_de_obra" ? "[MO] " : "";
+            return i.quantity > 1 ? `${i.quantity}x ${prefix}${i.name}` : `${prefix}${i.name}`;
+          });
+          const modelWithIncl = inclFormatted.length > 0
+            ? { ...selectedModel, included_items: inclFormatted }
+            : selectedModel;
           return (
             <ProposalView
-              model={selectedModel}
+              model={modelWithIncl}
               selectedOptionals={[...selectedOptionalsList, ...selectedModelOptsList.map((o: any) => ({ name: o.name, price: o.price }))]}
               customerData={{ name: customerName, city: `${customerCity} / ${customerUf}`, whatsapp: customerWhatsapp }}
               category={cat?.name || "Piscina"}
