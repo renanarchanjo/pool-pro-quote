@@ -17,7 +17,7 @@ import DashboardKPIs from "./dashboard/DashboardKPIs";
 import DashboardFunnel from "./dashboard/DashboardFunnel";
 import DashboardActivity from "./dashboard/DashboardActivity";
 import DashboardAlerts from "./dashboard/DashboardAlerts";
-import DashboardPipeline from "./dashboard/DashboardPipeline";
+
 import DashboardPlanUsage from "./dashboard/DashboardPlanUsage";
 import DashboardPdfReport from "./dashboard/DashboardPdfReport";
 import { format, startOfMonth, endOfMonth, subDays, subMonths, startOfDay, endOfDay } from "date-fns";
