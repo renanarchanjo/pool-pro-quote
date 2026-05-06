@@ -436,7 +436,7 @@ const ManualProposal = () => {
             <p>{selectedModel.length}m × {selectedModel.width}m{selectedModel.depth ? ` × ${selectedModel.depth}m` : ""}</p>
           )}
           <p className="font-semibold text-foreground">
-            Base: R$ {(selectedModel.base_price + includedItemsTotal).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+            Casco + Inclusos: R$ {(selectedModel.base_price + includedItemsTotal).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
           </p>
         </div>
       )}
@@ -588,7 +588,7 @@ const ManualProposal = () => {
             {selectedModel.length && selectedModel.width && (
               <p className="text-sm text-muted-foreground">{selectedModel.length}m × {selectedModel.width}m{selectedModel.depth ? ` × ${selectedModel.depth}m` : ""}</p>
             )}
-            <p className="text-sm text-muted-foreground">Base: R$ {(selectedModel.base_price + includedItemsTotal).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</p>
+            <p className="text-sm text-muted-foreground">Casco + Inclusos: R$ {(selectedModel.base_price + includedItemsTotal).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</p>
           </>
         ) : (
           <p className="text-muted-foreground">Nenhum modelo selecionado</p>
