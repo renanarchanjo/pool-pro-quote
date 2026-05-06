@@ -15,7 +15,7 @@ export interface SidebarNavGroup {
   items: SidebarNavItem[];
   /** Hide this group on mobile bottom-nav layouts */
   hideOnMobile?: boolean;
-  /** When true, render as a collapsible parent (Catálogo) */
+  /** When true, render as a collapsible parent (Meus Produtos) */
   collapsible?: boolean;
   /** Icon for the collapsible parent */
   parentIcon?: LucideIcon;
