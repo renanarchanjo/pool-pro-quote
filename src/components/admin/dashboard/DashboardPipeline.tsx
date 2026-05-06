@@ -45,9 +45,10 @@ const formatDaysStyled = (days: number): { text: string; color: string } => {
   return { text: `${days}d`, color: "#DC2626" };
 };
 
-const DashboardPipeline = ({ proposals, onUpdateStatus, onViewProposal, onExportPDF }: Props) => {
+const DashboardPipeline = ({ proposals, onUpdateStatus, onViewProposal, onExportPDF, members = [], getMemberId }: Props) => {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [memberFilter, setMemberFilter] = useState<string>("all");
   const [sortMode, setSortMode] = useState<SortMode>("recente");
   const [datePreset, setDatePreset] = useState<string>("all");
   const [dateFrom, setDateFrom] = useState<Date | undefined>();
