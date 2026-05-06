@@ -117,7 +117,7 @@ export default function ContractClausesEditor({ storeId, open, onOpenChange }: P
             {clauses.map((c, i) => (
               <div key={i} className="rounded-lg border border-border p-3 space-y-2 bg-card">
                 <div className="flex items-center gap-2">
-                  <span className="text-xs font-mono text-muted-foreground w-12 shrink-0">CLÁUSULA {i + 1}ª</span>
+                  <span className="text-xs font-mono text-muted-foreground shrink-0 whitespace-nowrap">CLÁUSULA {i + 1}ª</span>
                   <Input
                     value={c.title}
                     onChange={e => updateClause(i, { title: e.target.value })}
