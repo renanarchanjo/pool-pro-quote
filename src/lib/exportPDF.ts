@@ -22,7 +22,8 @@ const A4_SIZES = {
 const isMobileDevice = () => /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 
 const getHtml2canvasScale = (): number => {
-  return isMobileDevice() ? 1 : 1.5;
+  // Resolução alta para texto nítido sem precisar dar zoom no PDF
+  return isMobileDevice() ? 2 : 2.5;
 };
 
 const getMobileCaptureWidth = (): number | null => {
