@@ -26,7 +26,7 @@ const DashboardKPIs = ({
   const isOwner = role === "owner";
 
   const faturamentoBruto = closed.reduce((s, p) => s + p.total_price, 0);
-  const totalWorked = proposals.filter((p) => p.status !== "nova").length;
+  const totalWorked = proposals.filter((p) => p.status === "fechada" || p.status === "perdida" || p.status === "em_negociacao").length;
   const conversionRate = totalWorked > 0 ? (closed.length / totalWorked) * 100 : 0;
   const ticketMedio = closed.length > 0 ? faturamentoBruto / closed.length : 0;
 
