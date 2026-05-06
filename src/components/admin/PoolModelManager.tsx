@@ -955,9 +955,9 @@ const PoolModelManager = () => {
                             <TableHead className="w-[140px] whitespace-nowrap text-center">Tipo</TableHead>
                             <TableHead className="text-right">Custo Unit.</TableHead>
                             <TableHead className="text-right">Custo Total</TableHead>
-                            <TableHead className="text-right">Margem</TableHead>
+                            <TableHead className="text-right">Markup</TableHead>
                             <TableHead className="text-right">Preço Venda</TableHead>
-                            <TableHead className="text-right">Lucro</TableHead>
+                            <TableHead className="text-right">Lucro Bruto</TableHead>
                             <TableHead className="w-[80px]"></TableHead>
                           </TableRow>
                         </TableHeader>
