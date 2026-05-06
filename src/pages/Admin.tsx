@@ -136,7 +136,16 @@ const Admin = () => {
         className="relative flex items-center justify-between border-b border-border bg-background px-4 shrink-0"
         style={{ height: 'calc(56px + var(--safe-area-top))', paddingTop: 'var(--safe-area-top)' }}
       >
-        <div className="flex-1 min-w-0" />
+        <div className="flex-1 min-w-0 flex items-center">
+          <button
+            onClick={() => setPwaGuideOpen(true)}
+            aria-label="Como instalar o app"
+            title="Como instalar como app"
+            className="flex items-center justify-center w-9 h-9 rounded-full text-muted-foreground hover:text-primary hover:bg-primary/10 transition-all duration-150 active:scale-95"
+          >
+            <Pin className="w-[18px] h-[18px]" strokeWidth={1.8} />
+          </button>
+        </div>
 
         {/* Centered brand text */}
         <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none" style={{ marginTop: 'calc(var(--safe-area-top) / 2)' }}>
