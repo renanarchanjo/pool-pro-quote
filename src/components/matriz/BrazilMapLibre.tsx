@@ -134,7 +134,7 @@ const BrazilMapLibre = ({ stores, stateData, height = 500 }: Props) => {
 
   const markers = useMemo(() => {
     const out: { lng: number; lat: number; store: StorePin }[] = [];
-    const usedCoords = new Map<string, number>();
+    const usedCoords: Record<string, number> = {};
     stores.forEach((s) => {
       let base: [number, number] | null = null;
       if (s.latitude && s.longitude) base = [Number(s.longitude), Number(s.latitude)];
