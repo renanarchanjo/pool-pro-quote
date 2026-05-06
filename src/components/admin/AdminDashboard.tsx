@@ -485,6 +485,7 @@ const AdminDashboard = () => {
               partners={partners}
               storeId={store?.id}
               storeWhatsapp={store?.whatsapp}
+              overrideTotalPrice={exportingProposal.total_price != null ? Number(exportingProposal.total_price) : null}
             />
           </div>
         );
