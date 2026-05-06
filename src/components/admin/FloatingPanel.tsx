@@ -40,7 +40,7 @@ const FloatingPanel = ({ open, onClose, children }: FloatingPanelProps) => {
         className={cn(
           "fixed inset-0 z-[60] transition-all duration-250",
           open
-            ? "bg-black/30 backdrop-blur-[2px] pointer-events-auto"
+            ? "bg-black/30 md:bg-transparent backdrop-blur-[2px] md:backdrop-blur-0 pointer-events-auto"
             : "bg-transparent backdrop-blur-0 pointer-events-none opacity-0"
         )}
         onClick={onClose}
