@@ -972,7 +972,7 @@ const PoolModelManager = () => {
                                     <Select value={inlineInclForm.item_type} onValueChange={(v) => setInlineInclForm({ ...inlineInclForm, item_type: v })}>
                                       <SelectTrigger className="h-8 w-[120px]"><SelectValue /></SelectTrigger>
                                       <SelectContent>
-                                         <SelectItem value="material">Equip. e Produtos</SelectItem>
+                                         <SelectItem value="material">Equipamentos</SelectItem>
                                          <SelectItem value="mao_de_obra">Mão de Obra</SelectItem>
                                       </SelectContent>
                                     </Select>
