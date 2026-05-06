@@ -27,7 +27,7 @@ const StorePartnersManager = () => {
     if (!store?.id) return;
     setSyncing(partnerId);
     try {
-      toast.loading(`Atualizando catálogo de ${partnerName}...`, { id: "sync-cat" });
+      toast.loading(`Atualizando produtos de ${partnerName}...`, { id: "sync-cat" });
       const { data, error } = await supabase.functions.invoke("apply-partner-catalog", {
         body: { store_id: store.id, partner_id: partnerId, mode: "sync" },
       });
@@ -35,7 +35,7 @@ const StorePartnersManager = () => {
       const s = data?.summary || {};
       const total = (s.addedBrands || 0) + (s.addedCategories || 0) + (s.addedModels || 0) + (s.addedOptionalGroups || 0) + (s.addedTemplates || 0);
       if (total === 0) {
-        toast.success("Catálogo já está atualizado — nenhum item novo.", { id: "sync-cat" });
+        toast.success("Produtos já estão atualizados — nenhum item novo.", { id: "sync-cat" });
       } else {
         toast.success(`Atualização concluída: ${s.addedModels || 0} novos modelos, ${s.addedCategories || 0} categorias, ${s.addedBrands || 0} marcas adicionadas.`, { id: "sync-cat" });
       }
@@ -79,14 +79,14 @@ const StorePartnersManager = () => {
 
       // 2. Apply partner standard catalog (if any) via edge function
       try {
-        toast.loading("Importando catálogo padrão do parceiro...", { id: "apply-cat" });
+        toast.loading("Importando produtos padrão do parceiro...", { id: "apply-cat" });
         const { data, error: fnErr } = await supabase.functions.invoke("apply-partner-catalog", {
           body: { store_id: store.id, partner_id: partnerId },
         });
         if (fnErr) throw fnErr;
         if (data?.applied) {
           const s = data.summary || {};
-          toast.success(`Catálogo importado: ${s.insertedBrands || 0} marcas, ${s.insertedModels || 0} modelos`, { id: "apply-cat" });
+          toast.success(`Produtos importados: ${s.insertedBrands || 0} marcas, ${s.insertedModels || 0} modelos`, { id: "apply-cat" });
         } else {
           // Fallback: ensure brand exists for catalog
           const { data: existingBrand } = await supabase.from("brands").select("id").eq("store_id", store.id).eq("name", partner.name).maybeSingle();
@@ -98,27 +98,27 @@ const StorePartnersManager = () => {
           toast.success(`Parceiro "${partner.name}" vinculado!`, { id: "apply-cat" });
         }
       } catch (e: any) {
-        toast.error("Vinculado, mas falha ao importar catálogo: " + (e?.message || "erro"), { id: "apply-cat" });
+        toast.error("Vinculado, mas falha ao importar produtos: " + (e?.message || "erro"), { id: "apply-cat" });
       }
 
       setLinkedIds(prev => new Set([...prev, partnerId]));
     } else {
       // Unlink - remove the partner catalog (brands/categories/models/optionals/templates) to avoid duplicates on re-link
       try {
-        toast.loading("Removendo catálogo do parceiro...", { id: "remove-cat" });
+        toast.loading("Removendo produtos do parceiro...", { id: "remove-cat" });
         const { error: fnErr } = await supabase.functions.invoke("apply-partner-catalog", {
           body: { store_id: store.id, partner_id: partnerId, mode: "remove" },
         });
         if (fnErr) throw fnErr;
       } catch (e: any) {
-        toast.error("Falha ao remover catálogo: " + (e?.message || "erro"), { id: "remove-cat" });
+        toast.error("Falha ao remover produtos: " + (e?.message || "erro"), { id: "remove-cat" });
         setToggling(null);
         return;
       }
       const { error } = await supabase.from("store_partners").delete().eq("store_id", store.id).eq("partner_id", partnerId);
       if (error) { toast.error("Erro ao desvincular parceiro"); setToggling(null); return; }
       setLinkedIds(prev => { const n = new Set(prev); n.delete(partnerId); return n; });
-      toast.success("Parceiro desvinculado e catálogo removido.", { id: "remove-cat" });
+      toast.success("Parceiro desvinculado e produtos removidos.", { id: "remove-cat" });
     }
     setToggling(null);
   };
@@ -136,7 +136,7 @@ const StorePartnersManager = () => {
       <div>
         <h1 className="text-3xl font-bold">Marcas Parceiras</h1>
         <p className="text-muted-foreground mt-1">
-          Selecione as marcas parceiras — o catálogo (marca, categorias, modelos e opcionais) será criado automaticamente.
+          Selecione as marcas parceiras — os produtos (marca, categorias, modelos e opcionais) serão criados automaticamente.
         </p>
       </div>
 
@@ -146,7 +146,7 @@ const StorePartnersManager = () => {
           <div className="text-sm">
             <p className="font-semibold text-foreground">Como funciona?</p>
             <p className="text-muted-foreground mt-1">
-              Ao marcar um parceiro, a <strong>Marca</strong> é criada automaticamente no seu catálogo.
+              Ao marcar um parceiro, a <strong>Marca</strong> é criada automaticamente em <strong>Meus Produtos</strong>.
               Você fica livre para criar <strong>categorias, modelos, opcionais e preços</strong> dentro dessa marca.
             </p>
             <p className="text-muted-foreground mt-1">

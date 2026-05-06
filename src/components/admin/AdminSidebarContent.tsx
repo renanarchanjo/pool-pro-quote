@@ -46,8 +46,8 @@ const AdminSidebarContent = ({ onNavigate, isMobile = false }: AdminSidebarConte
 
   const groups = getAdminNavGroups(isOwner);
 
-  // Auto-open Catálogo if any of its routes is active
-  const catalogGroup = groups.find((g) => g.collapsible);
+  // Auto-open Meus Produtos if any of its routes is active
+  const catalogGroup = groups.find((g) => g.label === "Meus Produtos");
   const catalogActive = catalogGroup?.items.some((i) => isActive(i.url));
   const [catalogOpen, setCatalogOpen] = useState<boolean>(!!catalogActive);
 

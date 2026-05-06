@@ -15,7 +15,7 @@ export interface SidebarNavGroup {
   items: SidebarNavItem[];
   /** Hide this group on mobile bottom-nav layouts */
   hideOnMobile?: boolean;
-  /** When true, render as a collapsible parent (Catálogo) */
+  /** When true, render as a collapsible parent (Meus Produtos) */
   collapsible?: boolean;
   /** Icon for the collapsible parent */
   parentIcon?: LucideIcon;
@@ -55,7 +55,7 @@ export function getAdminNavGroups(isOwner: boolean): SidebarNavGroup[] {
 
   return [
     { label: "Painel Comercial", items: mainItems },
-    { label: "Catálogo", items: catalogItems, hideOnMobile: true, collapsible: true, parentIcon: Package },
+    { label: "Meus Produtos", items: catalogItems, hideOnMobile: true, collapsible: true, parentIcon: Package },
     { label: "Conta", items: accountItems },
   ];
 }

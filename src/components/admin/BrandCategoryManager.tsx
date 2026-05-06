@@ -250,11 +250,11 @@ const BrandCategoryManager = ({ mode = "brands" }: { mode?: "brands" | "categori
   const handleExportCatalog = async () => {
     if (!store) return;
     try {
-      toast.loading("Gerando catálogo...", { id: "export-catalog" });
+      toast.loading("Gerando produtos...", { id: "export-catalog" });
       const catalog = await exportStoreCatalog(store.id, store.name);
       downloadCatalogJson(catalog, store.name);
       const total = catalog.brands.reduce((s, b) => s + b.categories.reduce((sc, c) => sc + c.models.length, 0), 0);
-      toast.success(`Catálogo exportado: ${catalog.brands.length} marcas, ${total} modelos`, { id: "export-catalog" });
+      toast.success(`Produtos exportados: ${catalog.brands.length} marcas, ${total} modelos`, { id: "export-catalog" });
     } catch (e: any) {
       toast.error("Erro ao exportar: " + (e?.message || "desconhecido"), { id: "export-catalog" });
     }
@@ -270,7 +270,7 @@ const BrandCategoryManager = ({ mode = "brands" }: { mode?: "brands" | "categori
               {editingBrand ? "Editar Marca" : "Nova Marca"}
             </h2>
             <Button type="button" variant="outline" size="sm" onClick={handleExportCatalog} className="gap-2">
-              <Download className="w-4 h-4" /> Exportar Catálogo
+              <Download className="w-4 h-4" /> Exportar Meus Produtos
             </Button>
           </div>
           <form onSubmit={handleBrandSubmit} className="space-y-4">
