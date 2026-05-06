@@ -91,6 +91,10 @@ const ContractsManager = () => {
   const [proposals, setProposals] = useState<any[]>([]);
   const [proposalQuery, setProposalQuery] = useState("");
   const [busyId, setBusyId] = useState<string | null>(null);
+  const [termsAcceptedAt, setTermsAcceptedAt] = useState<string | null>(null);
+  const [termsOpen, setTermsOpen] = useState(false);
+  const [termsChecked, setTermsChecked] = useState(false);
+  const [acceptingTerms, setAcceptingTerms] = useState(false);
 
   const load = async () => {
     if (!store?.id) return;
