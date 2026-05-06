@@ -6,7 +6,7 @@ import {
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
 import {
-  Search, Eye, Download, CalendarIcon, X, FileText, ArrowUpDown,
+  Search, Eye, Download, CalendarIcon, X, FileText, ArrowUpDown, Users,
 } from "lucide-react";
 import {
   Proposal, ProposalStatus, STATUS_CONFIG,
@@ -22,7 +22,8 @@ interface Props {
   onUpdateStatus: (id: string, status: ProposalStatus) => void;
   onViewProposal: (p: Proposal) => void;
   onExportPDF: (p: Proposal) => void;
-  
+  members?: { id: string; full_name: string }[];
+  getMemberId?: (p: Proposal) => string | null;
 }
 
 const DATE_PRESETS = [
