@@ -13,6 +13,7 @@ import { NotificationPrompt } from "@/components/NotificationPrompt";
 import BrandLogo from "@/components/BrandLogo";
 import HeaderPlanBadge from "@/components/admin/HeaderPlanBadge";
 import OwnerOnboardingModal from "@/components/admin/OwnerOnboardingModal";
+import { PwaInstallGuide } from "@/components/PwaInstallGuide";
 
 // Lazy load ALL sub-pages for smaller initial bundle
 const AdminDashboard = lazy(() => import("@/components/admin/AdminDashboard"));
