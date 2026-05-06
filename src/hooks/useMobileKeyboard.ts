@@ -1,10 +1,11 @@
 import { useEffect } from "react";
 
 /**
- * Hook global que melhora UX ao abrir/fechar teclado virtual mobile:
- *  - Expõe a altura do teclado em --kb-height (CSS var)
- *  - Garante que o input/textarea focado fique visível (scrollIntoView)
- *  - Funciona em iOS Safari/Chrome e Android Chrome (visualViewport API)
+ * Hook unificado de teclado virtual mobile.
+ *  - Adiciona/remove a classe `keyboard-open` no <html>
+ *  - Expõe altura do teclado em --kb-height
+ *  - Faz scrollIntoView({block:"center"}) no campo focado (após teclado abrir)
+ *  - Funciona em iOS Safari/Chrome e Android Chrome
  */
 export function useMobileKeyboard() {
   useEffect(() => {
@@ -14,12 +15,22 @@ export function useMobileKeyboard() {
 
     const root = document.documentElement;
     const vv = window.visualViewport;
+    let raf = 0;
 
     const updateKb = () => {
-      if (!vv) return;
-      const kb = Math.max(0, window.innerHeight - vv.height - vv.offsetTop);
-      root.style.setProperty("--kb-height", `${kb}px`);
-      root.dataset.kbOpen = kb > 80 ? "true" : "false";
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(() => {
+        if (!vv) return;
+        const kb = Math.max(0, window.innerHeight - vv.height - vv.offsetTop);
+        root.style.setProperty("--kb-height", `${kb}px`);
+        if (kb > 120) {
+          root.classList.add("keyboard-open");
+          root.dataset.kbOpen = "true";
+        } else {
+          root.classList.remove("keyboard-open");
+          root.dataset.kbOpen = "false";
+        }
+      });
     };
 
     const onFocusIn = (e: FocusEvent) => {
@@ -27,12 +38,8 @@ export function useMobileKeyboard() {
       if (!t) return;
       const tag = t.tagName;
       const editable =
-        tag === "INPUT" ||
-        tag === "TEXTAREA" ||
-        tag === "SELECT" ||
-        t.isContentEditable;
+        tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT" || t.isContentEditable;
       if (!editable) return;
-      // Aguarda teclado abrir antes de centralizar
       window.setTimeout(() => {
         try {
           t.scrollIntoView({ behavior: "smooth", block: "center" });
@@ -44,6 +51,7 @@ export function useMobileKeyboard() {
 
     const onFocusOut = () => {
       root.style.setProperty("--kb-height", "0px");
+      root.classList.remove("keyboard-open");
       root.dataset.kbOpen = "false";
     };
 
@@ -54,10 +62,12 @@ export function useMobileKeyboard() {
     updateKb();
 
     return () => {
+      cancelAnimationFrame(raf);
       vv?.removeEventListener("resize", updateKb);
       vv?.removeEventListener("scroll", updateKb);
       document.removeEventListener("focusin", onFocusIn);
       document.removeEventListener("focusout", onFocusOut);
+      root.classList.remove("keyboard-open");
     };
   }, []);
 }

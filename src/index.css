@@ -248,6 +248,118 @@
   }
 }
 
+/* ────────────────────────────────────────────────
+   NATIVE-APP UX (iOS/Android feel for PWA)
+   ──────────────────────────────────────────────── */
+
+/* Disable native callout/long-press on UI chrome (preserve in form fields) */
+button, a, [role="button"], nav, header, aside,
+[data-radix-collection-item], .no-callout {
+  -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Native-feel tap feedback on interactive elements */
+@media (hover: none) and (pointer: coarse) {
+  button:active:not(:disabled),
+  [role="button"]:active:not([aria-disabled="true"]),
+  a:active {
+    transform: scale(0.97);
+    transition: transform 80ms cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  button, [role="button"], a {
+    transition: transform 200ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+}
+
+/* Momentum scroll containers — true iOS feel */
+.native-scroll {
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  scroll-behavior: smooth;
+}
+
+/* iOS-style ripple wrapper */
+.ripple {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+.ripple::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle, currentColor 10%, transparent 10.01%);
+  background-repeat: no-repeat;
+  background-position: 50%;
+  transform: scale(10);
+  opacity: 0;
+  transition: transform 600ms cubic-bezier(0.22, 1, 0.36, 1), opacity 800ms;
+  pointer-events: none;
+}
+.ripple:active::after {
+  transform: scale(0);
+  opacity: 0.18;
+  transition: 0s;
+}
+
+/* Safe area helpers (universal) */
+.pt-safe { padding-top: env(safe-area-inset-top); }
+.pb-safe { padding-bottom: env(safe-area-inset-bottom); }
+.pl-safe { padding-left: env(safe-area-inset-left); }
+.pr-safe { padding-right: env(safe-area-inset-right); }
+.h-safe-top { height: env(safe-area-inset-top); }
+
+/* Bottom nav respects keyboard + safe area automatically */
+.mobile-bottom-nav {
+  padding-bottom: max(env(safe-area-inset-bottom), 0.5rem);
+  transform: translateZ(0);
+  will-change: transform;
+}
+
+/* iOS-style page transitions (used by PageTransition) */
+@keyframes ios-slide-in {
+  from { opacity: 0; transform: translateX(12px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+@keyframes ios-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+.animate-ios-in { animation: ios-slide-in 220ms cubic-bezier(0.22, 1, 0.36, 1); }
+
+/* Sheet / dialog: iOS-style spring slide-up on mobile */
+@media (max-width: 767px) {
+  [data-state="open"][role="dialog"] {
+    animation: sheet-up 280ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+}
+@keyframes sheet-up {
+  from { opacity: 0; transform: translateY(24px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* Skeleton shimmer */
+.skeleton-shimmer {
+  background: linear-gradient(
+    90deg,
+    hsl(var(--muted)) 0%,
+    hsl(var(--muted) / 0.6) 50%,
+    hsl(var(--muted)) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.4s infinite linear;
+}
+
+/* Standalone (installed PWA) — true app chrome */
+@media all and (display-mode: standalone) {
+  html, body { overscroll-behavior: none; }
+  body { user-select: none; -webkit-user-select: none; }
+  /* Avoid pull-to-refresh from system on the whole document */
+  html { overscroll-behavior-y: contain; }
+}
+
+
 /* Popover shadow */
 [data-radix-popper-content-wrapper] [role="dialog"],
 [data-radix-popper-content-wrapper] [data-state] {
