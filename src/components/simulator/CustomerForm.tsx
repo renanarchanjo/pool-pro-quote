@@ -33,17 +33,23 @@ const CustomerForm = ({ onSubmit, onBack, model, optionals, includedItemsTotal =
   const [touched, setTouched] = useState<Record<string, boolean>>({});
   const { detectLocation, loading: geoLoading } = useGeolocation();
 
-  // Auto-detect location on mount
+  const handleDetectLocation = async (silent = false) => {
+    const loc = await detectLocation();
+    if (loc) {
+      setUf(loc.state);
+      setCity(loc.city);
+      toast.success(`Localização detectada: ${loc.city} / ${loc.state}`);
+    } else if (!silent) {
+      toast.error(
+        "Não foi possível detectar sua localização. Verifique a permissão de localização do navegador ou selecione manualmente.",
+      );
+    }
+  };
+
+  // Auto-detect location on mount (silencioso em caso de falha)
   useEffect(() => {
-    const autoDetect = async () => {
-      const loc = await detectLocation();
-      if (loc) {
-        setUf(loc.state);
-        setCity(loc.city);
-        toast.success(`Localização detectada: ${loc.city} / ${loc.state}`);
-      }
-    };
-    autoDetect();
+    handleDetectLocation(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Fetch cities when UF changes
