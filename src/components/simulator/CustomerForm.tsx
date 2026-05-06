@@ -33,17 +33,23 @@ const CustomerForm = ({ onSubmit, onBack, model, optionals, includedItemsTotal =
   const [touched, setTouched] = useState<Record<string, boolean>>({});
   const { detectLocation, loading: geoLoading } = useGeolocation();
 
-  // Auto-detect location on mount
+  const handleDetectLocation = async (silent = false) => {
+    const loc = await detectLocation();
+    if (loc) {
+      setUf(loc.state);
+      setCity(loc.city);
+      toast.success(`Localização detectada: ${loc.city} / ${loc.state}`);
+    } else if (!silent) {
+      toast.error(
+        "Não foi possível detectar sua localização. Verifique a permissão de localização do navegador ou selecione manualmente.",
+      );
+    }
+  };
+
+  // Auto-detect location on mount (silencioso em caso de falha)
   useEffect(() => {
-    const autoDetect = async () => {
-      const loc = await detectLocation();
-      if (loc) {
-        setUf(loc.state);
-        setCity(loc.city);
-        toast.success(`Localização detectada: ${loc.city} / ${loc.state}`);
-      }
-    };
-    autoDetect();
+    handleDetectLocation(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Fetch cities when UF changes
@@ -135,11 +141,18 @@ const CustomerForm = ({ onSubmit, onBack, model, optionals, includedItemsTotal =
           <div>
             <div className="flex items-center justify-between mb-1">
               <Label htmlFor="uf">Estado (UF) *</Label>
-              {geoLoading && (
-                <span className="text-xs text-muted-foreground flex items-center gap-1">
-                  <Loader2 className="w-3 h-3 animate-spin" /> Detectando...
-                </span>
-              )}
+              <button
+                type="button"
+                onClick={() => handleDetectLocation(false)}
+                disabled={geoLoading}
+                className="text-xs text-primary hover:underline flex items-center gap-1 disabled:opacity-50"
+              >
+                {geoLoading ? (
+                  <><Loader2 className="w-3 h-3 animate-spin" /> Detectando...</>
+                ) : (
+                  <><MapPin className="w-3 h-3" /> Usar minha localização</>
+                )}
+              </button>
             </div>
             <select
               id="uf"
