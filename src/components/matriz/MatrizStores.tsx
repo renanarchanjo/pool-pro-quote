@@ -426,7 +426,7 @@ const MatrizStores = () => {
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="z-[100]">
                   <SelectItem value="active">Ativo</SelectItem>
                   <SelectItem value="overdue">Inadimplente</SelectItem>
                   <SelectItem value="cancelled">Cancelado</SelectItem>
