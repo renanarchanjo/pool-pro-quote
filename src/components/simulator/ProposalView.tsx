@@ -474,6 +474,7 @@ const ProposalView = ({
             brandLogoUrl={brandLogoUrl}
             brandName={brandName}
             includedItemsTotal={includedItemsTotal}
+            overrideTotalPrice={overrideTotalPrice}
             partners={partners}
             bannersToShow={bannersToShow}
             resolveSrc={resolveSrc}
