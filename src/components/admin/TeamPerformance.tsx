@@ -114,7 +114,7 @@ const TeamPerformance = () => {
       const revenuePredicted = memberProposals
         .filter(p => p.status !== "fechada" && p.status !== "perdida")
         .reduce((s, p) => s + p.total_price * (STATUS_PROB[p.status] || 0), 0);
-      const totalDecided = closed.length + lost.length;
+      const totalDecided = closed.length + lost.length + inNeg.length;
       const conversionRate = totalDecided > 0 ? (closed.length / totalDecided) * 100 : 0;
       const ticketMedio = closed.length > 0 ? revenueClosed / closed.length : 0;
       const responseTimes = acceptedDists
