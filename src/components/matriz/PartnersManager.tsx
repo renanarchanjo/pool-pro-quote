@@ -431,12 +431,6 @@ const PartnersManager = () => {
                                 onChange={(e) => { const val = parseInt(e.target.value); if (!isNaN(val)) updatePartnerField(partner.id, "ranking", val); }}
                                 className="w-20 h-8 text-xs text-center mt-0.5" />
                             </div>
-                            <div>
-                              <Label className="text-xs">Frequência (%)</Label>
-                              <Input type="number" min={0} max={100} value={partner.display_percent}
-                                onChange={(e) => { const val = parseFloat(e.target.value); if (!isNaN(val)) updatePartnerField(partner.id, "display_percent", val); }}
-                                className="w-24 h-8 text-xs text-center mt-0.5" />
-                            </div>
                           </div>
                           <div>
                             <Label className="text-xs">Banner da Proposta (URL)</Label>
