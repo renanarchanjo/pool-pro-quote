@@ -30,7 +30,7 @@ const AdminClients = () => {
   const loadData = async () => {
     if (!store) return;
     try {
-      const [proposalsRes, distRes, partnersRes] = await Promise.all([
+      const [proposalsRes, distRes, partnersRes, membersRes] = await Promise.all([
         supabase
           .from("proposals")
           .select(`
@@ -44,12 +44,14 @@ const AdminClients = () => {
           .limit(2000),
         supabase.from("lead_distributions").select("proposal_id, accepted_by, status").eq("store_id", store.id),
         supabase.from("partners").select("id, name, logo_url, banner_1_url, banner_2_url, display_percent").eq("active", true).order("display_order"),
+        (supabase as any).from("profiles").select("id, full_name").eq("store_id", store.id),
       ]);
 
       if (proposalsRes.error) throw proposalsRes.error;
       setProposals((proposalsRes.data as any) || []);
       setLeadDistributions(distRes.data || []);
       setPartners(partnersRes.data || []);
+      setMembers(membersRes.data || []);
     } catch (e) {
       console.error(e);
     } finally {
