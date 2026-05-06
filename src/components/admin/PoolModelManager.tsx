@@ -923,8 +923,8 @@ const PoolModelManager = () => {
                   <p className="text-muted-foreground text-sm text-center py-4">Nenhum item incluso cadastrado para este modelo.</p>
                 ) : (
                   <>
-                    <div className="rounded-md border">
-                      <Table>
+                    <div className="rounded-md border overflow-x-auto">
+                      <Table className="[&_th]:whitespace-nowrap [&_td]:whitespace-nowrap">
                         <TableHeader>
                           <TableRow>
                             <TableHead className="w-[40px]"></TableHead>
