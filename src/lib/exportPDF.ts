@@ -22,7 +22,8 @@ const A4_SIZES = {
 const isMobileDevice = () => /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 
 const getHtml2canvasScale = (): number => {
-  return isMobileDevice() ? 1 : 1.5;
+  // Resolução alta para texto nítido sem precisar dar zoom no PDF
+  return isMobileDevice() ? 2 : 2.5;
 };
 
 const getMobileCaptureWidth = (): number | null => {
@@ -104,7 +105,7 @@ const exportSectionedPDF = async ({
         pdf.addPage("a4", orientation);
       }
 
-      pdf.addImage(canvas.toDataURL("image/jpeg", 0.75), "JPEG", 0, 0, page.width, page.height);
+      pdf.addImage(canvas.toDataURL("image/jpeg", 0.92), "JPEG", 0, 0, page.width, page.height, undefined, "FAST");
     }
 
     return pdf;
@@ -226,7 +227,7 @@ export const exportPDF = async ({
         .set({
           margin: [10, 10, 10, 10],
           filename,
-          image: { type: "jpeg", quality: 0.75 },
+          image: { type: "jpeg", quality: 0.92 },
           html2canvas: {
             scale,
             useCORS: true,
@@ -317,7 +318,7 @@ export const generatePDFBlob = async ({
     const blob = await (html2pdf() as any)
       .set({
         margin: [10, 10, 10, 10],
-        image: { type: "jpeg", quality: mobile ? 0.7 : 0.75 },
+        image: { type: "jpeg", quality: mobile ? 0.9 : 0.92 },
         html2canvas: {
           scale,
           useCORS: true,
