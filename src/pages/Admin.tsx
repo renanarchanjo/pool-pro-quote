@@ -14,6 +14,7 @@ import BrandLogo from "@/components/BrandLogo";
 import HeaderPlanBadge from "@/components/admin/HeaderPlanBadge";
 import OwnerOnboardingModal from "@/components/admin/OwnerOnboardingModal";
 import { PwaInstallGuide } from "@/components/PwaInstallGuide";
+import { prefetchAllAdminRoutes } from "@/lib/adminChunkPrefetch";
 
 // Lazy load ALL sub-pages for smaller initial bundle
 const AdminDashboard = lazy(() => import("@/components/admin/AdminDashboard"));
@@ -98,6 +99,12 @@ const Admin = () => {
     checkAuth();
     return () => { cancelled = true; };
   }, [navigate]);
+
+  // Após autenticar, faz prefetch de todas as sub-páginas em idle
+  useEffect(() => {
+    if (authLoading) return;
+    prefetchAllAdminRoutes();
+  }, [authLoading]);
 
   if (authLoading || storeLoading) {
     return (

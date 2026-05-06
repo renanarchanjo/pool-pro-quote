@@ -3,6 +3,7 @@ import { LayoutGrid, FilePlus, Filter, AlignRight } from "lucide-react";
 import { useState, useEffect } from "react";
 import AdminSidebarContent from "./AdminSidebarContent";
 import FloatingPanel from "./FloatingPanel";
+import { prefetchAdminRoute } from "@/lib/adminChunkPrefetch";
 
 const NAV_ITEMS = [
   { icon: LayoutGrid, url: "/admin", label: "Dashboard" },
@@ -39,6 +40,7 @@ const MobileBottomNav = () => {
             <button
               key={item.url}
               onClick={() => navigate(item.url)}
+              onPointerDown={() => prefetchAdminRoute(item.url)}
               aria-label={item.label}
               className="flex items-center justify-center flex-1 transition-all duration-150 active:scale-90"
               style={{ height: 'var(--bottom-nav-height)', minHeight: '44px' }}
