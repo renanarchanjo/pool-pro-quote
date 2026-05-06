@@ -890,39 +890,55 @@ const ManualProposal = () => {
           </CardContent>
         </Card>
 
-        {selectedModel && currentModelOpts.length > 0 && (
-          <Card className="lg:col-span-3">
-            <CardHeader>
-              <CardTitle className="text-lg">Opcionais Dimensionados — {selectedModel.name}</CardTitle>
-              <p className="text-xs text-muted-foreground">Opcionais específicos calculados para este modelo</p>
-            </CardHeader>
-            <CardContent>
-              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                {currentModelOpts.map((opt: any) => {
-                  const isSelected = selectedModelOptIds.includes(opt.id);
-                  return (
-                    <div
-                      key={opt.id}
-                      onClick={() => setSelectedModelOptIds((prev) => prev.includes(opt.id) ? prev.filter((x: string) => x !== opt.id) : [...prev, opt.id])}
-                      className={`flex items-center gap-3 p-3 rounded-xl border-2 cursor-pointer transition-all ${
-                        isSelected ? "border-primary bg-primary/5 shadow-sm" : "border-border hover:border-primary/40"
-                      }`}
-                    >
-                      <Checkbox checked={isSelected} className="pointer-events-none mt-0.5" />
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium leading-tight">{opt.name}</p>
-                        {opt.description && <p className="text-xs text-muted-foreground">{opt.description}</p>}
-                        <p className="text-xs text-primary font-semibold mt-1">
-                          + R$ {opt.price.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
-                        </p>
-                      </div>
-                    </div>
-                  );
-                })}
+        {selectedModel && currentModelOpts.length > 0 && (() => {
+          const equipamentos = currentModelOpts.filter((o: any) => (o.item_type || "material") !== "mao_de_obra");
+          const maoObra = currentModelOpts.filter((o: any) => o.item_type === "mao_de_obra");
+          const renderCard = (opt: any) => {
+            const isSelected = selectedModelOptIds.includes(opt.id);
+            return (
+              <div
+                key={opt.id}
+                onClick={() => setSelectedModelOptIds((prev) => prev.includes(opt.id) ? prev.filter((x: string) => x !== opt.id) : [...prev, opt.id])}
+                className={`flex items-center gap-3 p-3 rounded-xl border-2 cursor-pointer transition-all ${
+                  isSelected ? "border-primary bg-primary/5 shadow-sm" : "border-border hover:border-primary/40"
+                }`}
+              >
+                <Checkbox checked={isSelected} className="pointer-events-none mt-0.5" />
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium leading-tight">{opt.name}</p>
+                  {opt.description && <p className="text-xs text-muted-foreground">{opt.description}</p>}
+                  <p className="text-xs text-primary font-semibold mt-1">
+                    + R$ {opt.price.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                  </p>
+                </div>
               </div>
-            </CardContent>
-          </Card>
-        )}
+            );
+          };
+          return (
+            <Card className="lg:col-span-3">
+              <CardHeader>
+                <CardTitle className="text-lg">Opcionais Dimensionados — {selectedModel.name}</CardTitle>
+                <p className="text-xs text-muted-foreground">Opcionais específicos calculados para este modelo</p>
+              </CardHeader>
+              <CardContent>
+                <div className="grid gap-6 md:grid-cols-2">
+                  {equipamentos.length > 0 && (
+                    <div>
+                      <p className="text-xs font-bold uppercase tracking-wider text-sky-600 mb-3">Equipamentos</p>
+                      <div className="grid gap-3 sm:grid-cols-2">{equipamentos.map(renderCard)}</div>
+                    </div>
+                  )}
+                  {maoObra.length > 0 && (
+                    <div>
+                      <p className="text-xs font-bold uppercase tracking-wider text-amber-600 mb-3">Mão de Obra</p>
+                      <div className="grid gap-3 sm:grid-cols-2">{maoObra.map(renderCard)}</div>
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          );
+        })()}
 
         <Card className="lg:col-span-3">
           <CardContent className="pt-6">
