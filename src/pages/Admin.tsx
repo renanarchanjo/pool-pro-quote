@@ -1,7 +1,7 @@
 import { lazy, Suspense, useEffect, useState } from "react";
 import { useNavigate, useLocation, Routes, Route } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2, Menu as MenuIcon } from "lucide-react";
+import { Loader2, Menu as MenuIcon, Pin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import AdminSidebarContent from "@/components/admin/AdminSidebarContent";
 import FloatingPanel from "@/components/admin/FloatingPanel";
@@ -13,6 +13,7 @@ import { NotificationPrompt } from "@/components/NotificationPrompt";
 import BrandLogo from "@/components/BrandLogo";
 import HeaderPlanBadge from "@/components/admin/HeaderPlanBadge";
 import OwnerOnboardingModal from "@/components/admin/OwnerOnboardingModal";
+import { PwaInstallGuide } from "@/components/PwaInstallGuide";
 
 // Lazy load ALL sub-pages for smaller initial bundle
 const AdminDashboard = lazy(() => import("@/components/admin/AdminDashboard"));
@@ -60,6 +61,7 @@ const PAGE_TITLES: Record<string, string> = {
 const Admin = () => {
   const [authLoading, setAuthLoading] = useState(true);
   const [panelOpen, setPanelOpen] = useState(false);
+  const [pwaGuideOpen, setPwaGuideOpen] = useState(false);
   const [userId, setUserId] = useState<string | null>(null);
   const navigate = useNavigate();
   const location = useLocation();
@@ -134,7 +136,16 @@ const Admin = () => {
         className="relative flex items-center justify-between border-b border-border bg-background px-4 shrink-0"
         style={{ height: 'calc(56px + var(--safe-area-top))', paddingTop: 'var(--safe-area-top)' }}
       >
-        <div className="flex-1 min-w-0" />
+        <div className="flex-1 min-w-0 flex items-center">
+          <button
+            onClick={() => setPwaGuideOpen(true)}
+            aria-label="Como instalar o app"
+            title="Como instalar como app"
+            className="flex items-center justify-center w-9 h-9 rounded-full text-muted-foreground hover:text-primary hover:bg-primary/10 transition-all duration-150 active:scale-95"
+          >
+            <Pin className="w-[18px] h-[18px]" strokeWidth={1.8} />
+          </button>
+        </div>
 
         {/* Centered brand text */}
         <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none" style={{ marginTop: 'calc(var(--safe-area-top) / 2)' }}>
@@ -206,6 +217,8 @@ const Admin = () => {
       <FloatingPanel open={panelOpen} onClose={() => setPanelOpen(false)}>
         <AdminSidebarContent onNavigate={() => setPanelOpen(false)} />
       </FloatingPanel>
+
+      {pwaGuideOpen && <PwaInstallGuide onClose={() => setPwaGuideOpen(false)} />}
     </div>
   );
 };
