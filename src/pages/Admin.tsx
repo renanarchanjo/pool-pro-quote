@@ -1,7 +1,7 @@
 import { lazy, Suspense, useEffect, useState } from "react";
 import { useNavigate, useLocation, Routes, Route } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2, Menu as MenuIcon } from "lucide-react";
+import { Loader2, Menu as MenuIcon, Pin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import AdminSidebarContent from "@/components/admin/AdminSidebarContent";
 import FloatingPanel from "@/components/admin/FloatingPanel";
