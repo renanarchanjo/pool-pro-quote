@@ -31,11 +31,6 @@ interface PartnerCategory {
   display_order: number;
 }
 
-const RANKING_LABELS: Record<number, string> = {
-  1: "🥇 1º Lugar",
-  2: "🥈 2º Lugar",
-  3: "🥉 3º Lugar",
-};
 
 const PartnersManager = () => {
   const [partners, setPartners] = useState<Partner[]>([]);
