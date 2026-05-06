@@ -82,7 +82,7 @@ export default function ContractClausesEditor({ storeId, open, onOpenChange }: P
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl max-h-[95vh] sm:max-h-[90vh] overflow-y-auto p-4 sm:p-6 pb-[env(safe-area-inset-bottom)]">
+      <DialogContent className="max-w-none w-screen h-screen sm:max-w-[96vw] sm:w-[96vw] sm:h-[94vh] sm:rounded-2xl rounded-none overflow-y-auto p-4 sm:p-8 pb-[env(safe-area-inset-bottom)]">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <ScrollText className="w-5 h-5 text-primary" /> Editor de Cláusulas do Contrato
