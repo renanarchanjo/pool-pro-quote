@@ -2271,6 +2271,10 @@ export type Database = {
       partner_has_catalog: { Args: { _partner_id: string }; Returns: boolean }
       remove_team_member: { Args: { _member_id: string }; Returns: undefined }
       store_exists: { Args: { _store_id: string }; Returns: boolean }
+      sync_pool_model_included_items: {
+        Args: { _model_id: string }
+        Returns: undefined
+      }
     }
     Enums: {
       app_role: "owner" | "seller" | "super_admin"
