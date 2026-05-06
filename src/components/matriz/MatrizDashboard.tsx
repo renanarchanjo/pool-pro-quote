@@ -20,7 +20,7 @@ import {
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
-import BrazilMap from "./BrazilLeafletMap";
+import BrazilMap from "./BrazilMapLibre";
 import { toast } from "sonner";
 import { exportPDF } from "@/lib/exportPDF";
 
