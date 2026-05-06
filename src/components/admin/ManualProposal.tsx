@@ -539,34 +539,50 @@ const ManualProposal = () => {
         </>
       )}
 
-      {selectedModel && currentModelOpts.length > 0 && (
-        <div className="pt-2">
-          <h3 className="text-base font-semibold mb-1">Opcionais Dimensionados — {selectedModel.name}</h3>
-          <p className="text-xs text-muted-foreground mb-3">Opcionais específicos calculados para este modelo</p>
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {currentModelOpts.map((opt: any) => {
-              const isSelected = selectedModelOptIds.includes(opt.id);
-              return (
-                <div
-                  key={opt.id}
-                  onClick={() => setSelectedModelOptIds((prev) => prev.includes(opt.id) ? prev.filter((x: string) => x !== opt.id) : [...prev, opt.id])}
-                  className={`flex items-center gap-3 p-3 rounded-xl border-2 cursor-pointer transition-all ${
-                    isSelected ? "border-primary bg-primary/5 shadow-sm" : "border-border hover:border-primary/40"
-                  }`}
-                >
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium leading-tight">{opt.name}</p>
-                    {opt.description && <p className="text-xs text-muted-foreground">{opt.description}</p>}
-                    <p className="text-xs text-primary font-semibold mt-1">
-                      + R$ {opt.price.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
-                    </p>
-                  </div>
+      {selectedModel && currentModelOpts.length > 0 && (() => {
+        const equipamentos = currentModelOpts.filter((o: any) => (o.item_type || "material") !== "mao_de_obra");
+        const maoObra = currentModelOpts.filter((o: any) => o.item_type === "mao_de_obra");
+        const renderCard = (opt: any) => {
+          const isSelected = selectedModelOptIds.includes(opt.id);
+          return (
+            <div
+              key={opt.id}
+              onClick={() => setSelectedModelOptIds((prev) => prev.includes(opt.id) ? prev.filter((x: string) => x !== opt.id) : [...prev, opt.id])}
+              className={`flex items-center gap-3 p-3 rounded-xl border-2 cursor-pointer transition-all ${
+                isSelected ? "border-primary bg-primary/5 shadow-sm" : "border-border hover:border-primary/40"
+              }`}
+            >
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium leading-tight">{opt.name}</p>
+                {opt.description && <p className="text-xs text-muted-foreground">{opt.description}</p>}
+                <p className="text-xs text-primary font-semibold mt-1">
+                  + R$ {opt.price.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                </p>
+              </div>
+            </div>
+          );
+        };
+        return (
+          <div className="pt-2">
+            <h3 className="text-base font-semibold mb-1">Opcionais Dimensionados — {selectedModel.name}</h3>
+            <p className="text-xs text-muted-foreground mb-3">Opcionais específicos calculados para este modelo</p>
+            <div className="grid gap-4 md:grid-cols-2">
+              {equipamentos.length > 0 && (
+                <div>
+                  <p className="text-[11px] font-bold uppercase tracking-wider text-sky-600 mb-2">Equipamentos</p>
+                  <div className="grid gap-2">{equipamentos.map(renderCard)}</div>
                 </div>
-              );
-            })}
+              )}
+              {maoObra.length > 0 && (
+                <div>
+                  <p className="text-[11px] font-bold uppercase tracking-wider text-amber-600 mb-2">Mão de Obra</p>
+                  <div className="grid gap-2">{maoObra.map(renderCard)}</div>
+                </div>
+              )}
+            </div>
           </div>
-        </div>
-      )}
+        );
+      })()}
     </div>
   );
 
