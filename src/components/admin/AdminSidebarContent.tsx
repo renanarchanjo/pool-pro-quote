@@ -65,8 +65,8 @@ const AdminSidebarContent = ({ onNavigate, isMobile = false }: AdminSidebarConte
             : "text-muted-foreground hover:bg-accent font-normal border border-transparent"
         }`}
       >
-        <span className="truncate">{item.title}</span>
-        <item.icon className={`h-4 w-4 shrink-0 ${active ? "text-primary" : "text-muted-foreground"}`} strokeWidth={1.5} />
+        <span className={`truncate ${item.title === "Marcas Parceiras" ? "font-bold text-primary" : ""}`}>{item.title}</span>
+        <item.icon className={`h-4 w-4 shrink-0 ${item.title === "Marcas Parceiras" ? "text-primary" : active ? "text-primary" : "text-muted-foreground"}`} strokeWidth={1.5} />
       </button>
     );
   };
