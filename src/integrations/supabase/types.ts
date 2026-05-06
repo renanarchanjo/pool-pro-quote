@@ -2115,6 +2115,15 @@ export type Database = {
           updated_at: string
         }[]
       }
+      get_model_included_items_public: {
+        Args: { _model_id: string }
+        Returns: {
+          item_type: string
+          name: string
+          price: number
+          quantity: number
+        }[]
+      }
       get_model_included_items_total: {
         Args: { _model_id: string }
         Returns: number
