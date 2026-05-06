@@ -124,6 +124,11 @@ const AdminClients = () => {
         onUpdateStatus={updateStatus}
         onViewProposal={setViewingProposal}
         onExportPDF={handleExportProposalPDF}
+        members={isOwner ? members : []}
+        getMemberId={(p) => {
+          const acc = leadDistributions.find(d => d.proposal_id === p.id && d.status === "accepted");
+          return acc?.accepted_by || (p as any).created_by || null;
+        }}
       />
 
       {exportingProposal?.pool_models && (() => {
