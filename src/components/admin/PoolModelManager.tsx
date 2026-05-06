@@ -418,8 +418,16 @@ const PoolModelManager = () => {
           display_order: existingItem?.display_order ?? 0,
           item_type: inclForm.item_type,
         };
-        const { error } = await supabase.from("model_included_items").update(data).eq("id", editingIncl);
+        const { data: updated, error } = await supabase
+          .from("model_included_items")
+          .update(data)
+          .eq("id", editingIncl)
+          .select();
         if (error) throw error;
+        if (!updated || updated.length === 0) {
+          toast.error("Sem permissão para editar este item. Apenas o proprietário da loja pode editar itens inclusos.");
+          return;
+        }
         // Update local state in-place without full reload
         setIncludedItems(prev => prev.map(item =>
           item.id === editingIncl
