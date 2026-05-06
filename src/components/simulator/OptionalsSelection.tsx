@@ -86,21 +86,46 @@ const OptionalsSelection = ({ optionals, modelOptionals = [], selectedOptionals:
     }
   };
 
-  const handleSelectOptional = (groupId: string, optionalId: string, selectionType?: string) => {
+  const getGroupType = (groupId: string): string => {
+    return groups.find((g) => g.id === groupId)?.selection_type || "single";
+  };
+
+  const handleSelectOptional = (groupId: string, optionalId: string, _selectionType?: string) => {
+    const selectionType = getGroupType(groupId);
     setSelected((prev) => {
       const current = prev[groupId] || [];
       if (current.includes(optionalId)) {
-        // Radio behavior: cannot deselect in single-select groups
+        // Em grupos single não permite desmarcar (sempre 1 selecionado)
         if (selectionType === "single") return prev;
-        return { ...prev, [groupId]: current.filter(id => id !== optionalId) };
+        return { ...prev, [groupId]: current.filter((id) => id !== optionalId) };
       }
-      // Single: replace selection; Multiple: add to selection
+      // Single: substitui (apenas 1 por grupo). Multiple: adiciona.
       if (selectionType === "single") {
         return { ...prev, [groupId]: [optionalId] };
       }
       return { ...prev, [groupId]: [...current, optionalId] };
     });
   };
+
+  // Garante que grupos "single" nunca tenham mais de 1 item selecionado
+  useEffect(() => {
+    if (groups.length === 0) return;
+    setSelected((prev) => {
+      let changed = false;
+      const next: Record<string, string[]> = {};
+      for (const [gid, ids] of Object.entries(prev)) {
+        const type = getGroupType(gid);
+        if (type === "single" && ids.length > 1) {
+          next[gid] = [ids[0]];
+          changed = true;
+        } else {
+          next[gid] = ids;
+        }
+      }
+      return changed ? next : prev;
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [groups]);
 
   const handleContinue = () => {
     const allSelected = [...Object.values(selected).flat(), ...selectedModelOpts];
