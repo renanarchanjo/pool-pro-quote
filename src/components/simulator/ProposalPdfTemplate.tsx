@@ -181,262 +181,238 @@ const ProposalPdfTemplate = ({
         }}
       >
         <div data-pdf-page style={PAGE_STYLE}>
+          {/* ── CABEÇALHO AZUL ── */}
           <div
             style={{
+              height: "72px",
+              minHeight: "72px",
+              background: C_BLUE,
               display: "flex",
+              alignItems: "center",
               justifyContent: "space-between",
-              alignItems: "flex-start",
-              paddingBottom: "16px",
-              marginBottom: "20px",
-              borderBottom: "1px solid #E5E7EB",
+              padding: `0 ${PAD_X}px`,
+              color: "#FFFFFF",
+              flexShrink: 0,
             }}
           >
-            <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-              {storeSettings?.logo_url && (
+            <div style={{ display: "flex", alignItems: "center", gap: "14px" }}>
+              {storeSettings?.logo_url ? (
                 <img
                   src={resolveSrc(storeSettings.logo_url) || undefined}
                   alt="Logo da loja"
                   loading="eager"
                   referrerPolicy="no-referrer"
                   crossOrigin="anonymous"
-                  style={{ height: "40px", width: "auto", objectFit: "contain", maxWidth: "120px" }}
+                  style={{ height: "40px", width: "auto", objectFit: "contain", maxWidth: "150px", filter: "brightness(0) invert(1)" }}
                 />
-              )}
-
-              {brandLogoUrl && (
-                <div
-                  style={{
-                    height: "28px",
-                    width: "1px",
-                    background: "#E5E7EB",
-                    flexShrink: 0,
-                  }}
-                />
-              )}
-
-              {brandLogoUrl && (
-                <img
-                  src={resolveSrc(brandLogoUrl) || undefined}
-                  alt={brandName || "Marca parceira"}
-                  loading="eager"
-                  referrerPolicy="no-referrer"
-                  crossOrigin="anonymous"
-                  style={{ height: "30px", width: "auto", objectFit: "contain", maxWidth: "140px" }}
-                />
-              )}
-
-              <div>
-                <div style={{ fontSize: "15px", fontWeight: 700, color: "#111827" }}>
+              ) : (
+                <div style={{ fontSize: "18px", fontWeight: 600, letterSpacing: "-0.01em" }}>
                   {storeName || "SIMULAPOOL"}
                 </div>
-                {storeLocation && (
-                  <div style={{ fontSize: "11px", color: "#6B7280", marginTop: "2px" }}>
-                    {storeLocation}
+              )}
+              {storeSettings?.logo_url && storeName && (
+                <div style={{ fontSize: "13px", fontWeight: 500, color: "rgba(255,255,255,0.92)" }}>
+                  {storeName}
+                </div>
+              )}
+            </div>
+
+            <div style={{ textAlign: "right" }}>
+              <div style={{ fontSize: "14px", fontWeight: 600, letterSpacing: "0.02em", color: "#FFFFFF" }}>
+                Proposta Comercial
+              </div>
+              <div style={{ fontSize: "10px", color: "rgba(255,255,255,0.8)", marginTop: "2px" }}>
+                Emitida em {today} · Válida até {validUntil}
+              </div>
+            </div>
+          </div>
+
+          {/* ── CONTEÚDO ── */}
+          <div style={{ padding: `28px ${PAD_X}px 0`, flex: 1, display: "flex", flexDirection: "column" }}>
+            {/* HERO: modelo + dimensões + banner */}
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "1fr 240px",
+                gap: "32px",
+                alignItems: "start",
+                paddingBottom: "24px",
+                borderBottom: `1px solid ${C_DIVIDER}`,
+                marginBottom: "24px",
+              }}
+            >
+              <div>
+                <div
+                  style={{
+                    display: "inline-block",
+                    background: "#E3F2FD",
+                    color: C_BLUE_DEEP,
+                    fontSize: "10px",
+                    fontWeight: 600,
+                    borderRadius: "4px",
+                    padding: "3px 9px",
+                    textTransform: "uppercase",
+                    letterSpacing: "0.6px",
+                    marginBottom: "12px",
+                  }}
+                >
+                  {category}
+                </div>
+                <div style={{ fontSize: "26px", fontWeight: 600, color: C_INK, lineHeight: 1.15, letterSpacing: "-0.02em" }}>
+                  {model.name}
+                </div>
+                {dimensions && (
+                  <div style={{ fontSize: "13px", color: C_MUTED, marginTop: "8px" }}>
+                    Dimensões · {dimensions}
+                  </div>
+                )}
+                {brandName && (
+                  <div style={{ fontSize: "12px", color: C_MUTED, marginTop: "4px" }}>
+                    Marca · <span style={{ color: C_TEXT, fontWeight: 500 }}>{brandName}</span>
+                  </div>
+                )}
+              </div>
+
+              <div>
+                {featuredBanner ? (
+                  <div
+                    style={{
+                      width: "240px",
+                      height: "300px",
+                      borderRadius: "6px",
+                      backgroundColor: C_SURFACE,
+                      overflow: "hidden",
+                    }}
+                  >
+                    <img
+                      src={resolveSrc(featuredBanner.url) || featuredBanner.url}
+                      alt={featuredBanner.name}
+                      loading="eager"
+                      referrerPolicy="no-referrer"
+                      crossOrigin="anonymous"
+                      style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+                    />
+                  </div>
+                ) : (
+                  <div
+                    style={{
+                      width: "240px",
+                      height: "300px",
+                      background: C_SURFACE,
+                      borderRadius: "6px",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      color: C_FAINT,
+                      fontSize: "11px",
+                      textAlign: "center",
+                      padding: "16px",
+                      boxSizing: "border-box",
+                    }}
+                  >
+                    Banner indisponível
                   </div>
                 )}
               </div>
             </div>
 
-            <div style={{ textAlign: "right" }}>
-              <div style={{ fontSize: "16px", fontWeight: 700, color: "#111827", margin: 0 }}>
-                Proposta Comercial
-              </div>
-              <div style={{ fontSize: "10px", color: "#9CA3AF", marginTop: "4px" }}>
-                Emitida em {today}
-              </div>
-              <div style={{ fontSize: "10px", color: "#9CA3AF", marginTop: "1px" }}>
-                Válida até {validUntil}
-              </div>
-            </div>
-          </div>
-
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "456px 254px",
-              gap: "28px",
-              alignItems: "start",
-              marginBottom: "18px",
-            }}
-          >
-            <div>
-              <div style={{ fontSize: "18px", fontWeight: 700, color: "#111827", margin: 0 }}>
-                {model.name}
-              </div>
-              <div
-                style={{
-                  display: "inline-block",
-                  background: "#E0F2FE",
-                  color: "#0369A1",
-                  fontSize: "10px",
-                  fontWeight: 600,
-                  borderRadius: "4px",
-                  padding: "2px 8px",
-                  textTransform: "uppercase",
-                  marginTop: "6px",
-                }}
-              >
-                {category}
-              </div>
-              {dimensions && (
-                <div style={{ fontSize: "12px", color: "#6B7280", marginTop: "8px" }}>
-                  Dimensões: {dimensions}
-                </div>
-              )}
-              <div style={{ fontSize: "13px", fontWeight: 600, color: "#111827", marginTop: "6px" }}>
-                Valor base: {fmt(displayBasePrice)}
-              </div>
-            </div>
-
-            <div>
-              {featuredBanner ? (
-                <div
-                  style={{
-                    width: "254px",
-                    height: "316px",
-                    borderRadius: "10px",
-                    border: "1px solid #E5E7EB",
-                    backgroundColor: "#F8F9FA",
-                    overflow: "hidden",
-                    position: "relative",
-                  }}
-                >
-                  <img
-                    src={resolveSrc(featuredBanner.url) || featuredBanner.url}
-                    alt={featuredBanner.name}
-                    loading="eager"
-                    referrerPolicy="no-referrer"
-                    crossOrigin="anonymous"
-                    style={{
-                      width: "100%",
-                      height: "100%",
-                      objectFit: "cover",
-                      display: "block",
-                    }}
-                  />
-                </div>
-              ) : (
-                <div
-                  style={{
-                    width: "254px",
-                    height: "316px",
-                    background: "#F8F9FA",
-                    borderRadius: "10px",
-                    border: "1px solid #E5E7EB",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    color: "#9CA3AF",
-                    fontSize: "11px",
-                    textAlign: "center",
-                    padding: "16px",
-                    boxSizing: "border-box",
-                  }}
-                >
-                  Banner da marca indisponível
-                </div>
-              )}
-            </div>
-          </div>
-
-          <div style={{ marginBottom: "16px" }}>
-            <p style={{ ...LABEL, marginBottom: "8px" }}>CLIENTE</p>
-            <div
-              style={{
-                background: "#F9FAFB",
-                borderLeft: "3px solid #1A56DB",
-                padding: "12px 16px",
-              }}
-            >
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "16px" }}>
+            {/* CLIENTE */}
+            <div style={{ paddingBottom: "20px", borderBottom: `1px solid ${C_DIVIDER}`, marginBottom: "24px" }}>
+              <p style={{ ...LABEL, marginBottom: "12px" }}>Cliente</p>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "24px" }}>
                 {[
                   { label: "Nome", value: customerData.name },
                   { label: "WhatsApp", value: customerData.whatsapp },
                   { label: "Cidade", value: customerData.city },
                 ].map((field) => (
                   <div key={field.label}>
-                    <div style={{ fontSize: "10px", color: "#9CA3AF", textTransform: "uppercase", letterSpacing: "0.5px", fontWeight: 500 }}>
+                    <div style={{ fontSize: "10px", color: C_FAINT, textTransform: "uppercase", letterSpacing: "0.6px", fontWeight: 500, marginBottom: "4px" }}>
                       {field.label}
                     </div>
-                    <div style={{ fontSize: "13px", fontWeight: 600, color: "#111827" }}>
-                      {field.value}
+                    <div style={{ fontSize: "14px", fontWeight: 600, color: C_INK }}>
+                      {field.value || "—"}
                     </div>
                   </div>
                 ))}
               </div>
             </div>
-          </div>
 
-          {model.included_items.length > 0 && (
-            <div style={{ marginBottom: "16px" }}>
-              <p style={{ ...LABEL, marginBottom: "8px" }}>ITENS INCLUSOS</p>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "24px" }}>
-                {materiais.length > 0 && (
-                  <div>
-                    <div style={{ fontSize: "10px", fontWeight: 700, color: "#0EA5E9", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "6px" }}>
-                      EQUIPAMENTOS
+            {/* ITENS INCLUSOS */}
+            {model.included_items.length > 0 && (
+              <div style={{ paddingBottom: "20px", borderBottom: `1px solid ${C_DIVIDER}`, marginBottom: "24px" }}>
+                <p style={{ ...LABEL, marginBottom: "14px" }}>Itens inclusos</p>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "24px 32px" }}>
+                  {materiais.length > 0 && (
+                    <div>
+                      <div style={{ fontSize: "10px", fontWeight: 600, color: C_BLUE, textTransform: "uppercase", letterSpacing: "0.6px", marginBottom: "10px" }}>
+                        Equipamentos
+                      </div>
+                      <ul style={{ margin: 0, padding: 0, listStyle: "none" }}>
+                        {materiais.map((item, i) => (
+                          <li key={`m-${i}`} style={{ fontSize: "12px", color: C_TEXT, lineHeight: 1.7, position: "relative", paddingLeft: "14px", marginBottom: "3px" }}>
+                            <span style={{ position: "absolute", left: 0, top: "8px", width: "5px", height: "5px", borderRadius: "50%", background: C_BLUE }} />
+                            {item}
+                          </li>
+                        ))}
+                      </ul>
                     </div>
-                    <ul style={{ margin: 0, padding: 0 }}>
-                      {materiais.map((item, i) => (
-                        <li key={`m-${i}`} style={{ fontSize: "11px", color: "#374151", lineHeight: 1.6, listStyleType: "none", position: "relative", paddingLeft: "12px", marginBottom: "2px" }}>
-                          <span style={{ position: "absolute", left: 0, color: "#0EA5E9", fontWeight: 700 }}>•</span>
-                          {item}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
+                  )}
 
-                {maoDeObra.length > 0 && (
-                  <div>
-                    <div style={{ fontSize: "10px", fontWeight: 700, color: "#F59E0B", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "6px" }}>
-                      MÃO DE OBRA
+                  {maoDeObra.length > 0 && (
+                    <div>
+                      <div style={{ fontSize: "10px", fontWeight: 600, color: "#B45309", textTransform: "uppercase", letterSpacing: "0.6px", marginBottom: "10px" }}>
+                        Mão de obra
+                      </div>
+                      <ul style={{ margin: 0, padding: 0, listStyle: "none" }}>
+                        {maoDeObra.map((item, i) => (
+                          <li key={`mo-${i}`} style={{ fontSize: "12px", color: C_TEXT, lineHeight: 1.7, position: "relative", paddingLeft: "14px", marginBottom: "3px" }}>
+                            <span style={{ position: "absolute", left: 0, top: "8px", width: "5px", height: "5px", borderRadius: "50%", background: "#D97706" }} />
+                            {item}
+                          </li>
+                        ))}
+                      </ul>
                     </div>
-                    <ul style={{ margin: 0, padding: 0 }}>
-                      {maoDeObra.map((item, i) => (
-                        <li key={`mo-${i}`} style={{ fontSize: "11px", color: "#374151", lineHeight: 1.6, listStyleType: "none", position: "relative", paddingLeft: "12px", marginBottom: "2px" }}>
-                          <span style={{ position: "absolute", left: 0, color: "#F59E0B", fontWeight: 700 }}>•</span>
-                          {item}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
+                  )}
+                </div>
               </div>
-            </div>
-          )}
+            )}
 
-          {selectedOptionals.length > 0 && (
-            <div style={{ marginBottom: "10px" }}>
-              <p style={{ ...LABEL, marginBottom: "8px" }}>OPCIONAIS</p>
-              <table style={{ width: "100%", fontSize: "11px", borderCollapse: "collapse" }}>
-                <tbody>
-                  {selectedOptionals.map((opt, i) => (
-                    <tr key={i} style={{ borderBottom: i < selectedOptionals.length - 1 ? "1px solid #F3F4F6" : "none" }}>
-                      <td style={{ padding: "6px 0", color: "#374151" }}>{opt.name}</td>
-                      <td style={{ padding: "6px 0", textAlign: "right", fontWeight: 600, color: "#111827", whiteSpace: "nowrap" }}>
-                        {fmt(opt.price)}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
+            {/* OPCIONAIS (apenas com valor > 0) */}
+            {visibleOptionals.length > 0 && (
+              <div style={{ paddingBottom: "20px", borderBottom: `1px solid ${C_DIVIDER}`, marginBottom: "24px" }}>
+                <p style={{ ...LABEL, marginBottom: "12px" }}>Opcionais selecionados</p>
+                <table style={{ width: "100%", fontSize: "12px", borderCollapse: "collapse" }}>
+                  <tbody>
+                    {visibleOptionals.map((opt, i) => (
+                      <tr key={i} style={{ borderBottom: i < visibleOptionals.length - 1 ? `1px solid ${C_DIVIDER}` : "none" }}>
+                        <td style={{ padding: "10px 0", color: C_TEXT }}>{opt.name}</td>
+                        <td style={{ padding: "10px 0", textAlign: "right", fontWeight: 600, color: C_INK, whiteSpace: "nowrap" }}>
+                          {fmt(opt.price)}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
 
-          {model.not_included_items && model.not_included_items.length > 0 && (
-            <div style={{ marginBottom: "0" }}>
-              <p style={{ ...LABEL, marginBottom: "8px", color: "#DC2626" }}>NÃO INCLUSOS</p>
-              <div style={{ borderLeft: "3px solid #EF4444", background: "#FEF2F2", padding: "10px 14px" }}>
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "4px 20px" }}>
+            {/* NÃO INCLUSOS */}
+            {model.not_included_items && model.not_included_items.length > 0 && (
+              <div>
+                <p style={{ ...LABEL, marginBottom: "12px", color: "#B91C1C" }}>Não inclusos</p>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "6px 32px" }}>
                   {model.not_included_items.map((item, i) => (
-                    <div key={i} style={{ fontSize: "11px", color: "#374151" }}>{item}</div>
+                    <div key={i} style={{ fontSize: "12px", color: C_TEXT, position: "relative", paddingLeft: "14px" }}>
+                      <span style={{ position: "absolute", left: 0, top: "8px", width: "5px", height: "5px", borderRadius: "50%", background: "#DC2626" }} />
+                      {item}
+                    </div>
                   ))}
                 </div>
               </div>
-            </div>
-          )}
+            )}
+          </div>
         </div>
+
 
         <div data-pdf-page style={PAGE_STYLE}>
           <div
