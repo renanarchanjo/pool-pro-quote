@@ -227,7 +227,7 @@ export const exportPDF = async ({
         .set({
           margin: [10, 10, 10, 10],
           filename,
-          image: { type: "jpeg", quality: 0.75 },
+          image: { type: "jpeg", quality: 0.92 },
           html2canvas: {
             scale,
             useCORS: true,
