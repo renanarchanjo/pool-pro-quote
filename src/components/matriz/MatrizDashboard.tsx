@@ -510,7 +510,7 @@ function StoreSalesPanel({ stores, proposals, stateMap, topStates, maxStateCount
   const mapStores = useMemo(() =>
     filteredStores
       .filter(s => storeFilter === "all" || s.id === storeFilter)
-      .map(s => ({ id: s.id, name: s.name, city: s.city, state: s.state })),
+      .map(s => ({ id: s.id, name: s.name, city: s.city, state: s.state, latitude: (s as any).latitude, longitude: (s as any).longitude })),
   [filteredStores, storeFilter]);
 
   const mapStateData = useMemo(() => {
