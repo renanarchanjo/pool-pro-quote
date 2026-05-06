@@ -127,14 +127,17 @@ const ManualProposal = () => {
   }, [optionals]);
 
   useEffect(() => {
-    if (!selectedModel) { setIncludedItemsTotal(0); return; }
+    if (!selectedModel) { setIncludedItemsTotal(0); setIncludedItemsList([]); return; }
     const fetchInclTotal = async () => {
       const { data } = await supabase
         .from("model_included_items")
-        .select("price")
+        .select("name, quantity, price, item_type")
         .eq("model_id", selectedModel.id)
-        .eq("active", true);
-      setIncludedItemsTotal((data || []).reduce((sum, item) => sum + Number(item.price), 0));
+        .eq("active", true)
+        .order("display_order");
+      const items = data || [];
+      setIncludedItemsTotal(items.reduce((sum, item) => sum + Number(item.price), 0));
+      setIncludedItemsList(items.map(i => ({ name: i.name, quantity: Number(i.quantity) || 1, item_type: i.item_type || "material" })));
     };
     fetchInclTotal();
   }, [selectedModel?.id]);
