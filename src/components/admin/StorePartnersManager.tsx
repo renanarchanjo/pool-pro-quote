@@ -136,7 +136,7 @@ const StorePartnersManager = () => {
       <div>
         <h1 className="text-3xl font-bold">Marcas Parceiras</h1>
         <p className="text-muted-foreground mt-1">
-          Selecione as marcas parceiras — o catálogo (marca + categorias) será criado automaticamente
+          Selecione as marcas parceiras — o catálogo (marca, categorias, modelos e opcionais) será criado automaticamente.
         </p>
       </div>
 
