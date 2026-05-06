@@ -1344,28 +1344,16 @@ const PoolModelManager = () => {
                   </div>
 
                   {/* Info */}
-                  <div className="p-3 flex flex-col gap-2 flex-1">
-                    <div className="min-w-0">
-                      <h3 className="font-semibold text-sm truncate" title={model.name}>{model.name}</h3>
-                      <p className="text-[11px] text-muted-foreground truncate">
-                        {brandName ? `${brandName} • ` : ""}{catName}
+                  <div className="p-3 flex flex-col gap-1 flex-1">
+                    <h3 className="font-semibold text-sm truncate" title={model.name}>{model.name}</h3>
+                    <p className="text-[11px] text-muted-foreground truncate">
+                      {brandName ? `${brandName} • ` : ""}{catName}
+                    </p>
+                    {(model.length || model.width || model.depth) && (
+                      <p className="text-[11px] text-muted-foreground mt-auto">
+                        {model.length || "?"}m × {model.width || "?"}m{model.depth ? ` × ${model.depth}m` : ""}
                       </p>
-                    </div>
-
-                    <div className="flex flex-wrap gap-1">
-                      {mIncl.length > 0 && (
-                        <Badge className="text-[10px] h-5 bg-emerald-100 text-emerald-700 dark:bg-emerald-900 dark:text-emerald-300">
-                          {mIncl.length} incl.
-                        </Badge>
-                      )}
-                      {mOpts.length > 0 && (
-                        <Badge className="text-[10px] h-5 bg-accent text-accent-foreground">
-                          {mOpts.length} dim.
-                        </Badge>
-                      )}
-                    </div>
-
-                    <p className="font-bold text-primary text-sm mt-auto">R$ {fmt(displayPrice)}</p>
+                    )}
 
                     {/* Actions */}
                     <div className="flex items-center justify-between gap-1 pt-2 border-t border-border/50">
