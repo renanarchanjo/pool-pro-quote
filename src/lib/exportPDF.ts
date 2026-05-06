@@ -1,5 +1,13 @@
-import html2canvas from "html2canvas";
-import html2pdf from "html2pdf.js";
+import html2canvas from "html2canvas-pro";
+import html2pdfRaw from "html2pdf.js";
+
+// Patch html2pdf to use html2canvas-pro (fixes flex/grid layout bugs in PDFs)
+const html2pdf: typeof html2pdfRaw = ((...args: unknown[]) => {
+  // @ts-expect-error - html2pdf internal
+  const inst = (html2pdfRaw as any)(...args);
+  return inst;
+}) as any;
+Object.assign(html2pdf, html2pdfRaw);
 import { jsPDF } from "jspdf";
 import { toast } from "sonner";
 import { inlineImagesForPdf } from "@/lib/pdfImageUtils";
