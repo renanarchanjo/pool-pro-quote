@@ -16,7 +16,8 @@ import OwnerOnboardingModal from "@/components/admin/OwnerOnboardingModal";
 
 // Lazy load ALL sub-pages for smaller initial bundle
 const AdminDashboard = lazy(() => import("@/components/admin/AdminDashboard"));
-const BrandCategoryManager = lazy(() => import("@/components/admin/BrandCategoryManager"));
+const BrandsAndCategoriesPage = lazy(() => import("@/components/admin/BrandsAndCategoriesPage"));
+const AdminClients = lazy(() => import("@/components/admin/AdminClients"));
 const PoolModelManager = lazy(() => import("@/components/admin/PoolModelManager"));
 const OptionalManager = lazy(() => import("@/components/admin/OptionalManager"));
 const AdminProfile = lazy(() => import("@/components/admin/AdminProfile"));
