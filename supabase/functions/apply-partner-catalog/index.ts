@@ -43,14 +43,81 @@ Deno.serve(async (req) => {
       return new Response(JSON.stringify({ error: "Forbidden" }), { status: 403, headers: { ...cors, "Content-Type": "application/json" } });
     }
 
-    // Check if partner has catalog
+    // === CLEANUP: remove any existing partner catalog rows for this store/partner ===
+    // We match by partner_id (brands) and by partner_locked + name (groups/templates) to avoid duplicates.
+    const cleanup = async () => {
+      // 1. Brands: delete ALL brands of this store linked to this partner (regardless of partner_locked flag)
+      const { data: existingBrands } = await admin
+        .from("brands").select("id").eq("store_id", body.store_id).eq("partner_id", body.partner_id);
+      const brandIds = (existingBrands || []).map((b: any) => b.id);
+
+      if (brandIds.length) {
+        const { data: existingCats } = await admin.from("categories").select("id").in("brand_id", brandIds);
+        const catIds = (existingCats || []).map((c: any) => c.id);
+        if (catIds.length) {
+          const { data: existingModels } = await admin.from("pool_models").select("id").in("category_id", catIds);
+          const modelIds = (existingModels || []).map((m: any) => m.id);
+          if (modelIds.length) {
+            await admin.from("model_optionals").delete().in("model_id", modelIds);
+            await admin.from("model_included_items").delete().in("model_id", modelIds);
+            await admin.from("pool_models").delete().in("id", modelIds);
+          }
+          await admin.from("categories").delete().in("id", catIds);
+        }
+        await admin.from("brands").delete().in("id", brandIds);
+      }
+
+      // Also defensive: pool_models with partner_locked_source = this partner that escaped above
+      const { data: orphanModels } = await admin
+        .from("pool_models").select("id").eq("store_id", body.store_id).eq("partner_locked_source", body.partner_id);
+      const orphanIds = (orphanModels || []).map((m: any) => m.id);
+      if (orphanIds.length) {
+        await admin.from("model_optionals").delete().in("model_id", orphanIds);
+        await admin.from("model_included_items").delete().in("model_id", orphanIds);
+        await admin.from("pool_models").delete().in("id", orphanIds);
+      }
+
+      // Optional groups / templates: identified by partner_locked + matching names from this partner's catalog
+      const { data: pGroupsForCleanup } = await admin
+        .from("partner_catalog_optional_groups").select("name").eq("partner_id", body.partner_id);
+      const pGroupNames = (pGroupsForCleanup || []).map((g: any) => g.name);
+      if (pGroupNames.length) {
+        const { data: existingGroups } = await admin
+          .from("optional_groups").select("id").eq("store_id", body.store_id).eq("partner_locked", true).in("name", pGroupNames);
+        const groupIds = (existingGroups || []).map((g: any) => g.id);
+        if (groupIds.length) {
+          await admin.from("optionals").delete().in("group_id", groupIds).eq("partner_locked", true);
+          await admin.from("optional_groups").delete().in("id", groupIds);
+        }
+      }
+
+      const { data: pTmplsForCleanup } = await admin
+        .from("partner_catalog_item_templates").select("name").eq("partner_id", body.partner_id);
+      const pTmplNames = (pTmplsForCleanup || []).map((t: any) => t.name);
+      if (pTmplNames.length) {
+        const { data: existingTmpls } = await admin
+          .from("included_item_templates").select("id").eq("store_id", body.store_id).eq("partner_locked", true).in("name", pTmplNames);
+        const tmplIds = (existingTmpls || []).map((t: any) => t.id);
+        if (tmplIds.length) {
+          await admin.from("included_item_template_items").delete().in("template_id", tmplIds).eq("partner_locked", true);
+          await admin.from("included_item_templates").delete().in("id", tmplIds);
+        }
+      }
+    };
+
+    // === REMOVE mode: just clean up and exit ===
+    if (body.mode === "remove") {
+      await cleanup();
+      return new Response(JSON.stringify({ ok: true, removed: true }), { headers: { ...cors, "Content-Type": "application/json" } });
+    }
+
+    // Check if partner has catalog (apply mode)
     const { data: pBrands, error: pBrandsErr } = await admin
       .from("partner_catalog_brands").select("id, name, description").eq("partner_id", body.partner_id);
     if (pBrandsErr) throw pBrandsErr;
 
     const hasCatalog = (pBrands?.length || 0) > 0;
     if (!hasCatalog) {
-      // Nothing to apply but also check optional groups / templates
       const [{ data: oGroups }, { data: tmpls }] = await Promise.all([
         admin.from("partner_catalog_optional_groups").select("id").eq("partner_id", body.partner_id).limit(1),
         admin.from("partner_catalog_item_templates").select("id").eq("partner_id", body.partner_id).limit(1),
@@ -60,57 +127,8 @@ Deno.serve(async (req) => {
       }
     }
 
-    // === DELETE existing partner_locked rows tied to this partner in this store ===
-    // 1. Find brands of this store linked to this partner
-    const { data: existingBrands } = await admin
-      .from("brands").select("id").eq("store_id", body.store_id).eq("partner_id", body.partner_id).eq("partner_locked", true);
-    const brandIds = (existingBrands || []).map((b: any) => b.id);
-
-    if (brandIds.length) {
-      // categories of those brands
-      const { data: existingCats } = await admin.from("categories").select("id").in("brand_id", brandIds).eq("partner_locked", true);
-      const catIds = (existingCats || []).map((c: any) => c.id);
-      if (catIds.length) {
-        const { data: existingModels } = await admin.from("pool_models").select("id").in("category_id", catIds).eq("partner_locked", true);
-        const modelIds = (existingModels || []).map((m: any) => m.id);
-        if (modelIds.length) {
-          await admin.from("model_optionals").delete().in("model_id", modelIds).eq("partner_locked", true);
-          await admin.from("model_included_items").delete().in("model_id", modelIds).eq("partner_locked", true);
-          await admin.from("pool_models").delete().in("id", modelIds);
-        }
-        await admin.from("categories").delete().in("id", catIds);
-      }
-      await admin.from("brands").delete().in("id", brandIds);
-    }
-
-    // Optional groups & their optionals: identify by partner_locked_source mapping is complex
-    // For groups/templates we use a name-based + partner_locked flag approach: delete all partner_locked groups/templates of this store that came from THIS partner.
-    // Since there's no partner_id column on groups/templates, we use the source partner via the partner_catalog_optional_groups names: simpler approach -> delete all partner_locked groups with names from this partner's catalog.
-    const { data: pGroupsForCleanup } = await admin
-      .from("partner_catalog_optional_groups").select("name").eq("partner_id", body.partner_id);
-    const pGroupNames = (pGroupsForCleanup || []).map((g: any) => g.name);
-    if (pGroupNames.length) {
-      const { data: existingGroups } = await admin
-        .from("optional_groups").select("id").eq("store_id", body.store_id).eq("partner_locked", true).in("name", pGroupNames);
-      const groupIds = (existingGroups || []).map((g: any) => g.id);
-      if (groupIds.length) {
-        await admin.from("optionals").delete().in("group_id", groupIds).eq("partner_locked", true);
-        await admin.from("optional_groups").delete().in("id", groupIds);
-      }
-    }
-
-    const { data: pTmplsForCleanup } = await admin
-      .from("partner_catalog_item_templates").select("name").eq("partner_id", body.partner_id);
-    const pTmplNames = (pTmplsForCleanup || []).map((t: any) => t.name);
-    if (pTmplNames.length) {
-      const { data: existingTmpls } = await admin
-        .from("included_item_templates").select("id").eq("store_id", body.store_id).eq("partner_locked", true).in("name", pTmplNames);
-      const tmplIds = (existingTmpls || []).map((t: any) => t.id);
-      if (tmplIds.length) {
-        await admin.from("included_item_template_items").delete().in("template_id", tmplIds).eq("partner_locked", true);
-        await admin.from("included_item_templates").delete().in("id", tmplIds);
-      }
-    }
+    // Always cleanup before insert to guarantee no duplicates
+    await cleanup();
 
     // === INSERT from partner_catalog_* ===
     let insertedBrands = 0, insertedCategories = 0, insertedModels = 0, insertedOptionalGroups = 0, insertedTemplates = 0;
