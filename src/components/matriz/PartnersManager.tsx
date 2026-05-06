@@ -409,14 +409,6 @@ const PartnersManager = () => {
                             <Label className="text-xs">Nome</Label>
                             <Input value={partner.name} onChange={(e) => updatePartnerField(partner.id, "name", e.target.value)} className="h-8 text-sm mt-0.5" />
                           </div>
-                          <div className="flex items-center gap-2 mb-2">
-                            <div>
-                              <Label className="text-xs">Ranking</Label>
-                              <Input type="number" min={1} max={99} value={partner.ranking}
-                                onChange={(e) => { const val = parseInt(e.target.value); if (!isNaN(val)) updatePartnerField(partner.id, "ranking", val); }}
-                                className="w-20 h-8 text-xs text-center mt-0.5" />
-                            </div>
-                          </div>
                           <div>
                             <Label className="text-xs">Banner da Proposta (URL)</Label>
                             <Input className="h-8 text-xs mt-0.5" placeholder="URL do banner lateral"
@@ -429,7 +421,7 @@ const PartnersManager = () => {
                         <>
                           <p className="font-semibold truncate">{partner.name}</p>
                           <p className="text-xs text-muted-foreground">
-                            {RANKING_LABELS[partner.ranking] || `${partner.ranking}º Lugar`} · {partner.active ? "Ativo" : "Oculto"}
+                            {partner.active ? "Ativo" : "Oculto"}
                           </p>
                           {partner.banner_1_url && <p className="text-[10px] text-muted-foreground mt-1 truncate">🖼 Banner configurado</p>}
                           <button onClick={() => setExpandedPartner(isExpanded ? null : partner.id)} className="mt-1 text-xs text-primary hover:underline flex items-center gap-1">
