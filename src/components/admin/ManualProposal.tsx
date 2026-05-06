@@ -769,9 +769,6 @@ const ManualProposal = () => {
                     {m.length}m × {m.width}m{m.depth ? ` × ${m.depth}m` : ""}
                   </p>
                 )}
-                <p className="text-sm font-bold text-primary mt-1.5">
-                  R$ {m.base_price.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
-                </p>
               </div>
             </button>
           );
