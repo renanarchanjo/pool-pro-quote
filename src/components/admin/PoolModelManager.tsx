@@ -707,7 +707,7 @@ const PoolModelManager = () => {
 
           {/* TAB: Dados */}
           <TabsContent value="dados">
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form onSubmit={handleNextFromDados} className="space-y-4">
               <div className="grid md:grid-cols-2 gap-4">
                 <div>
                   <Label>Categoria (Marca) *</Label>
@@ -815,7 +815,7 @@ const PoolModelManager = () => {
               
 
               <div className="flex gap-2">
-                <Button type="submit" className="gradient-primary text-white">Salvar Alterações</Button>
+                <Button type="submit" className="gradient-primary text-white">Próximo</Button>
                 {editing && <Button type="button" variant="outline" onClick={resetForm}>Cancelar</Button>}
               </div>
             </form>
@@ -1091,8 +1091,8 @@ const PoolModelManager = () => {
 
                     {/* Action buttons */}
                     <div className="flex flex-wrap gap-2">
-                      <Button type="button" onClick={() => handleSubmit()} className="gradient-primary text-white">
-                        Salvar Modelo e Itens
+                      <Button type="button" onClick={handleNextFromItens} className="gradient-primary text-white">
+                        Próximo
                       </Button>
                       {currentIncludedItems.length > 0 && (
                         <Button type="button" variant="outline" onClick={() => { setTemplateName(""); setShowSaveTemplateDialog(true); }}>
