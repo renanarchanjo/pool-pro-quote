@@ -217,6 +217,8 @@ const Admin = () => {
       <FloatingPanel open={panelOpen} onClose={() => setPanelOpen(false)}>
         <AdminSidebarContent onNavigate={() => setPanelOpen(false)} />
       </FloatingPanel>
+
+      {pwaGuideOpen && <PwaInstallGuide onClose={() => setPwaGuideOpen(false)} />}
     </div>
   );
 };
