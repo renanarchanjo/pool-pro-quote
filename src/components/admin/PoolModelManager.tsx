@@ -233,15 +233,15 @@ const PoolModelManager = () => {
     finally { setSaving(false); }
   };
 
-  const handleSubmit = async (e?: React.FormEvent) => {
+  const handleSubmit = async (e?: React.FormEvent): Promise<boolean> => {
     if (e) e.preventDefault();
     if (!formData.name.trim() || !formData.category_id || !formData.base_price) {
-      toast.error("Preencha os campos obrigatórios"); return;
+      toast.error("Preencha os campos obrigatórios"); return false;
     }
-    if (!store) { toast.error("Loja não encontrada"); return; }
+    if (!store) { toast.error("Loja não encontrada"); return false; }
     // Ensure model exists first (create if needed, reuse if already created)
     const modelId = await ensureModelSaved();
-    if (!modelId) return;
+    if (!modelId) return false;
     try {
       const inclNames = currentIncludedItems.map(i => {
         const qty = Number(i.quantity) || 1;
@@ -267,9 +267,31 @@ const PoolModelManager = () => {
       const { error } = await supabase.from("pool_models").update(data).eq("id", modelId);
       if (error) throw error;
       await syncIncludedItemsToModel(modelId);
-      toast.success("Modelo e itens inclusos salvos");
       loadData();
-    } catch (error) { console.error(error); toast.error("Erro ao salvar modelo"); }
+      return true;
+    } catch (error) { console.error(error); toast.error("Erro ao salvar modelo"); return false; }
+  };
+
+  const handleNextFromDados = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    const ok = await handleSubmit();
+    if (ok) {
+      toast.success("Dados salvos. Avançando para Itens Inclusos.");
+      setFormTab("itens");
+    }
+  };
+
+  const handleNextFromItens = async () => {
+    const ok = await handleSubmit();
+    if (ok) {
+      toast.success("Itens salvos. Avançando para Opcionais Dimensionados.");
+      setFormTab("opcionais");
+    }
+  };
+
+  const handleFinalSave = async () => {
+    const ok = await handleSubmit();
+    if (ok) toast.success("Modelo salvo com sucesso!");
   };
 
   const resetForm = () => {
@@ -685,7 +707,7 @@ const PoolModelManager = () => {
 
           {/* TAB: Dados */}
           <TabsContent value="dados">
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form onSubmit={handleNextFromDados} className="space-y-4">
               <div className="grid md:grid-cols-2 gap-4">
                 <div>
                   <Label>Categoria (Marca) *</Label>
@@ -793,7 +815,7 @@ const PoolModelManager = () => {
               
 
               <div className="flex gap-2">
-                <Button type="submit" className="gradient-primary text-white">Salvar Alterações</Button>
+                <Button type="submit" className="gradient-primary text-white">Próximo</Button>
                 {editing && <Button type="button" variant="outline" onClick={resetForm}>Cancelar</Button>}
               </div>
             </form>
@@ -1069,8 +1091,8 @@ const PoolModelManager = () => {
 
                     {/* Action buttons */}
                     <div className="flex flex-wrap gap-2">
-                      <Button type="button" onClick={() => handleSubmit()} className="gradient-primary text-white">
-                        Salvar Modelo e Itens
+                      <Button type="button" onClick={handleNextFromItens} className="gradient-primary text-white">
+                        Próximo
                       </Button>
                       {currentIncludedItems.length > 0 && (
                         <Button type="button" variant="outline" onClick={() => { setTemplateName(""); setShowSaveTemplateDialog(true); }}>
@@ -1186,6 +1208,14 @@ const PoolModelManager = () => {
                     ))}
                   </div>
                 )}
+
+                {/* Final save */}
+                <div className="flex flex-wrap gap-2 pt-2 border-t border-border">
+                  <Button type="button" onClick={handleFinalSave} className="gradient-primary text-white">
+                    <Save className="w-4 h-4 mr-1" /> Salvar Alterações
+                  </Button>
+                  <Button type="button" variant="outline" onClick={resetForm}>Concluir</Button>
+                </div>
               </div>
             )}
           </TabsContent>
