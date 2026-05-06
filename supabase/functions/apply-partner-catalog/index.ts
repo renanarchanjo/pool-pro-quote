@@ -4,7 +4,7 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { getCorsHeaders } from "../_shared/cors.ts";
 
-interface Body { store_id: string; partner_id: string; mode?: "apply" | "remove" }
+interface Body { store_id: string; partner_id: string; mode?: "apply" | "remove" | "sync" }
 
 Deno.serve(async (req) => {
   const cors = getCorsHeaders(req.headers.get("origin"));
@@ -109,6 +109,141 @@ Deno.serve(async (req) => {
     if (body.mode === "remove") {
       await cleanup();
       return new Response(JSON.stringify({ ok: true, removed: true }), { headers: { ...cors, "Content-Type": "application/json" } });
+    }
+
+    // === SYNC mode: add only new items from partner catalog, preserving store edits ===
+    if (body.mode === "sync") {
+      const { data: pBrandsSync } = await admin
+        .from("partner_catalog_brands").select("id, name, description").eq("partner_id", body.partner_id);
+
+      let addedBrands = 0, addedCategories = 0, addedModels = 0, addedOptionalGroups = 0, addedTemplates = 0;
+
+      for (const pb of pBrandsSync || []) {
+        // Find existing brand for this store/partner with same name
+        let { data: brand } = await admin
+          .from("brands").select("id").eq("store_id", body.store_id).eq("partner_id", body.partner_id).eq("name", pb.name).maybeSingle();
+        if (!brand) {
+          const { data: nb, error: bErr } = await admin.from("brands").insert({
+            name: pb.name, description: pb.description, store_id: body.store_id,
+            partner_id: body.partner_id, partner_locked: true, active: true,
+          }).select("id").single();
+          if (bErr) throw bErr;
+          brand = nb; addedBrands++;
+        }
+
+        const { data: pCats } = await admin
+          .from("partner_catalog_categories").select("id, name, description, display_order")
+          .eq("partner_catalog_brand_id", pb.id).order("display_order");
+        for (const pc of pCats || []) {
+          let { data: cat } = await admin
+            .from("categories").select("id").eq("brand_id", brand!.id).eq("name", pc.name).maybeSingle();
+          if (!cat) {
+            const { data: nc, error: cErr } = await admin.from("categories").insert({
+              name: pc.name, description: pc.description, brand_id: brand!.id, store_id: body.store_id,
+              partner_locked: true, active: true,
+            }).select("id").single();
+            if (cErr) throw cErr;
+            cat = nc; addedCategories++;
+          }
+
+          const { data: pModels } = await admin
+            .from("partner_catalog_models").select("*").eq("partner_catalog_category_id", pc.id).order("display_order");
+          for (const pm of pModels || []) {
+            const { data: existingModel } = await admin
+              .from("pool_models").select("id").eq("category_id", cat!.id).eq("name", pm.name).maybeSingle();
+            if (existingModel) continue; // preserve edits
+
+            const { data: newModel, error: mErr } = await admin.from("pool_models").insert({
+              name: pm.name, category_id: cat!.id, store_id: body.store_id,
+              base_price: 0, cost: 0, margin_percent: 0,
+              length: pm.length, width: pm.width, depth: pm.depth,
+              delivery_days: pm.delivery_days, installation_days: pm.installation_days,
+              payment_terms: pm.payment_terms, notes: pm.notes, photo_url: pm.photo_url,
+              differentials: pm.differentials || [], included_items: pm.included_items || [],
+              not_included_items: pm.not_included_items || [],
+              display_order: pm.display_order ?? 0, active: true,
+              partner_locked: true, partner_locked_source: body.partner_id,
+            }).select("id").single();
+            if (mErr) throw mErr;
+            addedModels++;
+
+            const { data: pmOpts } = await admin.from("partner_catalog_model_optionals")
+              .select("name, description, item_type, display_order").eq("partner_catalog_model_id", pm.id);
+            if (pmOpts?.length) {
+              await admin.from("model_optionals").insert(pmOpts.map((o: any) => ({
+                model_id: newModel.id, store_id: body.store_id,
+                name: o.name, description: o.description, item_type: o.item_type, display_order: o.display_order ?? 0,
+                price: 0, cost: 0, margin_percent: 0, active: true, partner_locked: true,
+              })));
+            }
+            const { data: pmInc } = await admin.from("partner_catalog_model_included_items")
+              .select("name, quantity, item_type, display_order").eq("partner_catalog_model_id", pm.id);
+            if (pmInc?.length) {
+              await admin.from("model_included_items").insert(pmInc.map((i: any) => ({
+                model_id: newModel.id, store_id: body.store_id,
+                name: i.name, quantity: i.quantity ?? 1, item_type: i.item_type, display_order: i.display_order ?? 0,
+                price: 0, cost: 0, margin_percent: 0, active: true, partner_locked: true,
+              })));
+            }
+          }
+        }
+      }
+
+      // Optional groups (sync new only by name)
+      const { data: pGroupsSync } = await admin.from("partner_catalog_optional_groups")
+        .select("id, name, description, selection_type, display_order").eq("partner_id", body.partner_id).order("display_order");
+      for (const pg of pGroupsSync || []) {
+        const { data: existingG } = await admin
+          .from("optional_groups").select("id").eq("store_id", body.store_id).eq("name", pg.name).maybeSingle();
+        if (existingG) continue;
+        const { data: newG, error: gErr } = await admin.from("optional_groups").insert({
+          name: pg.name, description: pg.description, selection_type: pg.selection_type ?? "multiple",
+          display_order: pg.display_order ?? 0, store_id: body.store_id, active: true, partner_locked: true,
+        }).select("id").single();
+        if (gErr) throw gErr;
+        addedOptionalGroups++;
+        const { data: pOpts } = await admin.from("partner_catalog_optionals")
+          .select("name, description, warning_note, display_order, item_type")
+          .eq("partner_catalog_optional_group_id", pg.id).order("display_order");
+        if (pOpts?.length) {
+          await admin.from("optionals").insert(pOpts.map((o: any) => ({
+            group_id: newG.id, store_id: body.store_id,
+            name: o.name, description: o.description, warning_note: o.warning_note,
+            display_order: o.display_order ?? 0, item_type: o.item_type ?? "material",
+            price: 0, cost: 0, margin_percent: 0, active: true, partner_locked: true,
+          })));
+        }
+      }
+
+      // Item templates (sync new only by name)
+      const { data: pTmplsSync } = await admin.from("partner_catalog_item_templates")
+        .select("id, name, not_included_items").eq("partner_id", body.partner_id);
+      for (const pt of pTmplsSync || []) {
+        const { data: existingT } = await admin
+          .from("included_item_templates").select("id").eq("store_id", body.store_id).eq("name", pt.name).maybeSingle();
+        if (existingT) continue;
+        const { data: newT, error: tErr } = await admin.from("included_item_templates").insert({
+          name: pt.name, not_included_items: pt.not_included_items || [],
+          store_id: body.store_id, partner_locked: true,
+        }).select("id").single();
+        if (tErr) throw tErr;
+        addedTemplates++;
+        const { data: pTi } = await admin.from("partner_catalog_item_template_items")
+          .select("name, quantity, item_type, display_order").eq("partner_catalog_item_template_id", pt.id);
+        if (pTi?.length) {
+          await admin.from("included_item_template_items").insert(pTi.map((i: any) => ({
+            template_id: newT.id, store_id: body.store_id,
+            name: i.name, quantity: i.quantity ?? 1, item_type: i.item_type ?? "material",
+            display_order: i.display_order ?? 0,
+            price: 0, cost: 0, margin_percent: 0, partner_locked: true,
+          })));
+        }
+      }
+
+      return new Response(JSON.stringify({
+        ok: true, synced: true,
+        summary: { addedBrands, addedCategories, addedModels, addedOptionalGroups, addedTemplates },
+      }), { headers: { ...cors, "Content-Type": "application/json" } });
     }
 
     // Check if partner has catalog (apply mode)
