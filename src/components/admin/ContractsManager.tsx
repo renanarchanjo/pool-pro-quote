@@ -153,7 +153,53 @@ const ContractsManager = () => {
     return () => clearTimeout(t);
   }, [open, proposalQuery, store?.id]);
 
-  const openNew = () => { setForm(emptyForm); setProposalQuery(""); setOpen(true); };
+  // Load existing terms acceptance
+  useEffect(() => {
+    (async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      const uid = session?.user?.id;
+      if (!uid) return;
+      const { data } = await supabase
+        .from("profiles")
+        .select("contract_terms_accepted_at")
+        .eq("id", uid)
+        .maybeSingle();
+      if (data?.contract_terms_accepted_at) setTermsAcceptedAt(data.contract_terms_accepted_at as any);
+    })();
+  }, []);
+
+  const openNew = () => {
+    setForm(emptyForm); setProposalQuery("");
+    if (!termsAcceptedAt) {
+      setTermsChecked(false);
+      setTermsOpen(true);
+      return;
+    }
+    setOpen(true);
+  };
+
+  const acceptTerms = async () => {
+    if (!termsChecked) return;
+    setAcceptingTerms(true);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const uid = session?.user?.id;
+      if (!uid) { toast.error("Sessão expirada"); return; }
+      const nowIso = new Date().toISOString();
+      const { error } = await supabase
+        .from("profiles")
+        .update({ contract_terms_accepted_at: nowIso })
+        .eq("id", uid);
+      if (error) throw error;
+      setTermsAcceptedAt(nowIso);
+      setTermsOpen(false);
+      setOpen(true);
+    } catch (e: any) {
+      toast.error("Erro ao registrar aceite");
+    } finally {
+      setAcceptingTerms(false);
+    }
+  };
 
   const linkProposal = async (p: any) => {
     // Fetch enriched proposal data (model + brand + dimensions)
