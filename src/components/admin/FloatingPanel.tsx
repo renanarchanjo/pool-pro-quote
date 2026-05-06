@@ -1,4 +1,5 @@
 import { useEffect, useRef } from "react";
+import { createPortal } from "react-dom";
 import { cn } from "@/lib/utils";
 
 interface FloatingPanelProps {
@@ -23,22 +24,31 @@ const FloatingPanel = ({ open, onClose, children }: FloatingPanelProps) => {
   useEffect(() => {
     if (open) {
       document.body.style.overflow = "hidden";
+      document.documentElement.style.overflowX = "hidden";
+      document.body.scrollLeft = 0;
+      document.documentElement.scrollLeft = 0;
       requestAnimationFrame(() => {
         const el = panelRef.current?.querySelector<HTMLElement>("button, a, [tabindex]");
         el?.focus();
       });
     } else {
       document.body.style.overflow = "";
+      document.documentElement.style.overflowX = "";
     }
-    return () => { document.body.style.overflow = ""; };
+    return () => {
+      document.body.style.overflow = "";
+      document.documentElement.style.overflowX = "";
+    };
   }, [open]);
 
-  return (
-    <>
+  if (typeof document === "undefined") return null;
+
+  return createPortal(
+    <div className="fixed inset-0 z-[60] overflow-hidden pointer-events-none">
       {/* Overlay */}
       <div
         className={cn(
-          "fixed inset-0 z-[60] transition-all duration-250",
+          "absolute inset-0 transition-all duration-250",
           open
             ? "bg-black/30 md:bg-transparent backdrop-blur-[2px] md:backdrop-blur-0 pointer-events-auto"
             : "bg-transparent backdrop-blur-0 pointer-events-none opacity-0"
@@ -51,10 +61,10 @@ const FloatingPanel = ({ open, onClose, children }: FloatingPanelProps) => {
       <div
         ref={panelRef}
         className={cn(
-          "fixed z-[61] flex flex-col",
-          "right-3 md:right-5",
+          "absolute z-[61] flex flex-col",
+          "right-3 md:right-5 left-auto",
           "top-1/2 -translate-y-1/2",
-          "w-[80vw] max-w-[280px] md:w-[280px]",
+          "w-[min(280px,calc(100vw-24px))] md:w-[280px]",
           "max-h-[calc(100dvh-80px)]",
           "bg-background border border-border",
           "rounded-2xl",
@@ -62,7 +72,7 @@ const FloatingPanel = ({ open, onClose, children }: FloatingPanelProps) => {
           "transition-all duration-250 ease-out",
           open
             ? "translate-x-0 opacity-100 scale-100 pointer-events-auto"
-            : "translate-x-[120%] opacity-0 scale-95 pointer-events-none"
+            : "translate-x-4 opacity-0 scale-95 pointer-events-none"
         )}
         role="dialog"
         aria-modal="true"
@@ -73,7 +83,8 @@ const FloatingPanel = ({ open, onClose, children }: FloatingPanelProps) => {
           {children}
         </div>
       </div>
-    </>
+    </div>,
+    document.body
   );
 };
 
