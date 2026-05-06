@@ -47,12 +47,14 @@ const PageTransition = ({ children }: PageTransitionProps) => {
 
   return (
     <div
+      key={prevPathRef.current}
       className="h-full"
       style={{
         opacity: visible ? 1 : 0,
+        transform: visible ? "translateX(0)" : "translateX(8px)",
         transition: visible
-          ? "opacity 0.12s ease-out"
-          : "opacity 0.05s ease-in",
+          ? "opacity 180ms cubic-bezier(0.22, 1, 0.36, 1), transform 220ms cubic-bezier(0.22, 1, 0.36, 1)"
+          : "opacity 80ms ease-in, transform 80ms ease-in",
       }}
     >
       {displayChildren}
