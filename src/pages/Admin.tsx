@@ -169,6 +169,7 @@ const Admin = () => {
               <Route index element={<AdminDashboard />} />
               <Route path="gerar-proposta" element={<ManualProposal />} />
               <Route path="leads" element={<AdminLeads />} />
+              <Route path="clientes" element={<AdminClients />} />
               <Route path="faturas" element={<InvoiceHistory />} />
               <Route path="contratos" element={<ContractsManager />} />
               <Route path="perfil" element={<AdminProfile />} />
