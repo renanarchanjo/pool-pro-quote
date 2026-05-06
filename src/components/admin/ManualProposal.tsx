@@ -722,7 +722,16 @@ const ManualProposal = () => {
         <div className="h-full min-h-[300px] flex flex-col items-center justify-center text-center p-8 border-2 border-dashed border-border/60 rounded-2xl bg-muted/20">
           <Waves className="w-12 h-12 text-muted-foreground/40 mb-3" />
           <p className="text-sm font-medium text-muted-foreground">Selecione uma marca</p>
-          <p className="text-xs text-muted-foreground/70 mt-1">O catálogo de modelos aparecerá aqui</p>
+          <p className="text-xs text-muted-foreground/70 mt-1">O catálogo aparecerá após escolher marca e categoria</p>
+        </div>
+      );
+    }
+    if (!selectedCategoryId) {
+      return (
+        <div className="h-full min-h-[300px] flex flex-col items-center justify-center text-center p-8 border-2 border-dashed border-border/60 rounded-2xl bg-muted/20">
+          <Waves className="w-12 h-12 text-muted-foreground/40 mb-3" />
+          <p className="text-sm font-medium text-muted-foreground">Selecione uma categoria</p>
+          <p className="text-xs text-muted-foreground/70 mt-1">A imagem do modelo aparecerá após a escolha</p>
         </div>
       );
     }
@@ -733,79 +742,50 @@ const ManualProposal = () => {
         </div>
       );
     }
-    // Quando já há modelo selecionado, mostrar somente esse modelo em destaque
-    if (selectedModel) {
-      const m = selectedModel;
-      const cat = categories.find((c) => c.id === m.category_id);
+    if (!selectedModel) {
       return (
-        <div className="space-y-3">
-          <div className="rounded-2xl overflow-hidden border-2 border-primary shadow-lg ring-2 ring-primary/20 bg-card">
-            <div className="relative aspect-[4/3] bg-muted overflow-hidden">
-              {m.photo_url ? (
-                <img src={m.photo_url} alt={m.name} className="w-full h-full object-cover" />
-              ) : (
-                <div className="w-full h-full flex items-center justify-center text-muted-foreground/40">
-                  <Waves className="w-12 h-12" />
-                </div>
-              )}
-              <div className="absolute top-2 right-2 bg-primary text-primary-foreground rounded-full p-1.5 shadow-md">
-                <Check className="w-4 h-4" />
-              </div>
-            </div>
-            <div className="p-4">
-              <p className="text-base font-semibold leading-tight">{m.name}</p>
-              {cat && <p className="text-xs text-muted-foreground mt-0.5">{cat.name}</p>}
-              {m.length && m.width && (
-                <p className="text-xs text-muted-foreground mt-1">
-                  {m.length}m × {m.width}m{m.depth ? ` × ${m.depth}m` : ""}
-                </p>
-              )}
-            </div>
-          </div>
-          <Button
-            type="button"
-            variant="outline"
-            className="w-full"
-            onClick={() => setSelectedModel(null)}
-          >
-            Trocar modelo
-          </Button>
+        <div className="h-full min-h-[300px] flex flex-col items-center justify-center text-center p-8 border-2 border-dashed border-border/60 rounded-2xl bg-muted/20">
+          <Waves className="w-12 h-12 text-muted-foreground/40 mb-3" />
+          <p className="text-sm font-medium text-muted-foreground">Selecione um modelo</p>
+          <p className="text-xs text-muted-foreground/70 mt-1">Use o campo "Modelo" ao lado para escolher</p>
         </div>
       );
     }
+    const m = selectedModel;
+    const cat = categories.find((c) => c.id === m.category_id);
     return (
-      <div className="grid gap-3 grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-        {filteredModels.map((m) => {
-          const isSel = false;
-          const cat = categories.find((c) => c.id === m.category_id);
-          return (
-            <button
-              key={m.id}
-              type="button"
-              onClick={() => { setSelectedModel(m); setSelectedCategoryId(m.category_id); }}
-              className="group relative text-left rounded-2xl overflow-hidden border-2 transition-all bg-card border-border hover:border-primary/40 hover:shadow-md"
-            >
-              <div className="relative aspect-[4/3] bg-muted overflow-hidden">
-                {m.photo_url ? (
-                  <img src={m.photo_url} alt={m.name} className="w-full h-full object-cover transition-transform group-hover:scale-105" />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center text-muted-foreground/40">
-                    <Waves className="w-10 h-10" />
-                  </div>
-                )}
+      <div className="space-y-3">
+        <div className="rounded-2xl overflow-hidden border-2 border-primary shadow-lg ring-2 ring-primary/20 bg-card">
+          <div className="relative aspect-[4/3] bg-muted overflow-hidden">
+            {m.photo_url ? (
+              <img src={m.photo_url} alt={m.name} className="w-full h-full object-cover" />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center text-muted-foreground/40">
+                <Waves className="w-12 h-12" />
               </div>
-              <div className="p-3">
-                <p className="text-sm font-semibold leading-tight line-clamp-1">{m.name}</p>
-                {cat && <p className="text-[11px] text-muted-foreground line-clamp-1 mt-0.5">{cat.name}</p>}
-                {m.length && m.width && (
-                  <p className="text-[11px] text-muted-foreground mt-0.5">
-                    {m.length}m × {m.width}m{m.depth ? ` × ${m.depth}m` : ""}
-                  </p>
-                )}
-              </div>
-            </button>
-          );
-        })}
+            )}
+            <div className="absolute top-2 right-2 bg-primary text-primary-foreground rounded-full p-1.5 shadow-md">
+              <Check className="w-4 h-4" />
+            </div>
+          </div>
+          <div className="p-4">
+            <p className="text-base font-semibold leading-tight">{m.name}</p>
+            {cat && <p className="text-xs text-muted-foreground mt-0.5">{cat.name}</p>}
+            {m.length && m.width && (
+              <p className="text-xs text-muted-foreground mt-1">
+                {m.length}m × {m.width}m{m.depth ? ` × ${m.depth}m` : ""}
+              </p>
+            )}
+          </div>
+        </div>
+        <Button
+          type="button"
+          variant="outline"
+          className="w-full"
+          onClick={() => setSelectedModel(null)}
+        >
+          Trocar modelo
+        </Button>
       </div>
     );
   };
