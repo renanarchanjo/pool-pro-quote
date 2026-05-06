@@ -188,18 +188,7 @@ const ProposalView = ({
     if (matchedPartner?.banner_1_url) {
       return [{ url: matchedPartner.banner_1_url, name: matchedPartner.name }];
     }
-    const eligible = partners.filter((p) => p.banner_1_url && (p.display_percent || 0) > 0);
-    if (eligible.length > 0) {
-      const totalWeight = eligible.reduce((s, p) => s + (p.display_percent || 0), 0);
-      const rand = Math.random() * totalWeight;
-      let cum = 0;
-      for (const p of eligible) {
-        cum += p.display_percent || 0;
-        if (rand <= cum) return [{ url: p.banner_1_url!, name: p.name }];
-      }
-      return [{ url: eligible[eligible.length - 1].banner_1_url!, name: eligible[eligible.length - 1].name }];
-    }
-    return partners.filter((p) => p.banner_1_url).map((p) => ({ url: p.banner_1_url!, name: p.name }));
+    return [];
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [matchedPartner?.id, partnerUrls]);
 
