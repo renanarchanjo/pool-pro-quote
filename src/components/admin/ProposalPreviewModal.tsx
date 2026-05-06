@@ -152,6 +152,7 @@ const ProposalPreviewModal = ({
               partners={partners}
               storeId={store?.id}
               storeWhatsapp={store?.whatsapp}
+              overrideTotalPrice={proposal?.total_price != null ? Number(proposal.total_price) : null}
               hideDownloadPdf={hideDownloadPdf}
               hideWhatsApp={hideWhatsApp}
             />

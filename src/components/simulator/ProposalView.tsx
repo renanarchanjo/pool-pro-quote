@@ -68,6 +68,9 @@ interface ProposalViewProps {
   brandPartnerId?: string | null;
   partners?: Partner[];
   includedItemsTotal?: number;
+  /** Authoritative total saved in the DB. When set, the PDF/preview shows this value
+   *  instead of recomputing base+inclusos+opcionais (which can drift). */
+  overrideTotalPrice?: number | null;
   proposalId?: string | null;
   storeId?: string | null;
   hideWhatsApp?: boolean;
@@ -91,6 +94,7 @@ const ProposalView = ({
   brandPartnerId,
   partners = [],
   includedItemsTotal = 0,
+  overrideTotalPrice = null,
   proposalId,
   storeId,
   hideWhatsApp = false,
@@ -470,6 +474,7 @@ const ProposalView = ({
             brandLogoUrl={brandLogoUrl}
             brandName={brandName}
             includedItemsTotal={includedItemsTotal}
+            overrideTotalPrice={overrideTotalPrice}
             partners={partners}
             bannersToShow={bannersToShow}
             resolveSrc={resolveSrc}
