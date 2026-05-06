@@ -94,6 +94,7 @@ const ProposalView = ({
   brandPartnerId,
   partners = [],
   includedItemsTotal = 0,
+  overrideTotalPrice = null,
   proposalId,
   storeId,
   hideWhatsApp = false,
