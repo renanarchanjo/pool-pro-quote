@@ -359,15 +359,9 @@ const PartnersManager = () => {
             <p className="text-muted-foreground mt-1">
               O lojista então cadastra livremente seus <strong>modelos, opcionais e preços</strong> dentro dessas categorias.
             </p>
-            {(() => {
-              const totalPercent = partners.filter(p => p.active).reduce((sum, p) => sum + p.display_percent, 0);
-              const isValid = totalPercent === 100;
-              return (
-                <div className={`mt-3 p-2 rounded-lg text-sm font-semibold ${isValid ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400" : "bg-destructive/10 text-destructive"}`}>
-                  Total de aparição (ativos): {totalPercent}% {isValid ? "✓" : "— deve somar 100%"}
-                </div>
-              );
-            })()}
+            <p className="text-xs text-muted-foreground mt-3">
+              Logo e banner do parceiro aparecem somente nas propostas que selecionarem a marca correspondente.
+            </p>
           </div>
         </div>
       </Card>
@@ -437,12 +431,6 @@ const PartnersManager = () => {
                                 onChange={(e) => { const val = parseInt(e.target.value); if (!isNaN(val)) updatePartnerField(partner.id, "ranking", val); }}
                                 className="w-20 h-8 text-xs text-center mt-0.5" />
                             </div>
-                            <div>
-                              <Label className="text-xs">Frequência (%)</Label>
-                              <Input type="number" min={0} max={100} value={partner.display_percent}
-                                onChange={(e) => { const val = parseFloat(e.target.value); if (!isNaN(val)) updatePartnerField(partner.id, "display_percent", val); }}
-                                className="w-24 h-8 text-xs text-center mt-0.5" />
-                            </div>
                           </div>
                           <div>
                             <Label className="text-xs">Banner da Proposta (URL)</Label>
@@ -456,7 +444,7 @@ const PartnersManager = () => {
                         <>
                           <p className="font-semibold truncate">{partner.name}</p>
                           <p className="text-xs text-muted-foreground">
-                            {RANKING_LABELS[partner.ranking] || `${partner.ranking}º Lugar`} · {partner.active ? "Ativo" : "Oculto"} · {partner.display_percent}%
+                            {RANKING_LABELS[partner.ranking] || `${partner.ranking}º Lugar`} · {partner.active ? "Ativo" : "Oculto"}
                           </p>
                           {partner.banner_1_url && <p className="text-[10px] text-muted-foreground mt-1 truncate">🖼 Banner configurado</p>}
                           <button onClick={() => setExpandedPartner(isExpanded ? null : partner.id)} className="mt-1 text-xs text-primary hover:underline flex items-center gap-1">
@@ -512,7 +500,7 @@ const PartnersManager = () => {
                       <div className="min-w-0 flex-1">
                         <h3 className="text-[13px] font-semibold text-foreground truncate">{partner.name}</h3>
                         <p className="text-[11px] text-muted-foreground">
-                          {partner.active ? "Ativo" : "Oculto"} · {partner.display_percent}%
+                          {partner.active ? "Ativo" : "Oculto"}
                         </p>
                       </div>
                     </div>
@@ -524,19 +512,11 @@ const PartnersManager = () => {
                           <Label className="text-[10px]">Nome</Label>
                           <Input value={partner.name} onChange={(e) => updatePartnerField(partner.id, "name", e.target.value)} className="h-8 text-sm mt-0.5" />
                         </div>
-                        <div className="grid grid-cols-2 gap-2">
-                          <div>
-                            <Label className="text-[10px]">Ranking</Label>
-                            <Input type="number" min={1} max={99} value={partner.ranking}
-                              onChange={(e) => { const val = parseInt(e.target.value); if (!isNaN(val)) updatePartnerField(partner.id, "ranking", val); }}
-                              className="h-8 text-xs text-center mt-0.5" />
-                          </div>
-                          <div>
-                            <Label className="text-[10px]">Frequência (%)</Label>
-                            <Input type="number" min={0} max={100} value={partner.display_percent}
-                              onChange={(e) => { const val = parseFloat(e.target.value); if (!isNaN(val)) updatePartnerField(partner.id, "display_percent", val); }}
-                              className="h-8 text-xs text-center mt-0.5" />
-                          </div>
+                        <div>
+                          <Label className="text-[10px]">Ranking</Label>
+                          <Input type="number" min={1} max={99} value={partner.ranking}
+                            onChange={(e) => { const val = parseInt(e.target.value); if (!isNaN(val)) updatePartnerField(partner.id, "ranking", val); }}
+                            className="h-8 text-xs text-center mt-0.5" />
                         </div>
                         <div>
                           <Label className="text-[10px]">Banner (URL)</Label>
@@ -550,10 +530,6 @@ const PartnersManager = () => {
                         <div className="flex items-center justify-between">
                           <span className="text-[11px] text-muted-foreground">Ranking</span>
                           <span className="text-[12px] font-medium text-foreground">{RANKING_LABELS[partner.ranking] || `${partner.ranking}º Lugar`}</span>
-                        </div>
-                        <div className="flex items-center justify-between">
-                          <span className="text-[11px] text-muted-foreground">Frequência</span>
-                          <span className="text-[12px] font-semibold text-foreground">{partner.display_percent}%</span>
                         </div>
                         {partner.banner_1_url && (
                           <div className="flex items-center justify-between">
