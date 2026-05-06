@@ -795,7 +795,7 @@ const ManualProposal = () => {
           <CardContent>{renderModelGallery()}</CardContent>
         </Card>
 
-        <Card className="md:col-span-2">
+        <Card className="lg:col-span-3">
           <CardHeader>
             <div className="flex items-center justify-between">
               <CardTitle className="text-lg">Opcionais</CardTitle>
@@ -848,7 +848,7 @@ const ManualProposal = () => {
         </Card>
 
         {selectedModel && currentModelOpts.length > 0 && (
-          <Card className="md:col-span-2">
+          <Card className="lg:col-span-3">
             <CardHeader>
               <CardTitle className="text-lg">Opcionais Dimensionados — {selectedModel.name}</CardTitle>
               <p className="text-xs text-muted-foreground">Opcionais específicos calculados para este modelo</p>
@@ -881,7 +881,7 @@ const ManualProposal = () => {
           </Card>
         )}
 
-        <Card className="md:col-span-2">
+        <Card className="lg:col-span-3">
           <CardContent className="pt-6">
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
               <div className="space-y-1">
