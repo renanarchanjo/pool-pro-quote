@@ -531,10 +531,6 @@ const PartnersManager = () => {
                           <span className="text-[11px] text-muted-foreground">Ranking</span>
                           <span className="text-[12px] font-medium text-foreground">{RANKING_LABELS[partner.ranking] || `${partner.ranking}º Lugar`}</span>
                         </div>
-                        <div className="flex items-center justify-between">
-                          <span className="text-[11px] text-muted-foreground">Frequência</span>
-                          <span className="text-[12px] font-semibold text-foreground">{partner.display_percent}%</span>
-                        </div>
                         {partner.banner_1_url && (
                           <div className="flex items-center justify-between">
                             <span className="text-[11px] text-muted-foreground">Banner</span>
