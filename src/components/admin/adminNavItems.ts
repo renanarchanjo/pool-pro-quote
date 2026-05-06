@@ -1,6 +1,6 @@
 import {
   LayoutGrid, FilePlus, Layers, Boxes, Package, UserCircle, Users, UsersRound,
-  CreditCard, Receipt, TrendingUp, DollarSign, Handshake, FolderTree, FileText,
+  CreditCard, Receipt, TrendingUp, DollarSign, Handshake, FileText, Contact,
   type LucideIcon,
 } from "lucide-react";
 
@@ -25,16 +25,16 @@ export function getAdminNavGroups(isOwner: boolean): SidebarNavGroup[] {
   const mainItems: SidebarNavItem[] = [
     { title: "Dashboard", url: "/admin", icon: LayoutGrid },
     { title: "Gerar Nova Proposta", url: "/admin/gerar-proposta", icon: FilePlus },
-    { title: "Leads (Tráfego)", url: "/admin/leads", icon: Users },
     { title: "Contratos", url: "/admin/contratos", icon: FileText },
+    { title: "Clientes (Follow-up)", url: "/admin/clientes", icon: Contact },
+    { title: "Leads (SimulaPool)", url: "/admin/leads", icon: Users },
   ];
 
   const catalogItems: SidebarNavItem[] = isOwner
     ? [
         { title: "Marcas Parceiras", url: "/admin/parceiros", icon: Handshake },
-        { title: "Marcas", url: "/admin/marcas", icon: Layers },
-        { title: "Categorias de Marcas", url: "/admin/categorias", icon: FolderTree },
-        { title: "Modelos e Opcionais", url: "/admin/modelos", icon: Boxes },
+        { title: "Marcas e Categorias", url: "/admin/marcas", icon: Layers },
+        { title: "Modelos", url: "/admin/modelos", icon: Boxes },
         { title: "Opcionais", url: "/admin/opcionais", icon: Package },
       ]
     : [];
@@ -47,9 +47,9 @@ export function getAdminNavGroups(isOwner: boolean): SidebarNavGroup[] {
           { title: "Comissão", url: "/admin/comissao", icon: DollarSign },
         ]
       : [
-          { title: "Minha Equipe", url: "/admin/equipe", icon: UsersRound },
-          { title: "Faturas", url: "/admin/faturas", icon: Receipt },
+          { title: "Equipe", url: "/admin/equipe", icon: UsersRound },
           { title: "Assinatura", url: "/admin/assinatura", icon: CreditCard },
+          { title: "Faturas", url: "/admin/faturas", icon: Receipt },
         ]),
   ];
 
@@ -59,3 +59,4 @@ export function getAdminNavGroups(isOwner: boolean): SidebarNavGroup[] {
     { label: "Conta", items: accountItems },
   ];
 }
+

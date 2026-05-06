@@ -16,7 +16,8 @@ import OwnerOnboardingModal from "@/components/admin/OwnerOnboardingModal";
 
 // Lazy load ALL sub-pages for smaller initial bundle
 const AdminDashboard = lazy(() => import("@/components/admin/AdminDashboard"));
-const BrandCategoryManager = lazy(() => import("@/components/admin/BrandCategoryManager"));
+const BrandsAndCategoriesPage = lazy(() => import("@/components/admin/BrandsAndCategoriesPage"));
+const AdminClients = lazy(() => import("@/components/admin/AdminClients"));
 const PoolModelManager = lazy(() => import("@/components/admin/PoolModelManager"));
 const OptionalManager = lazy(() => import("@/components/admin/OptionalManager"));
 const AdminProfile = lazy(() => import("@/components/admin/AdminProfile"));
@@ -40,14 +41,14 @@ const SubpageFallback = () => (
 const PAGE_TITLES: Record<string, string> = {
   "": "Dashboard",
   "gerar-proposta": "Gerar Proposta",
-  "leads": "Leads",
+  "leads": "Leads (SimulaPool)",
+  "clientes": "Clientes (Follow-up)",
   "faturas": "Faturas",
   "perfil": "Minha Conta",
-  "marcas": "Marcas",
-  "categorias": "Categorias de Marcas",
+  "marcas": "Marcas e Categorias",
   "modelos": "Modelos",
   "opcionais": "Opcionais",
-  "equipe": "Minha Equipe",
+  "equipe": "Equipe",
   "lojistas": "Lojistas",
   "assinatura": "Assinatura",
   "parceiros": "Marcas Parceiras",
@@ -168,6 +169,7 @@ const Admin = () => {
               <Route index element={<AdminDashboard />} />
               <Route path="gerar-proposta" element={<ManualProposal />} />
               <Route path="leads" element={<AdminLeads />} />
+              <Route path="clientes" element={<AdminClients />} />
               <Route path="faturas" element={<InvoiceHistory />} />
               <Route path="contratos" element={<ContractsManager />} />
               <Route path="perfil" element={<AdminProfile />} />
@@ -179,8 +181,7 @@ const Admin = () => {
               )}
               {isOwner && (
                 <>
-                  <Route path="marcas" element={<BrandCategoryManager mode="brands" />} />
-                  <Route path="categorias" element={<BrandCategoryManager mode="categories" />} />
+                  <Route path="marcas" element={<BrandsAndCategoriesPage />} />
                   <Route path="modelos" element={<PoolModelManager />} />
                   <Route path="opcionais" element={<OptionalManager />} />
                   <Route path="equipe" element={<TeamManager />} />
