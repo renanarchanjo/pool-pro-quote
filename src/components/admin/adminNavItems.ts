@@ -55,7 +55,7 @@ export function getAdminNavGroups(isOwner: boolean): SidebarNavGroup[] {
 
   return [
     { label: "Painel Comercial", items: mainItems },
-    { label: "Catálogo", items: catalogItems, hideOnMobile: true, collapsible: true, parentIcon: Package },
+    { label: "Meus Produtos", items: catalogItems, hideOnMobile: true, collapsible: true, parentIcon: Package },
     { label: "Conta", items: accountItems },
   ];
 }

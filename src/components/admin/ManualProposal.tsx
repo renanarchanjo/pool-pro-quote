@@ -832,7 +832,7 @@ const ManualProposal = () => {
 
         <Card className="lg:col-span-1">
           <CardHeader>
-            <CardTitle className="text-lg">Catálogo</CardTitle>
+            <CardTitle className="text-lg">Meus Produtos</CardTitle>
             <p className="text-xs text-muted-foreground">Toque em um modelo para selecionar</p>
           </CardHeader>
           <CardContent>{renderModelGallery()}</CardContent>

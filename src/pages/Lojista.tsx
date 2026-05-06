@@ -104,7 +104,7 @@ const STEPS = [
   },
   {
     step: "02",
-    title: "Configure seu catálogo",
+    title: "Configure seus produtos",
     desc: "Adicione seus modelos de piscina, opcionais e preços. Nós importamos tudo pra você se quiser.",
   },
   {
