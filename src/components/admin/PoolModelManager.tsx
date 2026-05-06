@@ -1026,8 +1026,8 @@ const PoolModelManager = () => {
                                 </TableCell>
                                 <TableCell className="text-center font-medium">{qty}</TableCell>
                                 <TableCell className="font-medium">{item.name}</TableCell>
-                                <TableCell>
-                                  <Badge variant="outline" className={`whitespace-nowrap ${item.item_type === "mao_de_obra" ? "text-amber-600 border-amber-300 bg-amber-50" : "text-sky-600 border-sky-300 bg-sky-50"}`}>
+                                <TableCell className="text-center">
+                                  <Badge variant="outline" className={`whitespace-nowrap inline-flex ${item.item_type === "mao_de_obra" ? "text-amber-600 border-amber-300 bg-amber-50" : "text-sky-600 border-sky-300 bg-sky-50"}`}>
                                     {item.item_type === "mao_de_obra" ? "M. Obra" : "Equipamentos"}
                                   </Badge>
                                 </TableCell>
