@@ -142,9 +142,8 @@ const BrazilMapLibre = ({ stores, stateData, height = 500 }: Props) => {
       else if (s.state && STATE_COORDS[s.state]) base = STATE_COORDS[s.state];
       if (!base) return;
       const k = `${base[0].toFixed(3)},${base[1].toFixed(3)}`;
-      const idx = usedCoords.get(k) || 0;
-      usedCoords.set(k, idx + 1);
-      const offset = idx * 0.02;
+      const idx = usedCoords[k] || 0;
+      usedCoords[k] = idx + 1;
       out.push({ lng: base[0] + offset, lat: base[1] + offset, store: s });
     });
     return out;
