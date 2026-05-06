@@ -1285,6 +1285,13 @@ const PoolModelManager = () => {
           const brandCatIds = categories.filter((c) => c.brand_id === filterBrand).map((c) => c.id);
           filtered = filtered.filter((m) => brandCatIds.includes(m.category_id));
         }
+        // Ordenar do maior para o menor (área = length × width)
+        filtered = [...filtered].sort((a, b) => {
+          const areaA = (Number(a.length) || 0) * (Number(a.width) || 0);
+          const areaB = (Number(b.length) || 0) * (Number(b.width) || 0);
+          if (areaB !== areaA) return areaB - areaA;
+          return (Number(b.length) || 0) - (Number(a.length) || 0);
+        });
         if (filtered.length === 0) return <p className="text-muted-foreground text-center py-8">Nenhum modelo encontrado.</p>;
 
         return (
