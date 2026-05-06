@@ -1,5 +1,5 @@
-import { useEffect } from "react";
-import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
+import { useEffect, useState } from "react";
+import { MapContainer, TileLayer, Marker, Popup, useMap, GeoJSON, ZoomControl } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 
@@ -14,6 +14,16 @@ const STATE_COORDS: Record<string, [number, number]> = {
   SP: [-22.3, -48.6], SE: [-10.6, -37.1], TO: [-10.2, -48.3],
 };
 
+const STATE_ABBR: Record<string, string> = {
+  "Acre": "AC", "Alagoas": "AL", "Amapá": "AP", "Amazonas": "AM",
+  "Bahia": "BA", "Ceará": "CE", "Distrito Federal": "DF", "Espírito Santo": "ES",
+  "Goiás": "GO", "Maranhão": "MA", "Mato Grosso": "MT", "Mato Grosso do Sul": "MS",
+  "Minas Gerais": "MG", "Pará": "PA", "Paraíba": "PB", "Paraná": "PR",
+  "Pernambuco": "PE", "Piauí": "PI", "Rio de Janeiro": "RJ", "Rio Grande do Norte": "RN",
+  "Rio Grande do Sul": "RS", "Rondônia": "RO", "Roraima": "RR", "Santa Catarina": "SC",
+  "São Paulo": "SP", "Sergipe": "SE", "Tocantins": "TO",
+};
+
 export interface StorePin {
   id: string;
   name: string;
@@ -25,6 +35,8 @@ export interface StorePin {
 
 interface Props {
   stores: StorePin[];
+  stateData?: Record<string, number>;
+  height?: number | string;
 }
 
 const pinIcon = L.divIcon({
@@ -40,6 +52,14 @@ const pinIcon = L.divIcon({
   popupAnchor: [0, -28],
 });
 
+function getColor(count: number): string {
+  if (count <= 0) return "transparent";
+  if (count === 1) return "#93C5FD";
+  if (count <= 5) return "#3B82F6";
+  if (count <= 10) return "#1D4ED8";
+  return "#1E3A8A";
+}
+
 const FitBounds = ({ points }: { points: [number, number][] }) => {
   const map = useMap();
   useEffect(() => {
@@ -50,7 +70,17 @@ const FitBounds = ({ points }: { points: [number, number][] }) => {
   return null;
 };
 
-const BrazilLeafletMap = ({ stores }: Props) => {
+const BrazilLeafletMap = ({ stores, stateData, height = 500 }: Props) => {
+  const [geoData, setGeoData] = useState<any>(null);
+
+  useEffect(() => {
+    if (!stateData) return;
+    fetch("/data/brazil-states.geojson")
+      .then((r) => r.json())
+      .then(setGeoData)
+      .catch((err) => console.error("Failed to load GeoJSON:", err));
+  }, [stateData]);
+
   // Group stores per location to offset overlapping pins
   const grouped: Record<string, StorePin[]> = {};
   stores.forEach((s) => {
@@ -62,7 +92,7 @@ const BrazilLeafletMap = ({ stores }: Props) => {
   });
 
   const markers: { coords: [number, number]; store: StorePin }[] = [];
-  Object.entries(grouped).forEach(([key, list]) => {
+  Object.entries(grouped).forEach(([, list]) => {
     list.forEach((s, idx) => {
       let base: [number, number] | null = null;
       if (s.latitude && s.longitude) base = [Number(s.latitude), Number(s.longitude)];
@@ -77,19 +107,51 @@ const BrazilLeafletMap = ({ stores }: Props) => {
   const points = markers.map((m) => m.coords);
 
   return (
-    <div className="rounded-lg overflow-hidden border border-border" style={{ height: 500 }}>
+    <div className="rounded-lg overflow-hidden border border-border" style={{ height }}>
       <MapContainer
         center={[-14.235, -51.925]}
         zoom={4}
+        minZoom={3}
+        maxZoom={18}
         style={{ height: "100%", width: "100%" }}
         scrollWheelZoom
+        zoomControl={false}
       >
+        <ZoomControl position="topright" />
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &middot; <a href="https://carto.com/attributions">Carto</a>'
           url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
           subdomains={["a", "b", "c", "d"]}
           maxZoom={19}
         />
+
+        {stateData && geoData && (
+          <GeoJSON
+            data={geoData}
+            style={(feature) => {
+              const stateName = feature?.properties?.name || feature?.properties?.NAME;
+              const abbr = STATE_ABBR[stateName] || stateName;
+              const count = stateData[abbr] || 0;
+              const color = getColor(count);
+              return {
+                fillColor: color,
+                fillOpacity: count > 0 ? 0.45 : 0,
+                color: "#94A3B8",
+                weight: 0.7,
+              };
+            }}
+            onEachFeature={(feature, layer) => {
+              const stateName = feature?.properties?.name || feature?.properties?.NAME;
+              const abbr = STATE_ABBR[stateName] || stateName;
+              const count = stateData[abbr] || 0;
+              layer.bindTooltip(
+                `<strong>${abbr}</strong> · ${count} loja${count !== 1 ? "s" : ""}`,
+                { sticky: true }
+              );
+            }}
+          />
+        )}
+
         {markers.map(({ coords, store }) => (
           <Marker key={store.id} position={coords} icon={pinIcon}>
             <Popup>
