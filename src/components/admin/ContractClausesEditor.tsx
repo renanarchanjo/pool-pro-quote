@@ -135,9 +135,15 @@ export default function ContractClausesEditor({ storeId, open, onOpenChange }: P
                 <Textarea
                   value={c.text}
                   onChange={e => updateClause(i, { text: e.target.value })}
-                  rows={4}
+                  onFocus={e => {
+                    // Em mobile, o teclado virtual cobre o campo. Rolamos para garantir visibilidade.
+                    setTimeout(() => {
+                      e.currentTarget?.scrollIntoView({ behavior: "smooth", block: "center" });
+                    }, 250);
+                  }}
+                  rows={8}
                   placeholder="Texto da cláusula..."
-                  className="text-sm font-mono"
+                  className="text-sm font-mono min-h-[180px] sm:min-h-[200px] leading-relaxed scroll-mt-24"
                 />
               </div>
             ))}
