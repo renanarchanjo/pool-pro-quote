@@ -455,7 +455,7 @@ const PoolModelManager = () => {
       setInclForm({ name: "", quantity: "1", cost: "", margin_percent: "", price: "", item_type: "material" });
       setEditingIncl(null);
       await syncIncludedItemsToModel(modelId);
-    } catch { toast.error("Erro ao salvar item incluso"); }
+    } catch (err: any) { console.error("Erro ao salvar item incluso:", err); toast.error(`Erro ao salvar item incluso: ${err?.message || ""}`); }
   };
 
   const handleDeleteIncl = async (id: string) => {
