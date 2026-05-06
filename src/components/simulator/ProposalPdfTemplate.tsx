@@ -67,17 +67,26 @@ export interface ProposalPdfTemplateProps {
 
 const PAGE_W = 794;
 const PAGE_H = 1123;
-const PAD_X = 28;
-const PAD_Y = 28;
+const PAD_X = 36;
+const PAD_Y = 0;
 const FONT = "'Inter', sans-serif";
-const TEXT = "#374151";
+
+// Tokens de design
+const C_INK = "#0F172A";        // Texto principal (slate-900)
+const C_TEXT = "#334155";       // Corpo (slate-700)
+const C_MUTED = "#64748B";      // Secundário (slate-500)
+const C_FAINT = "#94A3B8";      // Labels (slate-400)
+const C_DIVIDER = "#E8ECF0";    // Separador sutil
+const C_SURFACE = "#F8F9FB";    // Fundo claro
+const C_BLUE = "#1565C0";       // Azul escuro de destaque
+const C_BLUE_DEEP = "#0D47A1";  // Variante mais profunda
 
 const LABEL: React.CSSProperties = {
   fontSize: "10px",
-  fontWeight: 700,
-  color: "#9CA3AF",
+  fontWeight: 600,
+  color: C_FAINT,
   textTransform: "uppercase",
-  letterSpacing: "0.5px",
+  letterSpacing: "0.8px",
   margin: 0,
 };
 
@@ -86,13 +95,12 @@ const PAGE_STYLE: React.CSSProperties = {
   height: `${PAGE_H}px`,
   backgroundColor: "#ffffff",
   fontFamily: FONT,
-  color: TEXT,
-  lineHeight: 1.45,
+  color: C_TEXT,
+  lineHeight: 1.55,
   boxSizing: "border-box",
   overflow: "hidden",
   display: "flex",
   flexDirection: "column",
-  padding: `${PAD_Y}px ${PAD_X}px`,
 };
 
 const fmt = (v: number) =>
