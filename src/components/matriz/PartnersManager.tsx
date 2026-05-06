@@ -291,7 +291,7 @@ const PartnersManager = () => {
         <div>
           <h1 className="text-[18px] font-semibold text-foreground">Marcas</h1>
           <p className="text-[13px] text-muted-foreground">
-            Gerencie marcas, categorias e rankings de exibição nas propostas
+            Gerencie marcas e categorias de exibição nas propostas
           </p>
         </div>
         {hasDirtyChanges && (
