@@ -105,7 +105,7 @@ const exportSectionedPDF = async ({
         pdf.addPage("a4", orientation);
       }
 
-      pdf.addImage(canvas.toDataURL("image/jpeg", 0.75), "JPEG", 0, 0, page.width, page.height);
+      pdf.addImage(canvas.toDataURL("image/jpeg", 0.92), "JPEG", 0, 0, page.width, page.height, undefined, "FAST");
     }
 
     return pdf;
