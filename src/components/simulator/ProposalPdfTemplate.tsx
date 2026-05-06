@@ -111,13 +111,20 @@ const ProposalPdfTemplate = ({
   brandLogoUrl,
   brandName,
   includedItemsTotal = 0,
+  overrideTotalPrice = null,
   partners = [],
   bannersToShow,
   resolveSrc,
 }: ProposalPdfTemplateProps) => {
-  const displayBasePrice = model.base_price + includedItemsTotal;
   const optionalsTotal = selectedOptionals.reduce((s, o) => s + o.price, 0);
-  const totalPrice = displayBasePrice + optionalsTotal;
+  // If we have an authoritative saved total (e.g. from the DB), back-solve the
+  // displayed "valor base" so that base + opcionais === total saved.
+  const totalPrice = overrideTotalPrice != null
+    ? overrideTotalPrice
+    : model.base_price + includedItemsTotal + optionalsTotal;
+  const displayBasePrice = overrideTotalPrice != null
+    ? Math.max(0, overrideTotalPrice - optionalsTotal)
+    : model.base_price + includedItemsTotal;
 
   const todayDate = new Date();
   const today = todayDate.toLocaleDateString("pt-BR");
