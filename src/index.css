@@ -181,6 +181,12 @@
     font-size: 16px !important;
   }
 
+  /* Garante visibilidade do campo focado quando o teclado virtual abre */
+  input:focus, textarea:focus, select:focus, [contenteditable="true"]:focus {
+    scroll-margin-top: 100px;
+    scroll-margin-bottom: 120px;
+  }
+
   button:not([data-compact]),
   [role="button"]:not([data-compact]),
   a:not([data-compact]) {
