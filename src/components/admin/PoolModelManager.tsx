@@ -520,17 +520,20 @@ const PoolModelManager = () => {
   };
   const syncIncludedItemsToModel = async (modelId: string) => {
     try {
-      const { data: items } = await supabase
+      const { data: items, error } = await supabase
         .from("model_included_items")
         .select("name, quantity, item_type")
         .eq("model_id", modelId)
+        .eq("active", true)
         .order("display_order");
+      if (error) throw error;
       const inclNames = (items || []).map(i => {
         const qty = Number(i.quantity) || 1;
         const prefix = i.item_type === "mao_de_obra" ? "[MO] " : "";
         return qty > 1 ? `${qty}x ${prefix}${i.name}` : `${prefix}${i.name}`;
       });
-      await supabase.from("pool_models").update({ included_items: inclNames }).eq("id", modelId);
+      const { error: updateError } = await supabase.from("pool_models").update({ included_items: inclNames }).eq("id", modelId);
+      if (updateError) throw updateError;
     } catch (e) { console.error("Erro ao sincronizar itens inclusos:", e); }
   };
 
