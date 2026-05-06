@@ -512,19 +512,11 @@ const PartnersManager = () => {
                           <Label className="text-[10px]">Nome</Label>
                           <Input value={partner.name} onChange={(e) => updatePartnerField(partner.id, "name", e.target.value)} className="h-8 text-sm mt-0.5" />
                         </div>
-                        <div className="grid grid-cols-2 gap-2">
-                          <div>
-                            <Label className="text-[10px]">Ranking</Label>
-                            <Input type="number" min={1} max={99} value={partner.ranking}
-                              onChange={(e) => { const val = parseInt(e.target.value); if (!isNaN(val)) updatePartnerField(partner.id, "ranking", val); }}
-                              className="h-8 text-xs text-center mt-0.5" />
-                          </div>
-                          <div>
-                            <Label className="text-[10px]">Frequência (%)</Label>
-                            <Input type="number" min={0} max={100} value={partner.display_percent}
-                              onChange={(e) => { const val = parseFloat(e.target.value); if (!isNaN(val)) updatePartnerField(partner.id, "display_percent", val); }}
-                              className="h-8 text-xs text-center mt-0.5" />
-                          </div>
+                        <div>
+                          <Label className="text-[10px]">Ranking</Label>
+                          <Input type="number" min={1} max={99} value={partner.ranking}
+                            onChange={(e) => { const val = parseInt(e.target.value); if (!isNaN(val)) updatePartnerField(partner.id, "ranking", val); }}
+                            className="h-8 text-xs text-center mt-0.5" />
                         </div>
                         <div>
                           <Label className="text-[10px]">Banner (URL)</Label>
