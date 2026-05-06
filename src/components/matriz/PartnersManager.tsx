@@ -341,12 +341,12 @@ const PartnersManager = () => {
         </div>
       </Card>
 
-      {/* Ranking explanation */}
+      {/* Partner info card */}
       <Card className="p-4 bg-primary/5 border-primary/20">
         <div className="flex items-start gap-3">
           <Trophy className="w-5 h-5 text-primary mt-0.5 shrink-0" />
           <div className="text-sm flex-1">
-            <p className="font-semibold text-foreground">Sistema de Ranking, Frequência e Categorias</p>
+            <p className="font-semibold text-foreground">Marcas Parceiras e Categorias</p>
             <p className="text-muted-foreground mt-1">
               Cada parceiro funciona como uma <strong>Marca</strong>. Ao cadastrar categorias aqui, quando um lojista selecionar esse parceiro,
               a marca e suas categorias serão <strong>criadas automaticamente</strong> no catálogo da loja.
