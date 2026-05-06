@@ -7,6 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useStoreData } from "@/hooks/useStoreData";
 import { getAdminNavGroups, type SidebarNavGroup, type SidebarNavItem } from "./adminNavItems";
+import { prefetchAdminRoute } from "@/lib/adminChunkPrefetch";
 
 interface AdminSidebarContentProps {
   onNavigate?: () => void;
@@ -56,6 +57,8 @@ const AdminSidebarContent = ({ onNavigate, isMobile = false }: AdminSidebarConte
       <button
         key={item.title}
         onClick={() => handleNav(item.url)}
+        onPointerEnter={() => prefetchAdminRoute(item.url)}
+        onFocus={() => prefetchAdminRoute(item.url)}
         className={`flex items-center justify-end gap-2.5 w-full h-9 text-[13px] rounded-lg ${indent ? "pl-6 pr-2.5" : "px-2.5"} transition-all duration-150 ${
           active
             ? "bg-background border border-border font-semibold text-foreground"
