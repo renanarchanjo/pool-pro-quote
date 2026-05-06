@@ -500,7 +500,7 @@ const PartnersManager = () => {
                       <div className="min-w-0 flex-1">
                         <h3 className="text-[13px] font-semibold text-foreground truncate">{partner.name}</h3>
                         <p className="text-[11px] text-muted-foreground">
-                          {partner.active ? "Ativo" : "Oculto"} · {partner.display_percent}%
+                          {partner.active ? "Ativo" : "Oculto"}
                         </p>
                       </div>
                     </div>
