@@ -13,6 +13,7 @@ import ProposalPdfTemplate from "./ProposalPdfTemplate";
 import type { PdfTemplatePartner } from "./ProposalPdfTemplate";
 
 interface PoolModel {
+  id?: string;
   name: string;
   length?: number | null;
   width?: number | null;
@@ -107,9 +108,54 @@ const ProposalView = ({
   const [whatsAppState, setWhatsAppState] = useState<"idle" | "sending" | "sent">("idle");
   const [whatsappStatus, setWhatsappStatus] = useState<string | null>(null);
   const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
+  const [liveIncludedItems, setLiveIncludedItems] = useState<{ items: string[]; total: number } | null>(null);
   const isMobile = useIsMobile();
   const [mobileScale, setMobileScale] = useState(1);
   const mainRef = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    if (!model.id) {
+      setLiveIncludedItems(null);
+      return;
+    }
+
+    let cancelled = false;
+
+    const loadCurrentIncludedItems = async () => {
+      const { data, error } = await (supabase as any)
+        .rpc("get_model_included_items_public", { _model_id: model.id });
+
+      if (cancelled) return;
+
+      if (error) {
+        setLiveIncludedItems(null);
+        return;
+      }
+
+      const rows = data || [];
+      setLiveIncludedItems({
+        items: rows.map((item) => {
+          const qty = Number(item.quantity) || 1;
+          const prefix = item.item_type === "mao_de_obra" ? "[MO] " : "";
+          return qty > 1 ? `${qty}x ${prefix}${item.name}` : `${prefix}${item.name}`;
+        }),
+        total: rows.reduce((sum, item) => sum + Number(item.price || 0), 0),
+      });
+    };
+
+    void loadCurrentIncludedItems();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [model.id]);
+
+  const modelForDisplay = useMemo(
+    () => liveIncludedItems ? { ...model, included_items: liveIncludedItems.items } : model,
+    [liveIncludedItems, model]
+  );
+
+  const displayedIncludedItemsTotal = liveIncludedItems?.total ?? includedItemsTotal;
 
   useEffect(() => {
     if (!isMobile) { setMobileScale(1); return; }
@@ -170,7 +216,7 @@ const ProposalView = ({
           storeSettings?.logo_url,
           brandLogoUrl,
           simulapoolLogoFooter,
-          model.photo_url,
+          modelForDisplay.photo_url,
           ...bannersToShow.map((b) => b.url),
           ...partners.map((p) => p.logo_url),
         ].filter((u): u is string => Boolean(u) && !u.startsWith("data:") && !u.startsWith("blob:")),
@@ -404,7 +450,7 @@ const ProposalView = ({
 
   useEffect(() => {
     void preparePdfAssets();
-  }, [storeSettings?.logo_url, brandLogoUrl, partnerUrls, brandPartnerId, model.photo_url]);
+  }, [storeSettings?.logo_url, brandLogoUrl, partnerUrls, brandPartnerId, modelForDisplay.photo_url]);
 
   useEffect(() => {
     if (autoDownload && !hasAutoDownloaded.current) {
@@ -462,7 +508,7 @@ const ProposalView = ({
           }}
         >
           <ProposalPdfTemplate
-            model={model}
+            model={modelForDisplay}
             selectedOptionals={selectedOptionals}
             customerData={customerData}
             category={category}
@@ -473,7 +519,7 @@ const ProposalView = ({
             storeWhatsapp={storeWhatsapp}
             brandLogoUrl={brandLogoUrl}
             brandName={brandName}
-            includedItemsTotal={includedItemsTotal}
+            includedItemsTotal={displayedIncludedItemsTotal}
             overrideTotalPrice={overrideTotalPrice}
             partners={partners}
             bannersToShow={bannersToShow}

@@ -1,0 +1,2 @@
+REVOKE ALL ON FUNCTION public.sync_pool_model_included_items(uuid) FROM PUBLIC, anon, authenticated;
+REVOKE ALL ON FUNCTION public.sync_pool_model_included_items_trigger() FROM PUBLIC, anon, authenticated;

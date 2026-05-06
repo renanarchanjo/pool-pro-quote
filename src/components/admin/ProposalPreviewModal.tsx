@@ -55,6 +55,7 @@ const ProposalPreviewModal = ({
   const brand = pm?.categories?.brands;
 
   const model = {
+    id: pm?.id,
     name: pm?.name || "Modelo",
     length: pm?.length,
     width: pm?.width,
