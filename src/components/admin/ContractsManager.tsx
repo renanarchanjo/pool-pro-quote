@@ -579,6 +579,69 @@ const ContractsManager = () => {
         )}
       </Card>
 
+      <Dialog open={termsOpen} onOpenChange={(v) => { if (!acceptingTerms) setTermsOpen(v); }}>
+        <DialogContent className="max-w-xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <ShieldAlert className="w-5 h-5 text-amber-600" />
+              Termos e Condições — Modelo de Contrato
+            </DialogTitle>
+            <DialogDescription>
+              Leia atentamente antes de prosseguir. O aceite é registrado em sua conta.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-3 text-sm leading-relaxed text-foreground/90">
+            <p>
+              O modelo de contrato disponibilizado pela plataforma tem caráter
+              <strong> meramente sugestivo e referencial</strong>, servindo como ponto de partida
+              para a formalização comercial entre o lojista e seu cliente.
+            </p>
+            <p>
+              É de <strong>responsabilidade exclusiva do lojista</strong> revisar, adaptar e
+              complementar todas as cláusulas conforme a legislação vigente, a realidade do seu
+              negócio e as particularidades de cada venda. Recomendamos fortemente a
+              <strong> análise prévia por um(a) advogado(a) de sua confiança</strong> antes do uso.
+            </p>
+            <p>
+              A plataforma <strong>não se responsabiliza</strong>, em nenhuma hipótese, por
+              eventuais perdas, danos, prejuízos financeiros, demandas administrativas, ações
+              judiciais ou consequências decorrentes do uso, total ou parcial, do modelo
+              sugerido — incluindo, sem limitação, omissões, equívocos, cláusulas inadequadas
+              ou ausência de previsões legais aplicáveis ao caso concreto.
+            </p>
+            <p>
+              Ao aceitar estes termos, você declara estar ciente de que o documento é uma
+              <strong> sugestão editável</strong> e assume integral responsabilidade pelo seu
+              conteúdo final, pela sua adequação jurídica e pelos efeitos que produzir.
+            </p>
+          </div>
+
+          <div className="flex items-start gap-2 mt-4 p-3 rounded-md bg-muted/50 border border-border">
+            <Checkbox
+              id="accept-contract-terms"
+              checked={termsChecked}
+              onCheckedChange={(v) => setTermsChecked(!!v)}
+              className="mt-0.5"
+            />
+            <Label htmlFor="accept-contract-terms" className="text-sm font-normal cursor-pointer leading-snug">
+              Li e concordo com os termos acima. Compreendo que o contrato é uma sugestão
+              editável e isento a plataforma de qualquer responsabilidade jurídica.
+            </Label>
+          </div>
+
+          <DialogFooter className="gap-2 mt-4">
+            <Button variant="outline" disabled={acceptingTerms} onClick={() => setTermsOpen(false)}>
+              Cancelar
+            </Button>
+            <Button disabled={!termsChecked || acceptingTerms} onClick={acceptTerms} className="gap-1">
+              {acceptingTerms && <Loader2 className="w-4 h-4 animate-spin" />}
+              Aceitar e continuar
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="max-w-2xl max-h-[95vh] sm:max-h-[90vh] overflow-y-auto p-4 sm:p-6 pb-[env(safe-area-inset-bottom)]">
           <DialogHeader><DialogTitle>Novo Contrato</DialogTitle></DialogHeader>
