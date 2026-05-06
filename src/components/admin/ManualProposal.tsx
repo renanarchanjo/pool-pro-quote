@@ -306,9 +306,16 @@ const ManualProposal = () => {
         {(() => {
           const cat = categories.find(c => c.id === selectedModel.category_id);
           const brand = cat?.brand_id ? brands.find(b => b.id === cat.brand_id) : null;
+          const inclFormatted = includedItemsList.map(i => {
+            const prefix = i.item_type === "mao_de_obra" ? "[MO] " : "";
+            return i.quantity > 1 ? `${i.quantity}x ${prefix}${i.name}` : `${prefix}${i.name}`;
+          });
+          const modelWithIncl = inclFormatted.length > 0
+            ? { ...selectedModel, included_items: inclFormatted }
+            : selectedModel;
           return (
             <ProposalView
-              model={selectedModel}
+              model={modelWithIncl}
               selectedOptionals={[...selectedOptionalsList, ...selectedModelOptsList.map((o: any) => ({ name: o.name, price: o.price }))]}
               customerData={{ name: customerName, city: `${customerCity} / ${customerUf}`, whatsapp: customerWhatsapp }}
               category={cat?.name || "Piscina"}
