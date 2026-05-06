@@ -18,6 +18,7 @@ const AdminClients = () => {
   const [exportingProposal, setExportingProposal] = useState<Proposal | null>(null);
   const [leadDistributions, setLeadDistributions] = useState<{ proposal_id: string; accepted_by: string | null; status: string }[]>([]);
   const [partners, setPartners] = useState<any[]>([]);
+  const [members, setMembers] = useState<{ id: string; full_name: string }[]>([]);
   const proposalPdfRef = useRef<HTMLDivElement>(null);
   const isOwner = role === "owner";
 
