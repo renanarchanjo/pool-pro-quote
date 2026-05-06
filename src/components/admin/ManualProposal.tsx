@@ -169,11 +169,17 @@ const ManualProposal = () => {
     ? categories.filter((c) => c.brand_id === selectedBrandId)
     : categories;
 
-  const filteredModels = selectedCategoryId
+  const filteredModels = (selectedCategoryId
     ? models.filter((m) => m.category_id === selectedCategoryId)
     : selectedBrandId
     ? models.filter((m) => filteredCategories.some((c) => c.id === m.category_id))
-    : models;
+    : models
+  ).slice().sort((a, b) => {
+    const areaA = (Number(a.length) || 0) * (Number(a.width) || 0);
+    const areaB = (Number(b.length) || 0) * (Number(b.width) || 0);
+    if (areaB !== areaA) return areaB - areaA;
+    return (Number(b.length) || 0) - (Number(a.length) || 0);
+  });
 
   const visibleOptionals = optionals.filter((o) => enabledOptionalIds.includes(o.id));
   const selectedOptionalsList = optionals.filter((o) => selectedOptionalIds.includes(o.id));
