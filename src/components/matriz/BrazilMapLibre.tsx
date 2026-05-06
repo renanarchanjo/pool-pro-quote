@@ -88,30 +88,67 @@ const BrazilMapLibre = ({ stores, stateData, height = 500 }: Props) => {
       .catch((err) => console.error("Failed to load GeoJSON:", err));
   }, [stateData]);
 
-  const markers = useMemo(() => {
-    const grouped: Record<string, StorePin[]> = {};
-    stores.forEach((s) => {
-      const key = s.latitude && s.longitude
-        ? `${s.latitude},${s.longitude}`
-        : `state:${s.state || "??"}`;
-      if (!grouped[key]) grouped[key] = [];
-      grouped[key].push(s);
-    });
+  const [geocoded, setGeocoded] = useState<Record<string, [number, number]>>({});
 
+  // Geocode city+state via Nominatim with localStorage cache
+  useEffect(() => {
+    const CACHE_KEY = "geocode_cache_v1";
+    let cache: Record<string, [number, number]> = {};
+    try { cache = JSON.parse(localStorage.getItem(CACHE_KEY) || "{}"); } catch {}
+
+    const toGeocode = stores.filter(
+      (s) => !(s.latitude && s.longitude) && s.city && s.state
+    );
+
+    const initial: Record<string, [number, number]> = {};
+    const pending: StorePin[] = [];
+    toGeocode.forEach((s) => {
+      const key = `${s.city!.toLowerCase()}|${s.state!.toLowerCase()}`;
+      if (cache[key]) initial[s.id] = cache[key];
+      else pending.push(s);
+    });
+    if (Object.keys(initial).length) setGeocoded((g) => ({ ...g, ...initial }));
+
+    let cancelled = false;
+    (async () => {
+      for (const s of pending) {
+        const key = `${s.city!.toLowerCase()}|${s.state!.toLowerCase()}`;
+        try {
+          const url = `https://nominatim.openstreetmap.org/search?format=json&limit=1&country=Brazil&state=${encodeURIComponent(s.state!)}&city=${encodeURIComponent(s.city!)}`;
+          const r = await fetch(url, { headers: { "Accept-Language": "pt-BR" } });
+          const data = await r.json();
+          if (data?.[0]) {
+            const coord: [number, number] = [parseFloat(data[0].lon), parseFloat(data[0].lat)];
+            cache[key] = coord;
+            localStorage.setItem(CACHE_KEY, JSON.stringify(cache));
+            if (!cancelled) setGeocoded((g) => ({ ...g, [s.id]: coord }));
+          }
+        } catch (e) {
+          console.warn("Geocode failed for", s.city, s.state, e);
+        }
+        await new Promise((res) => setTimeout(res, 1100)); // Nominatim rate limit
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [stores]);
+
+  const markers = useMemo(() => {
     const out: { lng: number; lat: number; store: StorePin }[] = [];
-    Object.values(grouped).forEach((list) => {
-      list.forEach((s, idx) => {
-        let base: [number, number] | null = null; // [lng, lat]
-        if (s.latitude && s.longitude) base = [Number(s.longitude), Number(s.latitude)];
-        else if (s.state && STATE_COORDS[s.state]) base = STATE_COORDS[s.state];
-        if (!base) return;
-        const offsetLng = idx * 0.08;
-        const offsetLat = idx * 0.08;
-        out.push({ lng: base[0] + offsetLng, lat: base[1] + offsetLat, store: s });
-      });
+    const usedCoords = new Map<string, number>();
+    stores.forEach((s) => {
+      let base: [number, number] | null = null;
+      if (s.latitude && s.longitude) base = [Number(s.longitude), Number(s.latitude)];
+      else if (geocoded[s.id]) base = geocoded[s.id];
+      else if (s.state && STATE_COORDS[s.state]) base = STATE_COORDS[s.state];
+      if (!base) return;
+      const k = `${base[0].toFixed(3)},${base[1].toFixed(3)}`;
+      const idx = usedCoords.get(k) || 0;
+      usedCoords.set(k, idx + 1);
+      const offset = idx * 0.02;
+      out.push({ lng: base[0] + offset, lat: base[1] + offset, store: s });
     });
     return out;
-  }, [stores]);
+  }, [stores, geocoded]);
 
   // Auto-fit bounds when markers change
   useEffect(() => {
