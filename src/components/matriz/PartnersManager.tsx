@@ -359,15 +359,9 @@ const PartnersManager = () => {
             <p className="text-muted-foreground mt-1">
               O lojista então cadastra livremente seus <strong>modelos, opcionais e preços</strong> dentro dessas categorias.
             </p>
-            {(() => {
-              const totalPercent = partners.filter(p => p.active).reduce((sum, p) => sum + p.display_percent, 0);
-              const isValid = totalPercent === 100;
-              return (
-                <div className={`mt-3 p-2 rounded-lg text-sm font-semibold ${isValid ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400" : "bg-destructive/10 text-destructive"}`}>
-                  Total de aparição (ativos): {totalPercent}% {isValid ? "✓" : "— deve somar 100%"}
-                </div>
-              );
-            })()}
+            <p className="text-xs text-muted-foreground mt-3">
+              Logo e banner do parceiro aparecem somente nas propostas que selecionarem a marca correspondente.
+            </p>
           </div>
         </div>
       </Card>
