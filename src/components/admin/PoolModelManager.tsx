@@ -233,15 +233,15 @@ const PoolModelManager = () => {
     finally { setSaving(false); }
   };
 
-  const handleSubmit = async (e?: React.FormEvent) => {
+  const handleSubmit = async (e?: React.FormEvent): Promise<boolean> => {
     if (e) e.preventDefault();
     if (!formData.name.trim() || !formData.category_id || !formData.base_price) {
-      toast.error("Preencha os campos obrigatórios"); return;
+      toast.error("Preencha os campos obrigatórios"); return false;
     }
-    if (!store) { toast.error("Loja não encontrada"); return; }
+    if (!store) { toast.error("Loja não encontrada"); return false; }
     // Ensure model exists first (create if needed, reuse if already created)
     const modelId = await ensureModelSaved();
-    if (!modelId) return;
+    if (!modelId) return false;
     try {
       const inclNames = currentIncludedItems.map(i => {
         const qty = Number(i.quantity) || 1;
@@ -267,9 +267,31 @@ const PoolModelManager = () => {
       const { error } = await supabase.from("pool_models").update(data).eq("id", modelId);
       if (error) throw error;
       await syncIncludedItemsToModel(modelId);
-      toast.success("Modelo e itens inclusos salvos");
       loadData();
-    } catch (error) { console.error(error); toast.error("Erro ao salvar modelo"); }
+      return true;
+    } catch (error) { console.error(error); toast.error("Erro ao salvar modelo"); return false; }
+  };
+
+  const handleNextFromDados = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    const ok = await handleSubmit();
+    if (ok) {
+      toast.success("Dados salvos. Avançando para Itens Inclusos.");
+      setFormTab("itens");
+    }
+  };
+
+  const handleNextFromItens = async () => {
+    const ok = await handleSubmit();
+    if (ok) {
+      toast.success("Itens salvos. Avançando para Opcionais Dimensionados.");
+      setFormTab("opcionais");
+    }
+  };
+
+  const handleFinalSave = async () => {
+    const ok = await handleSubmit();
+    if (ok) toast.success("Modelo salvo com sucesso!");
   };
 
   const resetForm = () => {
