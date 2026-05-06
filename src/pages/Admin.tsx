@@ -220,6 +220,7 @@ const Admin = () => {
       {role === "owner" && userId && (
         <OwnerOnboardingModal userId={userId} storeId={store?.id} storeName={store?.name} />
       )}
+      <PartnerBrandsAnnouncement enabled={role === "owner"} />
 
       {/* Desktop floating panel */}
       <FloatingPanel open={panelOpen} onClose={() => setPanelOpen(false)}>
