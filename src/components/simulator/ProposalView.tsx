@@ -122,12 +122,8 @@ const ProposalView = ({
     let cancelled = false;
 
     const loadCurrentIncludedItems = async () => {
-      const { data, error } = await supabase
-        .from("model_included_items")
-        .select("name, quantity, price, item_type")
-        .eq("model_id", model.id)
-        .eq("active", true)
-        .order("display_order");
+      const { data, error } = await (supabase as any)
+        .rpc("get_model_included_items_public", { _model_id: model.id });
 
       if (cancelled) return;
 
