@@ -709,18 +709,90 @@ const ManualProposal = () => {
     );
   }
 
-  // ── Desktop layout (unchanged grid) ──
+  // ── Desktop layout ──
+  const renderModelGallery = () => {
+    if (!selectedBrandId) {
+      return (
+        <div className="h-full min-h-[300px] flex flex-col items-center justify-center text-center p-8 border-2 border-dashed border-border/60 rounded-2xl bg-muted/20">
+          <Waves className="w-12 h-12 text-muted-foreground/40 mb-3" />
+          <p className="text-sm font-medium text-muted-foreground">Selecione uma marca</p>
+          <p className="text-xs text-muted-foreground/70 mt-1">O catálogo de modelos aparecerá aqui</p>
+        </div>
+      );
+    }
+    if (filteredModels.length === 0) {
+      return (
+        <div className="h-full min-h-[300px] flex items-center justify-center text-center p-8 border-2 border-dashed border-border/60 rounded-2xl bg-muted/20">
+          <p className="text-sm text-muted-foreground">Nenhum modelo disponível para esta marca/categoria</p>
+        </div>
+      );
+    }
+    return (
+      <div className="grid gap-3 grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        {filteredModels.map((m) => {
+          const isSel = selectedModel?.id === m.id;
+          const cat = categories.find((c) => c.id === m.category_id);
+          return (
+            <button
+              key={m.id}
+              type="button"
+              onClick={() => { setSelectedModel(m); setSelectedCategoryId(m.category_id); }}
+              className={`group relative text-left rounded-2xl overflow-hidden border-2 transition-all bg-card ${
+                isSel ? "border-primary shadow-lg ring-2 ring-primary/20" : "border-border hover:border-primary/40 hover:shadow-md"
+              }`}
+            >
+              <div className="relative aspect-[4/3] bg-muted overflow-hidden">
+                {m.photo_url ? (
+                  <img src={m.photo_url} alt={m.name} className="w-full h-full object-cover transition-transform group-hover:scale-105" />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center text-muted-foreground/40">
+                    <Waves className="w-10 h-10" />
+                  </div>
+                )}
+                {isSel && (
+                  <div className="absolute top-2 right-2 bg-primary text-primary-foreground rounded-full p-1.5 shadow-md">
+                    <Check className="w-3.5 h-3.5" />
+                  </div>
+                )}
+              </div>
+              <div className="p-3">
+                <p className="text-sm font-semibold leading-tight line-clamp-1">{m.name}</p>
+                {cat && <p className="text-[11px] text-muted-foreground line-clamp-1 mt-0.5">{cat.name}</p>}
+                {m.length && m.width && (
+                  <p className="text-[11px] text-muted-foreground mt-0.5">
+                    {m.length}m × {m.width}m{m.depth ? ` × ${m.depth}m` : ""}
+                  </p>
+                )}
+                <p className="text-sm font-bold text-primary mt-1.5">
+                  R$ {m.base_price.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                </p>
+              </div>
+            </button>
+          );
+        })}
+      </div>
+    );
+  };
+
   return (
-    <div className="max-w-4xl">
-      <div className="grid gap-6 md:grid-cols-2">
-        <Card>
+    <div className="max-w-7xl">
+      <div className="grid gap-6 lg:grid-cols-3">
+        <Card className="lg:col-span-1">
           <CardHeader><CardTitle className="text-lg">Dados do Cliente</CardTitle></CardHeader>
           <CardContent>{renderCustomerFields()}</CardContent>
         </Card>
 
-        <Card>
+        <Card className="lg:col-span-1">
           <CardHeader><CardTitle className="text-lg">Modelo de Piscina</CardTitle></CardHeader>
           <CardContent>{renderModelFields()}</CardContent>
+        </Card>
+
+        <Card className="lg:col-span-1">
+          <CardHeader>
+            <CardTitle className="text-lg">Catálogo</CardTitle>
+            <p className="text-xs text-muted-foreground">Toque em um modelo para selecionar</p>
+          </CardHeader>
+          <CardContent>{renderModelGallery()}</CardContent>
         </Card>
 
         <Card className="md:col-span-2">
