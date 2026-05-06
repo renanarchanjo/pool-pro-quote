@@ -57,6 +57,9 @@ export interface ProposalPdfTemplateProps {
   brandLogoUrl?: string | null;
   brandName?: string | null;
   includedItemsTotal?: number;
+  /** When provided, this value is used as the source of truth for the proposal total
+   *  (e.g. when re-rendering a saved proposal from the database). */
+  overrideTotalPrice?: number | null;
   partners?: PdfTemplatePartner[];
   bannersToShow: { url: string; name: string }[];
   resolveSrc: (url?: string | null) => string | null;
