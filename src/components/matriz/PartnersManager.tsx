@@ -31,11 +31,6 @@ interface PartnerCategory {
   display_order: number;
 }
 
-const RANKING_LABELS: Record<number, string> = {
-  1: "🥇 1º Lugar",
-  2: "🥈 2º Lugar",
-  3: "🥉 3º Lugar",
-};
 
 const PartnersManager = () => {
   const [partners, setPartners] = useState<Partner[]>([]);
@@ -296,7 +291,7 @@ const PartnersManager = () => {
         <div>
           <h1 className="text-[18px] font-semibold text-foreground">Marcas</h1>
           <p className="text-[13px] text-muted-foreground">
-            Gerencie marcas, categorias e rankings de exibição nas propostas
+            Gerencie marcas e categorias de exibição nas propostas
           </p>
         </div>
         {hasDirtyChanges && (
@@ -346,12 +341,12 @@ const PartnersManager = () => {
         </div>
       </Card>
 
-      {/* Ranking explanation */}
+      {/* Partner info card */}
       <Card className="p-4 bg-primary/5 border-primary/20">
         <div className="flex items-start gap-3">
           <Trophy className="w-5 h-5 text-primary mt-0.5 shrink-0" />
           <div className="text-sm flex-1">
-            <p className="font-semibold text-foreground">Sistema de Ranking, Frequência e Categorias</p>
+            <p className="font-semibold text-foreground">Marcas Parceiras e Categorias</p>
             <p className="text-muted-foreground mt-1">
               Cada parceiro funciona como uma <strong>Marca</strong>. Ao cadastrar categorias aqui, quando um lojista selecionar esse parceiro,
               a marca e suas categorias serão <strong>criadas automaticamente</strong> no catálogo da loja.
@@ -395,16 +390,6 @@ const PartnersManager = () => {
                       partner.active ? "bg-background border-border/50" : "bg-muted/30 border-border/20 opacity-60"
                     }`}
                   >
-                    <div className="shrink-0 flex flex-col items-center gap-1">
-                      <div className={`w-10 h-10 rounded-lg flex items-center justify-center font-bold text-sm ${
-                        partner.ranking === 1 ? "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400" :
-                        partner.ranking === 2 ? "bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-300" :
-                        partner.ranking === 3 ? "bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400" :
-                        "bg-muted text-muted-foreground"
-                      }`}>
-                        #{partner.ranking}
-                      </div>
-                    </div>
                     <div className="flex flex-col items-center shrink-0 gap-0.5">
                       <div className="w-14 h-14 rounded-xl bg-background border border-border/50 flex items-center justify-center overflow-hidden p-1.5">
                         {partner.logo_url ? (
@@ -424,14 +409,6 @@ const PartnersManager = () => {
                             <Label className="text-xs">Nome</Label>
                             <Input value={partner.name} onChange={(e) => updatePartnerField(partner.id, "name", e.target.value)} className="h-8 text-sm mt-0.5" />
                           </div>
-                          <div className="flex items-center gap-2 mb-2">
-                            <div>
-                              <Label className="text-xs">Ranking</Label>
-                              <Input type="number" min={1} max={99} value={partner.ranking}
-                                onChange={(e) => { const val = parseInt(e.target.value); if (!isNaN(val)) updatePartnerField(partner.id, "ranking", val); }}
-                                className="w-20 h-8 text-xs text-center mt-0.5" />
-                            </div>
-                          </div>
                           <div>
                             <Label className="text-xs">Banner da Proposta (URL)</Label>
                             <Input className="h-8 text-xs mt-0.5" placeholder="URL do banner lateral"
@@ -444,7 +421,7 @@ const PartnersManager = () => {
                         <>
                           <p className="font-semibold truncate">{partner.name}</p>
                           <p className="text-xs text-muted-foreground">
-                            {RANKING_LABELS[partner.ranking] || `${partner.ranking}º Lugar`} · {partner.active ? "Ativo" : "Oculto"}
+                            {partner.active ? "Ativo" : "Oculto"}
                           </p>
                           {partner.banner_1_url && <p className="text-[10px] text-muted-foreground mt-1 truncate">🖼 Banner configurado</p>}
                           <button onClick={() => setExpandedPartner(isExpanded ? null : partner.id)} className="mt-1 text-xs text-primary hover:underline flex items-center gap-1">
@@ -477,14 +454,6 @@ const PartnersManager = () => {
                   }`}>
                     {/* Header */}
                     <div className="flex items-center gap-2.5 p-3 pb-0">
-                      <div className={`w-9 h-9 rounded-lg flex items-center justify-center font-bold text-[12px] shrink-0 ${
-                        partner.ranking === 1 ? "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400" :
-                        partner.ranking === 2 ? "bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-300" :
-                        partner.ranking === 3 ? "bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400" :
-                        "bg-muted text-muted-foreground"
-                      }`}>
-                        #{partner.ranking}
-                      </div>
                       <div className="flex flex-col items-center shrink-0 gap-0.5">
                         <div className="w-11 h-11 rounded-lg bg-background border border-border/50 flex items-center justify-center overflow-hidden p-1">
                           {partner.logo_url ? (
@@ -513,12 +482,6 @@ const PartnersManager = () => {
                           <Input value={partner.name} onChange={(e) => updatePartnerField(partner.id, "name", e.target.value)} className="h-8 text-sm mt-0.5" />
                         </div>
                         <div>
-                          <Label className="text-[10px]">Ranking</Label>
-                          <Input type="number" min={1} max={99} value={partner.ranking}
-                            onChange={(e) => { const val = parseInt(e.target.value); if (!isNaN(val)) updatePartnerField(partner.id, "ranking", val); }}
-                            className="h-8 text-xs text-center mt-0.5" />
-                        </div>
-                        <div>
                           <Label className="text-[10px]">Banner (URL)</Label>
                           <Input className="h-8 text-xs mt-0.5" placeholder="URL do banner"
                             value={partner.banner_1_url || ""}
@@ -527,10 +490,6 @@ const PartnersManager = () => {
                       </div>
                     ) : (
                       <div className="px-3 pt-2 pb-2 space-y-1">
-                        <div className="flex items-center justify-between">
-                          <span className="text-[11px] text-muted-foreground">Ranking</span>
-                          <span className="text-[12px] font-medium text-foreground">{RANKING_LABELS[partner.ranking] || `${partner.ranking}º Lugar`}</span>
-                        </div>
                         {partner.banner_1_url && (
                           <div className="flex items-center justify-between">
                             <span className="text-[11px] text-muted-foreground">Banner</span>
