@@ -539,7 +539,7 @@ const ContractsManager = () => {
                 <div><Label>Data do contrato *</Label><Input type="date" value={form.product.contract_date} onChange={e => setForm(p => ({ ...p, product: { ...p.product, contract_date: e.target.value } }))} /></div>
                 <div className="md:col-span-2"><Label>Foro (cidade)</Label><Input value={form.product.city_forum} placeholder="Padrão: cidade do comprador" onChange={e => setForm(p => ({ ...p, product: { ...p.product, city_forum: e.target.value } }))} /></div>
                 <div className="md:col-span-2"><Label>Condições de pagamento *</Label>
-                  <Textarea rows={3} value={form.product.payment_conditions} onChange={e => setForm(p => ({ ...p, product: { ...p.product, payment_conditions: e.target.value } }))}
+                  <Textarea rows={5} className="min-h-[140px] leading-relaxed" value={form.product.payment_conditions} onChange={e => setForm(p => ({ ...p, product: { ...p.product, payment_conditions: e.target.value } }))}
                     placeholder="Ex: R$ 11.000 na entrega + R$ 11.000 na instalação" /></div>
               </div>
 
