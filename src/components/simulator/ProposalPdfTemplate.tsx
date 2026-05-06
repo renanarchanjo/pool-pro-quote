@@ -415,93 +415,126 @@ const ProposalPdfTemplate = ({
 
 
         <div data-pdf-page style={PAGE_STYLE}>
+          {/* ── CABEÇALHO AZUL (consistência) ── */}
+          <div
+            style={{
+              height: "72px",
+              minHeight: "72px",
+              background: C_BLUE,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              padding: `0 ${PAD_X}px`,
+              color: "#FFFFFF",
+              flexShrink: 0,
+            }}
+          >
+            <div style={{ fontSize: "14px", fontWeight: 600 }}>Investimento</div>
+            <div style={{ fontSize: "11px", color: "rgba(255,255,255,0.85)" }}>
+              {storeName || "SIMULAPOOL"}
+            </div>
+          </div>
+
           <div
             style={{
               flex: 1,
               minHeight: 0,
-              overflow: "hidden",
+              padding: `28px ${PAD_X}px 0`,
               display: "flex",
               flexDirection: "column",
             }}
           >
-            <div style={{ marginBottom: "18px" }}>
-              <div style={{ background: "#F9FAFB", border: "1px solid #E5E7EB", borderRadius: "8px", padding: "20px 24px" }}>
-                <table style={{ width: "100%", fontSize: "13px", borderCollapse: "collapse" }}>
-                  <tbody>
-                    <tr>
-                      <td style={{ padding: "6px 0", color: "#6B7280" }}>Valor base piscina</td>
-                      <td style={{ padding: "6px 0", textAlign: "right", color: "#111827" }}>{fmt(displayBasePrice)}</td>
-                    </tr>
-                    {optionalsTotal > 0 && (
-                      <tr>
-                        <td style={{ padding: "6px 0", color: "#6B7280" }}>Opcionais</td>
-                        <td style={{ padding: "6px 0", textAlign: "right", color: "#111827" }}>{fmt(optionalsTotal)}</td>
-                      </tr>
-                    )}
-                    <tr>
-                      <td colSpan={2} style={{ padding: 0 }}>
-                        <div style={{ borderBottom: "2px solid #E5E7EB", margin: "8px 0" }} />
-                      </td>
-                    </tr>
-                    <tr>
-                      <td style={{ padding: "8px 0", fontWeight: 700, fontSize: "18px", color: "#1A56DB" }}>TOTAL</td>
-                      <td style={{ padding: "8px 0", textAlign: "right", fontWeight: 700, fontSize: "22px", color: "#1A56DB" }}>
-                        {fmt(totalPrice)}
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
+            {/* ── BLOCO DE TOTAL (destaque azul escuro) ── */}
+            <div
+              style={{
+                background: C_BLUE,
+                color: "#FFFFFF",
+                borderRadius: "6px",
+                padding: "26px 32px",
+                marginBottom: "32px",
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "flex-end",
+              }}
+            >
+              <div>
+                <div style={{ fontSize: "10px", textTransform: "uppercase", letterSpacing: "0.8px", color: "rgba(255,255,255,0.75)", fontWeight: 500 }}>
+                  Investimento total
+                </div>
+                <div style={{ fontSize: "11px", color: "rgba(255,255,255,0.85)", marginTop: "10px", lineHeight: 1.7 }}>
+                  Valor base · <span style={{ fontWeight: 500, color: "#FFFFFF" }}>{fmt(displayBasePrice)}</span>
+                  {optionalsTotal > 0 && (
+                    <>
+                      <br />
+                      Opcionais · <span style={{ fontWeight: 500, color: "#FFFFFF" }}>{fmt(optionalsTotal)}</span>
+                    </>
+                  )}
+                </div>
+              </div>
+              <div style={{ textAlign: "right" }}>
+                <div style={{ fontSize: "30px", fontWeight: 600, lineHeight: 1, letterSpacing: "-0.02em", color: "#FFFFFF" }}>
+                  {fmt(totalPrice)}
+                </div>
               </div>
             </div>
 
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "24px", marginBottom: "20px" }}>
+            {/* CONDIÇÕES + LOJA */}
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "1fr 1fr",
+                gap: "32px",
+                paddingBottom: "20px",
+                borderBottom: `1px solid ${C_DIVIDER}`,
+                marginBottom: "24px",
+              }}
+            >
               <div>
-                <p style={{ ...LABEL, marginBottom: "8px" }}>CONDIÇÕES COMERCIAIS</p>
-                <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                <p style={{ ...LABEL, marginBottom: "12px" }}>Condições comerciais</p>
+                <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
                   {([
                     ["Pagamento", model.payment_terms || "À vista"],
                     ["Entrega", `${model.delivery_days} dias`],
                     ["Instalação", `${model.installation_days} dias`],
                   ] as const).map(([label, value], i) => (
                     <div key={i}>
-                      <span style={{ fontSize: "10px", color: "#9CA3AF" }}>{label}</span>
-                      <div style={{ fontSize: "12px", color: "#111827" }}>{value}</div>
+                      <div style={{ fontSize: "10px", color: C_FAINT, textTransform: "uppercase", letterSpacing: "0.6px", fontWeight: 500 }}>{label}</div>
+                      <div style={{ fontSize: "13px", color: C_INK, fontWeight: 500, marginTop: "2px" }}>{value}</div>
                     </div>
                   ))}
                 </div>
               </div>
 
               <div>
-                <p style={{ ...LABEL, marginBottom: "8px" }}>DADOS DA LOJA</p>
-                <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                <p style={{ ...LABEL, marginBottom: "12px" }}>Dados da loja</p>
+                <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
                   <div>
-                    <span style={{ fontSize: "10px", color: "#9CA3AF" }}>Empresa</span>
-                    <div style={{ fontSize: "12px", color: "#111827" }}>{storeName || "-"}</div>
+                    <div style={{ fontSize: "10px", color: C_FAINT, textTransform: "uppercase", letterSpacing: "0.6px", fontWeight: 500 }}>Empresa</div>
+                    <div style={{ fontSize: "13px", color: C_INK, fontWeight: 500, marginTop: "2px" }}>{storeName || "—"}</div>
                   </div>
                   <div>
-                    <span style={{ fontSize: "10px", color: "#9CA3AF" }}>Cidade</span>
-                    <div style={{ fontSize: "12px", color: "#111827" }}>{storeLocation || "-"}</div>
+                    <div style={{ fontSize: "10px", color: C_FAINT, textTransform: "uppercase", letterSpacing: "0.6px", fontWeight: 500 }}>Cidade</div>
+                    <div style={{ fontSize: "13px", color: C_INK, fontWeight: 500, marginTop: "2px" }}>{storeLocation || "—"}</div>
                   </div>
                   {storeWhatsapp && (
                     <div>
-                      <span style={{ fontSize: "10px", color: "#9CA3AF" }}>WhatsApp</span>
-                      <div style={{ fontSize: "12px", color: "#111827" }}>{storeWhatsapp}</div>
+                      <div style={{ fontSize: "10px", color: C_FAINT, textTransform: "uppercase", letterSpacing: "0.6px", fontWeight: 500 }}>WhatsApp</div>
+                      <div style={{ fontSize: "13px", color: C_INK, fontWeight: 500, marginTop: "2px" }}>{storeWhatsapp}</div>
                     </div>
                   )}
                 </div>
               </div>
             </div>
 
+            {/* DIFERENCIAIS */}
             {model.differentials && model.differentials.length > 0 && (
-              <div style={{ marginBottom: "20px" }}>
-                <p style={{ ...LABEL, marginBottom: "8px", paddingBottom: "4px", borderBottom: "1px solid #E5E7EB" }}>
-                  DIFERENCIAIS
-                </p>
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "6px 20px" }}>
+              <div>
+                <p style={{ ...LABEL, marginBottom: "14px" }}>Diferenciais</p>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px 32px" }}>
                   {model.differentials.map((diff, i) => (
-                    <div key={i} style={{ fontSize: "12px", color: "#374151", display: "flex", alignItems: "center", gap: "6px" }}>
-                      <span style={{ color: "#10B981", fontWeight: 700, fontSize: "14px" }}>✓</span>
-                      {diff}
+                    <div key={i} style={{ fontSize: "12px", color: C_TEXT, display: "flex", alignItems: "flex-start", gap: "8px", lineHeight: 1.5 }}>
+                      <span style={{ color: C_BLUE, fontWeight: 600, fontSize: "13px", flexShrink: 0, marginTop: "1px" }}>✓</span>
+                      <span>{diff}</span>
                     </div>
                   ))}
                 </div>
@@ -509,20 +542,19 @@ const ProposalPdfTemplate = ({
             )}
           </div>
 
-          {/* ── MARCAS PARCEIRAS (container separado acima do rodapé) ── */}
+          {/* ── MARCAS PARCEIRAS (mantida configuração original) ── */}
           {footerPartners.length > 0 && (
             <div
               style={{
                 flexShrink: 0,
-                borderTop: "1px solid #E5E7EB",
-                paddingTop: "14px",
-                paddingBottom: "14px",
+                marginTop: "24px",
+                padding: `0 ${PAD_X}px`,
                 display: "flex",
                 flexDirection: "column",
-                gap: "8px",
+                gap: "10px",
               }}
             >
-              <p style={{ ...LABEL, textAlign: "center" }}>MARCAS PARCEIRAS</p>
+              <p style={{ ...LABEL, textAlign: "center" }}>Marcas parceiras</p>
               <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", alignItems: "center", gap: "10px 16px" }}>
                 {footerPartners.map((partner) => (
                   <div key={partner.id} style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: "24px" }}>
@@ -556,21 +588,24 @@ const ProposalPdfTemplate = ({
           <div
             style={{
               flexShrink: 0,
-              borderTop: "1px solid #E5E7EB",
-              paddingTop: "12px",
+              marginTop: "16px",
+              padding: `12px ${PAD_X}px 20px`,
+              borderTop: `1px solid ${C_DIVIDER}`,
               display: "flex",
-              flexDirection: "column",
               alignItems: "center",
-              gap: "6px",
+              justifyContent: "space-between",
+              gap: "12px",
             }}
           >
             <img
               src={resolveSrc(simulapoolLogoFooter) || simulapoolLogoFooter}
               alt="SimulaPool"
-              style={{ height: "20px", width: "auto", objectFit: "contain" }}
+              style={{ height: "16px", width: "auto", objectFit: "contain", opacity: 0.7 }}
             />
-            <span style={{ fontSize: "10px", color: "#9CA3AF" }}>Desenvolvido e gerado por SimulaPool</span>
-            <span style={{ fontSize: "10px", color: "#0EA5E9", fontWeight: 500 }}>www.simulapool.com</span>
+            <div style={{ fontSize: "10px", color: C_FAINT }}>
+              Desenvolvido por <span style={{ color: C_MUTED, fontWeight: 500 }}>SimulaPool</span> ·{" "}
+              <span style={{ color: C_BLUE, fontWeight: 500 }}>www.simulapool.com</span>
+            </div>
           </div>
         </div>
       </div>
