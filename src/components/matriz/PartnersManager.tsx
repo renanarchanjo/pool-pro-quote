@@ -454,14 +454,6 @@ const PartnersManager = () => {
                   }`}>
                     {/* Header */}
                     <div className="flex items-center gap-2.5 p-3 pb-0">
-                      <div className={`w-9 h-9 rounded-lg flex items-center justify-center font-bold text-[12px] shrink-0 ${
-                        partner.ranking === 1 ? "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400" :
-                        partner.ranking === 2 ? "bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-300" :
-                        partner.ranking === 3 ? "bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400" :
-                        "bg-muted text-muted-foreground"
-                      }`}>
-                        #{partner.ranking}
-                      </div>
                       <div className="flex flex-col items-center shrink-0 gap-0.5">
                         <div className="w-11 h-11 rounded-lg bg-background border border-border/50 flex items-center justify-center overflow-hidden p-1">
                           {partner.logo_url ? (
