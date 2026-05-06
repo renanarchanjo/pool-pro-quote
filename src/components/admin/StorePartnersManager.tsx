@@ -78,11 +78,22 @@ const StorePartnersManager = () => {
 
       setLinkedIds(prev => new Set([...prev, partnerId]));
     } else {
-      // Unlink - just remove the store_partners link, keep catalog data
+      // Unlink - remove the partner catalog (brands/categories/models/optionals/templates) to avoid duplicates on re-link
+      try {
+        toast.loading("Removendo catálogo do parceiro...", { id: "remove-cat" });
+        const { error: fnErr } = await supabase.functions.invoke("apply-partner-catalog", {
+          body: { store_id: store.id, partner_id: partnerId, mode: "remove" },
+        });
+        if (fnErr) throw fnErr;
+      } catch (e: any) {
+        toast.error("Falha ao remover catálogo: " + (e?.message || "erro"), { id: "remove-cat" });
+        setToggling(null);
+        return;
+      }
       const { error } = await supabase.from("store_partners").delete().eq("store_id", store.id).eq("partner_id", partnerId);
       if (error) { toast.error("Erro ao desvincular parceiro"); setToggling(null); return; }
       setLinkedIds(prev => { const n = new Set(prev); n.delete(partnerId); return n; });
-      toast.success("Parceiro desvinculado! Os dados do catálogo foram mantidos.");
+      toast.success("Parceiro desvinculado e catálogo removido.", { id: "remove-cat" });
     }
     setToggling(null);
   };
