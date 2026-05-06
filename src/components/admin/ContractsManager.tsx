@@ -414,28 +414,28 @@ const ContractsManager = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-start justify-between gap-4 flex-wrap">
-        <div>
+      <div className="flex items-start justify-between gap-3 flex-wrap">
+        <div className="min-w-0">
           <h1 className="text-[18px] font-semibold flex items-center gap-2">
             <FileText className="w-5 h-5 text-primary" /> Contratos
           </h1>
           <p className="text-[13px] text-muted-foreground">Gere e gerencie contratos de compra e venda.</p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 w-full sm:w-auto">
           {isOwner && (
-            <Button variant="outline" onClick={() => setClausesOpen(true)} className="gap-1">
-              <ScrollText className="w-4 h-4" /> Editar Cláusulas
+            <Button variant="outline" size="sm" onClick={() => setClausesOpen(true)} className="gap-1 flex-1 sm:flex-none">
+              <ScrollText className="w-4 h-4" /> <span className="hidden xs:inline">Editar </span>Cláusulas
             </Button>
           )}
-          <Button onClick={openNew} className="gap-1"><Plus className="w-4 h-4" /> Novo Contrato</Button>
+          <Button size="sm" onClick={openNew} className="gap-1 flex-1 sm:flex-none"><Plus className="w-4 h-4" /> Novo Contrato</Button>
         </div>
       </div>
 
       <Card className="p-3 md:p-4">
-        <div className="flex items-center gap-2 mb-3 flex-wrap">
-          <Label className="text-xs">Filtrar:</Label>
+        <div className="flex items-center gap-2 mb-3">
+          <Label className="text-xs shrink-0">Filtrar:</Label>
           <Select value={filter} onValueChange={v => setFilter(v as any)}>
-            <SelectTrigger className="h-8 w-[200px]"><SelectValue /></SelectTrigger>
+            <SelectTrigger className="h-8 flex-1 sm:w-[200px] sm:flex-none"><SelectValue /></SelectTrigger>
             <SelectContent>
               <SelectItem value="all">Todos</SelectItem>
               {(Object.keys(STATUS_LABEL) as Status[]).map(s => (
@@ -448,46 +448,83 @@ const ContractsManager = () => {
         {filtered.length === 0 ? (
           <p className="text-center text-sm text-muted-foreground py-10">Nenhum contrato encontrado.</p>
         ) : (
-          <div className="overflow-x-auto">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Comprador</TableHead>
-                  <TableHead>Modelo</TableHead>
-                  <TableHead>Valor</TableHead>
-                  {isOwner && <TableHead>Membro</TableHead>}
-                  <TableHead>Status</TableHead>
-                  <TableHead>Data</TableHead>
-                  <TableHead className="text-right">Ações</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filtered.map(r => (
-                  <TableRow key={r.id}>
-                    <TableCell className="font-medium">{r.buyer_name}</TableCell>
-                    <TableCell>{r.pool_model || "—"}</TableCell>
-                    <TableCell>{fmtBRL(r.total_value)}</TableCell>
-                    {isOwner && <TableCell className="text-xs">{r.member_name}</TableCell>}
-                    <TableCell><Badge className={STATUS_BADGE[r.status]} variant="outline">{STATUS_LABEL[r.status]}</Badge></TableCell>
-                    <TableCell className="text-xs text-muted-foreground">{fmtDate(r.created_at)}</TableCell>
-                    <TableCell className="text-right">
-                      <ContractActions
-                        row={r}
-                        busy={busyId === r.id}
-                        isOwner={isOwner}
-                        onGenerate={() => generatePdf(r.id)}
-                        onDownload={() => downloadPdf(r.pdf_path, { buyerName: r.buyer_name, date: r.created_at })}
-                        onDownloadSigned={() => downloadPdf(r.signed_pdf_path, { buyerName: r.buyer_name, date: r.created_at, signed: true })}
-                        onSetStatus={(s) => setStatus(r.id, s)}
-                        onDelete={() => removeContract(r.id)}
-                        onUploadSigned={(f) => uploadSigned(r.id, f)}
-                      />
-                    </TableCell>
+          <>
+            {/* Mobile: card list */}
+            <div className="md:hidden space-y-2">
+              {filtered.map(r => (
+                <div key={r.id} className="rounded-lg border border-border bg-card p-3">
+                  <div className="flex items-start justify-between gap-2 mb-2">
+                    <div className="min-w-0 flex-1">
+                      <p className="text-sm font-semibold truncate">{r.buyer_name}</p>
+                      <p className="text-xs text-muted-foreground truncate">
+                        {r.pool_model || "—"}{isOwner && r.member_name !== "—" ? ` · ${r.member_name}` : ""}
+                      </p>
+                    </div>
+                    <Badge className={`${STATUS_BADGE[r.status]} text-[10px] whitespace-nowrap shrink-0`} variant="outline">
+                      {STATUS_LABEL[r.status]}
+                    </Badge>
+                  </div>
+                  <div className="flex items-center justify-between gap-2 mb-3">
+                    <span className="text-sm font-semibold text-primary">{fmtBRL(r.total_value)}</span>
+                    <span className="text-[11px] text-muted-foreground">{fmtDate(r.created_at)}</span>
+                  </div>
+                  <ContractActions
+                    row={r}
+                    busy={busyId === r.id}
+                    isOwner={isOwner}
+                    onGenerate={() => generatePdf(r.id)}
+                    onDownload={() => downloadPdf(r.pdf_path, { buyerName: r.buyer_name, date: r.created_at })}
+                    onDownloadSigned={() => downloadPdf(r.signed_pdf_path, { buyerName: r.buyer_name, date: r.created_at, signed: true })}
+                    onSetStatus={(s) => setStatus(r.id, s)}
+                    onDelete={() => removeContract(r.id)}
+                    onUploadSigned={(f) => uploadSigned(r.id, f)}
+                  />
+                </div>
+              ))}
+            </div>
+
+            {/* Desktop: table */}
+            <div className="hidden md:block overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Comprador</TableHead>
+                    <TableHead>Modelo</TableHead>
+                    <TableHead>Valor</TableHead>
+                    {isOwner && <TableHead>Membro</TableHead>}
+                    <TableHead>Status</TableHead>
+                    <TableHead>Data</TableHead>
+                    <TableHead className="text-right">Ações</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
+                </TableHeader>
+                <TableBody>
+                  {filtered.map(r => (
+                    <TableRow key={r.id}>
+                      <TableCell className="font-medium">{r.buyer_name}</TableCell>
+                      <TableCell>{r.pool_model || "—"}</TableCell>
+                      <TableCell>{fmtBRL(r.total_value)}</TableCell>
+                      {isOwner && <TableCell className="text-xs">{r.member_name}</TableCell>}
+                      <TableCell><Badge className={STATUS_BADGE[r.status]} variant="outline">{STATUS_LABEL[r.status]}</Badge></TableCell>
+                      <TableCell className="text-xs text-muted-foreground">{fmtDate(r.created_at)}</TableCell>
+                      <TableCell className="text-right">
+                        <ContractActions
+                          row={r}
+                          busy={busyId === r.id}
+                          isOwner={isOwner}
+                          onGenerate={() => generatePdf(r.id)}
+                          onDownload={() => downloadPdf(r.pdf_path, { buyerName: r.buyer_name, date: r.created_at })}
+                          onDownloadSigned={() => downloadPdf(r.signed_pdf_path, { buyerName: r.buyer_name, date: r.created_at, signed: true })}
+                          onSetStatus={(s) => setStatus(r.id, s)}
+                          onDelete={() => removeContract(r.id)}
+                          onUploadSigned={(f) => uploadSigned(r.id, f)}
+                        />
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          </>
         )}
       </Card>
 
