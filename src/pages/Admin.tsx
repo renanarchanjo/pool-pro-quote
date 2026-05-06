@@ -14,6 +14,7 @@ import BrandLogo from "@/components/BrandLogo";
 import HeaderPlanBadge from "@/components/admin/HeaderPlanBadge";
 import OwnerOnboardingModal from "@/components/admin/OwnerOnboardingModal";
 import { PwaInstallGuide } from "@/components/PwaInstallGuide";
+import PartnerBrandsAnnouncement from "@/components/admin/PartnerBrandsAnnouncement";
 import { prefetchAllAdminRoutes } from "@/lib/adminChunkPrefetch";
 
 // Lazy load ALL sub-pages for smaller initial bundle
