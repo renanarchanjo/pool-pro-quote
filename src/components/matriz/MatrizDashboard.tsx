@@ -84,7 +84,7 @@ const MatrizDashboard = () => {
 
   const loadAll = useCallback(async () => {
     const [storesRes, proposalsRes, paymentsRes] = await Promise.all([
-      supabase.from("stores").select("id, name, city, state, plan_status, plan_id, created_at, plan_started_at, stripe_subscription_id, subscription_plans(name, price_monthly, slug)"),
+      supabase.from("stores").select("id, name, city, state, latitude, longitude, plan_status, plan_id, created_at, plan_started_at, stripe_subscription_id, subscription_plans(name, price_monthly, slug)"),
       supabase.from("proposals").select("id, store_id, total_price, created_at, status, is_test").eq("is_test", false),
       supabase.from("payment_history").select("id, store_id, amount, status, payment_date"),
     ]);
