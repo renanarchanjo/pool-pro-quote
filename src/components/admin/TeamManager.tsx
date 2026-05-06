@@ -51,6 +51,8 @@ const TeamManager = () => {
   const [showExtraDialog, setShowExtraDialog] = useState(false);
   const [extraQuantity, setExtraQuantity] = useState(1);
   const [editingRole, setEditingRole] = useState<string | null>(null);
+  const [pendingRole, setPendingRole] = useState<string>("");
+  const [savingRole, setSavingRole] = useState(false);
   const [editingCommission, setEditingCommission] = useState<string | null>(null);
   const [editCommissionPercent, setEditCommissionPercent] = useState("");
   const [savingCommission, setSavingCommission] = useState(false);
@@ -189,6 +191,7 @@ const TeamManager = () => {
   };
 
   const handleChangeRole = async (memberId: string, newRole: string) => {
+    setSavingRole(true);
     try {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) return;
@@ -206,9 +209,12 @@ const TeamManager = () => {
 
       toast.success("Permissão atualizada");
       setEditingRole(null);
+      setPendingRole("");
       loadMembers();
     } catch (error: any) {
       toast.error(error.message || "Erro ao atualizar permissão");
+    } finally {
+      setSavingRole(false);
     }
   };
 
@@ -458,10 +464,10 @@ const TeamManager = () => {
                       )}
                     </div>
                     {editingRole === member.id ? (
-                      <div className="flex items-center gap-2 mt-1">
+                      <div className="flex items-center gap-2 mt-1 flex-wrap">
                         <Select
-                          defaultValue={member.role}
-                          onValueChange={(v) => handleChangeRole(member.id, v)}
+                          value={pendingRole || member.role}
+                          onValueChange={(v) => setPendingRole(v)}
                         >
                           <SelectTrigger className="h-7 text-xs w-40">
                             <SelectValue />
@@ -471,7 +477,16 @@ const TeamManager = () => {
                             <SelectItem value="seller">Colaborador</SelectItem>
                           </SelectContent>
                         </Select>
-                        <Button size="sm" variant="ghost" className="h-7 text-xs" onClick={() => setEditingRole(null)}>
+                        <Button
+                          size="sm"
+                          className="h-7 text-xs"
+                          disabled={savingRole || !pendingRole || pendingRole === member.role}
+                          onClick={() => handleChangeRole(member.id, pendingRole)}
+                        >
+                          {savingRole ? <Loader2 className="w-3 h-3 animate-spin" /> : <Save className="w-3 h-3 mr-1" />}
+                          Salvar
+                        </Button>
+                        <Button size="sm" variant="ghost" className="h-7 text-xs" onClick={() => { setEditingRole(null); setPendingRole(""); }}>
                           Cancelar
                         </Button>
                       </div>
@@ -485,7 +500,10 @@ const TeamManager = () => {
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => setEditingRole(editingRole === member.id ? null : member.id)}
+                      onClick={() => {
+                        if (editingRole === member.id) { setEditingRole(null); setPendingRole(""); }
+                        else { setEditingRole(member.id); setPendingRole(member.role); }
+                      }}
                       title="Editar permissão"
                     >
                       <Pencil className="w-4 h-4" />
