@@ -151,6 +151,23 @@ const DashboardPipeline = ({ proposals, onUpdateStatus, onViewProposal, onExport
               <SelectItem value="tempo">Mais Antigo</SelectItem>
             </SelectContent>
           </Select>
+
+          {members.length > 0 && (
+            <Select value={memberFilter} onValueChange={setMemberFilter}>
+              <SelectTrigger className="w-auto min-w-[130px] h-8 text-[13px] bg-input border-border rounded-md text-foreground whitespace-nowrap shrink-0">
+                <div className="flex items-center gap-1.5">
+                  <Users className="w-3.5 h-3.5" />
+                  <SelectValue placeholder="Colaborador" />
+                </div>
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todos colaboradores</SelectItem>
+                {members.map((m) => (
+                  <SelectItem key={m.id} value={m.id}>{m.full_name || "Sem nome"}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
         </div>
 
         <Popover open={datePopoverOpen} onOpenChange={setDatePopoverOpen}>
