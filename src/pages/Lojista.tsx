@@ -67,8 +67,8 @@ const BENEFITS_MANAGEMENT = [
     icon: Shield,
     title: "100% personalizado",
     description:
-      "Logo, paleta de cores e catálogo de piscinas configurados na sua conta. Cada orçamento sai com a identidade da sua loja, não com a nossa.",
-    highlight: "Seu catálogo, seus preços, sua marca.",
+      "Logo, paleta de cores e seus produtos configurados na sua conta. Cada orçamento sai com a identidade da sua loja, não com a nossa.",
+    highlight: "Seus produtos, seus preços, sua marca.",
   },
 ];
 
