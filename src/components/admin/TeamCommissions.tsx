@@ -116,7 +116,7 @@ const TeamCommissions = () => {
       const revenueClosed = closed.reduce((s, p) => s + p.total_price, 0);
       const cp = getCommissionPercent(member.id);
       const commissionValue = revenueClosed * (cp / 100);
-      const totalDecided = closed.length + lost.length;
+      const totalDecided = closed.length + lost.length + inNeg.length;
       const conversionRate = totalDecided > 0 ? (closed.length / totalDecided) * 100 : 0;
       const ticketMedio = closed.length > 0 ? revenueClosed / closed.length : 0;
 
