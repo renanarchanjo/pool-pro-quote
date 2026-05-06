@@ -954,7 +954,10 @@ const PoolModelManager = () => {
                               const inlinePrice = parseFloat(inlineInclForm.price) || 0;
                               const inlineLucro = inlinePrice - inlineTotalCost;
                               return (
-                                <TableRow key={item.id} className="bg-primary/5">
+                                <TableRow key={item.id} className="bg-primary/5" onKeyDown={(e) => {
+                                  if (e.key === "Enter") { e.preventDefault(); handleInlineInclSave(); }
+                                  else if (e.key === "Escape") { e.preventDefault(); setInlineEditIncl(null); }
+                                }}>
                                   <TableCell className="p-1"></TableCell>
                                   <TableCell className="p-1">
                                     <Input type="number" min="1" className="w-16 h-8 text-center" value={inlineInclForm.quantity}
