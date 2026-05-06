@@ -492,7 +492,7 @@ const ContractsManager = () => {
       </Card>
 
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-2xl max-h-[95vh] sm:max-h-[90vh] overflow-y-auto p-4 sm:p-6 pb-[env(safe-area-inset-bottom)]">
           <DialogHeader><DialogTitle>Novo Contrato</DialogTitle></DialogHeader>
 
           <div className="space-y-5 mt-2">
