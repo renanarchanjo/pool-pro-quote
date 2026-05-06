@@ -482,12 +482,6 @@ const PartnersManager = () => {
                           <Input value={partner.name} onChange={(e) => updatePartnerField(partner.id, "name", e.target.value)} className="h-8 text-sm mt-0.5" />
                         </div>
                         <div>
-                          <Label className="text-[10px]">Ranking</Label>
-                          <Input type="number" min={1} max={99} value={partner.ranking}
-                            onChange={(e) => { const val = parseInt(e.target.value); if (!isNaN(val)) updatePartnerField(partner.id, "ranking", val); }}
-                            className="h-8 text-xs text-center mt-0.5" />
-                        </div>
-                        <div>
                           <Label className="text-[10px]">Banner (URL)</Label>
                           <Input className="h-8 text-xs mt-0.5" placeholder="URL do banner"
                             value={partner.banner_1_url || ""}
@@ -496,10 +490,6 @@ const PartnersManager = () => {
                       </div>
                     ) : (
                       <div className="px-3 pt-2 pb-2 space-y-1">
-                        <div className="flex items-center justify-between">
-                          <span className="text-[11px] text-muted-foreground">Ranking</span>
-                          <span className="text-[12px] font-medium text-foreground">{RANKING_LABELS[partner.ranking] || `${partner.ranking}º Lugar`}</span>
-                        </div>
                         {partner.banner_1_url && (
                           <div className="flex items-center justify-between">
                             <span className="text-[11px] text-muted-foreground">Banner</span>
