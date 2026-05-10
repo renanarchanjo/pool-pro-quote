@@ -265,7 +265,7 @@ const QuizConstrucao = () => {
               if (step === 1) return navigate(`/s/${slug}`);
               goBack();
             }}
-            className="sp-btn sp-btn-ghost sp-btn-sm"
+            className="inline-flex items-center gap-1.5 h-10 px-4 rounded-xl border-2 border-border bg-white text-sm font-semibold text-foreground shadow-sm transition-all hover:border-primary hover:text-primary hover:-translate-x-0.5 active:scale-95"
           >
             <ArrowLeft className="w-4 h-4" />
             <span className="hidden sm:inline">Voltar</span>
@@ -520,8 +520,13 @@ const QuizConstrucao = () => {
                   )}
                 </div>
 
-                <Button variant="outline" className="w-full" onClick={() => { setHasPrainha(false); setHasSpa(false); setHasEspelho(false); setStep(s => Math.min(s + 1, totalSteps)); }}>
-                  Não quero áreas extras
+                <Button
+                  variant="outline"
+                  size="lg"
+                  className="w-full h-12 rounded-xl border-2 border-dashed border-border font-semibold text-muted-foreground transition-all hover:border-primary hover:text-primary hover:bg-primary/5 active:scale-[0.99]"
+                  onClick={() => { setHasPrainha(false); setHasSpa(false); setHasEspelho(false); setStep(s => Math.min(s + 1, totalSteps)); }}
+                >
+                  Não quero áreas extras <ArrowRight className="w-4 h-4 ml-1.5" />
                 </Button>
               </div>
             )}
@@ -609,17 +614,33 @@ const QuizConstrucao = () => {
 
             {/* Navegação */}
             <div className="flex items-center justify-between gap-3 mt-8 pt-6 border-t">
-              <Button variant="ghost" onClick={goBack} disabled={step === 1}>
-                <ArrowLeft className="w-4 h-4 mr-1" /> Voltar
+              <Button
+                variant="outline"
+                size="lg"
+                onClick={goBack}
+                disabled={step === 1}
+                className="h-12 px-5 rounded-xl border-2 font-semibold transition-all hover:bg-secondary hover:-translate-x-0.5 active:scale-95 disabled:opacity-40"
+              >
+                <ArrowLeft className="w-5 h-5 mr-1.5" /> Voltar
               </Button>
               {step < totalSteps ? (
-                <Button onClick={goNext} disabled={!canNext()}>
-                  Próximo <ArrowRight className="w-4 h-4 ml-1" />
+                <Button
+                  onClick={goNext}
+                  disabled={!canNext()}
+                  size="lg"
+                  className="h-12 px-7 rounded-xl font-semibold bg-gradient-to-r from-primary to-sky-500 text-primary-foreground shadow-lg shadow-primary/30 transition-all hover:shadow-xl hover:shadow-primary/40 hover:translate-x-0.5 active:scale-95 disabled:opacity-50 disabled:shadow-none"
+                >
+                  Próximo <ArrowRight className="w-5 h-5 ml-1.5" />
                 </Button>
               ) : (
-                <Button onClick={submit} disabled={submitting || !canNext()}>
-                  {submitting && <Loader2 className="w-4 h-4 animate-spin mr-2" />}
-                  Enviar solicitação
+                <Button
+                  onClick={submit}
+                  disabled={submitting || !canNext()}
+                  size="lg"
+                  className="h-12 px-7 rounded-xl font-semibold bg-gradient-to-r from-emerald-500 to-emerald-600 text-white shadow-lg shadow-emerald-500/30 transition-all hover:shadow-xl hover:shadow-emerald-500/40 active:scale-95 disabled:opacity-50 disabled:shadow-none"
+                >
+                  {submitting && <Loader2 className="w-5 h-5 animate-spin mr-2" />}
+                  Enviar solicitação <CheckCircle2 className="w-5 h-5 ml-1.5" />
                 </Button>
               )}
             </div>
