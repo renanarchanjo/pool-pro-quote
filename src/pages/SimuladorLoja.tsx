@@ -407,18 +407,38 @@ const SimuladorLoja = () => {
 
         <main className="container mx-auto px-4 py-8">
           {step === 1 && models.length === 0 ? (
-            <div className="text-center py-20 max-w-md mx-auto">
-              <div className="mx-auto w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center mb-4">
-                <span className="text-2xl">🏊</span>
+            <div className="max-w-2xl mx-auto">
+              {(store?.offers_alvenaria || store?.offers_vinil) && (
+                <div className="mb-6 rounded-2xl border border-sky-200 bg-gradient-to-br from-sky-50 to-white p-5">
+                  <p className="text-sm font-semibold text-slate-900 mb-1">Esta loja constrói piscinas sob medida!</p>
+                  <p className="text-xs text-slate-600 mb-3">Responda um quiz rápido e receba uma proposta personalizada.</p>
+                  <div className="flex flex-wrap gap-2">
+                    {store?.offers_alvenaria && (
+                      <Button size="sm" onClick={() => navigate(`/s/${store.slug}/quiz-construcao?tipo=alvenaria`)}>
+                        🧱 Quero Alvenaria →
+                      </Button>
+                    )}
+                    {store?.offers_vinil && (
+                      <Button size="sm" onClick={() => navigate(`/s/${store.slug}/quiz-construcao?tipo=vinil`)}>
+                        🎨 Quero Vinil →
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              )}
+              <div className="text-center py-12">
+                <div className="mx-auto w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center mb-4">
+                  <span className="text-2xl">🏊</span>
+                </div>
+                <h2 className="text-xl font-bold mb-2 text-slate-900">Nenhum modelo de fibra disponível</h2>
+                <p className="text-slate-500 text-sm mb-6">
+                  Esta loja ainda não cadastrou modelos de piscina de fibra.
+                </p>
+                <Button variant="outline" onClick={() => navigate("/")}>
+                  <ArrowLeft className="w-4 h-4 mr-2" />
+                  Voltar ao início
+                </Button>
               </div>
-              <h2 className="text-xl font-bold mb-2 text-slate-900">Nenhum modelo disponível</h2>
-              <p className="text-slate-500 text-sm mb-6">
-                Esta loja ainda não cadastrou modelos de piscina. Volte mais tarde.
-              </p>
-              <Button variant="outline" onClick={() => navigate("/")}>
-                <ArrowLeft className="w-4 h-4 mr-2" />
-                Voltar ao início
-              </Button>
             </div>
           ) : step === 1 ? (
             <>
