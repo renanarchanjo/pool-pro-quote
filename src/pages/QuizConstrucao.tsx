@@ -442,7 +442,7 @@ const QuizConstrucao = () => {
                   )}
                 </div>
 
-                <Button variant="outline" className="w-full" onClick={() => { setHasPrainha(false); setHasSpa(false); setHasEspelho(false); }}>
+                <Button variant="outline" className="w-full" onClick={() => { setHasPrainha(false); setHasSpa(false); setHasEspelho(false); setStep(s => Math.min(s + 1, totalSteps)); }}>
                   Não quero áreas extras
                 </Button>
               </div>
