@@ -292,16 +292,13 @@ export default function TestProposal() {
 
   const conj = useMemo(() => getConjuntoFiltrante(calc.m2Fundo, tipo), [calc.m2Fundo, tipo]);
 
-  // recalcula grupos ao mudar tipo / dimensionamento (etapa 1 → 2)
+  // recalcula grupos ao mudar tipo / dimensionamento (etapa 1 → 2) — direto do catálogo
   const goToStep2 = useCallback(() => {
-    const g =
-      tipo === "vinil"
-        ? buildVinilGroups(calc.m2Fundo, calc.m2Bruto, conj)
-        : buildAlvenariaGroups(calc.m2Fundo, calc.m2Bruto, calc.m2Bruto, conj);
+    const g = buildFromCatalog(catalog[tipo], calc, conj);
     setGroups(g);
     setNaoInclusos(tipo === "vinil" ? NAO_INCLUSOS_VINIL : NAO_INCLUSOS_ALV);
     setStep(2);
-  }, [tipo, calc, conj]);
+  }, [tipo, catalog, calc, conj]);
 
   const goToStep3 = useCallback(() => {
     if (parcelas.length === 0) {
