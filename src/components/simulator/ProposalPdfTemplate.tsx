@@ -465,6 +465,25 @@ const ProposalPdfTemplate = ({
               flexDirection: "column",
             }}
           >
+            {/* OPCIONAIS SELECIONADOS (antes do investimento) */}
+            {visibleOptionals.length > 0 && (
+              <div style={{ paddingBottom: "20px", borderBottom: `1px solid ${C_DIVIDER}`, marginBottom: "24px" }}>
+                <p style={{ ...LABEL, marginBottom: "12px" }}>Opcionais selecionados</p>
+                <table style={{ width: "100%", fontSize: "12px", borderCollapse: "collapse" }}>
+                  <tbody>
+                    {visibleOptionals.map((opt, i) => (
+                      <tr key={i} style={{ borderBottom: i < visibleOptionals.length - 1 ? `1px solid ${C_DIVIDER}` : "none" }}>
+                        <td style={{ padding: "10px 0", color: C_TEXT }}>{opt.name}</td>
+                        <td style={{ padding: "10px 0", textAlign: "right", fontWeight: 600, color: C_INK, whiteSpace: "nowrap" }}>
+                          {fmt(opt.price)}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+
             {/* ── BLOCO DE TOTAL (destaque azul escuro) ── */}
             <div
               style={{
