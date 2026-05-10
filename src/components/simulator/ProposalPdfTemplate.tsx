@@ -203,7 +203,7 @@ const ProposalPdfTemplate = ({
                   loading="eager"
                   referrerPolicy="no-referrer"
                   crossOrigin="anonymous"
-                  style={{ height: "40px", width: "auto", objectFit: "contain", maxWidth: "150px", filter: "brightness(0) invert(1)" }}
+                  style={{ height: "44px", width: "auto", objectFit: "contain", maxWidth: "180px", background: "#FFFFFF", padding: "4px 8px", borderRadius: "6px" }}
                 />
               ) : (
                 <div style={{ fontSize: "18px", fontWeight: 600, letterSpacing: "-0.01em" }}>
