@@ -693,7 +693,7 @@ const MatrizLeads = () => {
 
       {/* View Lead Dialog */}
       <Dialog open={!!viewingLead} onOpenChange={() => setViewingLead(null)}>
-        <DialogContent className="max-w-sm">
+        <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="text-base">Detalhes do Lead</DialogTitle>
           </DialogHeader>
@@ -703,10 +703,32 @@ const MatrizLeads = () => {
                 <div><p className="text-[10px] text-muted-foreground">Nome</p><p className="font-medium text-sm">{viewingLead.customer_name}</p></div>
                 <div><p className="text-[10px] text-muted-foreground">WhatsApp</p><p className="font-medium text-sm">{viewingLead.customer_whatsapp}</p></div>
                 <div><p className="text-[10px] text-muted-foreground">Cidade</p><p className="font-medium text-sm flex items-center gap-1"><MapPin className="w-3 h-3" />{viewingLead.customer_city}</p></div>
-                <div><p className="text-[10px] text-muted-foreground">Piscina</p><p className="font-medium text-sm">{viewingLead.pool_models?.name || "-"}</p></div>
-                <div><p className="text-[10px] text-muted-foreground">Valor</p><p className="font-medium text-sm text-emerald-600">{formatCurrency(viewingLead.total_price)}</p></div>
+                <div>
+                  <p className="text-[10px] text-muted-foreground">Piscina</p>
+                  <p className="font-medium text-sm">
+                    {viewingLead.pool_models?.name
+                      ?? (viewingLead.lead_type === "alvenaria" ? "Alvenaria · sob medida"
+                        : viewingLead.lead_type === "vinil" ? "Vinil tela armada"
+                        : "-")}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-[10px] text-muted-foreground">Valor</p>
+                  <p className="font-medium text-sm text-emerald-600">
+                    {["alvenaria","vinil","construcao"].includes(viewingLead.lead_type || "")
+                      ? <span className="text-muted-foreground italic">Sob proposta</span>
+                      : formatCurrency(viewingLead.total_price)}
+                  </p>
+                </div>
                 <div><p className="text-[10px] text-muted-foreground">Data</p><p className="font-medium text-sm flex items-center gap-1"><Calendar className="w-3 h-3" />{viewingLead.created_at ? format(new Date(viewingLead.created_at), "dd/MM/yyyy HH:mm", { locale: ptBR }) : "-"}</p></div>
               </div>
+
+              {viewingLead.quiz_data && (
+                <div className="pt-2 border-t border-border">
+                  <p className="text-[11px] uppercase tracking-wide font-semibold text-muted-foreground mb-2">Respostas do quiz</p>
+                  <QuizDataSummary quizData={viewingLead.quiz_data} leadType={viewingLead.lead_type} />
+                </div>
+              )}
 
               {(() => {
                 const dist = distributionMap.get(viewingLead.id);
