@@ -39,9 +39,9 @@ const CustomerForm = ({ onSubmit, model, optionals, includedItemsTotal = 0, hide
       setCity(loc.city);
       toast.success(`Localização detectada: ${loc.city} / ${loc.state}`);
     } else if (!silent) {
-      toast.error(
-        "Não foi possível detectar sua localização. Verifique a permissão de localização do navegador ou selecione manualmente.",
-      );
+      toast.info("Selecione seu estado e cidade manualmente abaixo.", {
+        description: "Para detectar automaticamente, permita o acesso à localização no navegador.",
+      });
     }
   };
 
