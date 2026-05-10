@@ -40,7 +40,7 @@ const waitForStablePaint = async (delay?: number) => {
 const HTML2CANVAS_TIMEOUT = 30000;
 
 const disableAncestorTransformsForPdf = (element: HTMLElement) => {
-  const changed: Array<{ el: HTMLElement; transform: string; width: string; margin: string; overflow: string }> = [];
+  const changed: Array<{ el: HTMLElement; transform: string; width: string; margin: string; overflow: string; overflowX: string; overflowY: string }> = [];
   let current = element.parentElement;
 
   while (current && current !== document.body) {
@@ -55,6 +55,8 @@ const disableAncestorTransformsForPdf = (element: HTMLElement) => {
         width: current.style.width,
         margin: current.style.margin,
         overflow: current.style.overflow,
+        overflowX: current.style.overflowX,
+        overflowY: current.style.overflowY,
       });
       if (hasTransform) {
         current.style.transform = "none";
@@ -62,16 +64,20 @@ const disableAncestorTransformsForPdf = (element: HTMLElement) => {
         current.style.margin = "0 auto";
       }
       current.style.overflow = "visible";
+      current.style.overflowX = "visible";
+      current.style.overflowY = "visible";
     }
     current = current.parentElement;
   }
 
   return () => {
-    changed.reverse().forEach(({ el, transform, width, margin, overflow }) => {
+    changed.reverse().forEach(({ el, transform, width, margin, overflow, overflowX, overflowY }) => {
       el.style.transform = transform;
       el.style.width = width;
       el.style.margin = margin;
       el.style.overflow = overflow;
+      el.style.overflowX = overflowX;
+      el.style.overflowY = overflowY;
     });
   };
 };
