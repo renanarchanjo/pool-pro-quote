@@ -1255,7 +1255,27 @@ const PoolModelManager = () => {
                 ) : (
                   <div className="space-y-2">
                     {currentModelOptionals.map((opt) => (
-                      <div key={opt.id} className="flex items-center justify-between p-3 rounded-lg border border-border/50 bg-background">
+                      <div
+                        key={opt.id}
+                        onDragOver={(e) => handleDragOver(e, opt.id)}
+                        onDrop={(e) => handleOptDrop(e, opt.id)}
+                        className={`flex items-center justify-between p-3 rounded-lg border bg-background transition-colors ${
+                          dragItemId === opt.id ? "opacity-40" : ""
+                        } ${
+                          dragOverItemId === opt.id && dragItemId !== opt.id
+                            ? "border-primary border-2"
+                            : "border-border/50"
+                        }`}
+                      >
+                        <div
+                          draggable
+                          onDragStart={(e) => handleDragStart(e, opt.id)}
+                          onDragEnd={handleDragEnd}
+                          className="cursor-grab active:cursor-grabbing px-1 mr-2 select-none flex-shrink-0"
+                          title="Arraste para reordenar"
+                        >
+                          <GripVertical className="w-4 h-4 text-muted-foreground" />
+                        </div>
                         <div className="flex-1 min-w-0">
                           <p className="font-medium">{opt.name}</p>
                           {opt.description && <p className="text-xs text-muted-foreground">{opt.description}</p>}
