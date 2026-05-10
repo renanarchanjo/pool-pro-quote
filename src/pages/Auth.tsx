@@ -10,6 +10,7 @@ import { toast } from "sonner";
 import { sanitizeText, sanitizePhone, sanitizeCNPJ } from "@/lib/sanitize";
 import BrandLogo from "@/components/BrandLogo";
 import { useForceLightTheme } from "@/hooks/useForceLightTheme";
+import AuthSplitShell from "@/components/auth/AuthSplitShell";
 
 const heroGradient = "#0A1628";
 
@@ -223,16 +224,20 @@ const Auth = () => {
 
   if (pendingConfirmation) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-4" style={{ background: heroGradient }}>
+      <AuthSplitShell
+        eyebrow="Cadastro quase pronto"
+        headline="Falta só um clique pra ativar sua loja."
+        subline="Confirme seu e-mail e libere o painel completo: propostas, leads, equipe e relatórios."
+      >
         <div className={cardClass}>
           <div className="text-center mb-6">
-            <div className="flex justify-center mb-6">
+            <div className="flex justify-center mb-6 lg:hidden">
               <BrandLogo size="lg" className="[&_span]:text-white" />
             </div>
             <div className="mx-auto w-16 h-16 rounded-full bg-white/10 flex items-center justify-center mb-4">
               <Mail className="h-8 w-8 text-[#38BDF8]" />
             </div>
-            <h1 className="text-2xl font-display font-bold mb-2 text-white">Confirme seu e-mail</h1>
+            <h1 className="text-2xl font-sp-display font-bold mb-2 text-white">Confirme seu e-mail</h1>
             <p className="text-white/50 text-sm">Enviamos um link de confirmação para:</p>
             <p className="font-semibold text-white mt-1">{pendingEmail}</p>
           </div>
@@ -276,18 +281,22 @@ const Auth = () => {
             </Button>
           </div>
         </div>
-      </div>
+      </AuthSplitShell>
     );
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4" style={{ background: heroGradient }}>
+    <AuthSplitShell
+      eyebrow="Área do Lojista"
+      headline="Crie sua loja em poucos minutos."
+      subline="Cadastre seu CNPJ, personalize a marca e comece a gerar propostas profissionais ainda hoje."
+    >
       <div className={cardClass}>
         <div className="text-center mb-8">
-          <div className="flex justify-center mb-6">
+          <div className="flex justify-center mb-6 lg:hidden">
             <BrandLogo size="lg" className="[&_span]:text-white" />
           </div>
-          <h1 className="text-3xl font-display font-bold mb-2 text-white">Área do Lojista</h1>
+          <h1 className="text-3xl font-sp-display font-bold mb-2 text-white">Área do Lojista</h1>
           <p className="text-white/50">Crie sua loja agora</p>
         </div>
 
@@ -456,7 +465,7 @@ const Auth = () => {
           </Button>
         </div>
       </div>
-    </div>
+    </AuthSplitShell>
   );
 };
 

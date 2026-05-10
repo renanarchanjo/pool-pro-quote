@@ -125,7 +125,7 @@ const Parceiros = () => {
           {/* Headline */}
           <motion.h1
             variants={fadeUp} initial="hidden" animate="visible" custom={1}
-            className="text-[28px] leading-[1.12] md:text-[54px] md:leading-[1.06] font-bold text-white tracking-[-0.03em] mb-5 md:mb-7"
+            className="font-sp-display text-[28px] leading-[1.1] md:text-[54px] md:leading-[1.04] font-extrabold text-white tracking-[-0.03em] mb-5 md:mb-7 text-balance"
           >
             Coloque sua marca no{" "}
             <span className="text-[#38BDF8]">momento exato</span>{" "}
@@ -199,7 +199,7 @@ const Parceiros = () => {
             <p className="text-[11px] font-semibold uppercase tracking-[0.1em] text-muted-foreground mb-3">
               ONDE SUA MARCA APARECE
             </p>
-            <h2 className="text-[24px] md:text-[32px] font-bold text-foreground tracking-[-0.02em] mb-3">
+            <h2 className="font-sp-display text-[24px] md:text-[32px] font-bold text-foreground tracking-[-0.02em] mb-3">
               Presente em cada etapa do funil
             </h2>
             <p className="text-[15px] text-muted-foreground max-w-[500px] mx-auto">
@@ -249,7 +249,7 @@ const Parceiros = () => {
             <p className="text-[11px] font-semibold uppercase tracking-[0.1em] text-muted-foreground mb-3">
               VANTAGENS
             </p>
-            <h2 className="text-[24px] md:text-[32px] font-bold text-foreground tracking-[-0.02em] mb-3">
+            <h2 className="font-sp-display text-[24px] md:text-[32px] font-bold text-foreground tracking-[-0.02em] mb-3">
               Por que marcas líderes escolhem o SimulaPool
             </h2>
             <p className="text-[15px] text-muted-foreground max-w-[500px] mx-auto">
@@ -353,7 +353,7 @@ const Parceiros = () => {
           transition={{ duration: 0.6, ease }}
           className="max-w-[560px] mx-auto text-center"
         >
-          <h2 className="text-[24px] md:text-[32px] font-bold text-foreground tracking-[-0.02em] mb-3">
+          <h2 className="font-sp-display text-[24px] md:text-[32px] font-bold text-foreground tracking-[-0.02em] mb-3">
             Sua marca já poderia estar{" "}
             <span className="text-primary">influenciando compras</span>
           </h2>
