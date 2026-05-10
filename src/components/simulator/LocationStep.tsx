@@ -45,11 +45,16 @@ async function attachStoreLogos(stores: Store[]): Promise<Store[]> {
         }
       })
     ),
-    supabase.rpc("get_stores_plan_price_public").then(({ data }) => {
-      const map = new Map<string, number>();
-      ((data as any[]) || []).forEach((r) => map.set(r.store_id, Number(r.price_monthly) || 0));
-      return map;
-    }).catch(() => new Map<string, number>()),
+    (async () => {
+      try {
+        const { data } = await supabase.rpc("get_stores_plan_price_public");
+        const map = new Map<string, number>();
+        ((data as any[]) || []).forEach((r) => map.set(r.store_id, Number(r.price_monthly) || 0));
+        return map;
+      } catch {
+        return new Map<string, number>();
+      }
+    })(),
   ]);
   return stores.map((s, i) => ({
     ...s,
