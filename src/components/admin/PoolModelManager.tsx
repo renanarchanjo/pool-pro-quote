@@ -34,6 +34,7 @@ interface ModelOptional {
   margin_percent: number;
   active: boolean;
   item_type: string;
+  created_at?: string;
 }
 interface IncludedItem {
   id: string;
