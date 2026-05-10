@@ -12,6 +12,7 @@ import { Progress } from "@/components/ui/progress";
 import { Loader2, ArrowLeft, ArrowRight, CheckCircle2, Waves } from "lucide-react";
 import { toast } from "sonner";
 import { useForceLightTheme } from "@/hooks/useForceLightTheme";
+import { useGeolocation } from "@/hooks/useGeolocation";
 
 type Tipo = "alvenaria" | "vinil";
 type AreaTipo = "funda" | "prainha" | "spa" | "espelho";
@@ -91,6 +92,20 @@ const QuizConstrucao = () => {
   const [nome, setNome] = useState("");
   const [whatsapp, setWhatsapp] = useState("");
   const [cidade, setCidade] = useState("");
+  const { detectLocation, loading: geoLoading } = useGeolocation();
+
+  // Auto-fill cidade with browser geolocation on mount
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      const loc = await detectLocation();
+      if (!cancelled && loc && loc.city) {
+        setCidade((prev) => prev || `${loc.city}${loc.state ? ` - ${loc.state}` : ""}`);
+      }
+    })();
+    return () => { cancelled = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   const [prazo, setPrazo] = useState<string>("");
   const [obs, setObs] = useState("");
 
@@ -479,7 +494,12 @@ const QuizConstrucao = () => {
                   </div>
                   <div className="space-y-1.5">
                     <Label>Cidade / Estado</Label>
-                    <Input value={cidade} onChange={e => setCidade(e.target.value)} placeholder="Cidade - UF" maxLength={120} />
+                    <Input
+                      value={cidade}
+                      onChange={e => setCidade(e.target.value)}
+                      placeholder={geoLoading && !cidade ? "Detectando sua localização..." : "Cidade - UF"}
+                      maxLength={120}
+                    />
                   </div>
 
                   <div className="space-y-2">
