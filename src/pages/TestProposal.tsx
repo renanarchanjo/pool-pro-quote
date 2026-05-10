@@ -916,50 +916,50 @@ export default function TestProposal() {
                 </button>
               </div>
               <div className="overflow-x-auto">
-                <table className="w-full text-sm">
-                  <thead className="bg-slate-100 text-slate-600 text-xs uppercase">
+                <table className="w-full text-sm" style={{ minWidth: 980 }}>
+                  <thead className="bg-slate-100 text-slate-600 text-[11px] uppercase tracking-wide">
                     <tr>
-                      <th className="px-3 py-2 text-left">Descrição</th>
-                      <th className="px-3 py-2 text-left w-16">Un.</th>
-                      <th className="px-3 py-2 text-right w-28">Unitário</th>
-                      <th className="px-3 py-2 text-left w-40">Regra de Qtde</th>
-                      <th className="px-3 py-2 text-right w-20">Fator</th>
-                      <th className="px-3 py-2 text-right w-20">Markup %</th>
-                      <th className="w-10"></th>
+                      <th className="px-3 py-2.5 text-left font-semibold">Descrição do item</th>
+                      <th className="px-2 py-2.5 text-left font-semibold whitespace-nowrap" style={{ width: 80 }}>Un.</th>
+                      <th className="px-2 py-2.5 text-right font-semibold whitespace-nowrap" style={{ width: 120 }}>Unitário (R$)</th>
+                      <th className="px-2 py-2.5 text-left font-semibold whitespace-nowrap" style={{ width: 180 }}>Regra de Qtde</th>
+                      <th className="px-2 py-2.5 text-right font-semibold whitespace-nowrap" style={{ width: 100 }}>Fator</th>
+                      <th className="px-2 py-2.5 text-right font-semibold whitespace-nowrap" style={{ width: 100 }}>Markup&nbsp;%</th>
+                      <th style={{ width: 44 }}></th>
                     </tr>
                   </thead>
                   <tbody>
                     {g.items.map((i, idx) => (
                       <tr key={i.id} className={idx % 2 ? "bg-slate-50/50" : ""}>
-                        <td className="px-3 py-1">
-                          <Input className="h-8" value={i.descricao} onChange={(e) => catUpdateItem(g.id, i.id, { descricao: e.target.value })} />
+                        <td className="px-3 py-2 align-middle">
+                          <Input className="h-9" value={i.descricao} onChange={(e) => catUpdateItem(g.id, i.id, { descricao: e.target.value })} />
                         </td>
-                        <td className="px-3 py-1">
-                          <Input className="h-8" value={i.unidade} onChange={(e) => catUpdateItem(g.id, i.id, { unidade: e.target.value })} />
+                        <td className="px-2 py-2 align-middle">
+                          <Input className="h-9 text-center px-1" value={i.unidade} onChange={(e) => catUpdateItem(g.id, i.id, { unidade: e.target.value })} />
                         </td>
-                        <td className="px-3 py-1">
-                          <Input className="h-8 text-right" type="number" step="0.01" value={i.unitario} onChange={(e) => catUpdateItem(g.id, i.id, { unitario: +e.target.value })} />
+                        <td className="px-2 py-2 align-middle">
+                          <Input className="h-9 text-right" type="number" step="0.01" value={i.unitario} onChange={(e) => catUpdateItem(g.id, i.id, { unitario: +e.target.value })} />
                         </td>
-                        <td className="px-3 py-1">
+                        <td className="px-2 py-2 align-middle">
                           <select
                             value={i.formula}
                             onChange={(e) => catUpdateItem(g.id, i.id, { formula: e.target.value as Formula })}
-                            className="h-8 w-full border border-slate-200 rounded-md px-2 text-xs bg-white"
+                            className="h-9 w-full border border-slate-200 rounded-md px-2 text-xs bg-white"
                           >
                             {(Object.keys(FORMULA_LABELS) as Formula[]).map((f) => (
                               <option key={f} value={f}>{FORMULA_LABELS[f]}</option>
                             ))}
                           </select>
                         </td>
-                        <td className="px-3 py-1">
-                          <Input className="h-8 text-right" type="number" step="0.01" value={i.fator} onChange={(e) => catUpdateItem(g.id, i.id, { fator: +e.target.value })} />
+                        <td className="px-2 py-2 align-middle">
+                          <Input className="h-9 text-right" type="number" step="0.01" value={i.fator} onChange={(e) => catUpdateItem(g.id, i.id, { fator: +e.target.value })} />
                         </td>
-                        <td className="px-3 py-1">
-                          <Input className="h-8 text-right" type="number" step="0.01" value={i.markupPadrao} onChange={(e) => catUpdateItem(g.id, i.id, { markupPadrao: +e.target.value })} />
+                        <td className="px-2 py-2 align-middle">
+                          <Input className="h-9 text-right" type="number" step="0.01" value={i.markupPadrao} onChange={(e) => catUpdateItem(g.id, i.id, { markupPadrao: +e.target.value })} />
                         </td>
-                        <td className="px-1">
+                        <td className="px-2 py-2 text-center align-middle">
                           <button onClick={() => catRemoveItem(g.id, i.id)} className="text-red-500 hover:text-red-700">
-                            <Trash2 className="w-3.5 h-3.5" />
+                            <Trash2 className="w-4 h-4" />
                           </button>
                         </td>
                       </tr>
