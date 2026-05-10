@@ -10,6 +10,7 @@ import BrandLogo from "@/components/BrandLogo";
 import { useForceLightTheme } from "@/hooks/useForceLightTheme";
 import PwaInstallBanner from "@/components/PwaInstallBanner";
 import PageSEO from "@/components/PageSEO";
+import AuthSplitShell from "@/components/auth/AuthSplitShell";
 
 type View = "login" | "forgot" | "forgot-sent";
 type LoginContext = "lojista" | "matriz" | null;
@@ -142,14 +143,18 @@ const Login = () => {
   // Forgot password - email sent confirmation
   if (view === "forgot-sent") {
     return (
-      <div className="min-h-screen flex items-center justify-center p-4" style={{ background: heroGradient }}>
+      <AuthSplitShell
+        eyebrow="Recuperar acesso"
+        headline="Sem estresse pra entrar de novo."
+        subline="Em poucos cliques sua senha está renovada e você volta pra gerenciar suas propostas."
+      >
         <div className={cardClass}>
           <div className="flex flex-col items-center mb-6">
-            <BrandLogo size="lg" className="mb-4 [&_span]:text-white" />
+            <BrandLogo size="lg" className="mb-4 lg:hidden [&_span]:text-white" />
             <div className="mx-auto w-16 h-16 rounded-full bg-white/10 flex items-center justify-center mb-4">
               <Mail className="h-8 w-8 text-[#38BDF8]" />
             </div>
-            <h1 className="text-xl font-bold text-white font-display">E-mail enviado!</h1>
+            <h1 className="text-xl font-bold text-white font-sp-display">E-mail enviado!</h1>
             <p className="text-sm text-white/50 mt-2 text-center">
               Enviamos um link de redefinição de senha para:
             </p>
@@ -173,18 +178,22 @@ const Login = () => {
             Voltar ao login
           </Button>
         </div>
-      </div>
+      </AuthSplitShell>
     );
   }
 
   // Forgot password form
   if (view === "forgot") {
     return (
-      <div className="min-h-screen flex items-center justify-center p-4" style={{ background: heroGradient }}>
+      <AuthSplitShell
+        eyebrow="Recuperar acesso"
+        headline="Esqueceu a senha? Sem problema."
+        subline="Informe seu e-mail cadastrado e enviamos um link seguro para redefinir."
+      >
         <div className={cardClass}>
           <div className="flex flex-col items-center mb-8">
-            <BrandLogo size="lg" className="mb-4 [&_span]:text-white" />
-            <h1 className="text-xl font-bold text-white font-display">Esqueci minha senha</h1>
+            <BrandLogo size="lg" className="mb-4 lg:hidden [&_span]:text-white" />
+            <h1 className="text-xl font-bold text-white font-sp-display">Esqueci minha senha</h1>
             <p className="text-sm text-white/50 mt-1 text-center">
               Informe o e-mail cadastrado e enviaremos um link para redefinir sua senha.
             </p>
@@ -223,18 +232,18 @@ const Login = () => {
             </Button>
           </div>
         </div>
-      </div>
+      </AuthSplitShell>
     );
   }
 
   // Login form
   return (
-    <div className="min-h-screen flex items-center justify-center p-4" style={{ background: heroGradient }}>
+    <AuthSplitShell>
       <PageSEO title="Login - SIMULAPOOL" description="Acesse sua conta SIMULAPOOL para gerenciar orçamentos, leads e equipe." path="/login" noIndex />
       <div className={cardClass}>
         <div className="flex flex-col items-center mb-8">
-          <BrandLogo size="lg" className="mb-4 [&_span]:text-white" />
-          <h1 className="text-xl font-bold text-white font-display">Meu Acesso</h1>
+          <BrandLogo size="lg" className="mb-4 lg:hidden [&_span]:text-white" />
+          <h1 className="text-xl font-bold text-white font-sp-display">Meu Acesso</h1>
           <p className="text-sm text-white/50 mt-1">Somente para usuários cadastrados</p>
         </div>
 
@@ -309,7 +318,7 @@ const Login = () => {
         </div>
       </div>
       <PwaInstallBanner />
-    </div>
+    </AuthSplitShell>
   );
 };
 
