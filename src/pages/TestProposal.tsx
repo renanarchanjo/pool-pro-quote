@@ -46,7 +46,7 @@ const uid = () => Math.random().toString(36).slice(2, 10);
 const brl = (v: number) =>
   v.toLocaleString("pt-BR", { style: "currency", currency: "BRL", minimumFractionDigits: 2 });
 
-// ============ FILTRO DIMENSIONADO ============
+// ============ FILTRO DIMENSIONADO (auto, baseado no m² do fundo) ============
 function getConjuntoFiltrante(m2Fundo: number, tipo: PoolType) {
   let desc = "";
   let preco = 0;
@@ -64,110 +64,6 @@ function getConjuntoFiltrante(m2Fundo: number, tipo: PoolType) {
     preco = tipo === "vinil" ? 5290 : 5990;
   }
   return { desc, preco };
-}
-
-// ============ GERADORES DE GRUPOS PRÉ-POPULADOS ============
-function buildVinilGroups(m2Fundo: number, m2VinilBruto: number, conj: { desc: string; preco: number }): Group[] {
-  const m2Vinil = +(m2VinilBruto * 1.2).toFixed(2);
-  return [
-    {
-      id: uid(),
-      titulo: "Estrutura e Escavação",
-      items: [
-        { id: uid(), qtde: 1, descricao: "Escavação de primeira linha com bob cat", unidade: "un", unitario: 300, markup: 0 },
-        { id: uid(), qtde: m2Fundo, descricao: "M² de construção estrutural incluindo casa de máquinas", unidade: "m²", unitario: 600, markup: 0 },
-      ],
-    },
-    {
-      id: uid(),
-      titulo: "Vinil e Hidráulica",
-      items: [
-        { id: uid(), qtde: m2Vinil, descricao: "M² de vinil 1.5mm", unidade: "m²", unitario: 165, markup: 0 },
-        { id: uid(), qtde: 1, descricao: "Dispositivo de aspiração", unidade: "un", unitario: 78, markup: 0 },
-        { id: uid(), qtde: 2, descricao: "Dispositivo de retorno", unidade: "un", unitario: 78, markup: 0 },
-        { id: uid(), qtde: 2, descricao: "Ralo de parede", unidade: "un", unitario: 78, markup: 0 },
-        { id: uid(), qtde: 1, descricao: conj.desc, unidade: "un", unitario: conj.preco, markup: 0 },
-        { id: uid(), qtde: 8, descricao: "Sacos de areia especial para filtragem", unidade: "un", unitario: 30, markup: 0 },
-        { id: uid(), qtde: m2VinilBruto, descricao: "Mão de obra para instalação do vinil", unidade: "m²", unitario: 60, markup: 0 },
-        { id: uid(), qtde: 1, descricao: "Mão de obra instalação hidráulica na casa de máquinas", unidade: "un", unitario: 825, markup: 0 },
-        { id: uid(), qtde: 1, descricao: "Kit limpeza (aspirador, mangueira, cabo alumínio, peneira, escova, conectores)", unidade: "un", unitario: 330, markup: 0 },
-      ],
-    },
-    {
-      id: uid(),
-      titulo: "Iluminação",
-      optional: true,
-      enabled: false,
-      items: [
-        { id: uid(), qtde: 5, descricao: "Refletores LED 12v 9w RGB", unidade: "un", unitario: 230, markup: 0 },
-        { id: uid(), qtde: 5, descricao: "Caixas de passagem para LEDs", unidade: "un", unitario: 38, markup: 0 },
-        { id: uid(), qtde: 50, descricao: "Metros de cabo PP 4 vias", unidade: "mt", unitario: 9, markup: 0 },
-        { id: uid(), qtde: 1, descricao: "Central de comando com fonte e controle remoto", unidade: "un", unitario: 730, markup: 0 },
-        { id: uid(), qtde: 5, descricao: "Mão de obra para instalação de LEDs", unidade: "un", unitario: 280, markup: 0 },
-      ],
-    },
-    {
-      id: uid(),
-      titulo: "Cascata",
-      optional: true,
-      enabled: false,
-      items: [
-        { id: uid(), qtde: 1, descricao: "Cascata de embutir inox 304 - 100cm", unidade: "un", unitario: 1350, markup: 0 },
-        { id: uid(), qtde: 1, descricao: "Bomba para cascata motor WEG 1/2 cv", unidade: "un", unitario: 1272, markup: 0 },
-        { id: uid(), qtde: 1, descricao: "Mão de obra para instalação da cascata", unidade: "un", unitario: 300, markup: 0 },
-      ],
-    },
-  ];
-}
-
-function buildAlvenariaGroups(m2Fundo: number, m2Reves: number, m2Imp: number, conj: { desc: string; preco: number }): Group[] {
-  const m2Cer = +(m2Reves * 1.2).toFixed(2);
-  const m2ImpFinal = +(m2Imp * 1.1).toFixed(2);
-  return [
-    {
-      id: uid(),
-      titulo: "Estrutura e Escavação",
-      items: [
-        { id: uid(), qtde: m2Fundo, descricao: "M² Construção estrutural própria para piscina", unidade: "m²", unitario: 1200, markup: 0 },
-        { id: uid(), qtde: 1, descricao: "Ligação hidráulica entre piscina e casa de máquinas", unidade: "un", unitario: 900, markup: 0 },
-        { id: uid(), qtde: 1, descricao: "Deslocamento/acompanhamento", unidade: "un", unitario: 3000, markup: 0 },
-      ],
-    },
-    {
-      id: uid(),
-      titulo: "Impermeabilização e Revestimento",
-      items: [
-        { id: uid(), qtde: m2ImpFinal, descricao: "M² de impermeabilização especial para piscina", unidade: "m²", unitario: 48, markup: 0 },
-        { id: uid(), qtde: m2Cer, descricao: "M² de assentamento e rejuntamento do revestimento", unidade: "m²", unitario: 90, markup: 0 },
-        { id: uid(), qtde: 1, descricao: "Tampa em alumínio fundido 80x80cm", unidade: "un", unitario: 2499, markup: 0 },
-      ],
-    },
-    {
-      id: uid(),
-      titulo: "Hidráulica",
-      items: [
-        { id: uid(), qtde: 1, descricao: "Dispositivo de aspiração inox 304", unidade: "un", unitario: 84, markup: 0 },
-        { id: uid(), qtde: 2, descricao: "Dispositivo de retorno inox 304", unidade: "un", unitario: 84, markup: 0 },
-        { id: uid(), qtde: 2, descricao: "Dispositivo de sucção inox 304", unidade: "un", unitario: 84, markup: 0 },
-        { id: uid(), qtde: 1, descricao: conj.desc, unidade: "un", unitario: conj.preco, markup: 0 },
-        { id: uid(), qtde: 4, descricao: "Sacos de areia especial para filtro", unidade: "un", unitario: 30, markup: 0 },
-        { id: uid(), qtde: 1, descricao: "Instalação hidráulica na casa de máquinas", unidade: "un", unitario: 675, markup: 0 },
-      ],
-    },
-    {
-      id: uid(),
-      titulo: "Aquecimento / Trocador de Calor",
-      optional: true,
-      enabled: false,
-      items: [
-        { id: uid(), qtde: 1, descricao: "Trocador de calor KOBC 75mil Btus", unidade: "un", unitario: 18750, markup: 0 },
-        { id: uid(), qtde: 1, descricao: "Bomba 3/4 cv motor WEG para aquecimento", unidade: "un", unitario: 1317, markup: 0 },
-        { id: uid(), qtde: 32, descricao: "Capa térmica azul 300mc", unidade: "m²", unitario: 22.5, markup: 0 },
-        { id: uid(), qtde: 1, descricao: "Instalação hidráulica e elétrica do trocador", unidade: "un", unitario: 1200, markup: 0 },
-        { id: uid(), qtde: 1, descricao: "Infraestrutura casa de máquinas-trocador", unidade: "un", unitario: 600, markup: 0 },
-      ],
-    },
-  ];
 }
 
 const NAO_INCLUSOS_VINIL = [
@@ -191,66 +87,113 @@ const NAO_INCLUSOS_ALV = [
   "Aluguéis de equipamentos",
 ];
 
-// ============ CATÁLOGO (persistido em localStorage) ============
+// ============ CATÁLOGO COM FÓRMULAS DE DIMENSIONAMENTO ============
+type Formula =
+  | "fixed"
+  | "m2_fundo"
+  | "m2_paredes"
+  | "m2_bruto"
+  | "m2_vinil"        // bruto × 1.2 (+20%)
+  | "m2_imperm"       // bruto × 1.1 (+10%)
+  | "m2_revestimento"; // bruto × 1.2 (+20%)
+
+const FORMULA_LABELS: Record<Formula, string> = {
+  fixed: "Fixo",
+  m2_fundo: "× M² Fundo",
+  m2_paredes: "× M² Paredes",
+  m2_bruto: "× M² Bruto",
+  m2_vinil: "× M² Vinil (+20%)",
+  m2_imperm: "× M² Imperm. (+10%)",
+  m2_revestimento: "× M² Revest. (+20%)",
+};
+
+type GroupKind = "base" | "opcional";
+
 interface CatalogItem {
   id: string;
   descricao: string;
   unidade: string;
   unitario: number;
-  qtdePadrao: number;
+  formula: Formula;
+  fator: number;          // multiplicador (ou qtde direta quando formula = 'fixed')
   markupPadrao: number;
 }
 interface CatalogGroup {
   id: string;
   titulo: string;
+  kind: GroupKind;        // base = sempre incluso · opcional = recomendação
   items: CatalogItem[];
 }
 type CatalogData = { vinil: CatalogGroup[]; alvenaria: CatalogGroup[] };
 
-const CATALOG_KEY = "test-proposal-catalog-v1";
+const CATALOG_KEY = "test-proposal-catalog-v2";
+
+function computeQtde(item: CatalogItem, calc: { m2Fundo: number; m2Paredes: number; m2Bruto: number; m2Vinil: number; m2Imperm: number }): number {
+  const base = {
+    fixed: 1,
+    m2_fundo: calc.m2Fundo,
+    m2_paredes: calc.m2Paredes,
+    m2_bruto: calc.m2Bruto,
+    m2_vinil: calc.m2Vinil,
+    m2_imperm: calc.m2Imperm,
+    m2_revestimento: calc.m2Vinil,
+  }[item.formula];
+  return +(base * item.fator).toFixed(2);
+}
+
 const DEFAULT_CATALOG: CatalogData = {
   vinil: [
-    { id: uid(), titulo: "Estrutura e Escavação", items: [
-      { id: uid(), descricao: "Escavação de primeira linha com bob cat", unidade: "un", unitario: 300, qtdePadrao: 1, markupPadrao: 0 },
-      { id: uid(), descricao: "M² de construção estrutural incluindo casa de máquinas", unidade: "m²", unitario: 600, qtdePadrao: 1, markupPadrao: 0 },
+    { id: uid(), titulo: "Estrutura e Escavação", kind: "base", items: [
+      { id: uid(), descricao: "Escavação de primeira linha com bob cat", unidade: "un", unitario: 300, formula: "fixed", fator: 1, markupPadrao: 0 },
+      { id: uid(), descricao: "M² de construção estrutural incluindo casa de máquinas", unidade: "m²", unitario: 600, formula: "m2_fundo", fator: 1, markupPadrao: 0 },
     ]},
-    { id: uid(), titulo: "Vinil e Hidráulica", items: [
-      { id: uid(), descricao: "M² de vinil 1.5mm", unidade: "m²", unitario: 165, qtdePadrao: 1, markupPadrao: 0 },
-      { id: uid(), descricao: "Dispositivo de aspiração", unidade: "un", unitario: 78, qtdePadrao: 1, markupPadrao: 0 },
-      { id: uid(), descricao: "Dispositivo de retorno", unidade: "un", unitario: 78, qtdePadrao: 2, markupPadrao: 0 },
-      { id: uid(), descricao: "Ralo de parede", unidade: "un", unitario: 78, qtdePadrao: 2, markupPadrao: 0 },
+    { id: uid(), titulo: "Vinil e Hidráulica", kind: "base", items: [
+      { id: uid(), descricao: "M² de vinil 1.5mm", unidade: "m²", unitario: 165, formula: "m2_vinil", fator: 1, markupPadrao: 0 },
+      { id: uid(), descricao: "Mão de obra para instalação do vinil", unidade: "m²", unitario: 60, formula: "m2_bruto", fator: 1, markupPadrao: 0 },
+      { id: uid(), descricao: "Dispositivo de aspiração", unidade: "un", unitario: 78, formula: "fixed", fator: 1, markupPadrao: 0 },
+      { id: uid(), descricao: "Dispositivo de retorno", unidade: "un", unitario: 78, formula: "fixed", fator: 2, markupPadrao: 0 },
+      { id: uid(), descricao: "Ralo de parede", unidade: "un", unitario: 78, formula: "fixed", fator: 2, markupPadrao: 0 },
+      { id: uid(), descricao: "Sacos de areia especial para filtragem", unidade: "un", unitario: 30, formula: "fixed", fator: 8, markupPadrao: 0 },
+      { id: uid(), descricao: "Mão de obra instalação hidráulica casa de máquinas", unidade: "un", unitario: 825, formula: "fixed", fator: 1, markupPadrao: 0 },
+      { id: uid(), descricao: "Kit limpeza (aspirador, mangueira, escova, conectores)", unidade: "un", unitario: 330, formula: "fixed", fator: 1, markupPadrao: 0 },
     ]},
-    { id: uid(), titulo: "Iluminação", items: [
-      { id: uid(), descricao: "Refletor LED 12v 9w RGB", unidade: "un", unitario: 230, qtdePadrao: 1, markupPadrao: 0 },
-      { id: uid(), descricao: "Caixa de passagem para LED", unidade: "un", unitario: 38, qtdePadrao: 1, markupPadrao: 0 },
-      { id: uid(), descricao: "Cabo PP 4 vias", unidade: "mt", unitario: 9, qtdePadrao: 50, markupPadrao: 0 },
-      { id: uid(), descricao: "Central de comando com fonte e controle remoto", unidade: "un", unitario: 730, qtdePadrao: 1, markupPadrao: 0 },
+    { id: uid(), titulo: "Iluminação", kind: "opcional", items: [
+      { id: uid(), descricao: "Refletor LED 12v 9w RGB", unidade: "un", unitario: 230, formula: "fixed", fator: 5, markupPadrao: 0 },
+      { id: uid(), descricao: "Caixa de passagem para LED", unidade: "un", unitario: 38, formula: "fixed", fator: 5, markupPadrao: 0 },
+      { id: uid(), descricao: "Cabo PP 4 vias", unidade: "mt", unitario: 9, formula: "fixed", fator: 50, markupPadrao: 0 },
+      { id: uid(), descricao: "Central de comando com fonte e controle remoto", unidade: "un", unitario: 730, formula: "fixed", fator: 1, markupPadrao: 0 },
+      { id: uid(), descricao: "Mão de obra para instalação de LEDs", unidade: "un", unitario: 280, formula: "fixed", fator: 5, markupPadrao: 0 },
     ]},
-    { id: uid(), titulo: "Cascata", items: [
-      { id: uid(), descricao: "Cascata de embutir inox 304 - 100cm", unidade: "un", unitario: 1350, qtdePadrao: 1, markupPadrao: 0 },
-      { id: uid(), descricao: "Bomba para cascata motor WEG 1/2 cv", unidade: "un", unitario: 1272, qtdePadrao: 1, markupPadrao: 0 },
+    { id: uid(), titulo: "Cascata", kind: "opcional", items: [
+      { id: uid(), descricao: "Cascata de embutir inox 304 - 100cm", unidade: "un", unitario: 1350, formula: "fixed", fator: 1, markupPadrao: 0 },
+      { id: uid(), descricao: "Bomba para cascata motor WEG 1/2 cv", unidade: "un", unitario: 1272, formula: "fixed", fator: 1, markupPadrao: 0 },
+      { id: uid(), descricao: "Mão de obra para instalação da cascata", unidade: "un", unitario: 300, formula: "fixed", fator: 1, markupPadrao: 0 },
     ]},
   ],
   alvenaria: [
-    { id: uid(), titulo: "Estrutura e Escavação", items: [
-      { id: uid(), descricao: "M² Construção estrutural própria para piscina", unidade: "m²", unitario: 1200, qtdePadrao: 1, markupPadrao: 0 },
-      { id: uid(), descricao: "Ligação hidráulica piscina ↔ casa de máquinas", unidade: "un", unitario: 900, qtdePadrao: 1, markupPadrao: 0 },
-      { id: uid(), descricao: "Deslocamento/acompanhamento", unidade: "un", unitario: 3000, qtdePadrao: 1, markupPadrao: 0 },
+    { id: uid(), titulo: "Estrutura e Escavação", kind: "base", items: [
+      { id: uid(), descricao: "M² Construção estrutural própria para piscina", unidade: "m²", unitario: 1200, formula: "m2_fundo", fator: 1, markupPadrao: 0 },
+      { id: uid(), descricao: "Ligação hidráulica piscina ↔ casa de máquinas", unidade: "un", unitario: 900, formula: "fixed", fator: 1, markupPadrao: 0 },
+      { id: uid(), descricao: "Deslocamento/acompanhamento", unidade: "un", unitario: 3000, formula: "fixed", fator: 1, markupPadrao: 0 },
     ]},
-    { id: uid(), titulo: "Impermeabilização e Revestimento", items: [
-      { id: uid(), descricao: "M² de impermeabilização especial para piscina", unidade: "m²", unitario: 48, qtdePadrao: 1, markupPadrao: 0 },
-      { id: uid(), descricao: "M² de assentamento e rejuntamento do revestimento", unidade: "m²", unitario: 90, qtdePadrao: 1, markupPadrao: 0 },
-      { id: uid(), descricao: "Tampa em alumínio fundido 80x80cm", unidade: "un", unitario: 2499, qtdePadrao: 1, markupPadrao: 0 },
+    { id: uid(), titulo: "Impermeabilização e Revestimento", kind: "base", items: [
+      { id: uid(), descricao: "M² de impermeabilização especial para piscina", unidade: "m²", unitario: 48, formula: "m2_imperm", fator: 1, markupPadrao: 0 },
+      { id: uid(), descricao: "M² de assentamento e rejuntamento do revestimento", unidade: "m²", unitario: 90, formula: "m2_revestimento", fator: 1, markupPadrao: 0 },
+      { id: uid(), descricao: "Tampa em alumínio fundido 80x80cm", unidade: "un", unitario: 2499, formula: "fixed", fator: 1, markupPadrao: 0 },
     ]},
-    { id: uid(), titulo: "Hidráulica", items: [
-      { id: uid(), descricao: "Dispositivo de aspiração inox 304", unidade: "un", unitario: 84, qtdePadrao: 1, markupPadrao: 0 },
-      { id: uid(), descricao: "Dispositivo de retorno inox 304", unidade: "un", unitario: 84, qtdePadrao: 2, markupPadrao: 0 },
-      { id: uid(), descricao: "Dispositivo de sucção inox 304", unidade: "un", unitario: 84, qtdePadrao: 2, markupPadrao: 0 },
+    { id: uid(), titulo: "Hidráulica", kind: "base", items: [
+      { id: uid(), descricao: "Dispositivo de aspiração inox 304", unidade: "un", unitario: 84, formula: "fixed", fator: 1, markupPadrao: 0 },
+      { id: uid(), descricao: "Dispositivo de retorno inox 304", unidade: "un", unitario: 84, formula: "fixed", fator: 2, markupPadrao: 0 },
+      { id: uid(), descricao: "Dispositivo de sucção inox 304", unidade: "un", unitario: 84, formula: "fixed", fator: 2, markupPadrao: 0 },
+      { id: uid(), descricao: "Sacos de areia especial para filtro", unidade: "un", unitario: 30, formula: "fixed", fator: 4, markupPadrao: 0 },
+      { id: uid(), descricao: "Instalação hidráulica na casa de máquinas", unidade: "un", unitario: 675, formula: "fixed", fator: 1, markupPadrao: 0 },
     ]},
-    { id: uid(), titulo: "Aquecimento", items: [
-      { id: uid(), descricao: "Trocador de calor KOBC 75mil Btus", unidade: "un", unitario: 18750, qtdePadrao: 1, markupPadrao: 0 },
-      { id: uid(), descricao: "Bomba 3/4 cv motor WEG para aquecimento", unidade: "un", unitario: 1317, qtdePadrao: 1, markupPadrao: 0 },
-      { id: uid(), descricao: "Capa térmica azul 300mc", unidade: "m²", unitario: 22.5, qtdePadrao: 1, markupPadrao: 0 },
+    { id: uid(), titulo: "Aquecimento / Trocador de Calor", kind: "opcional", items: [
+      { id: uid(), descricao: "Trocador de calor KOBC 75mil Btus", unidade: "un", unitario: 18750, formula: "fixed", fator: 1, markupPadrao: 0 },
+      { id: uid(), descricao: "Bomba 3/4 cv motor WEG para aquecimento", unidade: "un", unitario: 1317, formula: "fixed", fator: 1, markupPadrao: 0 },
+      { id: uid(), descricao: "Capa térmica azul 300mc", unidade: "m²", unitario: 22.5, formula: "m2_fundo", fator: 1, markupPadrao: 0 },
+      { id: uid(), descricao: "Instalação hidráulica e elétrica do trocador", unidade: "un", unitario: 1200, formula: "fixed", fator: 1, markupPadrao: 0 },
+      { id: uid(), descricao: "Infraestrutura casa de máquinas-trocador", unidade: "un", unitario: 600, formula: "fixed", fator: 1, markupPadrao: 0 },
     ]},
   ],
 };
@@ -261,6 +204,39 @@ function loadCatalog(): CatalogData {
     if (raw) return JSON.parse(raw);
   } catch {}
   return DEFAULT_CATALOG;
+}
+
+// ============ BUILD GROUPS FROM CATALOG ============
+function buildFromCatalog(
+  catGroups: CatalogGroup[],
+  calc: { m2Fundo: number; m2Paredes: number; m2Bruto: number; m2Vinil: number; m2Imperm: number },
+  conj: { desc: string; preco: number },
+): Group[] {
+  const generated: Group[] = catGroups.map((cg) => ({
+    id: uid(),
+    titulo: cg.titulo,
+    optional: cg.kind === "opcional",
+    enabled: cg.kind === "base",
+    items: cg.items.map((ci) => ({
+      id: uid(),
+      qtde: computeQtde(ci, calc),
+      descricao: ci.descricao,
+      unidade: ci.unidade,
+      unitario: ci.unitario,
+      markup: ci.markupPadrao,
+    })),
+  }));
+
+  // grupo auto-dimensionado do conjunto filtrante (sempre incluso)
+  generated.push({
+    id: uid(),
+    titulo: "Conjunto Filtrante (dimensionado automaticamente)",
+    items: [
+      { id: uid(), qtde: 1, descricao: conj.desc, unidade: "un", unitario: conj.preco, markup: 0 },
+    ],
+  });
+
+  return generated;
 }
 
 // ============ MAIN ============
@@ -316,16 +292,13 @@ export default function TestProposal() {
 
   const conj = useMemo(() => getConjuntoFiltrante(calc.m2Fundo, tipo), [calc.m2Fundo, tipo]);
 
-  // recalcula grupos ao mudar tipo / dimensionamento (etapa 1 → 2)
+  // recalcula grupos ao mudar tipo / dimensionamento (etapa 1 → 2) — direto do catálogo
   const goToStep2 = useCallback(() => {
-    const g =
-      tipo === "vinil"
-        ? buildVinilGroups(calc.m2Fundo, calc.m2Bruto, conj)
-        : buildAlvenariaGroups(calc.m2Fundo, calc.m2Bruto, calc.m2Bruto, conj);
+    const g = buildFromCatalog(catalog[tipo], calc, conj);
     setGroups(g);
     setNaoInclusos(tipo === "vinil" ? NAO_INCLUSOS_VINIL : NAO_INCLUSOS_ALV);
     setStep(2);
-  }, [tipo, calc, conj]);
+  }, [tipo, catalog, calc, conj]);
 
   const goToStep3 = useCallback(() => {
     if (parcelas.length === 0) {
@@ -381,11 +354,11 @@ export default function TestProposal() {
     setGroups(groups.map((g) => (g.id === gid ? { ...g, titulo } : g)));
   const removeGroup = (gid: string) => setGroups(groups.filter((g) => g.id !== gid));
 
-  // Importar item do catálogo para um grupo da proposta
+  // Importar item do catálogo para um grupo da proposta (qtde já dimensionada)
   const importFromCatalog = (gid: string, catItem: CatalogItem) =>
     setGroups(groups.map((g) => g.id === gid ? { ...g, items: [...g.items, {
       id: uid(),
-      qtde: catItem.qtdePadrao,
+      qtde: computeQtde(catItem, calc),
       descricao: catItem.descricao,
       unidade: catItem.unidade,
       unitario: catItem.unitario,
@@ -395,12 +368,14 @@ export default function TestProposal() {
   // ============ CATÁLOGO HANDLERS ============
   const catList = catalog[tipo];
   const setCatList = (groups: CatalogGroup[]) => setCatalog({ ...catalog, [tipo]: groups });
-  const catAddGroup = () => setCatList([...catList, { id: uid(), titulo: "Novo grupo", items: [] }]);
+  const catAddGroup = () => setCatList([...catList, { id: uid(), titulo: "Novo grupo", kind: "opcional", items: [] }]);
   const catRemoveGroup = (gid: string) => setCatList(catList.filter((g) => g.id !== gid));
   const catUpdateGroupTitle = (gid: string, titulo: string) =>
     setCatList(catList.map((g) => (g.id === gid ? { ...g, titulo } : g)));
+  const catUpdateGroupKind = (gid: string, kind: GroupKind) =>
+    setCatList(catList.map((g) => (g.id === gid ? { ...g, kind } : g)));
   const catAddItem = (gid: string) =>
-    setCatList(catList.map((g) => g.id === gid ? { ...g, items: [...g.items, { id: uid(), descricao: "Novo item", unidade: "un", unitario: 0, qtdePadrao: 1, markupPadrao: 0 }] } : g));
+    setCatList(catList.map((g) => g.id === gid ? { ...g, items: [...g.items, { id: uid(), descricao: "Novo item", unidade: "un", unitario: 0, formula: "fixed", fator: 1, markupPadrao: 0 }] } : g));
   const catUpdateItem = (gid: string, iid: string, patch: Partial<CatalogItem>) =>
     setCatList(catList.map((g) => g.id === gid ? { ...g, items: g.items.map((i) => i.id === iid ? { ...i, ...patch } : i) } : g));
   const catRemoveItem = (gid: string, iid: string) =>
@@ -614,6 +589,47 @@ export default function TestProposal() {
 
         {step === 2 && (
           <div className="space-y-6">
+            {/* Recomendações de grupos opcionais (dimensionados) */}
+            {groups.some((g) => g.optional) && (
+              <Card className="p-5 border-amber-200 bg-amber-50/40">
+                <div className="flex items-start gap-3 mb-3">
+                  <div className="w-9 h-9 rounded-full bg-amber-100 text-amber-700 flex items-center justify-center flex-shrink-0">
+                    <Plus className="w-4 h-4" />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="font-semibold text-slate-900">Recomendações de Opcionais</h3>
+                    <p className="text-xs text-slate-600">
+                      Grupos opcionais já dimensionados com base nos m² da piscina. Ative os que o cliente quer incluir.
+                    </p>
+                  </div>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
+                  {groups.filter((g) => g.optional).map((g) => {
+                    const tot = g.items.reduce((s, i) => s + i.qtde * i.unitario * (1 + i.markup / 100), 0);
+                    return (
+                      <button
+                        key={g.id}
+                        onClick={() => toggleGroup(g.id)}
+                        className={`text-left p-3 rounded-lg border-2 transition-all ${
+                          g.enabled
+                            ? "border-emerald-400 bg-emerald-50"
+                            : "border-slate-200 bg-white hover:border-amber-300"
+                        }`}
+                      >
+                        <div className="flex items-center justify-between gap-2">
+                          <span className="font-medium text-sm text-slate-900">{g.titulo}</span>
+                          <span className={`text-[10px] uppercase font-bold px-1.5 py-0.5 rounded ${g.enabled ? "bg-emerald-500 text-white" : "bg-slate-200 text-slate-600"}`}>
+                            {g.enabled ? "Incluso" : "Adicionar"}
+                          </span>
+                        </div>
+                        <div className="text-xs text-slate-500 mt-1">{g.items.length} {g.items.length === 1 ? "item" : "itens"} · {brl(tot)}</div>
+                      </button>
+                    );
+                  })}
+                </div>
+              </Card>
+            )}
+
             {groups.map((g) => (
               <Card key={g.id} className="overflow-hidden">
                 <div className="bg-[#1a5276] text-white px-5 py-3 flex items-center justify-between">
@@ -877,12 +893,23 @@ export default function TestProposal() {
 
           {catList.map((g) => (
             <Card key={g.id} className="overflow-hidden">
-              <div className="bg-[#1a5276] text-white px-5 py-3 flex items-center justify-between gap-3">
+              <div className="bg-[#1a5276] text-white px-5 py-3 flex flex-wrap items-center justify-between gap-3">
                 <input
                   value={g.titulo}
                   onChange={(e) => catUpdateGroupTitle(g.id, e.target.value)}
-                  className="bg-transparent font-semibold outline-none border-b border-transparent focus:border-white/40 flex-1"
+                  className="bg-transparent font-semibold outline-none border-b border-transparent focus:border-white/40 flex-1 min-w-[160px]"
                 />
+                <div className="inline-flex rounded-md bg-white/10 p-0.5 border border-white/20 text-xs">
+                  {(["base", "opcional"] as const).map((k) => (
+                    <button
+                      key={k}
+                      onClick={() => catUpdateGroupKind(g.id, k)}
+                      className={`px-2.5 py-1 rounded transition ${g.kind === k ? (k === "base" ? "bg-emerald-400 text-emerald-950 font-semibold" : "bg-amber-300 text-amber-950 font-semibold") : "text-white/80 hover:text-white"}`}
+                    >
+                      {k === "base" ? "Base (auto)" : "Opcional (recomendação)"}
+                    </button>
+                  ))}
+                </div>
                 <span className="text-xs text-white/70">{g.items.length} {g.items.length === 1 ? "item" : "itens"}</span>
                 <button onClick={() => catRemoveGroup(g.id)} className="text-white/70 hover:text-white">
                   <Trash2 className="w-4 h-4" />
@@ -893,10 +920,11 @@ export default function TestProposal() {
                   <thead className="bg-slate-100 text-slate-600 text-xs uppercase">
                     <tr>
                       <th className="px-3 py-2 text-left">Descrição</th>
-                      <th className="px-3 py-2 text-left w-20">Un.</th>
+                      <th className="px-3 py-2 text-left w-16">Un.</th>
                       <th className="px-3 py-2 text-right w-28">Unitário</th>
-                      <th className="px-3 py-2 text-right w-24">Qtde Padrão</th>
-                      <th className="px-3 py-2 text-right w-24">Markup %</th>
+                      <th className="px-3 py-2 text-left w-40">Regra de Qtde</th>
+                      <th className="px-3 py-2 text-right w-20">Fator</th>
+                      <th className="px-3 py-2 text-right w-20">Markup %</th>
                       <th className="w-10"></th>
                     </tr>
                   </thead>
@@ -913,7 +941,18 @@ export default function TestProposal() {
                           <Input className="h-8 text-right" type="number" step="0.01" value={i.unitario} onChange={(e) => catUpdateItem(g.id, i.id, { unitario: +e.target.value })} />
                         </td>
                         <td className="px-3 py-1">
-                          <Input className="h-8 text-right" type="number" step="0.01" value={i.qtdePadrao} onChange={(e) => catUpdateItem(g.id, i.id, { qtdePadrao: +e.target.value })} />
+                          <select
+                            value={i.formula}
+                            onChange={(e) => catUpdateItem(g.id, i.id, { formula: e.target.value as Formula })}
+                            className="h-8 w-full border border-slate-200 rounded-md px-2 text-xs bg-white"
+                          >
+                            {(Object.keys(FORMULA_LABELS) as Formula[]).map((f) => (
+                              <option key={f} value={f}>{FORMULA_LABELS[f]}</option>
+                            ))}
+                          </select>
+                        </td>
+                        <td className="px-3 py-1">
+                          <Input className="h-8 text-right" type="number" step="0.01" value={i.fator} onChange={(e) => catUpdateItem(g.id, i.id, { fator: +e.target.value })} />
                         </td>
                         <td className="px-3 py-1">
                           <Input className="h-8 text-right" type="number" step="0.01" value={i.markupPadrao} onChange={(e) => catUpdateItem(g.id, i.id, { markupPadrao: +e.target.value })} />
@@ -926,14 +965,17 @@ export default function TestProposal() {
                       </tr>
                     ))}
                     {g.items.length === 0 && (
-                      <tr><td colSpan={6} className="px-3 py-4 text-center text-sm text-slate-400">Nenhum item — adicione abaixo.</td></tr>
+                      <tr><td colSpan={7} className="px-3 py-4 text-center text-sm text-slate-400">Nenhum item — adicione abaixo.</td></tr>
                     )}
                   </tbody>
                 </table>
-                <div className="px-3 py-2 bg-slate-50 border-t">
+                <div className="px-3 py-2 bg-slate-50 border-t flex items-center justify-between">
                   <Button variant="ghost" size="sm" onClick={() => catAddItem(g.id)}>
                     <Plus className="w-3.5 h-3.5 mr-1" /> Adicionar item
                   </Button>
+                  <span className="text-[11px] text-slate-500">
+                    Fator: para <b>Fixo</b> = qtde direta · Para fórmulas de m² = multiplicador (ex: 1 = 100%, 0.5 = metade)
+                  </span>
                 </div>
               </div>
             </Card>
