@@ -354,11 +354,11 @@ export default function TestProposal() {
     setGroups(groups.map((g) => (g.id === gid ? { ...g, titulo } : g)));
   const removeGroup = (gid: string) => setGroups(groups.filter((g) => g.id !== gid));
 
-  // Importar item do catálogo para um grupo da proposta
+  // Importar item do catálogo para um grupo da proposta (qtde já dimensionada)
   const importFromCatalog = (gid: string, catItem: CatalogItem) =>
     setGroups(groups.map((g) => g.id === gid ? { ...g, items: [...g.items, {
       id: uid(),
-      qtde: catItem.qtdePadrao,
+      qtde: computeQtde(catItem, calc),
       descricao: catItem.descricao,
       unidade: catItem.unidade,
       unitario: catItem.unitario,
@@ -368,12 +368,14 @@ export default function TestProposal() {
   // ============ CATÁLOGO HANDLERS ============
   const catList = catalog[tipo];
   const setCatList = (groups: CatalogGroup[]) => setCatalog({ ...catalog, [tipo]: groups });
-  const catAddGroup = () => setCatList([...catList, { id: uid(), titulo: "Novo grupo", items: [] }]);
+  const catAddGroup = () => setCatList([...catList, { id: uid(), titulo: "Novo grupo", kind: "opcional", items: [] }]);
   const catRemoveGroup = (gid: string) => setCatList(catList.filter((g) => g.id !== gid));
   const catUpdateGroupTitle = (gid: string, titulo: string) =>
     setCatList(catList.map((g) => (g.id === gid ? { ...g, titulo } : g)));
+  const catUpdateGroupKind = (gid: string, kind: GroupKind) =>
+    setCatList(catList.map((g) => (g.id === gid ? { ...g, kind } : g)));
   const catAddItem = (gid: string) =>
-    setCatList(catList.map((g) => g.id === gid ? { ...g, items: [...g.items, { id: uid(), descricao: "Novo item", unidade: "un", unitario: 0, qtdePadrao: 1, markupPadrao: 0 }] } : g));
+    setCatList(catList.map((g) => g.id === gid ? { ...g, items: [...g.items, { id: uid(), descricao: "Novo item", unidade: "un", unitario: 0, formula: "fixed", fator: 1, markupPadrao: 0 }] } : g));
   const catUpdateItem = (gid: string, iid: string, patch: Partial<CatalogItem>) =>
     setCatList(catList.map((g) => g.id === gid ? { ...g, items: g.items.map((i) => i.id === iid ? { ...i, ...patch } : i) } : g));
   const catRemoveItem = (gid: string, iid: string) =>
