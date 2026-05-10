@@ -9,7 +9,7 @@ import { Card } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Progress } from "@/components/ui/progress";
-import { Loader2, ArrowLeft, ArrowRight, CheckCircle2, Waves } from "lucide-react";
+import { Loader2, ArrowLeft, ArrowRight, CheckCircle2, Waves, Check } from "lucide-react";
 import { toast } from "sonner";
 import { useForceLightTheme } from "@/hooks/useForceLightTheme";
 import { useGeolocation } from "@/hooks/useGeolocation";
