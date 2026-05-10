@@ -2210,7 +2210,11 @@ export type Database = {
         Args: { _id: string }
         Returns: {
           city: string
+          id: string
           name: string
+          offers_alvenaria: boolean
+          offers_vinil: boolean
+          slug: string
           state: string
         }[]
       }
