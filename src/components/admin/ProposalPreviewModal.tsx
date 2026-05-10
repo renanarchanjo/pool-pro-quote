@@ -2,6 +2,9 @@ import { useState, useRef, useEffect } from "react";
 import { ZoomIn, ZoomOut, X } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import ProposalView from "@/components/simulator/ProposalView";
+import QuizDataSummary from "@/components/leads/QuizDataSummary";
+import { Badge } from "@/components/ui/badge";
+import { MapPin, Phone, User as UserIcon } from "lucide-react";
 
 interface ProposalPreviewModalProps {
   proposal: any;
@@ -50,6 +53,46 @@ const ProposalPreviewModal = ({
   }, [isMobile, zoomed]);
 
   if (!proposal) return null;
+
+  // Branch: construção (alvenaria/vinil) leads → render quiz summary instead of fibra proposal
+  const isConstrucao = ["alvenaria", "vinil", "construcao"].includes(proposal.lead_type || "");
+  if (isConstrucao) {
+    const tipoLabel = proposal.lead_type === "alvenaria"
+      ? "Alvenaria · sob medida"
+      : proposal.lead_type === "vinil" ? "Vinil tela armada" : "Construção";
+    return (
+      <div
+        className="fixed inset-0 z-[70] flex items-center justify-center bg-black/50 backdrop-blur-sm p-3 md:p-6"
+        onClick={() => onClose()}
+      >
+        <div
+          className="relative bg-background rounded-2xl shadow-2xl border border-border flex flex-col w-full max-w-md max-h-[88dvh]"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <div className="flex items-center justify-between px-4 py-3 border-b border-border shrink-0">
+            <div>
+              <p className="text-sm font-bold text-foreground">Resumo do Lead</p>
+              <p className="text-[11px] text-muted-foreground">{tipoLabel}</p>
+            </div>
+            <button onClick={onClose} className="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-muted">
+              <X className="w-4 h-4 text-muted-foreground" />
+            </button>
+          </div>
+          <div className="overflow-y-auto p-4 space-y-4">
+            <div className="grid grid-cols-1 gap-2 rounded-lg bg-muted/40 border border-border p-3">
+              <div className="flex items-center gap-2 text-sm"><UserIcon className="w-3.5 h-3.5 text-muted-foreground" /> <span className="font-medium">{proposal.customer_name}</span></div>
+              <div className="flex items-center gap-2 text-sm"><MapPin className="w-3.5 h-3.5 text-muted-foreground" /> <span>{proposal.customer_city || "—"}</span></div>
+              <div className="flex items-center gap-2 text-sm"><Phone className="w-3.5 h-3.5 text-muted-foreground" /> <span className="font-mono">{proposal.customer_whatsapp}</span></div>
+            </div>
+            <QuizDataSummary quizData={proposal.quiz_data} leadType={proposal.lead_type} />
+            <Badge variant="outline" className="bg-amber-500/10 text-amber-700 border-amber-500/20 text-[11px]">
+              Lead de construção — entre em contato para elaborar a proposta personalizada.
+            </Badge>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   const pm = proposal.pool_models as any;
   const brand = pm?.categories?.brands;

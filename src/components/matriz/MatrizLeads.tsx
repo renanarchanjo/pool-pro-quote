@@ -15,6 +15,7 @@ import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import QuizDataSummary from "@/components/leads/QuizDataSummary";
 
 type ProposalStatus = "nova" | "enviada" | "em_negociacao" | "fechada" | "perdida";
 
@@ -31,6 +32,8 @@ interface Lead {
   is_test: boolean;
   pool_models: { name: string } | null;
   stores: { name: string; city: string | null; state: string | null } | null;
+  lead_type?: string | null;
+  quiz_data?: any;
 }
 
 interface Distribution {
@@ -598,8 +601,20 @@ const MatrizLeads = () => {
                           </div>
                         </TableCell>
                         <TableCell className="text-sm text-muted-foreground">{lead.customer_city}</TableCell>
-                        <TableCell className="text-sm">{lead.pool_models?.name || "-"}</TableCell>
-                        <TableCell className="text-sm font-medium">{formatCurrency(lead.total_price)}</TableCell>
+                        <TableCell className="text-sm">
+                          {lead.pool_models?.name
+                            ? lead.pool_models.name
+                            : lead.lead_type === "alvenaria"
+                              ? <Badge variant="outline" className="bg-orange-500/10 text-orange-700 border-orange-500/20">Alvenaria · sob medida</Badge>
+                              : lead.lead_type === "vinil"
+                                ? <Badge variant="outline" className="bg-indigo-500/10 text-indigo-700 border-indigo-500/20">Vinil tela armada</Badge>
+                                : "-"}
+                        </TableCell>
+                        <TableCell className="text-sm font-medium">
+                          {["alvenaria","vinil","construcao"].includes(lead.lead_type || "")
+                            ? <span className="text-muted-foreground italic">Sob proposta</span>
+                            : formatCurrency(lead.total_price)}
+                        </TableCell>
                         <TableCell><Badge variant="outline" className={statusConfig[lead.status].color}>{statusConfig[lead.status].label}</Badge></TableCell>
                         {activeTab !== "pendentes" && (
                           <TableCell>
@@ -678,7 +693,7 @@ const MatrizLeads = () => {
 
       {/* View Lead Dialog */}
       <Dialog open={!!viewingLead} onOpenChange={() => setViewingLead(null)}>
-        <DialogContent className="max-w-sm">
+        <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="text-base">Detalhes do Lead</DialogTitle>
           </DialogHeader>
@@ -688,10 +703,32 @@ const MatrizLeads = () => {
                 <div><p className="text-[10px] text-muted-foreground">Nome</p><p className="font-medium text-sm">{viewingLead.customer_name}</p></div>
                 <div><p className="text-[10px] text-muted-foreground">WhatsApp</p><p className="font-medium text-sm">{viewingLead.customer_whatsapp}</p></div>
                 <div><p className="text-[10px] text-muted-foreground">Cidade</p><p className="font-medium text-sm flex items-center gap-1"><MapPin className="w-3 h-3" />{viewingLead.customer_city}</p></div>
-                <div><p className="text-[10px] text-muted-foreground">Piscina</p><p className="font-medium text-sm">{viewingLead.pool_models?.name || "-"}</p></div>
-                <div><p className="text-[10px] text-muted-foreground">Valor</p><p className="font-medium text-sm text-emerald-600">{formatCurrency(viewingLead.total_price)}</p></div>
+                <div>
+                  <p className="text-[10px] text-muted-foreground">Piscina</p>
+                  <p className="font-medium text-sm">
+                    {viewingLead.pool_models?.name
+                      ?? (viewingLead.lead_type === "alvenaria" ? "Alvenaria · sob medida"
+                        : viewingLead.lead_type === "vinil" ? "Vinil tela armada"
+                        : "-")}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-[10px] text-muted-foreground">Valor</p>
+                  <p className="font-medium text-sm text-emerald-600">
+                    {["alvenaria","vinil","construcao"].includes(viewingLead.lead_type || "")
+                      ? <span className="text-muted-foreground italic">Sob proposta</span>
+                      : formatCurrency(viewingLead.total_price)}
+                  </p>
+                </div>
                 <div><p className="text-[10px] text-muted-foreground">Data</p><p className="font-medium text-sm flex items-center gap-1"><Calendar className="w-3 h-3" />{viewingLead.created_at ? format(new Date(viewingLead.created_at), "dd/MM/yyyy HH:mm", { locale: ptBR }) : "-"}</p></div>
               </div>
+
+              {viewingLead.quiz_data && (
+                <div className="pt-2 border-t border-border">
+                  <p className="text-[11px] uppercase tracking-wide font-semibold text-muted-foreground mb-2">Respostas do quiz</p>
+                  <QuizDataSummary quizData={viewingLead.quiz_data} leadType={viewingLead.lead_type} />
+                </div>
+              )}
 
               {(() => {
                 const dist = distributionMap.get(viewingLead.id);
