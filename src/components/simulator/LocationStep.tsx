@@ -20,6 +20,7 @@ interface Store {
   coverage_radius_active?: boolean;
   distance?: number;
   logo_url?: string | null;
+  plan_price?: number;
 }
 
 function getInitials(name: string): string {
@@ -33,18 +34,33 @@ function getInitials(name: string): string {
 
 async function attachStoreLogos(stores: Store[]): Promise<Store[]> {
   if (stores.length === 0) return stores;
-  const results = await Promise.all(
-    stores.map(async (s) => {
+  const [logos, prices] = await Promise.all([
+    Promise.all(
+      stores.map(async (s) => {
+        try {
+          const { data } = await supabase.rpc("get_store_settings_public", { _store_id: s.id });
+          return Array.isArray(data) && data.length > 0 ? (data[0] as any).logo_url : null;
+        } catch {
+          return null;
+        }
+      })
+    ),
+    (async () => {
       try {
-        const { data } = await supabase.rpc("get_store_settings_public", { _store_id: s.id });
-        const logo = Array.isArray(data) && data.length > 0 ? (data[0] as any).logo_url : null;
-        return { ...s, logo_url: logo ?? null };
+        const { data } = await supabase.rpc("get_stores_plan_price_public");
+        const map = new Map<string, number>();
+        ((data as any[]) || []).forEach((r) => map.set(r.store_id, Number(r.price_monthly) || 0));
+        return map;
       } catch {
-        return { ...s, logo_url: null };
+        return new Map<string, number>();
       }
-    })
-  );
-  return results;
+    })(),
+  ]);
+  return stores.map((s, i) => ({
+    ...s,
+    logo_url: logos[i] ?? null,
+    plan_price: prices.get(s.id) ?? 0,
+  }));
 }
 
 interface LocationStepProps {
@@ -208,6 +224,16 @@ const LocationStep = ({ onSelectStore, onBack, onSkip }: LocationStepProps) => {
       list.sort((a, b) => (a.city || "").localeCompare(b.city || "", "pt-BR"));
     } else if (sortBy === "distance") {
       list.sort((a, b) => (a.distance ?? 99999) - (b.distance ?? 99999));
+    } else {
+      // Default: prioritize stores on higher-tier (more expensive) plans,
+      // then by distance (when available), then alphabetically.
+      list.sort((a, b) => {
+        const priceDiff = (b.plan_price ?? 0) - (a.plan_price ?? 0);
+        if (priceDiff !== 0) return priceDiff;
+        const distDiff = (a.distance ?? 99999) - (b.distance ?? 99999);
+        if (distDiff !== 0) return distDiff;
+        return a.name.localeCompare(b.name, "pt-BR");
+      });
     }
     return list;
   }, [stores, searchTerm, sortBy]);

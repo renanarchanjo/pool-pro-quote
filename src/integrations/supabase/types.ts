@@ -2221,6 +2221,13 @@ export type Database = {
           secondary_color: string
         }[]
       }
+      get_stores_plan_price_public: {
+        Args: never
+        Returns: {
+          price_monthly: number
+          store_id: string
+        }[]
+      }
       get_stores_public: {
         Args: never
         Returns: {
