@@ -223,7 +223,7 @@ const LoginMatriz = () => {
   // ── MFA Setup (first time) ──
   if (view === "mfa-setup") {
     return (
-      <div className="min-h-screen flex items-center justify-center p-4" style={{ background: heroGradient }}>
+      <AuthSplitShell {...matrizShellProps}>
         <div className={cardClass}>
           <div className="flex flex-col items-center mb-6">
             <div className="w-14 h-14 rounded-full bg-[#38BDF8]/10 flex items-center justify-center mb-4">
@@ -300,7 +300,7 @@ const LoginMatriz = () => {
   // ── MFA Verify (returning user) ──
   if (view === "mfa-verify") {
     return (
-      <div className="min-h-screen flex items-center justify-center p-4" style={{ background: heroGradient }}>
+      <AuthSplitShell {...matrizShellProps}>
         <div className={cardClass}>
           <div className="flex flex-col items-center mb-8">
             <div className="w-14 h-14 rounded-full bg-[#38BDF8]/10 flex items-center justify-center mb-4">
@@ -366,7 +366,7 @@ const LoginMatriz = () => {
   // Forgot password - email sent confirmation
   if (view === "forgot-sent") {
     return (
-      <div className="min-h-screen flex items-center justify-center p-4" style={{ background: heroGradient }}>
+      <AuthSplitShell {...matrizShellProps}>
         <div className={cardClass}>
           <div className="flex flex-col items-center mb-6">
             <BrandLogo size="lg" className="mb-4 [&_span]:text-white" />
@@ -404,7 +404,7 @@ const LoginMatriz = () => {
   // Forgot password form
   if (view === "forgot") {
     return (
-      <div className="min-h-screen flex items-center justify-center p-4" style={{ background: heroGradient }}>
+      <AuthSplitShell {...matrizShellProps}>
         <div className={cardClass}>
           <div className="flex flex-col items-center mb-8">
             <BrandLogo size="lg" className="mb-4 [&_span]:text-white" />
@@ -453,7 +453,7 @@ const LoginMatriz = () => {
 
   // Login form
   return (
-    <div className="min-h-screen flex items-center justify-center p-4" style={{ background: heroGradient }}>
+    <AuthSplitShell {...matrizShellProps}>
       <div className={cardClass}>
         <div className="flex flex-col items-center mb-8">
           <BrandLogo size="lg" className="mb-4 [&_span]:text-white" />
