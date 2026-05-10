@@ -82,11 +82,11 @@ const QuizConstrucao = () => {
   const [funda, setFunda] = useState<Area>({ tipo: "funda", comp: 0, larg: 0, prof: 1.4 });
   const [fundaPreset, setFundaPreset] = useState<string | null>(null);
   const [hasPrainha, setHasPrainha] = useState(false);
-  const [prainha, setPrainha] = useState<Area>({ tipo: "prainha", comp: 0, larg: 0, prof: 0.4 });
+  const [prainha, setPrainha] = useState<Area>({ tipo: "prainha", comp: 0, larg: 0, prof: 0.5 });
   const [hasSpa, setHasSpa] = useState(false);
-  const [spa, setSpa] = useState<Area>({ tipo: "spa", comp: 0, larg: 0, prof: 0.9 });
+  const [spa, setSpa] = useState<Area>({ tipo: "spa", comp: 0, larg: 0, prof: 1.0 });
   const [hasEspelho, setHasEspelho] = useState(false);
-  const [espelho, setEspelho] = useState<Area>({ tipo: "espelho", comp: 0, larg: 0, prof: 0.1 });
+  const [espelho, setEspelho] = useState<Area>({ tipo: "espelho", comp: 0, larg: 0, prof: 0.3 });
   const [opcionais, setOpcionais] = useState<string[]>([]);
   const [nome, setNome] = useState("");
   const [whatsapp, setWhatsapp] = useState("");
@@ -372,7 +372,7 @@ const QuizConstrucao = () => {
                   {hasPrainha && (
                     <div className="mt-3 grid sm:grid-cols-3 gap-2">
                       {PRESETS_PRAINHA.map(p => (
-                        <button key={p.label} onClick={() => setPrainha({ tipo: "prainha", comp: p.comp, larg: p.larg, prof: 0.4 })}
+                        <button key={p.label} onClick={() => setPrainha({ tipo: "prainha", comp: p.comp, larg: p.larg, prof: 0.5 })}
                           className={`text-sm rounded-lg border p-2 ${prainha.comp === p.comp && prainha.larg === p.larg ? "border-primary bg-primary/5" : "border-border"}`}>
                           {p.label}
                         </button>
@@ -397,7 +397,7 @@ const QuizConstrucao = () => {
                   {hasSpa && (
                     <div className="mt-3 grid sm:grid-cols-3 gap-2">
                       {PRESETS_SPA.map(p => (
-                        <button key={p.label} onClick={() => setSpa({ tipo: "spa", comp: p.comp, larg: p.larg, prof: 0.9 })}
+                        <button key={p.label} onClick={() => setSpa({ tipo: "spa", comp: p.comp, larg: p.larg, prof: 1.0 })}
                           className={`text-sm rounded-lg border p-2 ${spa.comp === p.comp && spa.larg === p.larg ? "border-primary bg-primary/5" : "border-border"}`}>
                           {p.label}
                         </button>
