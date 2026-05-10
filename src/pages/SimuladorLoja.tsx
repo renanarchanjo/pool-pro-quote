@@ -81,6 +81,8 @@ interface StoreInfo {
   city: string | null;
   state: string | null;
   whatsapp: string | null;
+  offers_alvenaria?: boolean | null;
+  offers_vinil?: boolean | null;
 }
 
 interface StoreSettingsInfo {
