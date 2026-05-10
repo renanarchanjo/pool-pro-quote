@@ -91,8 +91,8 @@ const CustomerForm = ({ onSubmit, model, optionals, includedItemsTotal = 0, hide
       return;
     }
     const whatsappDigits = formData.whatsapp.replace(/\D/g, "");
-    if (whatsappDigits.length < 10 || whatsappDigits.length > 11) {
-      toast.error("Informe um número de WhatsApp válido com DDD");
+    if (whatsappDigits.length !== 11) {
+      toast.error("Informe DDD + 9 dígitos (11 números)");
       return;
     }
     if (formData.name.trim().length < 3) {
