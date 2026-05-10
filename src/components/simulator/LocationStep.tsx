@@ -292,7 +292,39 @@ const LocationStep = ({ onSelectStore, onBack, onSkip }: LocationStepProps) => {
             </>
           )}
 
-          {stores.map((store) => (
+          {stores.length > 1 && (
+            <div className="flex flex-col sm:flex-row gap-2">
+              <div className="relative flex-1">
+                <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                <Input
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  placeholder="Buscar por nome ou cidade..."
+                  className="pl-9"
+                />
+              </div>
+              <Select value={sortBy} onValueChange={(v) => setSortBy(v as typeof sortBy)}>
+                <SelectTrigger className="sm:w-56">
+                  <ArrowUpDown className="w-4 h-4 mr-2" />
+                  <SelectValue placeholder="Ordenar" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="default">Padrão</SelectItem>
+                  <SelectItem value="alphabetical">Ordem alfabética (A-Z)</SelectItem>
+                  <SelectItem value="city">Por cidade</SelectItem>
+                  {radiusSearch && <SelectItem value="distance">Mais próximas</SelectItem>}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
+
+          {searchTerm && visibleStores.length === 0 && (
+            <p className="text-sm text-muted-foreground py-4 text-center">
+              Nenhuma loja corresponde a "{searchTerm}".
+            </p>
+          )}
+
+          {visibleStores.map((store) => (
             <Card
               key={store.id}
               className="p-4 bg-card/80 backdrop-blur-sm hover:shadow-pool transition-all cursor-pointer group"
