@@ -46,7 +46,7 @@ const uid = () => Math.random().toString(36).slice(2, 10);
 const brl = (v: number) =>
   v.toLocaleString("pt-BR", { style: "currency", currency: "BRL", minimumFractionDigits: 2 });
 
-// ============ FILTRO DIMENSIONADO ============
+// ============ FILTRO DIMENSIONADO (auto, baseado no m² do fundo) ============
 function getConjuntoFiltrante(m2Fundo: number, tipo: PoolType) {
   let desc = "";
   let preco = 0;
@@ -64,110 +64,6 @@ function getConjuntoFiltrante(m2Fundo: number, tipo: PoolType) {
     preco = tipo === "vinil" ? 5290 : 5990;
   }
   return { desc, preco };
-}
-
-// ============ GERADORES DE GRUPOS PRÉ-POPULADOS ============
-function buildVinilGroups(m2Fundo: number, m2VinilBruto: number, conj: { desc: string; preco: number }): Group[] {
-  const m2Vinil = +(m2VinilBruto * 1.2).toFixed(2);
-  return [
-    {
-      id: uid(),
-      titulo: "Estrutura e Escavação",
-      items: [
-        { id: uid(), qtde: 1, descricao: "Escavação de primeira linha com bob cat", unidade: "un", unitario: 300, markup: 0 },
-        { id: uid(), qtde: m2Fundo, descricao: "M² de construção estrutural incluindo casa de máquinas", unidade: "m²", unitario: 600, markup: 0 },
-      ],
-    },
-    {
-      id: uid(),
-      titulo: "Vinil e Hidráulica",
-      items: [
-        { id: uid(), qtde: m2Vinil, descricao: "M² de vinil 1.5mm", unidade: "m²", unitario: 165, markup: 0 },
-        { id: uid(), qtde: 1, descricao: "Dispositivo de aspiração", unidade: "un", unitario: 78, markup: 0 },
-        { id: uid(), qtde: 2, descricao: "Dispositivo de retorno", unidade: "un", unitario: 78, markup: 0 },
-        { id: uid(), qtde: 2, descricao: "Ralo de parede", unidade: "un", unitario: 78, markup: 0 },
-        { id: uid(), qtde: 1, descricao: conj.desc, unidade: "un", unitario: conj.preco, markup: 0 },
-        { id: uid(), qtde: 8, descricao: "Sacos de areia especial para filtragem", unidade: "un", unitario: 30, markup: 0 },
-        { id: uid(), qtde: m2VinilBruto, descricao: "Mão de obra para instalação do vinil", unidade: "m²", unitario: 60, markup: 0 },
-        { id: uid(), qtde: 1, descricao: "Mão de obra instalação hidráulica na casa de máquinas", unidade: "un", unitario: 825, markup: 0 },
-        { id: uid(), qtde: 1, descricao: "Kit limpeza (aspirador, mangueira, cabo alumínio, peneira, escova, conectores)", unidade: "un", unitario: 330, markup: 0 },
-      ],
-    },
-    {
-      id: uid(),
-      titulo: "Iluminação",
-      optional: true,
-      enabled: false,
-      items: [
-        { id: uid(), qtde: 5, descricao: "Refletores LED 12v 9w RGB", unidade: "un", unitario: 230, markup: 0 },
-        { id: uid(), qtde: 5, descricao: "Caixas de passagem para LEDs", unidade: "un", unitario: 38, markup: 0 },
-        { id: uid(), qtde: 50, descricao: "Metros de cabo PP 4 vias", unidade: "mt", unitario: 9, markup: 0 },
-        { id: uid(), qtde: 1, descricao: "Central de comando com fonte e controle remoto", unidade: "un", unitario: 730, markup: 0 },
-        { id: uid(), qtde: 5, descricao: "Mão de obra para instalação de LEDs", unidade: "un", unitario: 280, markup: 0 },
-      ],
-    },
-    {
-      id: uid(),
-      titulo: "Cascata",
-      optional: true,
-      enabled: false,
-      items: [
-        { id: uid(), qtde: 1, descricao: "Cascata de embutir inox 304 - 100cm", unidade: "un", unitario: 1350, markup: 0 },
-        { id: uid(), qtde: 1, descricao: "Bomba para cascata motor WEG 1/2 cv", unidade: "un", unitario: 1272, markup: 0 },
-        { id: uid(), qtde: 1, descricao: "Mão de obra para instalação da cascata", unidade: "un", unitario: 300, markup: 0 },
-      ],
-    },
-  ];
-}
-
-function buildAlvenariaGroups(m2Fundo: number, m2Reves: number, m2Imp: number, conj: { desc: string; preco: number }): Group[] {
-  const m2Cer = +(m2Reves * 1.2).toFixed(2);
-  const m2ImpFinal = +(m2Imp * 1.1).toFixed(2);
-  return [
-    {
-      id: uid(),
-      titulo: "Estrutura e Escavação",
-      items: [
-        { id: uid(), qtde: m2Fundo, descricao: "M² Construção estrutural própria para piscina", unidade: "m²", unitario: 1200, markup: 0 },
-        { id: uid(), qtde: 1, descricao: "Ligação hidráulica entre piscina e casa de máquinas", unidade: "un", unitario: 900, markup: 0 },
-        { id: uid(), qtde: 1, descricao: "Deslocamento/acompanhamento", unidade: "un", unitario: 3000, markup: 0 },
-      ],
-    },
-    {
-      id: uid(),
-      titulo: "Impermeabilização e Revestimento",
-      items: [
-        { id: uid(), qtde: m2ImpFinal, descricao: "M² de impermeabilização especial para piscina", unidade: "m²", unitario: 48, markup: 0 },
-        { id: uid(), qtde: m2Cer, descricao: "M² de assentamento e rejuntamento do revestimento", unidade: "m²", unitario: 90, markup: 0 },
-        { id: uid(), qtde: 1, descricao: "Tampa em alumínio fundido 80x80cm", unidade: "un", unitario: 2499, markup: 0 },
-      ],
-    },
-    {
-      id: uid(),
-      titulo: "Hidráulica",
-      items: [
-        { id: uid(), qtde: 1, descricao: "Dispositivo de aspiração inox 304", unidade: "un", unitario: 84, markup: 0 },
-        { id: uid(), qtde: 2, descricao: "Dispositivo de retorno inox 304", unidade: "un", unitario: 84, markup: 0 },
-        { id: uid(), qtde: 2, descricao: "Dispositivo de sucção inox 304", unidade: "un", unitario: 84, markup: 0 },
-        { id: uid(), qtde: 1, descricao: conj.desc, unidade: "un", unitario: conj.preco, markup: 0 },
-        { id: uid(), qtde: 4, descricao: "Sacos de areia especial para filtro", unidade: "un", unitario: 30, markup: 0 },
-        { id: uid(), qtde: 1, descricao: "Instalação hidráulica na casa de máquinas", unidade: "un", unitario: 675, markup: 0 },
-      ],
-    },
-    {
-      id: uid(),
-      titulo: "Aquecimento / Trocador de Calor",
-      optional: true,
-      enabled: false,
-      items: [
-        { id: uid(), qtde: 1, descricao: "Trocador de calor KOBC 75mil Btus", unidade: "un", unitario: 18750, markup: 0 },
-        { id: uid(), qtde: 1, descricao: "Bomba 3/4 cv motor WEG para aquecimento", unidade: "un", unitario: 1317, markup: 0 },
-        { id: uid(), qtde: 32, descricao: "Capa térmica azul 300mc", unidade: "m²", unitario: 22.5, markup: 0 },
-        { id: uid(), qtde: 1, descricao: "Instalação hidráulica e elétrica do trocador", unidade: "un", unitario: 1200, markup: 0 },
-        { id: uid(), qtde: 1, descricao: "Infraestrutura casa de máquinas-trocador", unidade: "un", unitario: 600, markup: 0 },
-      ],
-    },
-  ];
 }
 
 const NAO_INCLUSOS_VINIL = [
@@ -191,66 +87,113 @@ const NAO_INCLUSOS_ALV = [
   "Aluguéis de equipamentos",
 ];
 
-// ============ CATÁLOGO (persistido em localStorage) ============
+// ============ CATÁLOGO COM FÓRMULAS DE DIMENSIONAMENTO ============
+type Formula =
+  | "fixed"
+  | "m2_fundo"
+  | "m2_paredes"
+  | "m2_bruto"
+  | "m2_vinil"        // bruto × 1.2 (+20%)
+  | "m2_imperm"       // bruto × 1.1 (+10%)
+  | "m2_revestimento"; // bruto × 1.2 (+20%)
+
+const FORMULA_LABELS: Record<Formula, string> = {
+  fixed: "Fixo",
+  m2_fundo: "× M² Fundo",
+  m2_paredes: "× M² Paredes",
+  m2_bruto: "× M² Bruto",
+  m2_vinil: "× M² Vinil (+20%)",
+  m2_imperm: "× M² Imperm. (+10%)",
+  m2_revestimento: "× M² Revest. (+20%)",
+};
+
+type GroupKind = "base" | "opcional";
+
 interface CatalogItem {
   id: string;
   descricao: string;
   unidade: string;
   unitario: number;
-  qtdePadrao: number;
+  formula: Formula;
+  fator: number;          // multiplicador (ou qtde direta quando formula = 'fixed')
   markupPadrao: number;
 }
 interface CatalogGroup {
   id: string;
   titulo: string;
+  kind: GroupKind;        // base = sempre incluso · opcional = recomendação
   items: CatalogItem[];
 }
 type CatalogData = { vinil: CatalogGroup[]; alvenaria: CatalogGroup[] };
 
-const CATALOG_KEY = "test-proposal-catalog-v1";
+const CATALOG_KEY = "test-proposal-catalog-v2";
+
+function computeQtde(item: CatalogItem, calc: { m2Fundo: number; m2Paredes: number; m2Bruto: number; m2Vinil: number; m2Imperm: number }): number {
+  const base = {
+    fixed: 1,
+    m2_fundo: calc.m2Fundo,
+    m2_paredes: calc.m2Paredes,
+    m2_bruto: calc.m2Bruto,
+    m2_vinil: calc.m2Vinil,
+    m2_imperm: calc.m2Imperm,
+    m2_revestimento: calc.m2Vinil,
+  }[item.formula];
+  return +(base * item.fator).toFixed(2);
+}
+
 const DEFAULT_CATALOG: CatalogData = {
   vinil: [
-    { id: uid(), titulo: "Estrutura e Escavação", items: [
-      { id: uid(), descricao: "Escavação de primeira linha com bob cat", unidade: "un", unitario: 300, qtdePadrao: 1, markupPadrao: 0 },
-      { id: uid(), descricao: "M² de construção estrutural incluindo casa de máquinas", unidade: "m²", unitario: 600, qtdePadrao: 1, markupPadrao: 0 },
+    { id: uid(), titulo: "Estrutura e Escavação", kind: "base", items: [
+      { id: uid(), descricao: "Escavação de primeira linha com bob cat", unidade: "un", unitario: 300, formula: "fixed", fator: 1, markupPadrao: 0 },
+      { id: uid(), descricao: "M² de construção estrutural incluindo casa de máquinas", unidade: "m²", unitario: 600, formula: "m2_fundo", fator: 1, markupPadrao: 0 },
     ]},
-    { id: uid(), titulo: "Vinil e Hidráulica", items: [
-      { id: uid(), descricao: "M² de vinil 1.5mm", unidade: "m²", unitario: 165, qtdePadrao: 1, markupPadrao: 0 },
-      { id: uid(), descricao: "Dispositivo de aspiração", unidade: "un", unitario: 78, qtdePadrao: 1, markupPadrao: 0 },
-      { id: uid(), descricao: "Dispositivo de retorno", unidade: "un", unitario: 78, qtdePadrao: 2, markupPadrao: 0 },
-      { id: uid(), descricao: "Ralo de parede", unidade: "un", unitario: 78, qtdePadrao: 2, markupPadrao: 0 },
+    { id: uid(), titulo: "Vinil e Hidráulica", kind: "base", items: [
+      { id: uid(), descricao: "M² de vinil 1.5mm", unidade: "m²", unitario: 165, formula: "m2_vinil", fator: 1, markupPadrao: 0 },
+      { id: uid(), descricao: "Mão de obra para instalação do vinil", unidade: "m²", unitario: 60, formula: "m2_bruto", fator: 1, markupPadrao: 0 },
+      { id: uid(), descricao: "Dispositivo de aspiração", unidade: "un", unitario: 78, formula: "fixed", fator: 1, markupPadrao: 0 },
+      { id: uid(), descricao: "Dispositivo de retorno", unidade: "un", unitario: 78, formula: "fixed", fator: 2, markupPadrao: 0 },
+      { id: uid(), descricao: "Ralo de parede", unidade: "un", unitario: 78, formula: "fixed", fator: 2, markupPadrao: 0 },
+      { id: uid(), descricao: "Sacos de areia especial para filtragem", unidade: "un", unitario: 30, formula: "fixed", fator: 8, markupPadrao: 0 },
+      { id: uid(), descricao: "Mão de obra instalação hidráulica casa de máquinas", unidade: "un", unitario: 825, formula: "fixed", fator: 1, markupPadrao: 0 },
+      { id: uid(), descricao: "Kit limpeza (aspirador, mangueira, escova, conectores)", unidade: "un", unitario: 330, formula: "fixed", fator: 1, markupPadrao: 0 },
     ]},
-    { id: uid(), titulo: "Iluminação", items: [
-      { id: uid(), descricao: "Refletor LED 12v 9w RGB", unidade: "un", unitario: 230, qtdePadrao: 1, markupPadrao: 0 },
-      { id: uid(), descricao: "Caixa de passagem para LED", unidade: "un", unitario: 38, qtdePadrao: 1, markupPadrao: 0 },
-      { id: uid(), descricao: "Cabo PP 4 vias", unidade: "mt", unitario: 9, qtdePadrao: 50, markupPadrao: 0 },
-      { id: uid(), descricao: "Central de comando com fonte e controle remoto", unidade: "un", unitario: 730, qtdePadrao: 1, markupPadrao: 0 },
+    { id: uid(), titulo: "Iluminação", kind: "opcional", items: [
+      { id: uid(), descricao: "Refletor LED 12v 9w RGB", unidade: "un", unitario: 230, formula: "fixed", fator: 5, markupPadrao: 0 },
+      { id: uid(), descricao: "Caixa de passagem para LED", unidade: "un", unitario: 38, formula: "fixed", fator: 5, markupPadrao: 0 },
+      { id: uid(), descricao: "Cabo PP 4 vias", unidade: "mt", unitario: 9, formula: "fixed", fator: 50, markupPadrao: 0 },
+      { id: uid(), descricao: "Central de comando com fonte e controle remoto", unidade: "un", unitario: 730, formula: "fixed", fator: 1, markupPadrao: 0 },
+      { id: uid(), descricao: "Mão de obra para instalação de LEDs", unidade: "un", unitario: 280, formula: "fixed", fator: 5, markupPadrao: 0 },
     ]},
-    { id: uid(), titulo: "Cascata", items: [
-      { id: uid(), descricao: "Cascata de embutir inox 304 - 100cm", unidade: "un", unitario: 1350, qtdePadrao: 1, markupPadrao: 0 },
-      { id: uid(), descricao: "Bomba para cascata motor WEG 1/2 cv", unidade: "un", unitario: 1272, qtdePadrao: 1, markupPadrao: 0 },
+    { id: uid(), titulo: "Cascata", kind: "opcional", items: [
+      { id: uid(), descricao: "Cascata de embutir inox 304 - 100cm", unidade: "un", unitario: 1350, formula: "fixed", fator: 1, markupPadrao: 0 },
+      { id: uid(), descricao: "Bomba para cascata motor WEG 1/2 cv", unidade: "un", unitario: 1272, formula: "fixed", fator: 1, markupPadrao: 0 },
+      { id: uid(), descricao: "Mão de obra para instalação da cascata", unidade: "un", unitario: 300, formula: "fixed", fator: 1, markupPadrao: 0 },
     ]},
   ],
   alvenaria: [
-    { id: uid(), titulo: "Estrutura e Escavação", items: [
-      { id: uid(), descricao: "M² Construção estrutural própria para piscina", unidade: "m²", unitario: 1200, qtdePadrao: 1, markupPadrao: 0 },
-      { id: uid(), descricao: "Ligação hidráulica piscina ↔ casa de máquinas", unidade: "un", unitario: 900, qtdePadrao: 1, markupPadrao: 0 },
-      { id: uid(), descricao: "Deslocamento/acompanhamento", unidade: "un", unitario: 3000, qtdePadrao: 1, markupPadrao: 0 },
+    { id: uid(), titulo: "Estrutura e Escavação", kind: "base", items: [
+      { id: uid(), descricao: "M² Construção estrutural própria para piscina", unidade: "m²", unitario: 1200, formula: "m2_fundo", fator: 1, markupPadrao: 0 },
+      { id: uid(), descricao: "Ligação hidráulica piscina ↔ casa de máquinas", unidade: "un", unitario: 900, formula: "fixed", fator: 1, markupPadrao: 0 },
+      { id: uid(), descricao: "Deslocamento/acompanhamento", unidade: "un", unitario: 3000, formula: "fixed", fator: 1, markupPadrao: 0 },
     ]},
-    { id: uid(), titulo: "Impermeabilização e Revestimento", items: [
-      { id: uid(), descricao: "M² de impermeabilização especial para piscina", unidade: "m²", unitario: 48, qtdePadrao: 1, markupPadrao: 0 },
-      { id: uid(), descricao: "M² de assentamento e rejuntamento do revestimento", unidade: "m²", unitario: 90, qtdePadrao: 1, markupPadrao: 0 },
-      { id: uid(), descricao: "Tampa em alumínio fundido 80x80cm", unidade: "un", unitario: 2499, qtdePadrao: 1, markupPadrao: 0 },
+    { id: uid(), titulo: "Impermeabilização e Revestimento", kind: "base", items: [
+      { id: uid(), descricao: "M² de impermeabilização especial para piscina", unidade: "m²", unitario: 48, formula: "m2_imperm", fator: 1, markupPadrao: 0 },
+      { id: uid(), descricao: "M² de assentamento e rejuntamento do revestimento", unidade: "m²", unitario: 90, formula: "m2_revestimento", fator: 1, markupPadrao: 0 },
+      { id: uid(), descricao: "Tampa em alumínio fundido 80x80cm", unidade: "un", unitario: 2499, formula: "fixed", fator: 1, markupPadrao: 0 },
     ]},
-    { id: uid(), titulo: "Hidráulica", items: [
-      { id: uid(), descricao: "Dispositivo de aspiração inox 304", unidade: "un", unitario: 84, qtdePadrao: 1, markupPadrao: 0 },
-      { id: uid(), descricao: "Dispositivo de retorno inox 304", unidade: "un", unitario: 84, qtdePadrao: 2, markupPadrao: 0 },
-      { id: uid(), descricao: "Dispositivo de sucção inox 304", unidade: "un", unitario: 84, qtdePadrao: 2, markupPadrao: 0 },
+    { id: uid(), titulo: "Hidráulica", kind: "base", items: [
+      { id: uid(), descricao: "Dispositivo de aspiração inox 304", unidade: "un", unitario: 84, formula: "fixed", fator: 1, markupPadrao: 0 },
+      { id: uid(), descricao: "Dispositivo de retorno inox 304", unidade: "un", unitario: 84, formula: "fixed", fator: 2, markupPadrao: 0 },
+      { id: uid(), descricao: "Dispositivo de sucção inox 304", unidade: "un", unitario: 84, formula: "fixed", fator: 2, markupPadrao: 0 },
+      { id: uid(), descricao: "Sacos de areia especial para filtro", unidade: "un", unitario: 30, formula: "fixed", fator: 4, markupPadrao: 0 },
+      { id: uid(), descricao: "Instalação hidráulica na casa de máquinas", unidade: "un", unitario: 675, formula: "fixed", fator: 1, markupPadrao: 0 },
     ]},
-    { id: uid(), titulo: "Aquecimento", items: [
-      { id: uid(), descricao: "Trocador de calor KOBC 75mil Btus", unidade: "un", unitario: 18750, qtdePadrao: 1, markupPadrao: 0 },
-      { id: uid(), descricao: "Bomba 3/4 cv motor WEG para aquecimento", unidade: "un", unitario: 1317, qtdePadrao: 1, markupPadrao: 0 },
-      { id: uid(), descricao: "Capa térmica azul 300mc", unidade: "m²", unitario: 22.5, qtdePadrao: 1, markupPadrao: 0 },
+    { id: uid(), titulo: "Aquecimento / Trocador de Calor", kind: "opcional", items: [
+      { id: uid(), descricao: "Trocador de calor KOBC 75mil Btus", unidade: "un", unitario: 18750, formula: "fixed", fator: 1, markupPadrao: 0 },
+      { id: uid(), descricao: "Bomba 3/4 cv motor WEG para aquecimento", unidade: "un", unitario: 1317, formula: "fixed", fator: 1, markupPadrao: 0 },
+      { id: uid(), descricao: "Capa térmica azul 300mc", unidade: "m²", unitario: 22.5, formula: "m2_fundo", fator: 1, markupPadrao: 0 },
+      { id: uid(), descricao: "Instalação hidráulica e elétrica do trocador", unidade: "un", unitario: 1200, formula: "fixed", fator: 1, markupPadrao: 0 },
+      { id: uid(), descricao: "Infraestrutura casa de máquinas-trocador", unidade: "un", unitario: 600, formula: "fixed", fator: 1, markupPadrao: 0 },
     ]},
   ],
 };
@@ -261,6 +204,39 @@ function loadCatalog(): CatalogData {
     if (raw) return JSON.parse(raw);
   } catch {}
   return DEFAULT_CATALOG;
+}
+
+// ============ BUILD GROUPS FROM CATALOG ============
+function buildFromCatalog(
+  catGroups: CatalogGroup[],
+  calc: { m2Fundo: number; m2Paredes: number; m2Bruto: number; m2Vinil: number; m2Imperm: number },
+  conj: { desc: string; preco: number },
+): Group[] {
+  const generated: Group[] = catGroups.map((cg) => ({
+    id: uid(),
+    titulo: cg.titulo,
+    optional: cg.kind === "opcional",
+    enabled: cg.kind === "base",
+    items: cg.items.map((ci) => ({
+      id: uid(),
+      qtde: computeQtde(ci, calc),
+      descricao: ci.descricao,
+      unidade: ci.unidade,
+      unitario: ci.unitario,
+      markup: ci.markupPadrao,
+    })),
+  }));
+
+  // grupo auto-dimensionado do conjunto filtrante (sempre incluso)
+  generated.push({
+    id: uid(),
+    titulo: "Conjunto Filtrante (dimensionado automaticamente)",
+    items: [
+      { id: uid(), qtde: 1, descricao: conj.desc, unidade: "un", unitario: conj.preco, markup: 0 },
+    ],
+  });
+
+  return generated;
 }
 
 // ============ MAIN ============
