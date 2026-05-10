@@ -34,6 +34,7 @@ interface ModelOptional {
   margin_percent: number;
   active: boolean;
   item_type: string;
+  created_at?: string;
 }
 interface IncludedItem {
   id: string;
@@ -131,7 +132,7 @@ const PoolModelManager = () => {
         supabase.from("brands").select("id, name, partner_id").eq("active", true).eq("store_id", store.id),
         supabase.from("categories").select("id, name, brand_id").eq("active", true).eq("store_id", store.id),
         supabase.from("pool_models").select("id, name, category_id, base_price, cost, margin_percent, length, width, depth, photo_url, differentials, included_items, not_included_items, delivery_days, installation_days, payment_terms, notes, display_order, active, partner_locked, created_at").eq("store_id", store.id).order("created_at", { ascending: false }),
-        supabase.from("model_optionals").select("id, name, description, price, cost, margin_percent, item_type, model_id, display_order, active").eq("store_id", store.id).order("display_order"),
+        supabase.from("model_optionals").select("id, name, description, price, cost, margin_percent, item_type, model_id, display_order, active, created_at").eq("store_id", store.id).order("created_at", { ascending: false }),
         supabase.from("model_included_items").select("id, name, cost, price, margin_percent, quantity, item_type, model_id, display_order, active").eq("store_id", store.id).order("display_order"),
         supabase.from("included_item_templates").select("id, name, not_included_items").eq("store_id", store.id).order("name"),
       ]);
