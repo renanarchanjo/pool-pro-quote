@@ -122,7 +122,12 @@ const QuizConstrucao = () => {
       if (!slug) return;
       const { data } = await supabase.rpc("get_store_public_by_slug", { _slug: slug });
       const s = Array.isArray(data) ? data[0] : data;
-      if (s) setStore(s as StoreInfo);
+      if (s) {
+        setStore(s as StoreInfo);
+        const { data: settings } = await supabase.rpc("get_store_settings_public", { _store_id: (s as any).id });
+        const setRow = Array.isArray(settings) ? settings[0] : settings;
+        if (setRow) setStoreSettings(setRow as StoreSettingsInfo);
+      }
       setLoadingStore(false);
     };
     void load();
