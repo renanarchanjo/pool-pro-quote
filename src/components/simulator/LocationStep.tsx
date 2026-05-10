@@ -34,18 +34,28 @@ function getInitials(name: string): string {
 
 async function attachStoreLogos(stores: Store[]): Promise<Store[]> {
   if (stores.length === 0) return stores;
-  const results = await Promise.all(
-    stores.map(async (s) => {
-      try {
-        const { data } = await supabase.rpc("get_store_settings_public", { _store_id: s.id });
-        const logo = Array.isArray(data) && data.length > 0 ? (data[0] as any).logo_url : null;
-        return { ...s, logo_url: logo ?? null };
-      } catch {
-        return { ...s, logo_url: null };
-      }
-    })
-  );
-  return results;
+  const [logos, prices] = await Promise.all([
+    Promise.all(
+      stores.map(async (s) => {
+        try {
+          const { data } = await supabase.rpc("get_store_settings_public", { _store_id: s.id });
+          return Array.isArray(data) && data.length > 0 ? (data[0] as any).logo_url : null;
+        } catch {
+          return null;
+        }
+      })
+    ),
+    supabase.rpc("get_stores_plan_price_public").then(({ data }) => {
+      const map = new Map<string, number>();
+      ((data as any[]) || []).forEach((r) => map.set(r.store_id, Number(r.price_monthly) || 0));
+      return map;
+    }).catch(() => new Map<string, number>()),
+  ]);
+  return stores.map((s, i) => ({
+    ...s,
+    logo_url: logos[i] ?? null,
+    plan_price: prices.get(s.id) ?? 0,
+  }));
 }
 
 interface LocationStepProps {
