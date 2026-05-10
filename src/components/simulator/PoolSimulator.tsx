@@ -80,6 +80,7 @@ interface PoolSimulatorProps {
 }
 
 const PoolSimulator = ({ onBack }: PoolSimulatorProps) => {
+  const navigate = useNavigate();
   const [step, setStep] = useState(0);
   const [loading, setLoading] = useState(false);
 
@@ -90,6 +91,10 @@ const PoolSimulator = ({ onBack }: PoolSimulatorProps) => {
   const [modelOptionals, setModelOptionals] = useState<any[]>([]);
   const [storeId, setStoreId] = useState<string | null>(null);
   const [selectedStoreName, setSelectedStoreName] = useState<string>("");
+  const [storeSlug, setStoreSlug] = useState<string | null>(null);
+  const [storeOffersAlvenaria, setStoreOffersAlvenaria] = useState(false);
+  const [storeOffersVinil, setStoreOffersVinil] = useState(false);
+  const [poolTypeChoice, setPoolTypeChoice] = useState<"fibra" | null>(null);
 
   const [selectedModel, setSelectedModel] = useState<PoolModel | null>(null);
   const [selectedOptionals, setSelectedOptionals] = useState<string[]>([]);
