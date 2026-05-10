@@ -251,48 +251,113 @@ const QuizConstrucao = () => {
     );
   }
 
+  // Display step mapping — 4 visible steps: Modelo / Opcionais / Seus dados / Proposta
+  const displayStep = done ? 4 : effectiveStep <= 3 ? 1 : effectiveStep === 4 ? 2 : 3;
+  const totalDisplaySteps = 4;
+
+  const Header = (
+    <nav className="bg-white/86 backdrop-blur-xl border-b border-sp-border sticky top-0 z-30">
+      <div className="container max-w-6xl mx-auto px-4 sm:px-6 py-3 grid grid-cols-[1fr_auto_1fr] items-center gap-3">
+        <div className="justify-self-start">
+          <button
+            onClick={() => {
+              if (done) return navigate(`/s/${slug}`);
+              if (step === 1) return navigate(`/s/${slug}`);
+              goBack();
+            }}
+            className="sp-btn sp-btn-ghost sp-btn-sm"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            <span className="hidden sm:inline">Voltar</span>
+          </button>
+        </div>
+
+        <div className="justify-self-center flex items-center gap-2.5">
+          {storeSettings?.logo_url ? (
+            <img src={storeSettings.logo_url} alt={store.name} className="h-9 w-auto object-contain" />
+          ) : (
+            <div
+              className="w-9 h-9 rounded-sp flex items-center justify-center text-white shadow-sp-soft"
+              style={{ background: storeSettings?.primary_color || 'hsl(var(--sp-primary))' }}
+            >
+              <Waves className="w-5 h-5" />
+            </div>
+          )}
+          <div className="leading-tight hidden sm:block">
+            <div className="sp-display font-bold text-[15px] text-sp-fg">{store.name}</div>
+            <div className="text-[11px] text-sp-muted-fg">
+              {store.city}{store.city && store.state ? " · " : ""}{store.state}
+            </div>
+          </div>
+        </div>
+
+        <div className="justify-self-end">
+          <div className="sp-pill sp-pill--primary">
+            <span className="text-sp-primary">{displayStep}</span>
+            <span className="text-sp-muted-fg">/{totalDisplaySteps}</span>
+          </div>
+        </div>
+      </div>
+
+      {displayStep < 4 && (
+        <div className="container max-w-6xl mx-auto px-4 sm:px-6 pb-3">
+          <div className="sp-stepper-track">
+            <div className="sp-stepper-fill" style={{ width: `${((displayStep - 1) / 3) * 100}%` }} />
+          </div>
+          <div className="hidden sm:grid grid-cols-4 gap-2 mt-2.5">
+            {['Modelo','Opcionais','Seus dados','Proposta'].map((label, i) => {
+              const idx = i + 1;
+              const state = idx < displayStep ? 'done' : idx === displayStep ? 'current' : 'pending';
+              return (
+                <div key={label} className="flex items-center gap-2">
+                  <span className="sp-stepper-dot" data-state={state}>
+                    {state === 'done' ? <Check className="w-2.5 h-2.5" strokeWidth={3.5} /> : idx}
+                  </span>
+                  <span className={`text-[12px] font-medium ${state === 'pending' ? 'text-sp-muted-fg' : 'text-sp-fg'}`}>{label}</span>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+    </nav>
+  );
+
   if (done) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background p-6">
-        <Card className="max-w-lg w-full p-8 text-center">
-          <div className="mx-auto w-16 h-16 rounded-full bg-emerald-100 flex items-center justify-center mb-4">
-            <CheckCircle2 className="w-9 h-9 text-emerald-600" />
-          </div>
-          <h1 className="text-2xl font-bold mb-3">Solicitação enviada com sucesso!</h1>
-          <p className="text-muted-foreground mb-6">
-            A loja <strong>{store.name}</strong> recebeu suas informações e entrará em contato em breve pelo WhatsApp informado.
-          </p>
-          <Button className="w-full" onClick={() => navigate(`/s/${slug}`)}>
-            Voltar para a loja
-          </Button>
-        </Card>
-      </div>
+      <>
+        <Helmet>
+          <title>Solicitação enviada · {store.name}</title>
+        </Helmet>
+        <div className="sp-surface min-h-screen">
+          {Header}
+          <main className="container mx-auto px-4 py-8">
+            <Card className="max-w-lg w-full mx-auto p-8 text-center">
+              <div className="mx-auto w-16 h-16 rounded-full bg-emerald-100 flex items-center justify-center mb-4">
+                <CheckCircle2 className="w-9 h-9 text-emerald-600" />
+              </div>
+              <h1 className="text-2xl font-bold mb-3">Solicitação enviada com sucesso!</h1>
+              <p className="text-muted-foreground mb-6">
+                A loja <strong>{store.name}</strong> recebeu suas informações e entrará em contato em breve pelo WhatsApp informado.
+              </p>
+              <Button className="w-full" onClick={() => navigate(`/s/${slug}`)}>
+                Voltar para a loja
+              </Button>
+            </Card>
+          </main>
+        </div>
+      </>
     );
   }
-
-  const progress = (step / totalSteps) * 100;
 
   return (
     <>
       <Helmet>
         <title>Quiz Piscina de Construção · {store.name}</title>
       </Helmet>
-      <div className="min-h-screen bg-gradient-to-b from-sky-50 to-white">
-        <div className="container max-w-2xl mx-auto px-4 py-6">
-          <button
-            onClick={() => navigate(`/s/${slug}`)}
-            className="text-sm text-muted-foreground hover:text-foreground inline-flex items-center gap-1 mb-4"
-          >
-            <ArrowLeft className="w-4 h-4" /> Voltar à loja
-          </button>
-
-          <div className="mb-6">
-            <div className="flex items-center justify-between mb-2 text-xs text-muted-foreground">
-              <span className="flex items-center gap-1.5"><Waves className="w-3.5 h-3.5 text-primary" /> Quiz de Construção</span>
-              <span>Passo {step} de {totalSteps}</span>
-            </div>
-            <Progress value={progress} className="h-2" />
-          </div>
+      <div className="sp-surface min-h-screen">
+        {Header}
+        <main className="container max-w-2xl mx-auto px-4 py-6">
 
           <Card className="p-6 sm:p-8">
             {/* PASSO 1 — Tipo */}
