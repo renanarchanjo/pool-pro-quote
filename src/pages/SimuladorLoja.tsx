@@ -110,6 +110,7 @@ const SimuladorLoja = () => {
 
   const [selectedModel, setSelectedModel] = useState<PoolModel | null>(null);
   const [selectedOptionals, setSelectedOptionals] = useState<string[]>([]);
+  const [poolTypeChoice, setPoolTypeChoice] = useState<"fibra" | null>(null);
   const [customerData, setCustomerData] = useState<CustomerData | null>(null);
   const [showCongrats, setShowCongrats] = useState(false);
   const [includedItemsTotal, setIncludedItemsTotal] = useState(0);
@@ -406,72 +407,90 @@ const SimuladorLoja = () => {
         </nav>
 
         <main className="container mx-auto px-4 py-8">
-          {step === 1 && models.length === 0 ? (
-            <div className="max-w-2xl mx-auto">
-              {(store?.offers_alvenaria || store?.offers_vinil) && (
-                <div className="mb-6 rounded-2xl border border-sky-200 bg-gradient-to-br from-sky-50 to-white p-5">
-                  <p className="text-sm font-semibold text-slate-900 mb-1">Esta loja constrói piscinas sob medida!</p>
-                  <p className="text-xs text-slate-600 mb-3">Responda um quiz rápido e receba uma proposta personalizada.</p>
-                  <div className="flex flex-wrap gap-2">
-                    {store?.offers_alvenaria && (
-                      <Button size="sm" onClick={() => navigate(`/s/${store.slug}/quiz-construcao?tipo=alvenaria`)}>
-                        🧱 Quero Alvenaria →
-                      </Button>
-                    )}
-                    {store?.offers_vinil && (
-                      <Button size="sm" onClick={() => navigate(`/s/${store.slug}/quiz-construcao?tipo=vinil`)}>
-                        🎨 Quero Vinil →
-                      </Button>
-                    )}
-                  </div>
-                </div>
-              )}
-              <div className="text-center py-12">
-                <div className="mx-auto w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center mb-4">
-                  <span className="text-2xl">🏊</span>
-                </div>
-                <h2 className="text-xl font-bold mb-2 text-slate-900">Nenhum modelo de fibra disponível</h2>
-                <p className="text-slate-500 text-sm mb-6">
-                  Esta loja ainda não cadastrou modelos de piscina de fibra.
-                </p>
-                <Button variant="outline" onClick={() => navigate("/")}>
-                  <ArrowLeft className="w-4 h-4 mr-2" />
-                  Voltar ao início
+          {step === 1 && (store?.offers_alvenaria || store?.offers_vinil) && !poolTypeChoice ? (
+            <div className="max-w-4xl mx-auto">
+              <div className="text-center mb-8">
+                <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 mb-2">Que tipo de piscina você procura?</h2>
+                <p className="text-slate-500">Escolha uma das opções oferecidas por <strong>{store?.name}</strong>.</p>
+              </div>
+
+              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 max-w-4xl mx-auto">
+                {/* Fibra — sempre disponível */}
+                <button
+                  onClick={() => setPoolTypeChoice("fibra")}
+                  className="text-left rounded-2xl border-2 border-border bg-white hover:border-primary hover:shadow-lg transition p-6 group"
+                >
+                  <div className="text-4xl mb-3">🏊</div>
+                  <div className="font-bold text-lg text-slate-900 mb-1">Piscina de Fibra</div>
+                  <p className="text-xs text-slate-500 mb-4">Modelos prontos, instalação rápida. Veja modelos e simule online.</p>
+                  <span className="text-sm font-semibold text-primary group-hover:underline">
+                    Ver modelos →
+                  </span>
+                </button>
+
+                {store?.offers_alvenaria && (
+                  <button
+                    onClick={() => navigate(`/s/${store.slug}/quiz-construcao?tipo=alvenaria`)}
+                    className="text-left rounded-2xl border-2 border-border bg-white hover:border-primary hover:shadow-lg transition p-6 group"
+                  >
+                    <div className="text-4xl mb-3">🧱</div>
+                    <div className="font-bold text-lg text-slate-900 mb-1">Piscina de Alvenaria</div>
+                    <p className="text-xs text-slate-500 mb-4">Pastilha ou cerâmica, sob medida. Responda um quiz e receba sua proposta.</p>
+                    <span className="text-sm font-semibold text-primary group-hover:underline">
+                      Iniciar quiz →
+                    </span>
+                  </button>
+                )}
+
+                {store?.offers_vinil && (
+                  <button
+                    onClick={() => navigate(`/s/${store.slug}/quiz-construcao?tipo=vinil`)}
+                    className="text-left rounded-2xl border-2 border-border bg-white hover:border-primary hover:shadow-lg transition p-6 group"
+                  >
+                    <div className="text-4xl mb-3">🎨</div>
+                    <div className="font-bold text-lg text-slate-900 mb-1">Piscina de Vinil</div>
+                    <p className="text-xs text-slate-500 mb-4">Tela armada com revestimento em vinil, construção mais rápida. Responda o quiz.</p>
+                    <span className="text-sm font-semibold text-primary group-hover:underline">
+                      Iniciar quiz →
+                    </span>
+                  </button>
+                )}
+              </div>
+
+              <div className="text-center mt-8">
+                <Button variant="ghost" onClick={() => navigate("/")}>
+                  <ArrowLeft className="w-4 h-4 mr-2" /> Voltar
                 </Button>
               </div>
             </div>
+          ) : step === 1 && models.length === 0 ? (
+            <div className="text-center py-20 max-w-md mx-auto">
+              <div className="mx-auto w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center mb-4">
+                <span className="text-2xl">🏊</span>
+              </div>
+              <h2 className="text-xl font-bold mb-2 text-slate-900">Nenhum modelo disponível</h2>
+              <p className="text-slate-500 text-sm mb-6">
+                Esta loja ainda não cadastrou modelos de piscina. Volte mais tarde.
+              </p>
+              <Button variant="outline" onClick={() => {
+                if (store?.offers_alvenaria || store?.offers_vinil) setPoolTypeChoice(null);
+                else navigate("/");
+              }}>
+                <ArrowLeft className="w-4 h-4 mr-2" />
+                Voltar
+              </Button>
+            </div>
           ) : step === 1 ? (
-            <>
-              {(store?.offers_alvenaria || store?.offers_vinil) && (
-                <div className="mb-6 rounded-2xl border border-sky-200 bg-gradient-to-br from-sky-50 to-white p-4 sm:p-5">
-                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                    <div>
-                      <p className="text-sm font-semibold text-slate-900">Procura outro tipo de piscina?</p>
-                      <p className="text-xs text-slate-600 mt-0.5">Esta loja também constrói piscinas sob medida. Responda um quiz rápido e receba uma proposta personalizada.</p>
-                    </div>
-                    <div className="flex flex-wrap gap-2">
-                      {store?.offers_alvenaria && (
-                        <Button size="sm" variant="outline" onClick={() => navigate(`/s/${store.slug}/quiz-construcao?tipo=alvenaria`)}>
-                          🧱 Quero Alvenaria →
-                        </Button>
-                      )}
-                      {store?.offers_vinil && (
-                        <Button size="sm" variant="outline" onClick={() => navigate(`/s/${store.slug}/quiz-construcao?tipo=vinil`)}>
-                          🎨 Quero Vinil →
-                        </Button>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              )}
-              <ModelSelection
-                models={models}
-                brands={brands}
-                categories={categories}
-                onSelect={handleModelSelect}
-                onBack={() => navigate("/")}
-              />
-            </>
+            <ModelSelection
+              models={models}
+              brands={brands}
+              categories={categories}
+              onSelect={handleModelSelect}
+              onBack={() => {
+                if (store?.offers_alvenaria || store?.offers_vinil) setPoolTypeChoice(null);
+                else navigate("/");
+              }}
+            />
           ) : null}
 
           {step === 2 && selectedModel && (
