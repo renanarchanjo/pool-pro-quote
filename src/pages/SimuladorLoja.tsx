@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2, ArrowLeft, PartyPopper } from "lucide-react";
+import { Loader2, ArrowLeft, PartyPopper, Waves, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import {
@@ -246,8 +246,9 @@ const SimuladorLoja = () => {
   // Loading
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-sky-50">
+      <div className="min-h-screen sp-surface flex flex-col items-center justify-center gap-4">
         <Loader2 className="w-8 h-8 animate-spin" style={{ color: primaryColor }} />
+        <p className="text-[13px] text-sp-muted-fg">Carregando simulador…</p>
       </div>
     );
   }
@@ -255,19 +256,16 @@ const SimuladorLoja = () => {
   // 404
   if (notFound || !store) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-sky-50 px-4">
-        <div className="text-center max-w-md">
-          <div className="mx-auto w-20 h-20 rounded-full bg-slate-100 flex items-center justify-center mb-6">
-            <span className="text-4xl">🏊</span>
+      <div className="min-h-screen sp-surface flex items-center justify-center px-4">
+        <div className="max-w-md mx-auto px-6 py-20 text-center">
+          <div className="w-20 h-20 rounded-sp-2xl bg-sp-muted mx-auto mb-5 flex items-center justify-center">
+            <Waves className="w-8 h-8 text-sp-muted-fg" />
           </div>
-          <h1 className="text-2xl font-bold text-slate-900 mb-2">Loja não encontrada</h1>
-          <p className="text-slate-500 mb-8">
-            Esta loja não está disponível no momento. Verifique o link ou tente novamente mais tarde.
-          </p>
-          <Button onClick={() => navigate("/")} variant="outline">
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Voltar ao início
-          </Button>
+          <h1 className="sp-h2 mb-2">Loja não encontrada</h1>
+          <p className="sp-sub mb-6">Esta loja não está disponível no momento. Verifique o link ou tente novamente mais tarde.</p>
+          <button className="sp-btn sp-btn-outline" onClick={() => navigate('/')}>
+            <ArrowLeft className="w-4 h-4" />Voltar ao início
+          </button>
         </div>
       </div>
     );
@@ -337,45 +335,72 @@ const SimuladorLoja = () => {
         <meta property="og:url" content={`https://www.simulapool.com/s/${store.slug}`} />
       </Helmet>
 
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-sky-50">
+      <div className="sp-surface min-h-screen">
         {/* Nav with store branding */}
-        <nav className="border-b border-slate-200/60 bg-white/95 backdrop-blur-md sticky top-0 z-50">
-          <div className="container mx-auto px-4 py-3 flex items-center justify-between relative">
-            {/* Back */}
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={step === 1 ? () => navigate("/") : () => setStep(step - 1)}
-              className="z-10"
-            >
-              <ArrowLeft className="w-4 h-4 mr-1" />
-              <span className="hidden md:inline">Voltar</span>
-            </Button>
+        <nav className="bg-white/86 backdrop-blur-xl border-b border-sp-border sticky top-0 z-30">
+          <div className="container max-w-6xl mx-auto px-4 sm:px-6 py-3 grid grid-cols-[1fr_auto_1fr] items-center gap-3">
+            <div className="justify-self-start">
+              <button
+                onClick={step === 1 ? () => navigate("/") : () => setStep(step - 1)}
+                className="sp-btn sp-btn-ghost sp-btn-sm"
+              >
+                <ArrowLeft className="w-4 h-4" />
+                <span className="hidden sm:inline">Voltar</span>
+              </button>
+            </div>
 
-            {/* Store branding - centered */}
-            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-              <div className="flex items-center gap-2 pointer-events-auto">
-                {storeSettings?.logo_url ? (
-                  <img
-                    src={storeSettings.logo_url}
-                    alt={store.name}
-                    className="h-8 w-auto object-contain"
-                  />
-                ) : (
-                  <span className="font-bold text-sm md:text-base" style={{ color: primaryColor }}>
-                    {store.name}
-                  </span>
-                )}
+            <div className="justify-self-center flex items-center gap-2.5">
+              {storeSettings?.logo_url ? (
+                <img
+                  src={storeSettings.logo_url}
+                  alt={store.name}
+                  className="h-9 w-auto object-contain"
+                />
+              ) : (
+                <div
+                  className="w-9 h-9 rounded-sp flex items-center justify-center text-white shadow-sp-soft"
+                  style={{ background: storeSettings?.primary_color || 'hsl(var(--sp-primary))' }}
+                >
+                  <Waves className="w-5 h-5" />
+                </div>
+              )}
+              <div className="leading-tight hidden sm:block">
+                <div className="sp-display font-bold text-[15px] text-sp-fg">{store.name}</div>
+                <div className="text-[11px] text-sp-muted-fg">
+                  {store.city}{store.city && store.state ? " · " : ""}{store.state}
+                </div>
               </div>
             </div>
 
-            {/* Step indicator */}
-            {step > 0 && step < 4 ? (
-              <div className="flex items-center gap-2 text-sm text-slate-500 z-10">
-                <span className="font-medium text-xs md:text-sm">Etapa {step} de 3</span>
+            <div className="justify-self-end">
+              <div className="sp-pill sp-pill--primary">
+                <span className="text-sp-primary">{step}</span>
+                <span className="text-sp-muted-fg">/4</span>
               </div>
-            ) : <div />}
+            </div>
           </div>
+
+          {step < 4 && (
+            <div className="container max-w-6xl mx-auto px-4 sm:px-6 pb-3">
+              <div className="sp-stepper-track">
+                <div className="sp-stepper-fill" style={{ width: `${((step - 1) / 3) * 100}%` }} />
+              </div>
+              <div className="hidden sm:grid grid-cols-4 gap-2 mt-2.5">
+                {['Modelo','Opcionais','Seus dados','Proposta'].map((label, i) => {
+                  const idx = i + 1;
+                  const state = idx < step ? 'done' : idx === step ? 'current' : 'pending';
+                  return (
+                    <div key={label} className="flex items-center gap-2">
+                      <span className="sp-stepper-dot" data-state={state}>
+                        {state === 'done' ? <Check className="w-2.5 h-2.5" strokeWidth={3.5} /> : idx}
+                      </span>
+                      <span className={`text-[12px] font-medium ${state === 'pending' ? 'text-sp-muted-fg' : 'text-sp-fg'}`}>{label}</span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
         </nav>
 
         <main className="container mx-auto px-4 py-8">

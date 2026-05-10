@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState, useCallback } from "react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Button } from "@/components/ui/button";
-import { FileDown, ArrowLeft, Loader2, Check } from "lucide-react";
+import { ArrowLeft, Loader2, Check, Download, MessageCircle } from "lucide-react";
 import { exportPDF, generatePDFBlob } from "@/lib/exportPDF";
 import { PDF_IMAGE_FALLBACK, toBase64Safe } from "@/lib/pdfImageUtils";
 import { formatPhoneForWhatsApp } from "@/lib/formatPhone";
@@ -452,34 +452,60 @@ const ProposalView = ({
   return (
     <div style={{ minHeight: "100vh", background: "#f3f4f6" }} className="print:bg-white">
       {/* ── NAV BAR (screen only) ── */}
-      <nav className="border-b border-border/50 bg-background/80 backdrop-blur-sm print:hidden sticky top-0 z-50">
-        <div className="container mx-auto px-3 sm:px-4 py-3 sm:py-4 flex justify-between items-center">
-          <Button variant="ghost" size="sm" onClick={onBack}>
-            <ArrowLeft className="w-4 h-4 mr-1 sm:mr-2" /> Voltar
-          </Button>
-          <div className="flex gap-2">
+      <nav className="border-b border-sp-border bg-white/86 backdrop-blur-xl sticky top-0 z-50 print:hidden">
+        <div className="container max-w-6xl mx-auto px-3 sm:px-4 py-3 sm:py-4 flex justify-between items-center flex-wrap gap-3">
+          <div className="flex flex-col leading-tight min-w-0">
+            <span className="text-[11px] font-semibold uppercase tracking-wider text-sp-primary">
+              Etapa 4 de 4 · Proposta gerada
+            </span>
+            <h1
+              className="sp-display font-bold tracking-tight text-sp-fg truncate"
+              style={{ fontSize: "clamp(18px, 3vw, 26px)" }}
+            >
+              Olá, {customerData.name.split(" ")[0]}! Sua proposta está pronta.
+            </h1>
+          </div>
+
+          <div className="flex items-center gap-2 flex-wrap">
+            <button onClick={onBack} className="sp-btn sp-btn-ghost sp-btn-sm">
+              <ArrowLeft className="w-4 h-4" />
+              <span className="hidden sm:inline">Nova simulação</span>
+            </button>
+
             {!hideDownloadPdf && (
               <button
                 onClick={handleDownloadPDF}
                 disabled={isGeneratingPdf}
-                className="inline-flex items-center gap-2 h-9 sm:h-[48px] pl-4 pr-3 text-[13px] sm:text-[15px] font-semibold text-white bg-[#2d2d2d] rounded-full sm:rounded-[10px] transition-all duration-150 hover:bg-[#1a1a1a] active:scale-95 disabled:opacity-70 disabled:pointer-events-none"
+                className="sp-btn sp-btn-dark"
               >
-                📥 PDF
-                <span className="flex items-center justify-center w-7 h-7 rounded-full bg-[#dc2626]">
-                  <FileDown className="w-3.5 h-3.5 text-white" />
-                </span>
+                {isGeneratingPdf ? (
+                  <><Loader2 className="w-4 h-4 animate-spin" /> Gerando…</>
+                ) : (
+                  <><Download className="w-4 h-4" /> Baixar PDF</>
+                )}
               </button>
             )}
+
             {proposalId && !hideWhatsApp && (
               <button
                 onClick={handleSendWhatsApp}
                 disabled={whatsAppState !== "idle" || isGeneratingPdf}
-                className="inline-flex items-center gap-2 h-9 sm:h-[48px] px-4 sm:px-5 text-[13px] sm:text-[15px] font-semibold text-white rounded-full sm:rounded-[10px] transition-all duration-150 active:scale-95 disabled:opacity-70 disabled:pointer-events-none"
-                style={{ backgroundColor: whatsAppState === "sent" ? "#16a34a" : "#25D366" }}
-                onMouseEnter={(e) => { if (whatsAppState === "idle" && !isGeneratingPdf) e.currentTarget.style.backgroundColor = "#128C7E"; }}
-                onMouseLeave={(e) => { if (whatsAppState === "idle") e.currentTarget.style.backgroundColor = "#25D366"; }}
+                className="sp-btn sp-btn-lg text-white"
+                style={{
+                  background: whatsAppState === "sent" ? "#16a34a" : "#25D366",
+                  boxShadow:
+                    whatsAppState === "sent"
+                      ? "0 8px 20px rgba(22,163,74,0.25)"
+                      : "0 8px 20px rgba(37,211,102,0.25)",
+                }}
               >
-                📱 Receber no WhatsApp
+                {whatsAppState === "sending" ? (
+                  <><Loader2 className="w-4 h-4 animate-spin" /> Enviando…</>
+                ) : whatsAppState === "sent" ? (
+                  <><Check className="w-4 h-4" /> Enviado!</>
+                ) : (
+                  <><MessageCircle className="w-4 h-4" /> Receber no WhatsApp</>
+                )}
               </button>
             )}
           </div>
