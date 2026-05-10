@@ -713,11 +713,26 @@ const PoolModelManager = () => {
 
   const fmt = (v: number) => v.toLocaleString("pt-BR", { minimumFractionDigits: 2 });
 
+  const editingModel = editing ? models.find((m) => m.id === editing) : null;
+  const isLocked = !!editingModel?.partner_locked;
+
   return (
     <div className="space-y-6">
       {/* ===== FORM ===== */}
       <Card className="p-3 sm:p-6">
         <h2 className="text-base sm:text-lg font-bold mb-2 sm:mb-3">{editing ? "Editar Modelo" : "Novo Modelo"}</h2>
+
+        {isLocked && (
+          <div className="mb-4 flex items-start gap-2 p-3 rounded-lg bg-amber-500/10 border border-amber-500/20">
+            <AlertTriangle className="w-4 h-4 text-amber-600 mt-0.5 shrink-0" />
+            <div className="text-xs">
+              <p className="font-medium text-amber-700">Modelo de catálogo de parceiro</p>
+              <p className="text-amber-600 mt-0.5">
+                Dados técnicos (nome, dimensões, foto, prazos) são gerenciados pelo parceiro e não podem ser alterados. Você pode editar apenas <strong>custo</strong>, <strong>margem</strong> e <strong>preço de venda</strong>.
+              </p>
+            </div>
+          </div>
+        )}
 
         <Tabs value={formTab} onValueChange={(tab) => {
           setFormTab(tab);
