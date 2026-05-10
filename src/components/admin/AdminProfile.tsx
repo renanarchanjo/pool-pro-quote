@@ -158,8 +158,10 @@ const AdminProfile = () => {
 
       const { error: settingsError } = await supabase
         .from("store_settings")
-        .update({ logo_url: logoUrl || null })
-        .eq("store_id", store.id);
+        .upsert(
+          { store_id: store.id, logo_url: logoUrl || null },
+          { onConflict: "store_id" }
+        );
       if (settingsError) throw settingsError;
 
       // Save company/contract data (only owners pass RLS)
