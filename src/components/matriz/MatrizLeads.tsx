@@ -15,6 +15,7 @@ import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import QuizDataSummary from "@/components/leads/QuizDataSummary";
 
 type ProposalStatus = "nova" | "enviada" | "em_negociacao" | "fechada" | "perdida";
 
