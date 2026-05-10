@@ -22,6 +22,8 @@ interface Store {
   address: string | null;
   cep: string | null;
   company_email: string | null;
+  offers_alvenaria?: boolean | null;
+  offers_vinil?: boolean | null;
 }
 
 interface StoreSettings {
