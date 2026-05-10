@@ -224,6 +224,16 @@ const LocationStep = ({ onSelectStore, onBack, onSkip }: LocationStepProps) => {
       list.sort((a, b) => (a.city || "").localeCompare(b.city || "", "pt-BR"));
     } else if (sortBy === "distance") {
       list.sort((a, b) => (a.distance ?? 99999) - (b.distance ?? 99999));
+    } else {
+      // Default: prioritize stores on higher-tier (more expensive) plans,
+      // then by distance (when available), then alphabetically.
+      list.sort((a, b) => {
+        const priceDiff = (b.plan_price ?? 0) - (a.plan_price ?? 0);
+        if (priceDiff !== 0) return priceDiff;
+        const distDiff = (a.distance ?? 99999) - (b.distance ?? 99999);
+        if (distDiff !== 0) return distDiff;
+        return a.name.localeCompare(b.name, "pt-BR");
+      });
     }
     return list;
   }, [stores, searchTerm, sortBy]);
