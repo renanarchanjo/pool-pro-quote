@@ -522,7 +522,7 @@ const QuizConstrucao = () => {
                       rows={3}
                       maxLength={1000}
                       className="flex w-full rounded-lg border border-input bg-secondary px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:border-primary focus-visible:ring-[3px] focus-visible:ring-primary/15"
-                      placeholder="Algo que devamos saber sobre seu projeto?"
+                      placeholder="Algo que gostaria de acrescentar sobre seu projeto?"
                     />
                   </div>
                 </div>
