@@ -39,6 +39,49 @@ const waitForStablePaint = async (delay?: number) => {
 
 const HTML2CANVAS_TIMEOUT = 30000;
 
+const disableAncestorTransformsForPdf = (element: HTMLElement) => {
+  const changed: Array<{ el: HTMLElement; transform: string; width: string; margin: string; overflow: string; overflowX: string; overflowY: string }> = [];
+  let current = element.parentElement;
+
+  while (current && current !== document.body) {
+    const computed = window.getComputedStyle(current);
+    const hasTransform = computed.transform !== "none";
+    const clipsCapture = computed.overflowX === "hidden" || computed.overflowY === "hidden";
+
+    if (hasTransform || clipsCapture) {
+      changed.push({
+        el: current,
+        transform: current.style.transform,
+        width: current.style.width,
+        margin: current.style.margin,
+        overflow: current.style.overflow,
+        overflowX: current.style.overflowX,
+        overflowY: current.style.overflowY,
+      });
+      if (hasTransform) {
+        current.style.transform = "none";
+        current.style.width = "794px";
+        current.style.margin = "0 auto";
+      }
+      current.style.overflow = "visible";
+      current.style.overflowX = "visible";
+      current.style.overflowY = "visible";
+    }
+    current = current.parentElement;
+  }
+
+  return () => {
+    changed.reverse().forEach(({ el, transform, width, margin, overflow, overflowX, overflowY }) => {
+      el.style.transform = transform;
+      el.style.width = width;
+      el.style.margin = margin;
+      el.style.overflow = overflow;
+      el.style.overflowX = overflowX;
+      el.style.overflowY = overflowY;
+    });
+  };
+};
+
 function withTimeout<T>(promise: Promise<T>, ms: number, label: string): Promise<T> {
   return new Promise<T>((resolve, reject) => {
     const timer = setTimeout(() => {
@@ -193,6 +236,7 @@ export const exportPDF = async ({
   const interactiveEls = element.querySelectorAll<HTMLElement>("button, [data-no-pdf], select");
   const hiddenOriginals: { el: HTMLElement; display: string }[] = [];
   let restoreImages = () => {};
+  let restoreCaptureLayout = () => {};
 
   try {
     toast.info("Gerando PDF...", { duration: 3000 });
@@ -201,6 +245,7 @@ export const exportPDF = async ({
       await (document as Document & { fonts?: { ready?: Promise<unknown> } }).fonts?.ready;
     }
 
+    restoreCaptureLayout = disableAncestorTransformsForPdf(element);
     pdfHeaders.forEach((el) => {
       hiddenOriginals.push({ el, display: el.style.display });
       el.style.display = "block";
@@ -254,6 +299,7 @@ export const exportPDF = async ({
     toast.error("Erro ao gerar PDF. Tente novamente.");
   } finally {
     restoreImages();
+    restoreCaptureLayout();
     hiddenOriginals.forEach(({ el, display }) => {
       el.style.display = display;
     });
@@ -271,6 +317,7 @@ export const generatePDFBlob = async ({
   const interactiveEls = element.querySelectorAll<HTMLElement>("button, [data-no-pdf], select");
   const hiddenOriginals: { el: HTMLElement; display: string }[] = [];
   let restoreImages = () => {};
+  let restoreCaptureLayout = () => {};
 
   const mobile = isMobileDevice();
   const mobileWidth = getMobileCaptureWidth();
@@ -281,6 +328,7 @@ export const generatePDFBlob = async ({
       await (document as Document & { fonts?: { ready?: Promise<unknown> } }).fonts?.ready;
     }
 
+    restoreCaptureLayout = disableAncestorTransformsForPdf(element);
     pdfHeaders.forEach((el) => {
       hiddenOriginals.push({ el, display: el.style.display });
       el.style.display = "block";
@@ -294,8 +342,8 @@ export const generatePDFBlob = async ({
       el.style.display = "none";
     });
 
-    // Mobile: reduce element size before capture
-    if (mobile && mobileWidth) {
+    // Mobile: only shrink generic captures. Fixed PDF templates must stay at 794px.
+    if (!sectionSelector && mobile && mobileWidth) {
       element.style.width = `${mobileWidth}px`;
       element.style.fontSize = "10px";
     }
@@ -341,11 +389,12 @@ export const generatePDFBlob = async ({
     return blob as Blob;
   } finally {
     // Restore mobile styles
-    if (mobile && mobileWidth) {
+    if (!sectionSelector && mobile && mobileWidth) {
       element.style.width = savedStyles.width;
       element.style.fontSize = savedStyles.fontSize;
     }
     restoreImages();
+    restoreCaptureLayout();
     hiddenOriginals.forEach(({ el, display }) => {
       el.style.display = display;
     });
