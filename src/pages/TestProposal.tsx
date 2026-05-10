@@ -455,14 +455,27 @@ export default function TestProposal() {
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900">
       <header className="bg-[#1a5276] text-white py-5 px-6 shadow-md">
-        <div className="max-w-6xl mx-auto flex items-center justify-between">
+        <div className="max-w-6xl mx-auto flex flex-col md:flex-row md:items-center justify-between gap-3">
           <div className="flex items-center gap-3">
             <FileText className="w-6 h-6" />
             <h1 className="text-xl font-semibold">Gerador de Proposta — Teste (Vinil & Alvenaria)</h1>
           </div>
-          <span className="text-xs bg-cyan-400/20 text-cyan-100 px-3 py-1 rounded-full border border-cyan-300/30">
-            Página isolada — dados em memória
-          </span>
+          <div className="flex items-center gap-2">
+            <div className="inline-flex bg-white/10 rounded-lg p-1 border border-white/20">
+              <button
+                onClick={() => setView("proposta")}
+                className={`px-3 py-1.5 rounded-md text-sm font-medium transition flex items-center gap-1.5 ${view === "proposta" ? "bg-white text-[#1a5276]" : "text-white/80 hover:text-white"}`}
+              >
+                <FileText className="w-3.5 h-3.5" /> Proposta
+              </button>
+              <button
+                onClick={() => setView("catalogo")}
+                className={`px-3 py-1.5 rounded-md text-sm font-medium transition flex items-center gap-1.5 ${view === "catalogo" ? "bg-white text-[#1a5276]" : "text-white/80 hover:text-white"}`}
+              >
+                <BookOpen className="w-3.5 h-3.5" /> Catálogo
+              </button>
+            </div>
+          </div>
         </div>
       </header>
 
