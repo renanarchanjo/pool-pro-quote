@@ -246,8 +246,9 @@ const SimuladorLoja = () => {
   // Loading
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-sky-50">
+      <div className="min-h-screen sp-surface flex flex-col items-center justify-center gap-4">
         <Loader2 className="w-8 h-8 animate-spin" style={{ color: primaryColor }} />
+        <p className="text-[13px] text-sp-muted-fg">Carregando simulador…</p>
       </div>
     );
   }
@@ -255,19 +256,16 @@ const SimuladorLoja = () => {
   // 404
   if (notFound || !store) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-sky-50 px-4">
-        <div className="text-center max-w-md">
-          <div className="mx-auto w-20 h-20 rounded-full bg-slate-100 flex items-center justify-center mb-6">
-            <span className="text-4xl">🏊</span>
+      <div className="min-h-screen sp-surface flex items-center justify-center px-4">
+        <div className="max-w-md mx-auto px-6 py-20 text-center">
+          <div className="w-20 h-20 rounded-sp-2xl bg-sp-muted mx-auto mb-5 flex items-center justify-center">
+            <Waves className="w-8 h-8 text-sp-muted-fg" />
           </div>
-          <h1 className="text-2xl font-bold text-slate-900 mb-2">Loja não encontrada</h1>
-          <p className="text-slate-500 mb-8">
-            Esta loja não está disponível no momento. Verifique o link ou tente novamente mais tarde.
-          </p>
-          <Button onClick={() => navigate("/")} variant="outline">
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Voltar ao início
-          </Button>
+          <h1 className="sp-h2 mb-2">Loja não encontrada</h1>
+          <p className="sp-sub mb-6">Esta loja não está disponível no momento. Verifique o link ou tente novamente mais tarde.</p>
+          <button className="sp-btn sp-btn-outline" onClick={() => navigate('/')}>
+            <ArrowLeft className="w-4 h-4" />Voltar ao início
+          </button>
         </div>
       </div>
     );
