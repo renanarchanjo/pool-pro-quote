@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState, useCallback } from "react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Button } from "@/components/ui/button";
-import { FileDown, ArrowLeft, Loader2, Check, Download, MessageCircle } from "lucide-react";
+import { ArrowLeft, Loader2, Check, Download, MessageCircle } from "lucide-react";
 import { exportPDF, generatePDFBlob } from "@/lib/exportPDF";
 import { PDF_IMAGE_FALLBACK, toBase64Safe } from "@/lib/pdfImageUtils";
 import { formatPhoneForWhatsApp } from "@/lib/formatPhone";
