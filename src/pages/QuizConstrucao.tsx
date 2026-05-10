@@ -28,8 +28,15 @@ interface StoreInfo {
   id: string;
   name: string;
   slug: string;
+  city: string | null;
+  state: string | null;
   offers_alvenaria: boolean;
   offers_vinil: boolean;
+}
+
+interface StoreSettingsInfo {
+  logo_url: string | null;
+  primary_color: string | null;
 }
 
 const PRESETS_FUNDA = [
