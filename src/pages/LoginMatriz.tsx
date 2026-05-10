@@ -8,7 +8,14 @@ import { Label } from "@/components/ui/label";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 import { toast } from "sonner";
 import BrandLogo from "@/components/BrandLogo";
+import AuthSplitShell from "@/components/auth/AuthSplitShell";
 import { useForceLightTheme } from "@/hooks/useForceLightTheme";
+
+const matrizShellProps = {
+  eyebrow: "Painel Matriz · Acesso Restrito",
+  headline: "Centro de comando da rede SimulaPool.",
+  subline: "Visão consolidada de lojas, leads, MRR e operações. Acesso protegido por autenticação multi-fator obrigatória.",
+};
 
 type View = "login" | "forgot" | "forgot-sent" | "mfa-setup" | "mfa-verify";
 
@@ -216,7 +223,7 @@ const LoginMatriz = () => {
   // ── MFA Setup (first time) ──
   if (view === "mfa-setup") {
     return (
-      <div className="min-h-screen flex items-center justify-center p-4" style={{ background: heroGradient }}>
+      <AuthSplitShell {...matrizShellProps}>
         <div className={cardClass}>
           <div className="flex flex-col items-center mb-6">
             <div className="w-14 h-14 rounded-full bg-[#38BDF8]/10 flex items-center justify-center mb-4">
@@ -286,14 +293,14 @@ const LoginMatriz = () => {
             Guarde esta chave em local seguro. Você precisará do app autenticador para futuros acessos.
           </p>
         </div>
-      </div>
+      </AuthSplitShell>
     );
   }
 
   // ── MFA Verify (returning user) ──
   if (view === "mfa-verify") {
     return (
-      <div className="min-h-screen flex items-center justify-center p-4" style={{ background: heroGradient }}>
+      <AuthSplitShell {...matrizShellProps}>
         <div className={cardClass}>
           <div className="flex flex-col items-center mb-8">
             <div className="w-14 h-14 rounded-full bg-[#38BDF8]/10 flex items-center justify-center mb-4">
@@ -352,14 +359,14 @@ const LoginMatriz = () => {
             </Button>
           </div>
         </div>
-      </div>
+      </AuthSplitShell>
     );
   }
 
   // Forgot password - email sent confirmation
   if (view === "forgot-sent") {
     return (
-      <div className="min-h-screen flex items-center justify-center p-4" style={{ background: heroGradient }}>
+      <AuthSplitShell {...matrizShellProps}>
         <div className={cardClass}>
           <div className="flex flex-col items-center mb-6">
             <BrandLogo size="lg" className="mb-4 [&_span]:text-white" />
@@ -390,14 +397,14 @@ const LoginMatriz = () => {
             Voltar ao login
           </Button>
         </div>
-      </div>
+      </AuthSplitShell>
     );
   }
 
   // Forgot password form
   if (view === "forgot") {
     return (
-      <div className="min-h-screen flex items-center justify-center p-4" style={{ background: heroGradient }}>
+      <AuthSplitShell {...matrizShellProps}>
         <div className={cardClass}>
           <div className="flex flex-col items-center mb-8">
             <BrandLogo size="lg" className="mb-4 [&_span]:text-white" />
@@ -440,13 +447,13 @@ const LoginMatriz = () => {
             </Button>
           </div>
         </div>
-      </div>
+      </AuthSplitShell>
     );
   }
 
   // Login form
   return (
-    <div className="min-h-screen flex items-center justify-center p-4" style={{ background: heroGradient }}>
+    <AuthSplitShell {...matrizShellProps}>
       <div className={cardClass}>
         <div className="flex flex-col items-center mb-8">
           <BrandLogo size="lg" className="mb-4 [&_span]:text-white" />
@@ -514,7 +521,7 @@ const LoginMatriz = () => {
           </Button>
         </div>
       </div>
-    </div>
+    </AuthSplitShell>
   );
 };
 
