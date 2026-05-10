@@ -9,7 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Plus, Pencil, Loader2, X, Trash2, CheckSquare, Square, Copy, Save, FileDown, GripVertical, MoreVertical } from "lucide-react";
+import { Plus, Pencil, Loader2, X, Trash2, CheckSquare, Square, Copy, Save, FileDown, GripVertical, MoreVertical, AlertTriangle } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -72,6 +72,7 @@ interface PoolModel {
   payment_terms: string;
   notes: string | null;
   active: boolean;
+  partner_locked?: boolean;
 }
 
 const PoolModelManager = () => {
@@ -129,7 +130,7 @@ const PoolModelManager = () => {
       const [brandsRes, categoriesRes, modelsRes, optRes, inclRes, tmplRes] = await Promise.all([
         supabase.from("brands").select("id, name, partner_id").eq("active", true).eq("store_id", store.id),
         supabase.from("categories").select("id, name, brand_id").eq("active", true).eq("store_id", store.id),
-        supabase.from("pool_models").select("id, name, category_id, base_price, cost, margin_percent, length, width, depth, photo_url, differentials, included_items, not_included_items, delivery_days, installation_days, payment_terms, notes, display_order, active, created_at").eq("store_id", store.id).order("created_at", { ascending: false }),
+        supabase.from("pool_models").select("id, name, category_id, base_price, cost, margin_percent, length, width, depth, photo_url, differentials, included_items, not_included_items, delivery_days, installation_days, payment_terms, notes, display_order, active, partner_locked, created_at").eq("store_id", store.id).order("created_at", { ascending: false }),
         supabase.from("model_optionals").select("id, name, description, price, cost, margin_percent, item_type, model_id, display_order, active").eq("store_id", store.id).order("display_order"),
         supabase.from("model_included_items").select("id, name, cost, price, margin_percent, quantity, item_type, model_id, display_order, active").eq("store_id", store.id).order("display_order"),
         supabase.from("included_item_templates").select("id, name, not_included_items").eq("store_id", store.id).order("name"),
@@ -712,11 +713,26 @@ const PoolModelManager = () => {
 
   const fmt = (v: number) => v.toLocaleString("pt-BR", { minimumFractionDigits: 2 });
 
+  const editingModel = editing ? models.find((m) => m.id === editing) : null;
+  const isLocked = !!editingModel?.partner_locked;
+
   return (
     <div className="space-y-6">
       {/* ===== FORM ===== */}
       <Card className="p-3 sm:p-6">
         <h2 className="text-base sm:text-lg font-bold mb-2 sm:mb-3">{editing ? "Editar Modelo" : "Novo Modelo"}</h2>
+
+        {isLocked && (
+          <div className="mb-4 flex items-start gap-2 p-3 rounded-lg bg-amber-500/10 border border-amber-500/20">
+            <AlertTriangle className="w-4 h-4 text-amber-600 mt-0.5 shrink-0" />
+            <div className="text-xs">
+              <p className="font-medium text-amber-700">Modelo de catálogo de parceiro</p>
+              <p className="text-amber-600 mt-0.5">
+                Dados técnicos (nome, dimensões, foto, prazos) são gerenciados pelo parceiro e não podem ser alterados. Você pode editar apenas <strong>custo</strong>, <strong>margem</strong> e <strong>preço de venda</strong>.
+              </p>
+            </div>
+          </div>
+        )}
 
         <Tabs value={formTab} onValueChange={(tab) => {
           setFormTab(tab);
@@ -745,28 +761,28 @@ const PoolModelManager = () => {
                 </div>
                 <div>
                   <Label>Nome do Modelo *</Label>
-                  <Input value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} placeholder="Ex: Modelo Premium 8x4" />
+                  <Input value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} placeholder="Ex: Modelo Premium 8x4" disabled={isLocked} />
                 </div>
               </div>
 
               <div className="grid md:grid-cols-3 gap-4">
                 <div>
                   <Label>Comprimento (m)</Label>
-                  <Input type="number" step="0.01" value={formData.length} onChange={(e) => setFormData({ ...formData, length: e.target.value })} placeholder="Ex: 8.00" />
+                  <Input type="number" step="0.01" value={formData.length} onChange={(e) => setFormData({ ...formData, length: e.target.value })} placeholder="Ex: 8.00" disabled={isLocked} />
                 </div>
                 <div>
                   <Label>Largura (m)</Label>
-                  <Input type="number" step="0.01" value={formData.width} onChange={(e) => setFormData({ ...formData, width: e.target.value })} placeholder="Ex: 4.00" />
+                  <Input type="number" step="0.01" value={formData.width} onChange={(e) => setFormData({ ...formData, width: e.target.value })} placeholder="Ex: 4.00" disabled={isLocked} />
                 </div>
                 <div>
                   <Label>Profundidade (m)</Label>
-                  <Input type="number" step="0.01" value={formData.depth} onChange={(e) => setFormData({ ...formData, depth: e.target.value })} placeholder="Ex: 1.40" />
+                  <Input type="number" step="0.01" value={formData.depth} onChange={(e) => setFormData({ ...formData, depth: e.target.value })} placeholder="Ex: 1.40" disabled={isLocked} />
                 </div>
               </div>
 
               <div>
                 <Label>URL da Foto</Label>
-                <Input type="text" value={formData.photo_url} onChange={(e) => setFormData({ ...formData, photo_url: e.target.value })} placeholder="https://exemplo.com/foto.jpg" />
+                <Input type="text" value={formData.photo_url} onChange={(e) => setFormData({ ...formData, photo_url: e.target.value })} placeholder="https://exemplo.com/foto.jpg" disabled={isLocked} />
               </div>
 
               <div className="grid md:grid-cols-3 gap-4">
