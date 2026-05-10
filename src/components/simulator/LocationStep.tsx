@@ -192,6 +192,26 @@ const LocationStep = ({ onSelectStore, onBack, onSkip }: LocationStepProps) => {
     }
   };
 
+  const visibleStores = useMemo(() => {
+    let list = [...stores];
+    const term = searchTerm.trim().toLowerCase();
+    if (term) {
+      list = list.filter(
+        (s) =>
+          s.name.toLowerCase().includes(term) ||
+          (s.city || "").toLowerCase().includes(term)
+      );
+    }
+    if (sortBy === "alphabetical") {
+      list.sort((a, b) => a.name.localeCompare(b.name, "pt-BR"));
+    } else if (sortBy === "city") {
+      list.sort((a, b) => (a.city || "").localeCompare(b.city || "", "pt-BR"));
+    } else if (sortBy === "distance") {
+      list.sort((a, b) => (a.distance ?? 99999) - (b.distance ?? 99999));
+    }
+    return list;
+  }, [stores, searchTerm, sortBy]);
+
   return (
     <div className="max-w-2xl mx-auto">
       <div className="text-center mb-10 animate-fade-in">
