@@ -677,10 +677,32 @@ export default function TestProposal() {
                         ))}
                       </tbody>
                     </table>
-                    <div className="px-3 py-2 bg-slate-50 border-t">
+                    <div className="px-3 py-2 bg-slate-50 border-t flex flex-wrap items-center gap-2">
                       <Button variant="ghost" size="sm" onClick={() => addItem(g.id)}>
                         <Plus className="w-3.5 h-3.5 mr-1" /> Adicionar item
                       </Button>
+                      <select
+                        value=""
+                        onChange={(e) => {
+                          const [catGid, catIid] = e.target.value.split("|");
+                          const cg = catList.find((x) => x.id === catGid);
+                          const ci = cg?.items.find((x) => x.id === catIid);
+                          if (ci) importFromCatalog(g.id, ci);
+                          e.target.value = "";
+                        }}
+                        className="h-8 text-xs border border-slate-200 rounded-md px-2 bg-white text-slate-700 hover:border-slate-300 max-w-[280px]"
+                      >
+                        <option value="">📚 Importar do catálogo…</option>
+                        {catList.map((cg) => (
+                          <optgroup key={cg.id} label={cg.titulo}>
+                            {cg.items.map((ci) => (
+                              <option key={ci.id} value={`${cg.id}|${ci.id}`}>
+                                {ci.descricao} — {brl(ci.unitario)}/{ci.unidade}
+                              </option>
+                            ))}
+                          </optgroup>
+                        ))}
+                      </select>
                     </div>
                   </div>
                 )}
