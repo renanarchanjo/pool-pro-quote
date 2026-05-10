@@ -32,6 +32,7 @@ const Parceiros = lazy(() => import("./pages/Parceiros"));
 const Lojista = lazy(() => import("./pages/Lojista"));
 const LojistaPlanos = lazy(() => import("./pages/LojistaPlanos"));
 const SimuladorLoja = lazy(() => import("./pages/SimuladorLoja"));
+const QuizConstrucao = lazy(() => import("./pages/QuizConstrucao"));
 const Links = lazy(() => import("./pages/Links"));
 const TestProposal = lazy(() => import("./pages/TestProposal"));
 const NotFound = lazy(() => import("./pages/NotFound"));
@@ -94,6 +95,7 @@ const AppInner = () => {
             <Route path="/" element={<Index />} />
             <Route path="/links" element={<Links />} />
             <Route path="/s/:slug" element={<SimuladorLoja />} />
+            <Route path="/s/:slug/quiz-construcao" element={<QuizConstrucao />} />
             <Route path="/test-proposal" element={<TestProposal />} />
 
             <Route path="/parceiros" element={<Parceiros />} />

@@ -4,6 +4,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
 import { Loader2, Upload, Building2, User, Image as ImageIcon, Mail, Lock, Eye, EyeOff, Copy, ExternalLink, Share2, Link as LinkIcon, Search, MapPin, Phone, FileText } from "lucide-react";
 import { toast } from "sonner";
 import { useStoreData } from "@/hooks/useStoreData";
@@ -219,11 +220,44 @@ const AdminProfile = () => {
     }
   };
 
+  // Outros tipos de piscina
+  const [offersAlvenaria, setOffersAlvenaria] = useState(false);
+  const [offersVinil, setOffersVinil] = useState(false);
+  const [savingOffers, setSavingOffers] = useState<null | "alvenaria" | "vinil">(null);
+
+  useEffect(() => {
+    setOffersAlvenaria(!!store?.offers_alvenaria);
+    setOffersVinil(!!store?.offers_vinil);
+  }, [store?.offers_alvenaria, store?.offers_vinil]);
+
+  const toggleOffer = async (field: "alvenaria" | "vinil", value: boolean) => {
+    if (!store || !isOwner) return;
+    setSavingOffers(field);
+    if (field === "alvenaria") setOffersAlvenaria(value);
+    else setOffersVinil(value);
+    try {
+      const { error } = await supabase
+        .from("stores")
+        .update(field === "alvenaria" ? { offers_alvenaria: value } : { offers_vinil: value })
+        .eq("id", store.id);
+      if (error) throw error;
+      toast.success("Configuração salva");
+      refetch();
+    } catch (err: any) {
+      toast.error("Erro ao salvar: " + err.message);
+      if (field === "alvenaria") setOffersAlvenaria(!value);
+      else setOffersVinil(!value);
+    } finally {
+      setSavingOffers(null);
+    }
+  };
+
   return (
     <div className="space-y-6">
       <h1 className="text-3xl font-bold">Meu Perfil</h1>
 
-      <Card className="p-6 max-w-2xl">
+      <div className="grid gap-6 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)] items-start">
+        <Card className="p-6">
         <div className="space-y-8">
 
           {/* Fields */}
@@ -383,10 +417,56 @@ const AdminProfile = () => {
 
           <Button onClick={handleSave} disabled={loading} className="gradient-primary text-white w-full">
             {loading ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
-            Salvar Perfil
           </Button>
         </div>
       </Card>
+
+      {/* Outros tipos de piscina */}
+      <Card className="p-6">
+        <div className="space-y-1 mb-4">
+          <h2 className="text-lg font-semibold">Outros tipos de piscina</h2>
+          <p className="text-sm text-muted-foreground">
+            Ative os tipos que sua loja oferece além de fibra. Eles aparecerão como opção para leads externos interessados.
+          </p>
+        </div>
+
+        <div className="space-y-3">
+          <div className="flex items-start justify-between gap-4 rounded-lg border border-border p-4">
+            <div className="flex-1 min-w-0">
+              <p className="font-medium">Alvenaria (Pastilha / Cerâmica)</p>
+              <p className="text-xs text-muted-foreground mt-1">
+                Piscinas construídas em alvenaria com revestimento em pastilha ou cerâmica.
+              </p>
+            </div>
+            <Switch
+              checked={offersAlvenaria}
+              onCheckedChange={(v) => toggleOffer("alvenaria", v)}
+              disabled={!isOwner || savingOffers === "alvenaria"}
+            />
+          </div>
+
+          <div className="flex items-start justify-between gap-4 rounded-lg border border-border p-4">
+            <div className="flex-1 min-w-0">
+              <p className="font-medium">Vinil Tela Armada</p>
+              <p className="text-xs text-muted-foreground mt-1">
+                Piscinas construídas com estrutura de tela armada revestida em vinil.
+              </p>
+            </div>
+            <Switch
+              checked={offersVinil}
+              onCheckedChange={(v) => toggleOffer("vinil", v)}
+              disabled={!isOwner || savingOffers === "vinil"}
+            />
+          </div>
+        </div>
+
+        {!isOwner && (
+          <p className="text-xs text-muted-foreground mt-4">
+            Apenas o administrador da loja pode alterar estas configurações.
+          </p>
+        )}
+      </Card>
+      </div>
 
       {/* Credenciais de Acesso - visível para owner */}
       {isOwner && (

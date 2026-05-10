@@ -22,6 +22,8 @@ interface Store {
   address: string | null;
   cep: string | null;
   company_email: string | null;
+  offers_alvenaria?: boolean | null;
+  offers_vinil?: boolean | null;
 }
 
 interface StoreSettings {
@@ -75,7 +77,7 @@ export const useStoreData = () => {
       const [{ data: storeData, error: storeError }, { data: settingsData, error: settingsError }, { data: roleData, error: roleError }] = await Promise.all([
         supabase
           .from("stores")
-          .select("id, name, slug, city, state, whatsapp, plan_status, plan_expires_at, nome_fantasia, razao_social, cnpj, address, cep, company_email")
+          .select("id, name, slug, city, state, whatsapp, plan_status, plan_expires_at, nome_fantasia, razao_social, cnpj, address, cep, company_email, offers_alvenaria, offers_vinil")
           .eq("id", profileData.store_id)
           .maybeSingle(),
         supabase
