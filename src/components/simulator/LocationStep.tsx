@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import { MapPin, Loader2, Navigation, ChevronRight, Locate } from "lucide-react";
+import { useState, useEffect, useMemo } from "react";
+import { MapPin, Loader2, Navigation, ChevronRight, Locate, Search, ArrowUpDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -74,6 +74,8 @@ const LocationStep = ({ onSelectStore, onBack, onSkip }: LocationStepProps) => {
   const [loadingStores, setLoadingStores] = useState(false);
   const [searched, setSearched] = useState(false);
   const [radiusSearch, setRadiusSearch] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [sortBy, setSortBy] = useState<"default" | "alphabetical" | "city" | "distance">("default");
 
   useEffect(() => {
     detectLocation();
@@ -190,6 +192,26 @@ const LocationStep = ({ onSelectStore, onBack, onSkip }: LocationStepProps) => {
     }
   };
 
+  const visibleStores = useMemo(() => {
+    let list = [...stores];
+    const term = searchTerm.trim().toLowerCase();
+    if (term) {
+      list = list.filter(
+        (s) =>
+          s.name.toLowerCase().includes(term) ||
+          (s.city || "").toLowerCase().includes(term)
+      );
+    }
+    if (sortBy === "alphabetical") {
+      list.sort((a, b) => a.name.localeCompare(b.name, "pt-BR"));
+    } else if (sortBy === "city") {
+      list.sort((a, b) => (a.city || "").localeCompare(b.city || "", "pt-BR"));
+    } else if (sortBy === "distance") {
+      list.sort((a, b) => (a.distance ?? 99999) - (b.distance ?? 99999));
+    }
+    return list;
+  }, [stores, searchTerm, sortBy]);
+
   return (
     <div className="max-w-2xl mx-auto">
       <div className="text-center mb-10 animate-fade-in">
@@ -270,7 +292,39 @@ const LocationStep = ({ onSelectStore, onBack, onSkip }: LocationStepProps) => {
             </>
           )}
 
-          {stores.map((store) => (
+          {stores.length > 1 && (
+            <div className="flex flex-col sm:flex-row gap-2">
+              <div className="relative flex-1">
+                <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                <Input
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  placeholder="Buscar por nome ou cidade..."
+                  className="pl-9"
+                />
+              </div>
+              <Select value={sortBy} onValueChange={(v) => setSortBy(v as typeof sortBy)}>
+                <SelectTrigger className="sm:w-56">
+                  <ArrowUpDown className="w-4 h-4 mr-2" />
+                  <SelectValue placeholder="Ordenar" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="default">Padrão</SelectItem>
+                  <SelectItem value="alphabetical">Ordem alfabética (A-Z)</SelectItem>
+                  <SelectItem value="city">Por cidade</SelectItem>
+                  {radiusSearch && <SelectItem value="distance">Mais próximas</SelectItem>}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
+
+          {searchTerm && visibleStores.length === 0 && (
+            <p className="text-sm text-muted-foreground py-4 text-center">
+              Nenhuma loja corresponde a "{searchTerm}".
+            </p>
+          )}
+
+          {visibleStores.map((store) => (
             <Card
               key={store.id}
               className="p-4 bg-card/80 backdrop-blur-sm hover:shadow-pool transition-all cursor-pointer group"
