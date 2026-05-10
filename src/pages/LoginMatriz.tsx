@@ -293,7 +293,7 @@ const LoginMatriz = () => {
             Guarde esta chave em local seguro. Você precisará do app autenticador para futuros acessos.
           </p>
         </div>
-      </div>
+      </AuthSplitShell>
     );
   }
 
@@ -359,7 +359,7 @@ const LoginMatriz = () => {
             </Button>
           </div>
         </div>
-      </div>
+      </AuthSplitShell>
     );
   }
 
@@ -397,7 +397,7 @@ const LoginMatriz = () => {
             Voltar ao login
           </Button>
         </div>
-      </div>
+      </AuthSplitShell>
     );
   }
 
@@ -447,7 +447,7 @@ const LoginMatriz = () => {
             </Button>
           </div>
         </div>
-      </div>
+      </AuthSplitShell>
     );
   }
 
@@ -521,7 +521,7 @@ const LoginMatriz = () => {
           </Button>
         </div>
       </div>
-    </div>
+    </AuthSplitShell>
   );
 };
 
