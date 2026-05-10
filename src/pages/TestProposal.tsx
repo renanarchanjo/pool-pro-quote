@@ -191,9 +191,87 @@ const NAO_INCLUSOS_ALV = [
   "Aluguéis de equipamentos",
 ];
 
+// ============ CATÁLOGO (persistido em localStorage) ============
+interface CatalogItem {
+  id: string;
+  descricao: string;
+  unidade: string;
+  unitario: number;
+  qtdePadrao: number;
+  markupPadrao: number;
+}
+interface CatalogGroup {
+  id: string;
+  titulo: string;
+  items: CatalogItem[];
+}
+type CatalogData = { vinil: CatalogGroup[]; alvenaria: CatalogGroup[] };
+
+const CATALOG_KEY = "test-proposal-catalog-v1";
+const DEFAULT_CATALOG: CatalogData = {
+  vinil: [
+    { id: uid(), titulo: "Estrutura e Escavação", items: [
+      { id: uid(), descricao: "Escavação de primeira linha com bob cat", unidade: "un", unitario: 300, qtdePadrao: 1, markupPadrao: 0 },
+      { id: uid(), descricao: "M² de construção estrutural incluindo casa de máquinas", unidade: "m²", unitario: 600, qtdePadrao: 1, markupPadrao: 0 },
+    ]},
+    { id: uid(), titulo: "Vinil e Hidráulica", items: [
+      { id: uid(), descricao: "M² de vinil 1.5mm", unidade: "m²", unitario: 165, qtdePadrao: 1, markupPadrao: 0 },
+      { id: uid(), descricao: "Dispositivo de aspiração", unidade: "un", unitario: 78, qtdePadrao: 1, markupPadrao: 0 },
+      { id: uid(), descricao: "Dispositivo de retorno", unidade: "un", unitario: 78, qtdePadrao: 2, markupPadrao: 0 },
+      { id: uid(), descricao: "Ralo de parede", unidade: "un", unitario: 78, qtdePadrao: 2, markupPadrao: 0 },
+    ]},
+    { id: uid(), titulo: "Iluminação", items: [
+      { id: uid(), descricao: "Refletor LED 12v 9w RGB", unidade: "un", unitario: 230, qtdePadrao: 1, markupPadrao: 0 },
+      { id: uid(), descricao: "Caixa de passagem para LED", unidade: "un", unitario: 38, qtdePadrao: 1, markupPadrao: 0 },
+      { id: uid(), descricao: "Cabo PP 4 vias", unidade: "mt", unitario: 9, qtdePadrao: 50, markupPadrao: 0 },
+      { id: uid(), descricao: "Central de comando com fonte e controle remoto", unidade: "un", unitario: 730, qtdePadrao: 1, markupPadrao: 0 },
+    ]},
+    { id: uid(), titulo: "Cascata", items: [
+      { id: uid(), descricao: "Cascata de embutir inox 304 - 100cm", unidade: "un", unitario: 1350, qtdePadrao: 1, markupPadrao: 0 },
+      { id: uid(), descricao: "Bomba para cascata motor WEG 1/2 cv", unidade: "un", unitario: 1272, qtdePadrao: 1, markupPadrao: 0 },
+    ]},
+  ],
+  alvenaria: [
+    { id: uid(), titulo: "Estrutura e Escavação", items: [
+      { id: uid(), descricao: "M² Construção estrutural própria para piscina", unidade: "m²", unitario: 1200, qtdePadrao: 1, markupPadrao: 0 },
+      { id: uid(), descricao: "Ligação hidráulica piscina ↔ casa de máquinas", unidade: "un", unitario: 900, qtdePadrao: 1, markupPadrao: 0 },
+      { id: uid(), descricao: "Deslocamento/acompanhamento", unidade: "un", unitario: 3000, qtdePadrao: 1, markupPadrao: 0 },
+    ]},
+    { id: uid(), titulo: "Impermeabilização e Revestimento", items: [
+      { id: uid(), descricao: "M² de impermeabilização especial para piscina", unidade: "m²", unitario: 48, qtdePadrao: 1, markupPadrao: 0 },
+      { id: uid(), descricao: "M² de assentamento e rejuntamento do revestimento", unidade: "m²", unitario: 90, qtdePadrao: 1, markupPadrao: 0 },
+      { id: uid(), descricao: "Tampa em alumínio fundido 80x80cm", unidade: "un", unitario: 2499, qtdePadrao: 1, markupPadrao: 0 },
+    ]},
+    { id: uid(), titulo: "Hidráulica", items: [
+      { id: uid(), descricao: "Dispositivo de aspiração inox 304", unidade: "un", unitario: 84, qtdePadrao: 1, markupPadrao: 0 },
+      { id: uid(), descricao: "Dispositivo de retorno inox 304", unidade: "un", unitario: 84, qtdePadrao: 2, markupPadrao: 0 },
+      { id: uid(), descricao: "Dispositivo de sucção inox 304", unidade: "un", unitario: 84, qtdePadrao: 2, markupPadrao: 0 },
+    ]},
+    { id: uid(), titulo: "Aquecimento", items: [
+      { id: uid(), descricao: "Trocador de calor KOBC 75mil Btus", unidade: "un", unitario: 18750, qtdePadrao: 1, markupPadrao: 0 },
+      { id: uid(), descricao: "Bomba 3/4 cv motor WEG para aquecimento", unidade: "un", unitario: 1317, qtdePadrao: 1, markupPadrao: 0 },
+      { id: uid(), descricao: "Capa térmica azul 300mc", unidade: "m²", unitario: 22.5, qtdePadrao: 1, markupPadrao: 0 },
+    ]},
+  ],
+};
+
+function loadCatalog(): CatalogData {
+  try {
+    const raw = localStorage.getItem(CATALOG_KEY);
+    if (raw) return JSON.parse(raw);
+  } catch {}
+  return DEFAULT_CATALOG;
+}
+
 // ============ MAIN ============
 export default function TestProposal() {
   useForceLightTheme();
+  const [view, setView] = useState<"proposta" | "catalogo">("proposta");
+  const [catalog, setCatalog] = useState<CatalogData>(() => loadCatalog());
+  useEffect(() => {
+    try { localStorage.setItem(CATALOG_KEY, JSON.stringify(catalog)); } catch {}
+  }, [catalog]);
+
   const [step, setStep] = useState(1);
   const [tipo, setTipo] = useState<PoolType>("vinil");
   const [areas, setAreas] = useState<Area[]>([
