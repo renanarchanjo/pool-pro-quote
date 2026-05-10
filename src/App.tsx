@@ -95,6 +95,7 @@ const AppInner = () => {
             <Route path="/" element={<Index />} />
             <Route path="/links" element={<Links />} />
             <Route path="/s/:slug" element={<SimuladorLoja />} />
+            <Route path="/s/:slug/quiz-construcao" element={<QuizConstrucao />} />
             <Route path="/test-proposal" element={<TestProposal />} />
 
             <Route path="/parceiros" element={<Parceiros />} />
