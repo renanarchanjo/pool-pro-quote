@@ -105,11 +105,12 @@ const QuizConstrucao = () => {
     void load();
   }, [slug]);
 
-  // Skip tipo step if only one offered
+  // Skip tipo step if only one offered OR tipo já veio na URL
   const skipTipo = useMemo(() => {
+    if (tipoInicial === "alvenaria" || tipoInicial === "vinil") return true;
     if (!store) return false;
     return !(store.offers_alvenaria && store.offers_vinil);
-  }, [store]);
+  }, [store, tipoInicial]);
 
   useEffect(() => {
     if (skipTipo && store && !tipo) {
