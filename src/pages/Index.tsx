@@ -93,7 +93,7 @@ const Index = () => {
               <span className="relative w-2 h-2 rounded-full bg-[#38BDF8]"></span>
             </span>
             <span className="text-[11px] md:text-[12px] font-semibold uppercase tracking-[0.12em] text-white/85">
-              Orçamento oficial · direto da fábrica
+              As melhores Lojas e Marcas estão aqui
             </span>
           </motion.div>
 
