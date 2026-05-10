@@ -381,6 +381,45 @@ export default function TestProposal() {
     setGroups(groups.map((g) => (g.id === gid ? { ...g, titulo } : g)));
   const removeGroup = (gid: string) => setGroups(groups.filter((g) => g.id !== gid));
 
+  // Importar item do catálogo para um grupo da proposta
+  const importFromCatalog = (gid: string, catItem: CatalogItem) =>
+    setGroups(groups.map((g) => g.id === gid ? { ...g, items: [...g.items, {
+      id: uid(),
+      qtde: catItem.qtdePadrao,
+      descricao: catItem.descricao,
+      unidade: catItem.unidade,
+      unitario: catItem.unitario,
+      markup: catItem.markupPadrao,
+    }] } : g));
+
+  // ============ CATÁLOGO HANDLERS ============
+  const catList = catalog[tipo];
+  const setCatList = (groups: CatalogGroup[]) => setCatalog({ ...catalog, [tipo]: groups });
+  const catAddGroup = () => setCatList([...catList, { id: uid(), titulo: "Novo grupo", items: [] }]);
+  const catRemoveGroup = (gid: string) => setCatList(catList.filter((g) => g.id !== gid));
+  const catUpdateGroupTitle = (gid: string, titulo: string) =>
+    setCatList(catList.map((g) => (g.id === gid ? { ...g, titulo } : g)));
+  const catAddItem = (gid: string) =>
+    setCatList(catList.map((g) => g.id === gid ? { ...g, items: [...g.items, { id: uid(), descricao: "Novo item", unidade: "un", unitario: 0, qtdePadrao: 1, markupPadrao: 0 }] } : g));
+  const catUpdateItem = (gid: string, iid: string, patch: Partial<CatalogItem>) =>
+    setCatList(catList.map((g) => g.id === gid ? { ...g, items: g.items.map((i) => i.id === iid ? { ...i, ...patch } : i) } : g));
+  const catRemoveItem = (gid: string, iid: string) =>
+    setCatList(catList.map((g) => g.id === gid ? { ...g, items: g.items.filter((i) => i.id !== iid) } : g));
+  const catResetDefaults = () => {
+    if (confirm("Restaurar catálogo padrão deste tipo? Suas alterações serão perdidas.")) {
+      setCatalog({ ...catalog, [tipo]: DEFAULT_CATALOG[tipo] });
+    }
+  };
+  const catExport = () => {
+    const blob = new Blob([JSON.stringify(catalog, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `catalogo-piscinas-${new Date().toISOString().slice(0,10)}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
   // ============ PARCELAS ============
   const addParcela = () =>
     setParcelas([...parcelas, { id: uid(), nome: "Parcela", percentual: 0, descricao: "" }]);
