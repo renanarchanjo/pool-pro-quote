@@ -161,7 +161,7 @@ const QuizConstrucao = () => {
       return true;
     }
     if (effectiveStep === 4) return true;
-    if (effectiveStep === 5) return nome.trim().length > 1 && whatsapp.replace(/\D/g, "").length >= 10;
+    if (effectiveStep === 5) return nome.trim().length > 1 && whatsapp.replace(/\D/g, "").length === 11;
     return true;
   };
 
