@@ -161,7 +161,7 @@ const QuizConstrucao = () => {
       return true;
     }
     if (effectiveStep === 4) return true;
-    if (effectiveStep === 5) return nome.trim().length > 1 && whatsapp.replace(/\D/g, "").length >= 10;
+    if (effectiveStep === 5) return nome.trim().length > 1 && whatsapp.replace(/\D/g, "").length === 11;
     return true;
   };
 
@@ -573,7 +573,20 @@ const QuizConstrucao = () => {
                   </div>
                   <div className="space-y-1.5">
                     <Label>WhatsApp *</Label>
-                    <Input value={whatsapp} onChange={e => setWhatsapp(e.target.value)} placeholder="(00) 00000-0000" maxLength={20} />
+                    <Input
+                      type="tel"
+                      inputMode="numeric"
+                      value={whatsapp}
+                      onChange={e => {
+                        const digits = e.target.value.replace(/\D/g, "").slice(0, 11);
+                        const formatted = digits
+                          .replace(/^(\d{2})(\d)/, "($1) $2")
+                          .replace(/(\d{5})(\d)/, "$1-$2");
+                        setWhatsapp(formatted);
+                      }}
+                      placeholder="(00) 00000-0000"
+                      maxLength={15}
+                    />
                   </div>
                   <div className="space-y-1.5">
                     <Label>Cidade / Estado</Label>
