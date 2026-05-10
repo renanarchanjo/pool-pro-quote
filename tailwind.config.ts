@@ -116,6 +116,14 @@ export default {
           from: { opacity: "0", transform: "translateY(10px)" },
           to: { opacity: "1", transform: "translateY(0)" },
         },
+        caustic: {
+          from: { transform: "translate(0,0) scale(1)" },
+          to: { transform: "translate(-2%, -1.5%) scale(1.04)" },
+        },
+        float: {
+          from: { transform: "rotate(-3deg) translateY(0)" },
+          to: { transform: "rotate(-2deg) translateY(-8px)" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
