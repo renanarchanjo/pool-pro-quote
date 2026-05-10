@@ -819,6 +819,111 @@ export default function TestProposal() {
           </div>
         )}
       </main>
+      </>
+      )}
+
+      {view === "catalogo" && (
+        <main className="max-w-6xl mx-auto px-6 py-6 space-y-5">
+          <Card className="p-5">
+            <div className="flex flex-wrap items-center gap-3">
+              <div className="flex-1 min-w-[200px]">
+                <h2 className="text-lg font-semibold">Catálogo de Itens</h2>
+                <p className="text-sm text-slate-500">Cadastre e mantenha os preços atualizados. Salvamento automático.</p>
+              </div>
+              <div className="inline-flex rounded-lg border border-slate-200 p-1 bg-slate-50">
+                {(["vinil", "alvenaria"] as const).map((t) => (
+                  <button
+                    key={t}
+                    onClick={() => setTipo(t)}
+                    className={`px-3 py-1.5 rounded-md text-sm font-medium transition ${tipo === t ? "bg-[#1a5276] text-white" : "text-slate-600 hover:text-slate-900"}`}
+                  >
+                    {t === "vinil" ? "Vinil" : "Alvenaria"}
+                  </button>
+                ))}
+              </div>
+              <Button variant="outline" size="sm" onClick={catExport}>
+                <Download className="w-4 h-4 mr-1" /> Exportar JSON
+              </Button>
+              <Button variant="outline" size="sm" onClick={catResetDefaults}>
+                Restaurar padrão
+              </Button>
+            </div>
+            <div className="mt-3 flex items-center gap-2 text-xs text-green-700 bg-green-50 border border-green-200 rounded px-3 py-1.5 w-fit">
+              <Save className="w-3.5 h-3.5" /> Salvo automaticamente no navegador
+            </div>
+          </Card>
+
+          {catList.map((g) => (
+            <Card key={g.id} className="overflow-hidden">
+              <div className="bg-[#1a5276] text-white px-5 py-3 flex items-center justify-between gap-3">
+                <input
+                  value={g.titulo}
+                  onChange={(e) => catUpdateGroupTitle(g.id, e.target.value)}
+                  className="bg-transparent font-semibold outline-none border-b border-transparent focus:border-white/40 flex-1"
+                />
+                <span className="text-xs text-white/70">{g.items.length} {g.items.length === 1 ? "item" : "itens"}</span>
+                <button onClick={() => catRemoveGroup(g.id)} className="text-white/70 hover:text-white">
+                  <Trash2 className="w-4 h-4" />
+                </button>
+              </div>
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead className="bg-slate-100 text-slate-600 text-xs uppercase">
+                    <tr>
+                      <th className="px-3 py-2 text-left">Descrição</th>
+                      <th className="px-3 py-2 text-left w-20">Un.</th>
+                      <th className="px-3 py-2 text-right w-28">Unitário</th>
+                      <th className="px-3 py-2 text-right w-24">Qtde Padrão</th>
+                      <th className="px-3 py-2 text-right w-24">Markup %</th>
+                      <th className="w-10"></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {g.items.map((i, idx) => (
+                      <tr key={i.id} className={idx % 2 ? "bg-slate-50/50" : ""}>
+                        <td className="px-3 py-1">
+                          <Input className="h-8" value={i.descricao} onChange={(e) => catUpdateItem(g.id, i.id, { descricao: e.target.value })} />
+                        </td>
+                        <td className="px-3 py-1">
+                          <Input className="h-8" value={i.unidade} onChange={(e) => catUpdateItem(g.id, i.id, { unidade: e.target.value })} />
+                        </td>
+                        <td className="px-3 py-1">
+                          <Input className="h-8 text-right" type="number" step="0.01" value={i.unitario} onChange={(e) => catUpdateItem(g.id, i.id, { unitario: +e.target.value })} />
+                        </td>
+                        <td className="px-3 py-1">
+                          <Input className="h-8 text-right" type="number" step="0.01" value={i.qtdePadrao} onChange={(e) => catUpdateItem(g.id, i.id, { qtdePadrao: +e.target.value })} />
+                        </td>
+                        <td className="px-3 py-1">
+                          <Input className="h-8 text-right" type="number" step="0.01" value={i.markupPadrao} onChange={(e) => catUpdateItem(g.id, i.id, { markupPadrao: +e.target.value })} />
+                        </td>
+                        <td className="px-1">
+                          <button onClick={() => catRemoveItem(g.id, i.id)} className="text-red-500 hover:text-red-700">
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                    {g.items.length === 0 && (
+                      <tr><td colSpan={6} className="px-3 py-4 text-center text-sm text-slate-400">Nenhum item — adicione abaixo.</td></tr>
+                    )}
+                  </tbody>
+                </table>
+                <div className="px-3 py-2 bg-slate-50 border-t">
+                  <Button variant="ghost" size="sm" onClick={() => catAddItem(g.id)}>
+                    <Plus className="w-3.5 h-3.5 mr-1" /> Adicionar item
+                  </Button>
+                </div>
+              </div>
+            </Card>
+          ))}
+
+          <div>
+            <Button variant="outline" onClick={catAddGroup}>
+              <Plus className="w-4 h-4 mr-1" /> Adicionar grupo
+            </Button>
+          </div>
+        </main>
+      )}
     </div>
   );
 }
