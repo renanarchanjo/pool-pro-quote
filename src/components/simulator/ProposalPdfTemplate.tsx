@@ -82,7 +82,7 @@ const C_BLUE = "#1565C0";       // Azul escuro de destaque
 const C_BLUE_DEEP = "#0D47A1";  // Variante mais profunda
 
 const LABEL: React.CSSProperties = {
-  fontSize: "10px",
+  fontSize: "12px",
   fontWeight: 600,
   color: C_FAINT,
   textTransform: "uppercase",
@@ -211,17 +211,17 @@ const ProposalPdfTemplate = ({
                 </div>
               )}
               {storeSettings?.logo_url && storeName && (
-                <div style={{ fontSize: "13px", fontWeight: 500, color: "rgba(255,255,255,0.92)" }}>
+                <div style={{ fontSize: "15px", fontWeight: 500, color: "rgba(255,255,255,0.92)" }}>
                   {storeName}
                 </div>
               )}
             </div>
 
             <div style={{ textAlign: "right" }}>
-              <div style={{ fontSize: "14px", fontWeight: 600, letterSpacing: "0.02em", color: "#FFFFFF" }}>
+              <div style={{ fontSize: "16px", fontWeight: 600, letterSpacing: "0.02em", color: "#FFFFFF" }}>
                 Proposta Comercial
               </div>
-              <div style={{ fontSize: "10px", color: "rgba(255,255,255,0.8)", marginTop: "2px" }}>
+              <div style={{ fontSize: "12px", color: "rgba(255,255,255,0.8)", marginTop: "2px" }}>
                 Emitida em {today} · Válida até {validUntil}
               </div>
             </div>
@@ -247,7 +247,7 @@ const ProposalPdfTemplate = ({
                     display: "inline-block",
                     background: "#E3F2FD",
                     color: C_BLUE_DEEP,
-                    fontSize: "10px",
+                    fontSize: "12px",
                     fontWeight: 600,
                     borderRadius: "4px",
                     padding: "3px 9px",
@@ -262,12 +262,12 @@ const ProposalPdfTemplate = ({
                   {model.name}
                 </div>
                 {dimensions && (
-                  <div style={{ fontSize: "13px", color: C_MUTED, marginTop: "8px" }}>
+                  <div style={{ fontSize: "15px", color: C_MUTED, marginTop: "8px" }}>
                     Dimensões · {dimensions}
                   </div>
                 )}
                 {brandName && (
-                  <div style={{ fontSize: "12px", color: C_MUTED, marginTop: "4px" }}>
+                  <div style={{ fontSize: "14px", color: C_MUTED, marginTop: "4px" }}>
                     Marca · <span style={{ color: C_TEXT, fontWeight: 500 }}>{brandName}</span>
                   </div>
                 )}
@@ -304,7 +304,7 @@ const ProposalPdfTemplate = ({
                       alignItems: "center",
                       justifyContent: "center",
                       color: C_FAINT,
-                      fontSize: "11px",
+                      fontSize: "13px",
                       textAlign: "center",
                       padding: "16px",
                       boxSizing: "border-box",
@@ -326,10 +326,10 @@ const ProposalPdfTemplate = ({
                   { label: "Cidade", value: customerData.city },
                 ].map((field) => (
                   <div key={field.label}>
-                    <div style={{ fontSize: "10px", color: C_FAINT, textTransform: "uppercase", letterSpacing: "0.6px", fontWeight: 500, marginBottom: "4px" }}>
+                    <div style={{ fontSize: "12px", color: C_FAINT, textTransform: "uppercase", letterSpacing: "0.6px", fontWeight: 500, marginBottom: "4px" }}>
                       {field.label}
                     </div>
-                    <div style={{ fontSize: "14px", fontWeight: 600, color: C_INK }}>
+                    <div style={{ fontSize: "16px", fontWeight: 600, color: C_INK }}>
                       {field.value || "—"}
                     </div>
                   </div>
@@ -344,12 +344,12 @@ const ProposalPdfTemplate = ({
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "24px 32px" }}>
                   {materiais.length > 0 && (
                     <div>
-                      <div style={{ fontSize: "10px", fontWeight: 600, color: C_BLUE, textTransform: "uppercase", letterSpacing: "0.6px", marginBottom: "10px" }}>
+                      <div style={{ fontSize: "12px", fontWeight: 600, color: C_BLUE, textTransform: "uppercase", letterSpacing: "0.6px", marginBottom: "10px" }}>
                         Equipamentos
                       </div>
                       <ul style={{ margin: 0, padding: 0, listStyle: "none" }}>
                         {materiais.map((item, i) => (
-                          <li key={`m-${i}`} style={{ fontSize: "12px", color: C_TEXT, lineHeight: 1.7, position: "relative", paddingLeft: "14px", marginBottom: "3px" }}>
+                          <li key={`m-${i}`} style={{ fontSize: "14px", color: C_TEXT, lineHeight: 1.7, position: "relative", paddingLeft: "14px", marginBottom: "3px" }}>
                             <span style={{ position: "absolute", left: 0, top: "8px", width: "5px", height: "5px", borderRadius: "50%", background: C_BLUE }} />
                             {item}
                           </li>
@@ -360,12 +360,12 @@ const ProposalPdfTemplate = ({
 
                   {maoDeObra.length > 0 && (
                     <div>
-                      <div style={{ fontSize: "10px", fontWeight: 600, color: "#B45309", textTransform: "uppercase", letterSpacing: "0.6px", marginBottom: "10px" }}>
+                      <div style={{ fontSize: "12px", fontWeight: 600, color: "#B45309", textTransform: "uppercase", letterSpacing: "0.6px", marginBottom: "10px" }}>
                         Mão de obra
                       </div>
                       <ul style={{ margin: 0, padding: 0, listStyle: "none" }}>
                         {maoDeObra.map((item, i) => (
-                          <li key={`mo-${i}`} style={{ fontSize: "12px", color: C_TEXT, lineHeight: 1.7, position: "relative", paddingLeft: "14px", marginBottom: "3px" }}>
+                          <li key={`mo-${i}`} style={{ fontSize: "14px", color: C_TEXT, lineHeight: 1.7, position: "relative", paddingLeft: "14px", marginBottom: "3px" }}>
                             <span style={{ position: "absolute", left: 0, top: "8px", width: "5px", height: "5px", borderRadius: "50%", background: "#D97706" }} />
                             {item}
                           </li>
@@ -398,8 +398,8 @@ const ProposalPdfTemplate = ({
                 flexShrink: 0,
               }}
             >
-              <div style={{ fontSize: "14px", fontWeight: 600 }}>Itens não inclusos</div>
-              <div style={{ fontSize: "11px", color: "rgba(255,255,255,0.85)" }}>
+              <div style={{ fontSize: "16px", fontWeight: 600 }}>Itens não inclusos</div>
+              <div style={{ fontSize: "13px", color: "rgba(255,255,255,0.85)" }}>
                 {storeName || "SIMULAPOOL"}
               </div>
             </div>
@@ -407,7 +407,7 @@ const ProposalPdfTemplate = ({
               <p style={{ ...LABEL, marginBottom: "16px", color: "#B91C1C" }}>O que NÃO está incluso nesta proposta</p>
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px 32px" }}>
                 {model.not_included_items.map((item, i) => (
-                  <div key={i} style={{ fontSize: "13px", color: C_TEXT, position: "relative", paddingLeft: "16px", lineHeight: 1.6 }}>
+                  <div key={i} style={{ fontSize: "15px", color: C_TEXT, position: "relative", paddingLeft: "16px", lineHeight: 1.6 }}>
                     <span style={{ position: "absolute", left: 0, top: "8px", width: "6px", height: "6px", borderRadius: "50%", background: "#DC2626" }} />
                     {item}
                   </div>
@@ -433,8 +433,8 @@ const ProposalPdfTemplate = ({
               flexShrink: 0,
             }}
           >
-            <div style={{ fontSize: "14px", fontWeight: 600 }}>Investimento</div>
-            <div style={{ fontSize: "11px", color: "rgba(255,255,255,0.85)" }}>
+            <div style={{ fontSize: "16px", fontWeight: 600 }}>Investimento</div>
+            <div style={{ fontSize: "13px", color: "rgba(255,255,255,0.85)" }}>
               {storeName || "SIMULAPOOL"}
             </div>
           </div>
@@ -452,7 +452,7 @@ const ProposalPdfTemplate = ({
             {visibleOptionals.length > 0 && (
               <div style={{ paddingBottom: "20px", borderBottom: `1px solid ${C_DIVIDER}`, marginBottom: "24px" }}>
                 <p style={{ ...LABEL, marginBottom: "12px" }}>Opcionais selecionados</p>
-                <table style={{ width: "100%", fontSize: "12px", borderCollapse: "collapse" }}>
+                <table style={{ width: "100%", fontSize: "14px", borderCollapse: "collapse" }}>
                   <tbody>
                     {visibleOptionals.map((opt, i) => (
                       <tr key={i} style={{ borderBottom: i < visibleOptionals.length - 1 ? `1px solid ${C_DIVIDER}` : "none" }}>
@@ -481,10 +481,10 @@ const ProposalPdfTemplate = ({
               }}
             >
               <div>
-                <div style={{ fontSize: "10px", textTransform: "uppercase", letterSpacing: "0.8px", color: "rgba(255,255,255,0.75)", fontWeight: 500 }}>
+                <div style={{ fontSize: "12px", textTransform: "uppercase", letterSpacing: "0.8px", color: "rgba(255,255,255,0.75)", fontWeight: 500 }}>
                   Investimento total
                 </div>
-                <div style={{ fontSize: "11px", color: "rgba(255,255,255,0.85)", marginTop: "10px", lineHeight: 1.7 }}>
+                <div style={{ fontSize: "13px", color: "rgba(255,255,255,0.85)", marginTop: "10px", lineHeight: 1.7 }}>
                   Valor base · <span style={{ fontWeight: 500, color: "#FFFFFF" }}>{fmt(displayBasePrice)}</span>
                   {optionalsTotal > 0 && (
                     <>
@@ -521,8 +521,8 @@ const ProposalPdfTemplate = ({
                     ["Instalação", `${model.installation_days} dias`],
                   ] as const).map(([label, value], i) => (
                     <div key={i}>
-                      <div style={{ fontSize: "10px", color: C_FAINT, textTransform: "uppercase", letterSpacing: "0.6px", fontWeight: 500 }}>{label}</div>
-                      <div style={{ fontSize: "13px", color: C_INK, fontWeight: 500, marginTop: "2px" }}>{value}</div>
+                      <div style={{ fontSize: "12px", color: C_FAINT, textTransform: "uppercase", letterSpacing: "0.6px", fontWeight: 500 }}>{label}</div>
+                      <div style={{ fontSize: "15px", color: C_INK, fontWeight: 500, marginTop: "2px" }}>{value}</div>
                     </div>
                   ))}
                 </div>
@@ -532,17 +532,17 @@ const ProposalPdfTemplate = ({
                 <p style={{ ...LABEL, marginBottom: "12px" }}>Dados da loja</p>
                 <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
                   <div>
-                    <div style={{ fontSize: "10px", color: C_FAINT, textTransform: "uppercase", letterSpacing: "0.6px", fontWeight: 500 }}>Empresa</div>
-                    <div style={{ fontSize: "13px", color: C_INK, fontWeight: 500, marginTop: "2px" }}>{storeName || "—"}</div>
+                    <div style={{ fontSize: "12px", color: C_FAINT, textTransform: "uppercase", letterSpacing: "0.6px", fontWeight: 500 }}>Empresa</div>
+                    <div style={{ fontSize: "15px", color: C_INK, fontWeight: 500, marginTop: "2px" }}>{storeName || "—"}</div>
                   </div>
                   <div>
-                    <div style={{ fontSize: "10px", color: C_FAINT, textTransform: "uppercase", letterSpacing: "0.6px", fontWeight: 500 }}>Cidade</div>
-                    <div style={{ fontSize: "13px", color: C_INK, fontWeight: 500, marginTop: "2px" }}>{storeLocation || "—"}</div>
+                    <div style={{ fontSize: "12px", color: C_FAINT, textTransform: "uppercase", letterSpacing: "0.6px", fontWeight: 500 }}>Cidade</div>
+                    <div style={{ fontSize: "15px", color: C_INK, fontWeight: 500, marginTop: "2px" }}>{storeLocation || "—"}</div>
                   </div>
                   {storeWhatsapp && (
                     <div>
-                      <div style={{ fontSize: "10px", color: C_FAINT, textTransform: "uppercase", letterSpacing: "0.6px", fontWeight: 500 }}>WhatsApp</div>
-                      <div style={{ fontSize: "13px", color: C_INK, fontWeight: 500, marginTop: "2px" }}>{storeWhatsapp}</div>
+                      <div style={{ fontSize: "12px", color: C_FAINT, textTransform: "uppercase", letterSpacing: "0.6px", fontWeight: 500 }}>WhatsApp</div>
+                      <div style={{ fontSize: "15px", color: C_INK, fontWeight: 500, marginTop: "2px" }}>{storeWhatsapp}</div>
                     </div>
                   )}
                 </div>
@@ -555,8 +555,8 @@ const ProposalPdfTemplate = ({
                 <p style={{ ...LABEL, marginBottom: "14px" }}>Diferenciais</p>
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px 32px" }}>
                   {model.differentials.map((diff, i) => (
-                    <div key={i} style={{ fontSize: "12px", color: C_TEXT, display: "flex", alignItems: "flex-start", gap: "8px", lineHeight: 1.5 }}>
-                      <span style={{ color: C_BLUE, fontWeight: 600, fontSize: "13px", flexShrink: 0, marginTop: "1px" }}>✓</span>
+                    <div key={i} style={{ fontSize: "14px", color: C_TEXT, display: "flex", alignItems: "flex-start", gap: "8px", lineHeight: 1.5 }}>
+                      <span style={{ color: C_BLUE, fontWeight: 600, fontSize: "15px", flexShrink: 0, marginTop: "1px" }}>✓</span>
                       <span>{diff}</span>
                     </div>
                   ))}
@@ -599,7 +599,7 @@ const ProposalPdfTemplate = ({
                         }}
                       />
                     ) : (
-                      <span style={{ fontSize: "10px", fontWeight: 600, color: "#6B7280" }}>{partner.name}</span>
+                      <span style={{ fontSize: "12px", fontWeight: 600, color: "#6B7280" }}>{partner.name}</span>
                     )}
                   </div>
                 ))}
@@ -625,7 +625,7 @@ const ProposalPdfTemplate = ({
               alt="SimulaPool"
               style={{ height: "16px", width: "auto", objectFit: "contain", opacity: 0.7 }}
             />
-            <div style={{ fontSize: "10px", color: C_FAINT }}>
+            <div style={{ fontSize: "12px", color: C_FAINT }}>
               Desenvolvido por <span style={{ color: C_MUTED, fontWeight: 500 }}>SimulaPool</span> ·{" "}
               <span style={{ color: C_BLUE, fontWeight: 500 }}>www.simulapool.com</span>
             </div>
