@@ -219,11 +219,44 @@ const AdminProfile = () => {
     }
   };
 
+  // Outros tipos de piscina
+  const [offersAlvenaria, setOffersAlvenaria] = useState(false);
+  const [offersVinil, setOffersVinil] = useState(false);
+  const [savingOffers, setSavingOffers] = useState<null | "alvenaria" | "vinil">(null);
+
+  useEffect(() => {
+    setOffersAlvenaria(!!store?.offers_alvenaria);
+    setOffersVinil(!!store?.offers_vinil);
+  }, [store?.offers_alvenaria, store?.offers_vinil]);
+
+  const toggleOffer = async (field: "alvenaria" | "vinil", value: boolean) => {
+    if (!store || !isOwner) return;
+    setSavingOffers(field);
+    if (field === "alvenaria") setOffersAlvenaria(value);
+    else setOffersVinil(value);
+    try {
+      const { error } = await supabase
+        .from("stores")
+        .update(field === "alvenaria" ? { offers_alvenaria: value } : { offers_vinil: value })
+        .eq("id", store.id);
+      if (error) throw error;
+      toast.success("Configuração salva");
+      refetch();
+    } catch (err: any) {
+      toast.error("Erro ao salvar: " + err.message);
+      if (field === "alvenaria") setOffersAlvenaria(!value);
+      else setOffersVinil(!value);
+    } finally {
+      setSavingOffers(null);
+    }
+  };
+
   return (
     <div className="space-y-6">
       <h1 className="text-3xl font-bold">Meu Perfil</h1>
 
-      <Card className="p-6 max-w-2xl">
+      <div className="grid gap-6 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)] items-start">
+        <Card className="p-6">
         <div className="space-y-8">
 
           {/* Fields */}
