@@ -45,7 +45,10 @@ const disableAncestorTransformsForPdf = (element: HTMLElement) => {
 
   while (current && current !== document.body) {
     const computed = window.getComputedStyle(current);
-    if (computed.transform !== "none" || computed.overflow === "hidden") {
+    const hasTransform = computed.transform !== "none";
+    const clipsCapture = computed.overflowX === "hidden" || computed.overflowY === "hidden";
+
+    if (hasTransform || clipsCapture) {
       changed.push({
         el: current,
         transform: current.style.transform,
@@ -53,9 +56,11 @@ const disableAncestorTransformsForPdf = (element: HTMLElement) => {
         margin: current.style.margin,
         overflow: current.style.overflow,
       });
-      current.style.transform = "none";
-      current.style.width = "794px";
-      current.style.margin = "0 auto";
+      if (hasTransform) {
+        current.style.transform = "none";
+        current.style.width = "794px";
+        current.style.margin = "0 auto";
+      }
       current.style.overflow = "visible";
     }
     current = current.parentElement;
