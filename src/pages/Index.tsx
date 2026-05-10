@@ -59,43 +59,60 @@ const Index = () => {
       >
         <SiteHeader onSimulate={handleSimulate} />
 
-        {/* Subtle blobs — desktop only */}
-        <div
-          className="hidden md:block absolute pointer-events-none rounded-full"
-          aria-hidden="true"
-          style={{
-            width: 500, height: 500, top: -80, left: -120,
-            background: "radial-gradient(circle, rgba(14,165,233,0.15) 0%, transparent 70%)",
-          }}
-        />
-        <div
-          className="hidden md:block absolute pointer-events-none rounded-full"
-          aria-hidden="true"
-          style={{
-            width: 400, height: 400, bottom: 60, right: -80,
-            background: "radial-gradient(circle, rgba(56,189,248,0.1) 0%, transparent 70%)",
-          }}
-        />
+        {/* Background atmosférico — glow + grid sutil */}
+        <div aria-hidden className="absolute inset-0 pointer-events-none">
+          <div
+            className="hidden md:block absolute left-1/2 top-[18%] -translate-x-1/2 rounded-full"
+            style={{
+              width: 1100, height: 1100, opacity: 0.45,
+              background: "radial-gradient(closest-side, rgba(14,165,233,0.45), transparent 70%)",
+              filter: "blur(40px)",
+            }}
+          />
+          <div
+            className="absolute inset-0 opacity-[0.05]"
+            style={{
+              backgroundImage:
+                "linear-gradient(rgba(125,211,252,0.9) 1px, transparent 1px), linear-gradient(90deg, rgba(125,211,252,0.9) 1px, transparent 1px)",
+              backgroundSize: "64px 64px",
+              maskImage: "radial-gradient(ellipse at center, black 40%, transparent 75%)",
+              WebkitMaskImage: "radial-gradient(ellipse at center, black 40%, transparent 75%)",
+            }}
+          />
+        </div>
 
         {/* ─── Hero Content ─── */}
-        <div className="relative max-w-[720px] mx-auto text-center z-10 px-5 md:px-4 pt-14 md:pt-24 pb-12 md:pb-36">
-          <motion.p
+        <div className="relative max-w-[760px] mx-auto text-center z-10 px-5 md:px-4 pt-14 md:pt-24 pb-12 md:pb-36">
+          <motion.div
             variants={fadeUp} initial="hidden" animate="visible" custom={0}
-            className="text-[12px] md:text-[13px] font-medium tracking-[0.08em] uppercase mb-5 md:mb-6"
-            style={{ color: "rgba(125,211,252,0.55)" }}
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-full mb-6 md:mb-8"
+            style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.10)", backdropFilter: "blur(8px)" }}
           >
-            Mais de 4.800 simulações reais por mês
-          </motion.p>
+            <span className="relative flex w-2 h-2">
+              <span className="absolute inset-0 rounded-full bg-[#38BDF8] animate-ping opacity-75"></span>
+              <span className="relative w-2 h-2 rounded-full bg-[#38BDF8]"></span>
+            </span>
+            <span className="text-[11px] md:text-[12px] font-semibold uppercase tracking-[0.12em] text-white/85">
+              Simulação ao vivo · sem cadastro
+            </span>
+          </motion.div>
 
           <motion.h1
             variants={fadeUp} initial="hidden" animate="visible" custom={1}
-            className="text-[36px] leading-[1.1] md:text-[56px] md:leading-[1.08] font-bold text-white tracking-[-0.025em] mb-5 md:mb-6"
+            className="font-sp-display font-extrabold text-white text-balance mb-5 md:mb-6"
+            style={{ fontSize: "clamp(38px, 7vw, 72px)", lineHeight: 1.04, letterSpacing: "-0.025em" }}
           >
             Descubra o{" "}
             <span className="text-[#38BDF8]">preço</span>{" "}
             da sua piscina
             <br className="hidden md:block" />
-            {" "}em menos de 1 minuto
+            {" "}em menos de{" "}
+            <span className="relative inline-block">
+              1 minuto
+              <svg aria-hidden className="absolute left-0 right-0 -bottom-2 w-full" viewBox="0 0 200 8" preserveAspectRatio="none">
+                <path d="M2 6 Q 100 0, 198 6" stroke="#38BDF8" strokeWidth="3" fill="none" strokeLinecap="round" />
+              </svg>
+            </span>
           </motion.h1>
 
           <motion.p
