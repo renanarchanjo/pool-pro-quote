@@ -1629,7 +1629,9 @@ export type Database = {
           customer_whatsapp: string
           id: string
           is_test: boolean
+          lead_type: string
           model_id: string | null
+          quiz_data: Json | null
           selected_optionals: Json | null
           status: Database["public"]["Enums"]["proposal_status"]
           store_id: string | null
@@ -1643,7 +1645,9 @@ export type Database = {
           customer_whatsapp: string
           id?: string
           is_test?: boolean
+          lead_type?: string
           model_id?: string | null
+          quiz_data?: Json | null
           selected_optionals?: Json | null
           status?: Database["public"]["Enums"]["proposal_status"]
           store_id?: string | null
@@ -1657,7 +1661,9 @@ export type Database = {
           customer_whatsapp?: string
           id?: string
           is_test?: boolean
+          lead_type?: string
           model_id?: string | null
+          quiz_data?: Json | null
           selected_optionals?: Json | null
           status?: Database["public"]["Enums"]["proposal_status"]
           store_id?: string | null
@@ -1944,6 +1950,8 @@ export type Database = {
           longitude: number | null
           name: string
           nome_fantasia: string | null
+          offers_alvenaria: boolean
+          offers_vinil: boolean
           plan_expires_at: string | null
           plan_id: string | null
           plan_started_at: string | null
@@ -1973,6 +1981,8 @@ export type Database = {
           longitude?: number | null
           name: string
           nome_fantasia?: string | null
+          offers_alvenaria?: boolean
+          offers_vinil?: boolean
           plan_expires_at?: string | null
           plan_id?: string | null
           plan_started_at?: string | null
@@ -2002,6 +2012,8 @@ export type Database = {
           longitude?: number | null
           name?: string
           nome_fantasia?: string | null
+          offers_alvenaria?: boolean
+          offers_vinil?: boolean
           plan_expires_at?: string | null
           plan_id?: string | null
           plan_started_at?: string | null
@@ -2208,6 +2220,8 @@ export type Database = {
           city: string
           id: string
           name: string
+          offers_alvenaria: boolean
+          offers_vinil: boolean
           slug: string
           state: string
           whatsapp: string
