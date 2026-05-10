@@ -237,7 +237,7 @@ const CustomerForm = ({ onSubmit, model, optionals, includedItemsTotal = 0, hide
           </div>
 
           {/* Trust */}
-          <div className="sp-trust-bar mb-5">
+          <div className="sp-trust-bar mb-6">
             <Shield className="w-4 h-4 text-sp-primary flex-shrink-0" />
             <span>Seus dados ficam protegidos. Sem spam, sem ligações fora do horário.</span>
           </div>
