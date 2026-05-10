@@ -44,6 +44,8 @@ interface ReceivedLead {
     total_price: number;
     created_at: string;
     pool_models: { name: string } | null;
+    lead_type?: string | null;
+    quiz_data?: any;
   };
 }
 
