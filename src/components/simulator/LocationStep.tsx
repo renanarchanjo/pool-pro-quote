@@ -20,6 +20,7 @@ interface Store {
   coverage_radius_active?: boolean;
   distance?: number;
   logo_url?: string | null;
+  plan_price?: number;
 }
 
 function getInitials(name: string): string {
