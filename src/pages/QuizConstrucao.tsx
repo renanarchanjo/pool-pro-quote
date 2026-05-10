@@ -12,6 +12,7 @@ import { Progress } from "@/components/ui/progress";
 import { Loader2, ArrowLeft, ArrowRight, CheckCircle2, Waves } from "lucide-react";
 import { toast } from "sonner";
 import { useForceLightTheme } from "@/hooks/useForceLightTheme";
+import { useGeolocation } from "@/hooks/useGeolocation";
 
 type Tipo = "alvenaria" | "vinil";
 type AreaTipo = "funda" | "prainha" | "spa" | "espelho";
