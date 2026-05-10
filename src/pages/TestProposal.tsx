@@ -852,12 +852,23 @@ export default function TestProposal() {
 
           {catList.map((g) => (
             <Card key={g.id} className="overflow-hidden">
-              <div className="bg-[#1a5276] text-white px-5 py-3 flex items-center justify-between gap-3">
+              <div className="bg-[#1a5276] text-white px-5 py-3 flex flex-wrap items-center justify-between gap-3">
                 <input
                   value={g.titulo}
                   onChange={(e) => catUpdateGroupTitle(g.id, e.target.value)}
-                  className="bg-transparent font-semibold outline-none border-b border-transparent focus:border-white/40 flex-1"
+                  className="bg-transparent font-semibold outline-none border-b border-transparent focus:border-white/40 flex-1 min-w-[160px]"
                 />
+                <div className="inline-flex rounded-md bg-white/10 p-0.5 border border-white/20 text-xs">
+                  {(["base", "opcional"] as const).map((k) => (
+                    <button
+                      key={k}
+                      onClick={() => catUpdateGroupKind(g.id, k)}
+                      className={`px-2.5 py-1 rounded transition ${g.kind === k ? (k === "base" ? "bg-emerald-400 text-emerald-950 font-semibold" : "bg-amber-300 text-amber-950 font-semibold") : "text-white/80 hover:text-white"}`}
+                    >
+                      {k === "base" ? "Base (auto)" : "Opcional (recomendação)"}
+                    </button>
+                  ))}
+                </div>
                 <span className="text-xs text-white/70">{g.items.length} {g.items.length === 1 ? "item" : "itens"}</span>
                 <button onClick={() => catRemoveGroup(g.id)} className="text-white/70 hover:text-white">
                   <Trash2 className="w-4 h-4" />
@@ -868,10 +879,11 @@ export default function TestProposal() {
                   <thead className="bg-slate-100 text-slate-600 text-xs uppercase">
                     <tr>
                       <th className="px-3 py-2 text-left">Descrição</th>
-                      <th className="px-3 py-2 text-left w-20">Un.</th>
+                      <th className="px-3 py-2 text-left w-16">Un.</th>
                       <th className="px-3 py-2 text-right w-28">Unitário</th>
-                      <th className="px-3 py-2 text-right w-24">Qtde Padrão</th>
-                      <th className="px-3 py-2 text-right w-24">Markup %</th>
+                      <th className="px-3 py-2 text-left w-40">Regra de Qtde</th>
+                      <th className="px-3 py-2 text-right w-20">Fator</th>
+                      <th className="px-3 py-2 text-right w-20">Markup %</th>
                       <th className="w-10"></th>
                     </tr>
                   </thead>
@@ -888,7 +900,18 @@ export default function TestProposal() {
                           <Input className="h-8 text-right" type="number" step="0.01" value={i.unitario} onChange={(e) => catUpdateItem(g.id, i.id, { unitario: +e.target.value })} />
                         </td>
                         <td className="px-3 py-1">
-                          <Input className="h-8 text-right" type="number" step="0.01" value={i.qtdePadrao} onChange={(e) => catUpdateItem(g.id, i.id, { qtdePadrao: +e.target.value })} />
+                          <select
+                            value={i.formula}
+                            onChange={(e) => catUpdateItem(g.id, i.id, { formula: e.target.value as Formula })}
+                            className="h-8 w-full border border-slate-200 rounded-md px-2 text-xs bg-white"
+                          >
+                            {(Object.keys(FORMULA_LABELS) as Formula[]).map((f) => (
+                              <option key={f} value={f}>{FORMULA_LABELS[f]}</option>
+                            ))}
+                          </select>
+                        </td>
+                        <td className="px-3 py-1">
+                          <Input className="h-8 text-right" type="number" step="0.01" value={i.fator} onChange={(e) => catUpdateItem(g.id, i.id, { fator: +e.target.value })} />
                         </td>
                         <td className="px-3 py-1">
                           <Input className="h-8 text-right" type="number" step="0.01" value={i.markupPadrao} onChange={(e) => catUpdateItem(g.id, i.id, { markupPadrao: +e.target.value })} />
@@ -901,14 +924,17 @@ export default function TestProposal() {
                       </tr>
                     ))}
                     {g.items.length === 0 && (
-                      <tr><td colSpan={6} className="px-3 py-4 text-center text-sm text-slate-400">Nenhum item — adicione abaixo.</td></tr>
+                      <tr><td colSpan={7} className="px-3 py-4 text-center text-sm text-slate-400">Nenhum item — adicione abaixo.</td></tr>
                     )}
                   </tbody>
                 </table>
-                <div className="px-3 py-2 bg-slate-50 border-t">
+                <div className="px-3 py-2 bg-slate-50 border-t flex items-center justify-between">
                   <Button variant="ghost" size="sm" onClick={() => catAddItem(g.id)}>
                     <Plus className="w-3.5 h-3.5 mr-1" /> Adicionar item
                   </Button>
+                  <span className="text-[11px] text-slate-500">
+                    Fator: para <b>Fixo</b> = qtde direta · Para fórmulas de m² = multiplicador (ex: 1 = 100%, 0.5 = metade)
+                  </span>
                 </div>
               </div>
             </Card>
