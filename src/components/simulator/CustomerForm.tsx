@@ -207,7 +207,7 @@ const CustomerForm = ({ onSubmit, model, optionals, includedItemsTotal = 0, hide
           </div>
 
           {/* WhatsApp */}
-          <div className="sp-field mb-5">
+          <div className="sp-field mb-6">
             <label className="sp-label">
               <span>WhatsApp</span>
               <span className="sp-hint">a proposta vai por aqui</span>
