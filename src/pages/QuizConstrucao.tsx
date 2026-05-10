@@ -520,8 +520,13 @@ const QuizConstrucao = () => {
                   )}
                 </div>
 
-                <Button variant="outline" className="w-full" onClick={() => { setHasPrainha(false); setHasSpa(false); setHasEspelho(false); setStep(s => Math.min(s + 1, totalSteps)); }}>
-                  Não quero áreas extras
+                <Button
+                  variant="outline"
+                  size="lg"
+                  className="w-full h-12 rounded-xl border-2 border-dashed border-border font-semibold text-muted-foreground transition-all hover:border-primary hover:text-primary hover:bg-primary/5 active:scale-[0.99]"
+                  onClick={() => { setHasPrainha(false); setHasSpa(false); setHasEspelho(false); setStep(s => Math.min(s + 1, totalSteps)); }}
+                >
+                  Não quero áreas extras <ArrowRight className="w-4 h-4 ml-1.5" />
                 </Button>
               </div>
             )}
