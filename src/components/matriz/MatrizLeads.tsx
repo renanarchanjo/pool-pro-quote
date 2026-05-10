@@ -601,8 +601,20 @@ const MatrizLeads = () => {
                           </div>
                         </TableCell>
                         <TableCell className="text-sm text-muted-foreground">{lead.customer_city}</TableCell>
-                        <TableCell className="text-sm">{lead.pool_models?.name || "-"}</TableCell>
-                        <TableCell className="text-sm font-medium">{formatCurrency(lead.total_price)}</TableCell>
+                        <TableCell className="text-sm">
+                          {lead.pool_models?.name
+                            ? lead.pool_models.name
+                            : lead.lead_type === "alvenaria"
+                              ? <Badge variant="outline" className="bg-orange-500/10 text-orange-700 border-orange-500/20">Alvenaria · sob medida</Badge>
+                              : lead.lead_type === "vinil"
+                                ? <Badge variant="outline" className="bg-indigo-500/10 text-indigo-700 border-indigo-500/20">Vinil tela armada</Badge>
+                                : "-"}
+                        </TableCell>
+                        <TableCell className="text-sm font-medium">
+                          {["alvenaria","vinil","construcao"].includes(lead.lead_type || "")
+                            ? <span className="text-muted-foreground italic">Sob proposta</span>
+                            : formatCurrency(lead.total_price)}
+                        </TableCell>
                         <TableCell><Badge variant="outline" className={statusConfig[lead.status].color}>{statusConfig[lead.status].label}</Badge></TableCell>
                         {activeTab !== "pendentes" && (
                           <TableCell>
