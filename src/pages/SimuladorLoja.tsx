@@ -421,13 +421,37 @@ const SimuladorLoja = () => {
               </Button>
             </div>
           ) : step === 1 ? (
-            <ModelSelection
-              models={models}
-              brands={brands}
-              categories={categories}
-              onSelect={handleModelSelect}
-              onBack={() => navigate("/")}
-            />
+            <>
+              {(store?.offers_alvenaria || store?.offers_vinil) && (
+                <div className="mb-6 rounded-2xl border border-sky-200 bg-gradient-to-br from-sky-50 to-white p-4 sm:p-5">
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                    <div>
+                      <p className="text-sm font-semibold text-slate-900">Procura outro tipo de piscina?</p>
+                      <p className="text-xs text-slate-600 mt-0.5">Esta loja também constrói piscinas sob medida. Responda um quiz rápido e receba uma proposta personalizada.</p>
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      {store?.offers_alvenaria && (
+                        <Button size="sm" variant="outline" onClick={() => navigate(`/s/${store.slug}/quiz-construcao?tipo=alvenaria`)}>
+                          🧱 Quero Alvenaria →
+                        </Button>
+                      )}
+                      {store?.offers_vinil && (
+                        <Button size="sm" variant="outline" onClick={() => navigate(`/s/${store.slug}/quiz-construcao?tipo=vinil`)}>
+                          🎨 Quero Vinil →
+                        </Button>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )}
+              <ModelSelection
+                models={models}
+                brands={brands}
+                categories={categories}
+                onSelect={handleModelSelect}
+                onBack={() => navigate("/")}
+              />
+            </>
           ) : null}
 
           {step === 2 && selectedModel && (
