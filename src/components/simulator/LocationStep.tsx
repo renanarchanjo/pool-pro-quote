@@ -337,7 +337,6 @@ const LocationStep = ({ onSelectStore, onBack, onSkip }: LocationStepProps) => {
                 <SelectContent>
                   <SelectItem value="default">Padrão</SelectItem>
                   <SelectItem value="alphabetical">Ordem alfabética (A-Z)</SelectItem>
-                  <SelectItem value="city">Por cidade</SelectItem>
                   {radiusSearch && <SelectItem value="distance">Mais próximas</SelectItem>}
                 </SelectContent>
               </Select>
