@@ -281,18 +281,22 @@ const Auth = () => {
             </Button>
           </div>
         </div>
-      </div>
+      </AuthSplitShell>
     );
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4" style={{ background: heroGradient }}>
+    <AuthSplitShell
+      eyebrow="Área do Lojista"
+      headline="Crie sua loja em poucos minutos."
+      subline="Cadastre seu CNPJ, personalize a marca e comece a gerar propostas profissionais ainda hoje."
+    >
       <div className={cardClass}>
         <div className="text-center mb-8">
-          <div className="flex justify-center mb-6">
+          <div className="flex justify-center mb-6 lg:hidden">
             <BrandLogo size="lg" className="[&_span]:text-white" />
           </div>
-          <h1 className="text-3xl font-display font-bold mb-2 text-white">Área do Lojista</h1>
+          <h1 className="text-3xl font-sp-display font-bold mb-2 text-white">Área do Lojista</h1>
           <p className="text-white/50">Crie sua loja agora</p>
         </div>
 
@@ -461,7 +465,7 @@ const Auth = () => {
           </Button>
         </div>
       </div>
-    </div>
+    </AuthSplitShell>
   );
 };
 
