@@ -873,8 +873,20 @@ const AdminLeads = () => {
                           )}
                           <TableCell className="font-medium">{isPending ? maskName(p.customer_name) : p.customer_name}</TableCell>
                           <TableCell className="text-sm text-muted-foreground">{p.customer_city}</TableCell>
-                          <TableCell className="text-sm">{p.pool_models?.name || "-"}</TableCell>
-                          <TableCell className="text-sm font-medium">{formatCurrency(p.total_price)}</TableCell>
+                          <TableCell className="text-sm">
+                            {p.pool_models?.name
+                              ? p.pool_models.name
+                              : p.lead_type === "alvenaria"
+                                ? <Badge variant="outline" className="bg-orange-500/10 text-orange-700 border-orange-500/20">Alvenaria · sob medida</Badge>
+                                : p.lead_type === "vinil"
+                                  ? <Badge variant="outline" className="bg-indigo-500/10 text-indigo-700 border-indigo-500/20">Vinil tela armada</Badge>
+                                  : "-"}
+                          </TableCell>
+                          <TableCell className="text-sm font-medium">
+                            {["alvenaria","vinil","construcao"].includes(p.lead_type || "")
+                              ? <span className="text-muted-foreground italic">Sob proposta</span>
+                              : formatCurrency(p.total_price)}
+                          </TableCell>
                           <TableCell className="text-sm">
                             {isPending ? (
                               <span className="flex items-center gap-1 text-muted-foreground"><Lock className="w-3 h-3" />{maskPhone()}</span>
