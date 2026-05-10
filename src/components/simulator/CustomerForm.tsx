@@ -108,17 +108,17 @@ const CustomerForm = ({ onSubmit, model, optionals, includedItemsTotal = 0, hide
   };
 
   return (
-    <div className="container max-w-6xl mx-auto px-0 sm:px-2 py-2 sm:py-4">
-      <div className="mb-6 sp-animate-in">
+    <div className="container max-w-6xl mx-auto px-4 sm:px-6 pt-6 sm:pt-8 pb-6 sm:pb-10">
+      <div className="mb-7 sm:mb-8 sp-animate-in">
         <span className="sp-eyebrow">Etapa 3 de 4</span>
-        <h1 className="sp-h1 mt-2.5 mb-1">Quase lá!</h1>
+        <h1 className="sp-h1 mt-3 mb-1.5">Quase lá!</h1>
         <p className="sp-sub">Preencha seus dados para receber a proposta completa via WhatsApp.</p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_320px] gap-7 items-start">
-        <form onSubmit={handleSubmit} className="sp-card-elevated p-6 sm:p-7">
-          <div className="flex items-center gap-3 border-b border-sp-border pb-4 mb-5">
-            <div className="w-[38px] h-[38px] rounded-sp bg-sp-primary-100 flex items-center justify-center text-sp-primary flex-shrink-0">
+        <form onSubmit={handleSubmit} className="sp-card-elevated p-5 sm:p-7">
+          <div className="flex items-center gap-3 border-b border-sp-border pb-4 mb-6">
+            <div className="w-[40px] h-[40px] rounded-sp bg-sp-primary-100 flex items-center justify-center text-sp-primary flex-shrink-0">
               <User className="w-5 h-5" />
             </div>
             <div>
@@ -128,7 +128,7 @@ const CustomerForm = ({ onSubmit, model, optionals, includedItemsTotal = 0, hide
           </div>
 
           {/* Nome */}
-          <div className="sp-field mb-4">
+          <div className="sp-field mb-5">
             <label className="sp-label" htmlFor="name">Nome completo</label>
             <input
               id="name"
@@ -144,7 +144,7 @@ const CustomerForm = ({ onSubmit, model, optionals, includedItemsTotal = 0, hide
           </div>
 
           {/* UF + Cidade */}
-          <div className="grid grid-cols-[100px_1fr] gap-3 mb-4">
+          <div className="grid grid-cols-[90px_1fr] sm:grid-cols-[100px_1fr] gap-3 mb-5">
             <div className="sp-field">
               <label className="sp-label" htmlFor="uf">UF</label>
               <select
@@ -207,7 +207,7 @@ const CustomerForm = ({ onSubmit, model, optionals, includedItemsTotal = 0, hide
           </div>
 
           {/* WhatsApp */}
-          <div className="sp-field mb-5">
+          <div className="sp-field mb-6">
             <label className="sp-label">
               <span>WhatsApp</span>
               <span className="sp-hint">a proposta vai por aqui</span>
@@ -237,7 +237,7 @@ const CustomerForm = ({ onSubmit, model, optionals, includedItemsTotal = 0, hide
           </div>
 
           {/* Trust */}
-          <div className="sp-trust-bar mb-5">
+          <div className="sp-trust-bar mb-6">
             <Shield className="w-4 h-4 text-sp-primary flex-shrink-0" />
             <span>Seus dados ficam protegidos. Sem spam, sem ligações fora do horário.</span>
           </div>
