@@ -8,7 +8,14 @@ import { Label } from "@/components/ui/label";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 import { toast } from "sonner";
 import BrandLogo from "@/components/BrandLogo";
+import AuthSplitShell from "@/components/auth/AuthSplitShell";
 import { useForceLightTheme } from "@/hooks/useForceLightTheme";
+
+const matrizShellProps = {
+  eyebrow: "Painel Matriz · Acesso Restrito",
+  headline: "Centro de comando da rede SimulaPool.",
+  subline: "Visão consolidada de lojas, leads, MRR e operações. Acesso protegido por autenticação multi-fator obrigatória.",
+};
 
 type View = "login" | "forgot" | "forgot-sent" | "mfa-setup" | "mfa-verify";
 
