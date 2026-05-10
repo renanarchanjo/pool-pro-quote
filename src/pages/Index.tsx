@@ -161,7 +161,7 @@ const Index = () => {
             </button>
 
             <p className="text-[13px] text-muted-foreground">
-              Sem cadastro · Sem compromisso · 100% gratuito
+              Sem Compromisso · Sem Burocracia · 100% Gratuito!
             </p>
           </motion.div>
         </section>
