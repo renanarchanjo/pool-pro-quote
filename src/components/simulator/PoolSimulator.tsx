@@ -139,10 +139,15 @@ const PoolSimulator = ({ onBack }: PoolSimulatorProps) => {
       setStoreSettings(settingsRes.data || null);
       setPartners(partnersRes.data || []);
       if (storeRes.data && storeRes.data.length > 0) {
-        setSelectedStoreName(storeRes.data[0].name);
-        setStoreCity(storeRes.data[0].city);
-        setStoreState(storeRes.data[0].state);
+        const s: any = storeRes.data[0];
+        setSelectedStoreName(s.name);
+        setStoreCity(s.city);
+        setStoreState(s.state);
+        setStoreSlug(s.slug ?? null);
+        setStoreOffersAlvenaria(!!s.offers_alvenaria);
+        setStoreOffersVinil(!!s.offers_vinil);
       }
+      setPoolTypeChoice(null);
       setStep(1);
     } catch (error) {
       console.error("Error loading store data:", error);
