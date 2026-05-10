@@ -336,8 +336,8 @@ export const generatePDFBlob = async ({
       el.style.display = "none";
     });
 
-    // Mobile: reduce element size before capture
-    if (mobile && mobileWidth) {
+    // Mobile: only shrink generic captures. Fixed PDF templates must stay at 794px.
+    if (!sectionSelector && mobile && mobileWidth) {
       element.style.width = `${mobileWidth}px`;
       element.style.fontSize = "10px";
     }
@@ -383,7 +383,7 @@ export const generatePDFBlob = async ({
     return blob as Blob;
   } finally {
     // Restore mobile styles
-    if (mobile && mobileWidth) {
+    if (!sectionSelector && mobile && mobileWidth) {
       element.style.width = savedStyles.width;
       element.style.fontSize = savedStyles.fontSize;
     }
