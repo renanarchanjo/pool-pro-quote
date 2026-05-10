@@ -74,6 +74,8 @@ const LocationStep = ({ onSelectStore, onBack, onSkip }: LocationStepProps) => {
   const [loadingStores, setLoadingStores] = useState(false);
   const [searched, setSearched] = useState(false);
   const [radiusSearch, setRadiusSearch] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [sortBy, setSortBy] = useState<"default" | "alphabetical" | "city" | "distance">("default");
 
   useEffect(() => {
     detectLocation();
