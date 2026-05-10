@@ -397,7 +397,7 @@ const QuizConstrucao = () => {
                   {hasSpa && (
                     <div className="mt-3 grid sm:grid-cols-3 gap-2">
                       {PRESETS_SPA.map(p => (
-                        <button key={p.label} onClick={() => setSpa({ tipo: "spa", comp: p.comp, larg: p.larg, prof: 0.9 })}
+                        <button key={p.label} onClick={() => setSpa({ tipo: "spa", comp: p.comp, larg: p.larg, prof: 1.0 })}
                           className={`text-sm rounded-lg border p-2 ${spa.comp === p.comp && spa.larg === p.larg ? "border-primary bg-primary/5" : "border-border"}`}>
                           {p.label}
                         </button>
