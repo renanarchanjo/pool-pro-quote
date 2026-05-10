@@ -57,6 +57,7 @@ const planFeatures: Record<string, { text: string; included: boolean }[]> = {
     { text: "Sem marca d'água", included: true },
     { text: "Personalização da marca", included: true },
     { text: "Até 10 colaboradores", included: true },
+    { text: "Apareça no topo da busca de lojas", included: true },
   ],
 };
 
