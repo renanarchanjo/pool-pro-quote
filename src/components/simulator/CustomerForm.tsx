@@ -144,7 +144,7 @@ const CustomerForm = ({ onSubmit, model, optionals, includedItemsTotal = 0, hide
           </div>
 
           {/* UF + Cidade */}
-          <div className="grid grid-cols-[90px_1fr] sm:grid-cols-[100px_1fr] gap-3 mb-5">
+          <div className="grid grid-cols-[90px_1fr] sm:grid-cols-[100px_1fr] gap-3 mb-5 items-end">
             <div className="sp-field">
               <label className="sp-label" htmlFor="uf">UF</label>
               <select
