@@ -359,17 +359,20 @@ const PoolSimulator = ({ onBack }: PoolSimulatorProps) => {
             variant="ghost"
             size="sm"
             onClick={step === 0 ? onBack : () => {
-              if (step === 2) {
-                setStoreId(null);
-                setSelectedModel(null);
-                setModels([]);
-                setBrands([]);
-                setCategories([]);
-                setOptionals([]);
-                setModelOptionals([]);
-                setStep(0);
+              if (step === 1) {
+                if ((storeOffersAlvenaria || storeOffersVinil) && poolTypeChoice) {
+                  setPoolTypeChoice(null);
+                } else {
+                  setStoreId(null);
+                  setModels([]);
+                  setBrands([]);
+                  setCategories([]);
+                  setOptionals([]);
+                  setModelOptionals([]);
+                  setStep(0);
+                }
               } else {
-                setStep(step === 1 ? 0 : step - 1);
+                setStep(step - 1);
               }
             }}
             className="z-10"
