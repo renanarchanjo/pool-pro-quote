@@ -589,6 +589,47 @@ export default function TestProposal() {
 
         {step === 2 && (
           <div className="space-y-6">
+            {/* Recomendações de grupos opcionais (dimensionados) */}
+            {groups.some((g) => g.optional) && (
+              <Card className="p-5 border-amber-200 bg-amber-50/40">
+                <div className="flex items-start gap-3 mb-3">
+                  <div className="w-9 h-9 rounded-full bg-amber-100 text-amber-700 flex items-center justify-center flex-shrink-0">
+                    <Plus className="w-4 h-4" />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="font-semibold text-slate-900">Recomendações de Opcionais</h3>
+                    <p className="text-xs text-slate-600">
+                      Grupos opcionais já dimensionados com base nos m² da piscina. Ative os que o cliente quer incluir.
+                    </p>
+                  </div>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
+                  {groups.filter((g) => g.optional).map((g) => {
+                    const tot = g.items.reduce((s, i) => s + i.qtde * i.unitario * (1 + i.markup / 100), 0);
+                    return (
+                      <button
+                        key={g.id}
+                        onClick={() => toggleGroup(g.id)}
+                        className={`text-left p-3 rounded-lg border-2 transition-all ${
+                          g.enabled
+                            ? "border-emerald-400 bg-emerald-50"
+                            : "border-slate-200 bg-white hover:border-amber-300"
+                        }`}
+                      >
+                        <div className="flex items-center justify-between gap-2">
+                          <span className="font-medium text-sm text-slate-900">{g.titulo}</span>
+                          <span className={`text-[10px] uppercase font-bold px-1.5 py-0.5 rounded ${g.enabled ? "bg-emerald-500 text-white" : "bg-slate-200 text-slate-600"}`}>
+                            {g.enabled ? "Incluso" : "Adicionar"}
+                          </span>
+                        </div>
+                        <div className="text-xs text-slate-500 mt-1">{g.items.length} {g.items.length === 1 ? "item" : "itens"} · {brl(tot)}</div>
+                      </button>
+                    );
+                  })}
+                </div>
+              </Card>
+            )}
+
             {groups.map((g) => (
               <Card key={g.id} className="overflow-hidden">
                 <div className="bg-[#1a5276] text-white px-5 py-3 flex items-center justify-between">
