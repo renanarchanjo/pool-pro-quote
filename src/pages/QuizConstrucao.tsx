@@ -494,7 +494,12 @@ const QuizConstrucao = () => {
                   </div>
                   <div className="space-y-1.5">
                     <Label>Cidade / Estado</Label>
-                    <Input value={cidade} onChange={e => setCidade(e.target.value)} placeholder="Cidade - UF" maxLength={120} />
+                    <Input
+                      value={cidade}
+                      onChange={e => setCidade(e.target.value)}
+                      placeholder={geoLoading && !cidade ? "Detectando sua localização..." : "Cidade - UF"}
+                      maxLength={120}
+                    />
                   </div>
 
                   <div className="space-y-2">
