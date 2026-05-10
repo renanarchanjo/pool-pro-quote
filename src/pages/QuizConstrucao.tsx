@@ -372,7 +372,7 @@ const QuizConstrucao = () => {
                   {hasPrainha && (
                     <div className="mt-3 grid sm:grid-cols-3 gap-2">
                       {PRESETS_PRAINHA.map(p => (
-                        <button key={p.label} onClick={() => setPrainha({ tipo: "prainha", comp: p.comp, larg: p.larg, prof: 0.4 })}
+                        <button key={p.label} onClick={() => setPrainha({ tipo: "prainha", comp: p.comp, larg: p.larg, prof: 0.5 })}
                           className={`text-sm rounded-lg border p-2 ${prainha.comp === p.comp && prainha.larg === p.larg ? "border-primary bg-primary/5" : "border-border"}`}>
                           {p.label}
                         </button>
