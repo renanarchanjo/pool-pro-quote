@@ -332,12 +332,12 @@ const LocationStep = ({ onSelectStore, onBack, onSkip }: LocationStepProps) => {
             >
               <div className="flex items-center justify-between gap-3">
                 <div className="flex items-center gap-3 min-w-0">
-                  <div className="w-12 h-12 rounded-lg overflow-hidden bg-primary/10 flex items-center justify-center flex-shrink-0 border border-border">
+                  <div className="w-12 h-12 rounded-lg overflow-hidden bg-white flex items-center justify-center flex-shrink-0 border border-border p-1">
                     {store.logo_url ? (
                       <img
                         src={store.logo_url}
                         alt={`Logo ${store.name}`}
-                        className="w-full h-full object-cover"
+                        className="max-w-full max-h-full object-contain"
                         onError={(e) => {
                           (e.currentTarget as HTMLImageElement).style.display = "none";
                         }}
