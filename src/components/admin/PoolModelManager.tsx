@@ -132,7 +132,7 @@ const PoolModelManager = () => {
         supabase.from("brands").select("id, name, partner_id").eq("active", true).eq("store_id", store.id),
         supabase.from("categories").select("id, name, brand_id").eq("active", true).eq("store_id", store.id),
         supabase.from("pool_models").select("id, name, category_id, base_price, cost, margin_percent, length, width, depth, photo_url, differentials, included_items, not_included_items, delivery_days, installation_days, payment_terms, notes, display_order, active, partner_locked, created_at").eq("store_id", store.id).order("created_at", { ascending: false }),
-        supabase.from("model_optionals").select("id, name, description, price, cost, margin_percent, item_type, model_id, display_order, active, created_at").eq("store_id", store.id).order("created_at", { ascending: false }),
+        supabase.from("model_optionals").select("id, name, description, price, cost, margin_percent, item_type, model_id, display_order, active, created_at").eq("store_id", store.id).order("display_order", { ascending: true }).order("created_at", { ascending: false }),
         supabase.from("model_included_items").select("id, name, cost, price, margin_percent, quantity, item_type, model_id, display_order, active").eq("store_id", store.id).order("display_order"),
         supabase.from("included_item_templates").select("id, name, not_included_items").eq("store_id", store.id).order("name"),
       ]);
@@ -593,6 +593,48 @@ const PoolModelManager = () => {
         )
       );
       await syncIncludedItemsToModel(editing);
+    } catch {
+      toast.error("Erro ao salvar ordem");
+      loadData();
+    }
+  };
+
+  // ---- Drag-and-drop reorder for OPCIONAIS DIMENSIONADOS ----
+  const handleOptDrop = async (e: React.DragEvent, targetId: string) => {
+    e.preventDefault();
+    if (!dragItemId || dragItemId === targetId || !editing) {
+      setDragItemId(null);
+      setDragOverItemId(null);
+      return;
+    }
+
+    const items = [...currentModelOptionals];
+    const dragIndex = items.findIndex((i) => i.id === dragItemId);
+    const targetIndex = items.findIndex((i) => i.id === targetId);
+    if (dragIndex === -1 || targetIndex === -1) {
+      setDragItemId(null);
+      setDragOverItemId(null);
+      return;
+    }
+
+    const [moved] = items.splice(dragIndex, 1);
+    items.splice(targetIndex, 0, moved);
+
+    const updatedItems = items.map((item, idx) => ({ ...item, display_order: idx }));
+    setModelOptionals((prev) => {
+      const others = prev.filter((i) => i.model_id !== editing);
+      return [...others, ...updatedItems];
+    });
+
+    setDragItemId(null);
+    setDragOverItemId(null);
+
+    try {
+      await Promise.all(
+        updatedItems.map((item, idx) =>
+          supabase.from("model_optionals").update({ display_order: idx }).eq("id", item.id)
+        )
+      );
     } catch {
       toast.error("Erro ao salvar ordem");
       loadData();
