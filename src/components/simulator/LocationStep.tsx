@@ -19,6 +19,32 @@ interface Store {
   coverage_radius_km?: number;
   coverage_radius_active?: boolean;
   distance?: number;
+  logo_url?: string | null;
+}
+
+function getInitials(name: string): string {
+  return name
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((w) => w[0]?.toUpperCase() ?? "")
+    .join("");
+}
+
+async function attachStoreLogos(stores: Store[]): Promise<Store[]> {
+  if (stores.length === 0) return stores;
+  const results = await Promise.all(
+    stores.map(async (s) => {
+      try {
+        const { data } = await supabase.rpc("get_store_settings_public", { _store_id: s.id });
+        const logo = Array.isArray(data) && data.length > 0 ? (data[0] as any).logo_url : null;
+        return { ...s, logo_url: logo ?? null };
+      } catch {
+        return { ...s, logo_url: null };
+      }
+    })
+  );
+  return results;
 }
 
 interface LocationStepProps {
@@ -96,7 +122,7 @@ const LocationStep = ({ onSelectStore, onBack, onSkip }: LocationStepProps) => {
         ...globalStores.filter((s) => !seenIds.has(s.id)),
       ];
 
-      setStores(merged);
+      setStores(await attachStoreLogos(merged));
     } catch (err) {
       console.error("Error searching stores:", err);
       setStores([]);
@@ -155,7 +181,7 @@ const LocationStep = ({ onSelectStore, onBack, onSkip }: LocationStepProps) => {
         ...globalStores.filter((s) => !seenIds.has(s.id)),
       ].sort((a, b) => (a.distance ?? 99999) - (b.distance ?? 99999));
 
-      setStores(merged);
+      setStores(await attachStoreLogos(merged));
     } catch (err) {
       console.error("Error searching nearby stores:", err);
       setStores([]);
@@ -250,22 +276,40 @@ const LocationStep = ({ onSelectStore, onBack, onSkip }: LocationStepProps) => {
               className="p-4 bg-card/80 backdrop-blur-sm hover:shadow-pool transition-all cursor-pointer group"
               onClick={() => onSelectStore(store)}
             >
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="font-display font-semibold text-lg">{store.name}</p>
-                  <p className="text-sm text-muted-foreground">
-                    {store.city && `${store.city} - `}{store.state}
-                    {store.distance != null && (
-                      <span className="ml-2 text-primary font-medium">
-                        • {store.distance < 1 ? "< 1" : Math.round(store.distance)} km
+              <div className="flex items-center justify-between gap-3">
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className="w-12 h-12 rounded-full overflow-hidden bg-primary/10 flex items-center justify-center flex-shrink-0 border border-border">
+                    {store.logo_url ? (
+                      <img
+                        src={store.logo_url}
+                        alt={`Logo ${store.name}`}
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          (e.currentTarget as HTMLImageElement).style.display = "none";
+                        }}
+                      />
+                    ) : (
+                      <span className="text-primary font-display font-semibold text-sm">
+                        {getInitials(store.name)}
                       </span>
                     )}
-                    {!radiusSearch && store.city?.toLowerCase() === city.toLowerCase() && (
-                      <span className="ml-2 text-primary font-medium">• Sua cidade</span>
-                    )}
-                  </p>
+                  </div>
+                  <div className="min-w-0">
+                    <p className="font-display font-semibold text-lg truncate">{store.name}</p>
+                    <p className="text-sm text-muted-foreground">
+                      {store.city && `${store.city} - `}{store.state}
+                      {store.distance != null && (
+                        <span className="ml-2 text-primary font-medium">
+                          • {store.distance < 1 ? "< 1" : Math.round(store.distance)} km
+                        </span>
+                      )}
+                      {!radiusSearch && store.city?.toLowerCase() === city.toLowerCase() && (
+                        <span className="ml-2 text-primary font-medium">• Sua cidade</span>
+                      )}
+                    </p>
+                  </div>
                 </div>
-                <ChevronRight className="w-5 h-5 text-muted-foreground group-hover:text-primary transition-colors" />
+                <ChevronRight className="w-5 h-5 text-muted-foreground group-hover:text-primary transition-colors flex-shrink-0" />
               </div>
             </Card>
           ))}
