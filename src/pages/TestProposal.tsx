@@ -1,5 +1,5 @@
-import { useMemo, useState, useCallback } from "react";
-import { Plus, Trash2, Check, ChevronLeft, ChevronRight, FileText, Calculator } from "lucide-react";
+import { useMemo, useState, useCallback, useEffect } from "react";
+import { Plus, Trash2, Check, ChevronLeft, ChevronRight, FileText, Calculator, BookOpen, Download, Save } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
