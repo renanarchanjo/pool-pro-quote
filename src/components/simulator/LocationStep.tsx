@@ -278,7 +278,7 @@ const LocationStep = ({ onSelectStore, onBack, onSkip }: LocationStepProps) => {
             >
               <div className="flex items-center justify-between gap-3">
                 <div className="flex items-center gap-3 min-w-0">
-                  <div className="w-12 h-12 rounded-full overflow-hidden bg-primary/10 flex items-center justify-center flex-shrink-0 border border-border">
+                  <div className="w-12 h-12 rounded-lg overflow-hidden bg-primary/10 flex items-center justify-center flex-shrink-0 border border-border">
                     {store.logo_url ? (
                       <img
                         src={store.logo_url}
