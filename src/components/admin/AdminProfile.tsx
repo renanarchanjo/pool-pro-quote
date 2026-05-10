@@ -333,22 +333,67 @@ const AdminProfile = () => {
               </div>
             )}
 
-            {logoUrl && (
-              <div className="space-y-2">
-                <Label className="flex items-center gap-2">
-                  <ImageIcon className="w-4 h-4 text-muted-foreground" />
-                  Preview na Proposta
-                </Label>
-                <div className="p-4 bg-muted rounded-lg">
-                  <img
-                    src={logoUrl}
-                    alt="Logo da empresa"
-                    className="h-12 w-auto object-contain"
+            <div className="space-y-2 border-t border-border pt-5">
+              <Label className="flex items-center gap-2">
+                <ImageIcon className="w-4 h-4 text-muted-foreground" />
+                Logo da Empresa
+              </Label>
+              <p className="text-xs text-muted-foreground">
+                Aparece no cabeçalho das propostas e nos cards de busca pública.
+              </p>
+
+              <div className="flex items-center gap-4 mt-2">
+                <div className="w-20 h-20 rounded-lg border border-border bg-muted flex items-center justify-center overflow-hidden flex-shrink-0">
+                  {logoUrl ? (
+                    <img src={logoUrl} alt="Logo" className="w-full h-full object-contain" />
+                  ) : (
+                    <ImageIcon className="w-8 h-8 text-muted-foreground/50" />
+                  )}
+                </div>
+
+                <div className="flex flex-col gap-2">
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    onChange={handleLogoUpload}
+                    className="hidden"
                   />
-                  <p className="text-xs text-muted-foreground mt-2">Assim aparecerá no cabeçalho das propostas</p>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => fileInputRef.current?.click()}
+                    disabled={uploading || !store}
+                    className="gap-2"
+                  >
+                    {uploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
+                    {logoUrl ? "Trocar logo" : "Enviar logo"}
+                  </Button>
+                  {logoUrl && (
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setLogoUrl("")}
+                      className="text-destructive hover:text-destructive"
+                    >
+                      Remover logo
+                    </Button>
+                  )}
                 </div>
               </div>
-            )}
+
+              {logoUrl && (
+                <div className="p-4 bg-muted rounded-lg mt-3">
+                  <p className="text-xs text-muted-foreground mb-2">Preview na proposta:</p>
+                  <img src={logoUrl} alt="Logo da empresa" className="h-12 w-auto object-contain" />
+                </div>
+              )}
+              <p className="text-xs text-muted-foreground">
+                Lembre de clicar em <strong>Salvar Perfil</strong> para confirmar a alteração.
+              </p>
+            </div>
+
           </div>
 
           <Button onClick={handleSave} disabled={loading} className="gradient-primary text-white w-full">
