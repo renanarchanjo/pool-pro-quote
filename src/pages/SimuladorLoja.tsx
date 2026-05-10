@@ -110,6 +110,7 @@ const SimuladorLoja = () => {
 
   const [selectedModel, setSelectedModel] = useState<PoolModel | null>(null);
   const [selectedOptionals, setSelectedOptionals] = useState<string[]>([]);
+  const [poolTypeChoice, setPoolTypeChoice] = useState<"fibra" | null>(null);
   const [customerData, setCustomerData] = useState<CustomerData | null>(null);
   const [showCongrats, setShowCongrats] = useState(false);
   const [includedItemsTotal, setIncludedItemsTotal] = useState(0);
