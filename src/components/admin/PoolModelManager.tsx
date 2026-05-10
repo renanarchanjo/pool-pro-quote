@@ -72,6 +72,7 @@ interface PoolModel {
   payment_terms: string;
   notes: string | null;
   active: boolean;
+  partner_locked?: boolean;
 }
 
 const PoolModelManager = () => {
