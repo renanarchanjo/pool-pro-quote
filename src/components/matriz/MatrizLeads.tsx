@@ -31,6 +31,8 @@ interface Lead {
   is_test: boolean;
   pool_models: { name: string } | null;
   stores: { name: string; city: string | null; state: string | null } | null;
+  lead_type?: string | null;
+  quiz_data?: any;
 }
 
 interface Distribution {
