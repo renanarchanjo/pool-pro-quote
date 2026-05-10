@@ -762,28 +762,28 @@ const PoolModelManager = () => {
                 </div>
                 <div>
                   <Label>Nome do Modelo *</Label>
-                  <Input value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} placeholder="Ex: Modelo Premium 8x4" disabled={isLocked} />
+                  <Input value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} placeholder="Ex: Modelo Premium 8x4" />
                 </div>
               </div>
 
               <div className="grid md:grid-cols-3 gap-4">
                 <div>
                   <Label>Comprimento (m)</Label>
-                  <Input type="number" step="0.01" value={formData.length} onChange={(e) => setFormData({ ...formData, length: e.target.value })} placeholder="Ex: 8.00" disabled={isLocked} />
+                  <Input type="number" step="0.01" value={formData.length} onChange={(e) => setFormData({ ...formData, length: e.target.value })} placeholder="Ex: 8.00" />
                 </div>
                 <div>
                   <Label>Largura (m)</Label>
-                  <Input type="number" step="0.01" value={formData.width} onChange={(e) => setFormData({ ...formData, width: e.target.value })} placeholder="Ex: 4.00" disabled={isLocked} />
+                  <Input type="number" step="0.01" value={formData.width} onChange={(e) => setFormData({ ...formData, width: e.target.value })} placeholder="Ex: 4.00" />
                 </div>
                 <div>
                   <Label>Profundidade (m)</Label>
-                  <Input type="number" step="0.01" value={formData.depth} onChange={(e) => setFormData({ ...formData, depth: e.target.value })} placeholder="Ex: 1.40" disabled={isLocked} />
+                  <Input type="number" step="0.01" value={formData.depth} onChange={(e) => setFormData({ ...formData, depth: e.target.value })} placeholder="Ex: 1.40" />
                 </div>
               </div>
 
               <div>
                 <Label>URL da Foto</Label>
-                <Input type="text" value={formData.photo_url} onChange={(e) => setFormData({ ...formData, photo_url: e.target.value })} placeholder="https://exemplo.com/foto.jpg" disabled={isLocked} />
+                <Input type="text" value={formData.photo_url} onChange={(e) => setFormData({ ...formData, photo_url: e.target.value })} placeholder="https://exemplo.com/foto.jpg" />
               </div>
 
               <div className="grid md:grid-cols-3 gap-4">
