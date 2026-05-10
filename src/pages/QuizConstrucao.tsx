@@ -92,6 +92,20 @@ const QuizConstrucao = () => {
   const [nome, setNome] = useState("");
   const [whatsapp, setWhatsapp] = useState("");
   const [cidade, setCidade] = useState("");
+  const { detectLocation, loading: geoLoading } = useGeolocation();
+
+  // Auto-fill cidade with browser geolocation on mount
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      const loc = await detectLocation();
+      if (!cancelled && loc && loc.city) {
+        setCidade((prev) => prev || `${loc.city}${loc.state ? ` - ${loc.state}` : ""}`);
+      }
+    })();
+    return () => { cancelled = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   const [prazo, setPrazo] = useState<string>("");
   const [obs, setObs] = useState("");
 
