@@ -82,11 +82,11 @@ const QuizConstrucao = () => {
   const [funda, setFunda] = useState<Area>({ tipo: "funda", comp: 0, larg: 0, prof: 1.4 });
   const [fundaPreset, setFundaPreset] = useState<string | null>(null);
   const [hasPrainha, setHasPrainha] = useState(false);
-  const [prainha, setPrainha] = useState<Area>({ tipo: "prainha", comp: 0, larg: 0, prof: 0.4 });
+  const [prainha, setPrainha] = useState<Area>({ tipo: "prainha", comp: 0, larg: 0, prof: 0.5 });
   const [hasSpa, setHasSpa] = useState(false);
-  const [spa, setSpa] = useState<Area>({ tipo: "spa", comp: 0, larg: 0, prof: 0.9 });
+  const [spa, setSpa] = useState<Area>({ tipo: "spa", comp: 0, larg: 0, prof: 1.0 });
   const [hasEspelho, setHasEspelho] = useState(false);
-  const [espelho, setEspelho] = useState<Area>({ tipo: "espelho", comp: 0, larg: 0, prof: 0.1 });
+  const [espelho, setEspelho] = useState<Area>({ tipo: "espelho", comp: 0, larg: 0, prof: 0.3 });
   const [opcionais, setOpcionais] = useState<string[]>([]);
   const [nome, setNome] = useState("");
   const [whatsapp, setWhatsapp] = useState("");
