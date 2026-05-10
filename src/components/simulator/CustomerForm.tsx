@@ -116,9 +116,9 @@ const CustomerForm = ({ onSubmit, model, optionals, includedItemsTotal = 0, hide
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_320px] gap-7 items-start">
-        <form onSubmit={handleSubmit} className="sp-card-elevated p-6 sm:p-7">
-          <div className="flex items-center gap-3 border-b border-sp-border pb-4 mb-5">
-            <div className="w-[38px] h-[38px] rounded-sp bg-sp-primary-100 flex items-center justify-center text-sp-primary flex-shrink-0">
+        <form onSubmit={handleSubmit} className="sp-card-elevated p-5 sm:p-7">
+          <div className="flex items-center gap-3 border-b border-sp-border pb-4 mb-6">
+            <div className="w-[40px] h-[40px] rounded-sp bg-sp-primary-100 flex items-center justify-center text-sp-primary flex-shrink-0">
               <User className="w-5 h-5" />
             </div>
             <div>
@@ -128,7 +128,7 @@ const CustomerForm = ({ onSubmit, model, optionals, includedItemsTotal = 0, hide
           </div>
 
           {/* Nome */}
-          <div className="sp-field mb-4">
+          <div className="sp-field mb-5">
             <label className="sp-label" htmlFor="name">Nome completo</label>
             <input
               id="name"
