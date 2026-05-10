@@ -624,7 +624,7 @@ const QuizConstrucao = () => {
               )}
             </div>
           </Card>
-        </div>
+        </main>
       </div>
     </>
   );
