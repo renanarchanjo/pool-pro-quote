@@ -265,7 +265,7 @@ const QuizConstrucao = () => {
               if (step === 1) return navigate(`/s/${slug}`);
               goBack();
             }}
-            className="sp-btn sp-btn-ghost sp-btn-sm"
+            className="inline-flex items-center gap-1.5 h-10 px-4 rounded-xl border-2 border-border bg-white text-sm font-semibold text-foreground shadow-sm transition-all hover:border-primary hover:text-primary hover:-translate-x-0.5 active:scale-95"
           >
             <ArrowLeft className="w-4 h-4" />
             <span className="hidden sm:inline">Voltar</span>
