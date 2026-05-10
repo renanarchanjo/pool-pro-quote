@@ -81,6 +81,7 @@ const QuizConstrucao = () => {
   const tipoInicial = (params.get("tipo") as Tipo | null) ?? null;
 
   const [store, setStore] = useState<StoreInfo | null>(null);
+  const [storeSettings, setStoreSettings] = useState<StoreSettingsInfo | null>(null);
   const [loadingStore, setLoadingStore] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [done, setDone] = useState(false);
