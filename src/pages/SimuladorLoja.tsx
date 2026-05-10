@@ -420,7 +420,7 @@ const SimuladorLoja = () => {
                   onClick={() => setPoolTypeChoice("fibra")}
                   className="text-left rounded-2xl border-2 border-border bg-white hover:border-primary hover:shadow-lg transition p-6 group"
                 >
-                  <div className="text-4xl mb-3">🏖️</div>
+                  <div className="text-4xl mb-3">💦</div>
                   <div className="font-bold text-lg text-slate-900 mb-1">Piscina de Fibra</div>
                   <p className="text-xs text-slate-500 mb-4">Modelos prontos, instalação rápida. Veja modelos e simule online.</p>
                   <span className="text-sm font-semibold text-primary group-hover:underline">
@@ -433,7 +433,7 @@ const SimuladorLoja = () => {
                     onClick={() => navigate(`/s/${store.slug}/quiz-construcao?tipo=vinil`)}
                     className="text-left rounded-2xl border-2 border-border bg-white hover:border-primary hover:shadow-lg transition p-6 group"
                   >
-                    <div className="text-4xl mb-3">💧</div>
+                    <div className="text-4xl mb-3">☀️</div>
                     <div className="font-bold text-lg text-slate-900 mb-1">Piscina de Vinil</div>
                     <p className="text-xs text-slate-500 mb-4">Tela armada com revestimento em vinil, construção mais rápida. Responda o quiz.</p>
                     <span className="text-sm font-semibold text-primary group-hover:underline">
@@ -447,7 +447,7 @@ const SimuladorLoja = () => {
                     onClick={() => navigate(`/s/${store.slug}/quiz-construcao?tipo=alvenaria`)}
                     className="text-left rounded-2xl border-2 border-border bg-white hover:border-primary hover:shadow-lg transition p-6 group"
                   >
-                    <div className="text-4xl mb-3">🏛️</div>
+                    <div className="text-4xl mb-3">🚧</div>
                     <div className="font-bold text-lg text-slate-900 mb-1">Piscina de Alvenaria</div>
                     <p className="text-xs text-slate-500 mb-4">Pastilha ou cerâmica, sob medida. Responda um quiz e receba sua proposta.</p>
                     <span className="text-sm font-semibold text-primary group-hover:underline">
