@@ -253,14 +253,7 @@ const OptionalsSelection = ({ optionals, modelOptionals = [], selectedOptionals:
                               </p>
                             )}
                           </div>
-                        </div>
-                        {optional.warning_note && isSelected && (
-                          <Alert variant="destructive" className="ml-2">
-                            <AlertCircle className="h-4 w-4" />
-                            <AlertDescription>{optional.warning_note}</AlertDescription>
-                          </Alert>
-                        )}
-                      </div>
+                        </div>                      </div>
                     );
                   })}
                 </div>
@@ -296,14 +289,7 @@ const OptionalsSelection = ({ optionals, modelOptionals = [], selectedOptionals:
                               </p>
                             )}
                           </div>
-                        </div>
-                        {optional.warning_note && isSelected && (
-                          <Alert variant="destructive" className="ml-2">
-                            <AlertCircle className="h-4 w-4" />
-                            <AlertDescription>{optional.warning_note}</AlertDescription>
-                          </Alert>
-                        )}
-                      </div>
+                        </div>                      </div>
                     );
                   })}
                 </div>
