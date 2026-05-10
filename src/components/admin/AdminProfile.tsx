@@ -351,31 +351,20 @@ const AdminProfile = () => {
                   )}
                 </div>
 
-                <div className="flex flex-col gap-2">
-                  <input
-                    ref={fileInputRef}
-                    type="file"
-                    accept="image/*"
-                    onChange={handleLogoUpload}
-                    className="hidden"
+                <div className="flex-1 space-y-2">
+                  <Input
+                    type="url"
+                    placeholder="https://exemplo.com/logo.png"
+                    value={logoUrl}
+                    onChange={(e) => setLogoUrl(e.target.value)}
                   />
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => fileInputRef.current?.click()}
-                    disabled={uploading || !store}
-                    className="gap-2"
-                  >
-                    {uploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
-                    {logoUrl ? "Trocar logo" : "Enviar logo"}
-                  </Button>
                   {logoUrl && (
                     <Button
                       type="button"
                       variant="ghost"
                       size="sm"
                       onClick={() => setLogoUrl("")}
-                      className="text-destructive hover:text-destructive"
+                      className="text-destructive hover:text-destructive h-auto p-0"
                     >
                       Remover logo
                     </Button>
@@ -383,14 +372,8 @@ const AdminProfile = () => {
                 </div>
               </div>
 
-              {logoUrl && (
-                <div className="p-4 bg-muted rounded-lg mt-3">
-                  <p className="text-xs text-muted-foreground mb-2">Preview na proposta:</p>
-                  <img src={logoUrl} alt="Logo da empresa" className="h-12 w-auto object-contain" />
-                </div>
-              )}
               <p className="text-xs text-muted-foreground">
-                Lembre de clicar em <strong>Salvar Perfil</strong> para confirmar a alteração.
+                Cole a URL pública da imagem (ex: hospedada no Postimages, Imgur, etc). Lembre de clicar em <strong>Salvar Perfil</strong> para confirmar.
               </p>
             </div>
 
