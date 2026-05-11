@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { ZoomIn, ZoomOut, X } from "lucide-react";
+import { ZoomIn, ZoomOut, X, ArrowLeft } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import ProposalView from "@/components/simulator/ProposalView";
 import QuizDataSummary from "@/components/leads/QuizDataSummary";
@@ -29,28 +29,6 @@ const ProposalPreviewModal = ({
   const isMobile = useIsMobile();
   const contentRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
-  const [fitScale, setFitScale] = useState(0.35);
-
-  useEffect(() => {
-    if (!isMobile || zoomed) return;
-    const measure = () => {
-      const container = containerRef.current;
-      const content = contentRef.current;
-      if (!container || !content) return;
-      const containerH = container.clientHeight;
-      const containerW = container.clientWidth;
-      // Render at scale 1 to measure natural size
-      const naturalW = content.scrollWidth;
-      const naturalH = content.scrollHeight;
-      if (naturalW === 0 || naturalH === 0) return;
-      const scaleW = containerW / naturalW;
-      const scaleH = containerH / naturalH;
-      setFitScale(Math.min(scaleW, scaleH, 0.65));
-    };
-    // Delay to let content render
-    const timer = setTimeout(measure, 150);
-    return () => clearTimeout(timer);
-  }, [isMobile, zoomed]);
 
   if (!proposal) return null;
 
@@ -121,26 +99,51 @@ const ProposalPreviewModal = ({
       )
     : [];
 
+  // Escala de leitura no mobile: ajusta a largura da proposta (794px) à largura da tela
+  const [mobileScale, setMobileScale] = useState(0.48);
+  useEffect(() => {
+    if (!isMobile) return;
+    const compute = () => {
+      const w = window.innerWidth;
+      setMobileScale(Math.min(1, w / 794));
+    };
+    compute();
+    window.addEventListener("resize", compute);
+    return () => window.removeEventListener("resize", compute);
+  }, [isMobile]);
+
   return (
     <div
-      className="fixed inset-0 z-[70] flex items-center justify-center bg-black/50 backdrop-blur-sm p-3 md:p-6"
-      onClick={() => { onClose(); setZoomed(false); }}
+      className="fixed inset-0 z-[70] flex md:items-center md:justify-center md:bg-black/50 md:backdrop-blur-sm md:p-6 bg-background"
+      onClick={() => { if (!isMobile) { onClose(); setZoomed(false); } }}
     >
       <div
-        className="relative bg-background rounded-2xl shadow-2xl border border-border flex flex-col w-full max-w-lg max-h-[85dvh]"
+        className="relative bg-background md:rounded-2xl md:shadow-2xl md:border md:border-border flex flex-col w-full md:max-w-lg h-[100dvh] md:h-auto md:max-h-[85dvh]"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Toolbar */}
-        <div className="flex items-center justify-between px-4 py-2.5 border-b border-border shrink-0">
-          <span className="text-sm font-bold text-foreground">Proposta</span>
-          <div className="flex items-center gap-1.5">
+        <div className="flex items-center justify-between px-3 md:px-4 py-2.5 border-b border-border shrink-0 bg-background">
+          {isMobile ? (
             <button
-              onClick={() => setZoomed(!zoomed)}
-              className="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-muted transition-colors"
-              title={zoomed ? "Reduzir" : "Ampliar"}
+              onClick={() => { onClose(); setZoomed(false); }}
+              className="flex items-center gap-1.5 px-2 py-1.5 rounded-lg hover:bg-muted transition-colors"
             >
-              {zoomed ? <ZoomOut className="w-4 h-4 text-muted-foreground" /> : <ZoomIn className="w-4 h-4 text-muted-foreground" />}
+              <ArrowLeft className="w-4 h-4 text-foreground" />
+              <span className="text-sm font-medium text-foreground">Voltar</span>
             </button>
+          ) : (
+            <span className="text-sm font-bold text-foreground">Proposta</span>
+          )}
+          <div className="flex items-center gap-1.5">
+            {!isMobile && (
+              <button
+                onClick={() => setZoomed(!zoomed)}
+                className="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-muted transition-colors"
+                title={zoomed ? "Reduzir" : "Ampliar"}
+              >
+                {zoomed ? <ZoomOut className="w-4 h-4 text-muted-foreground" /> : <ZoomIn className="w-4 h-4 text-muted-foreground" />}
+              </button>
+            )}
             <button
               onClick={() => { onClose(); setZoomed(false); }}
               className="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-muted transition-colors"
@@ -151,20 +154,16 @@ const ProposalPreviewModal = ({
         </div>
 
         {/* Proposal content */}
-        <div ref={containerRef} className="flex-1 overflow-y-auto overflow-x-hidden overscroll-contain"
-          style={isMobile && !zoomed ? { overflow: "hidden" } : undefined}
-        >
+        <div ref={containerRef} className="flex-1 overflow-y-auto overflow-x-hidden overscroll-contain">
           <div
             ref={contentRef}
             style={
-              isMobile && !zoomed
+              isMobile
                 ? {
-                    transform: `scale(${fitScale})`,
-                    transformOrigin: "top center",
-                    width: `${100 / fitScale}%`,
-                    marginLeft: `${-(100 / fitScale - 100) / 2}%`,
-                    height: "fit-content",
-                    transition: "transform 250ms ease, width 250ms ease, margin 250ms ease",
+                    transform: `scale(${mobileScale})`,
+                    transformOrigin: "top left",
+                    width: "794px",
+                    height: `${(contentRef.current?.scrollHeight || 0) * mobileScale}px`,
                   }
                 : {
                     transform: zoomed ? "scale(1)" : "scale(0.65)",

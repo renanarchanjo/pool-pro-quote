@@ -118,7 +118,14 @@ const exportSectionedPDF = async ({
   if (fullPageCapture) {
     for (let index = 0; index < sections.length; index += 1) {
       const section = sections[index];
-      const captureWidth = Math.max(section.offsetWidth, section.scrollWidth);
+      // Neutraliza clip/clipPath herdado de wrappers offscreen (impedem captura correta no mobile)
+      const savedClip = section.style.clip;
+      const savedClipPath = section.style.clipPath;
+      const savedTransform = section.style.transform;
+      section.style.clip = "auto";
+      section.style.clipPath = "none";
+      section.style.transform = "none";
+      const captureWidth = Math.max(section.offsetWidth, section.scrollWidth, 794);
       const captureHeight = Math.max(section.offsetHeight, section.scrollHeight);
       console.log("[PDF] capturando seção", index, "— tamanho:", captureWidth, "x", captureHeight);
       const canvas = await withTimeout(
@@ -140,8 +147,14 @@ const exportSectionedPDF = async ({
         `seção ${index}`,
       ).catch((err: unknown) => {
         console.error("[PDF] ERRO no html2canvas seção", index, ":", err);
+        section.style.clip = savedClip;
+        section.style.clipPath = savedClipPath;
+        section.style.transform = savedTransform;
         throw err;
       });
+      section.style.clip = savedClip;
+      section.style.clipPath = savedClipPath;
+      section.style.transform = savedTransform;
       console.log("[PDF] canvas gerado:", canvas.width, "x", canvas.height);
 
       if (index > 0) {
