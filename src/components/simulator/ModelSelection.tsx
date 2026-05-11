@@ -249,8 +249,21 @@ const ModelSelection = ({ models, brands, categories, onSelect }: ModelSelection
                         A partir de
                       </div>
                       <div className="sp-display font-bold text-[19px] text-sp-primary sp-tabular">
-                        {formatCurrency(model.base_price)}
+                        {formatCurrency((model.base_price || 0) + (inclTotals[model.id] || 0))}
                       </div>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col gap-1 px-3 py-2 bg-sp-muted/60 rounded-sp text-[12px] sp-tabular">
+                    <div className="flex justify-between items-center text-sp-muted-fg">
+                      <span>Custo da piscina</span>
+                      <span className="font-semibold text-sp-fg">{formatCurrency(model.base_price || 0)}</span>
+                    </div>
+                    <div className="flex justify-between items-center text-sp-muted-fg">
+                      <span>Itens inclusos</span>
+                      <span className="font-semibold text-sp-fg">
+                        {inclTotals[model.id] === undefined ? "—" : formatCurrency(inclTotals[model.id])}
+                      </span>
                     </div>
                   </div>
 
