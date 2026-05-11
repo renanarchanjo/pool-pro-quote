@@ -1,5 +1,6 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Sparkles, Ruler, Droplet, Truck, Waves } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
 interface PoolModel {
   id: string;
@@ -43,6 +44,29 @@ const ModelSelection = ({ models, brands, categories, onSelect }: ModelSelection
   const [selectedBrand, setSelectedBrand] = useState<string>("all");
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [sortBy, setSortBy] = useState<string>("name-asc");
+  const [inclTotals, setInclTotals] = useState<Record<string, number>>({});
+
+  useEffect(() => {
+    let cancelled = false;
+    const missing = models.filter((m) => inclTotals[m.id] === undefined);
+    if (missing.length === 0) return;
+    (async () => {
+      const results = await Promise.all(
+        missing.map(async (m) => {
+          const { data } = await supabase.rpc("get_model_included_items_total", { _model_id: m.id });
+          return [m.id, Number(data) || 0] as const;
+        })
+      );
+      if (cancelled) return;
+      setInclTotals((prev) => {
+        const next = { ...prev };
+        results.forEach(([id, v]) => { next[id] = v; });
+        return next;
+      });
+    })();
+    return () => { cancelled = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [models]);
 
   const filteredCategories = useMemo(() => {
     if (selectedBrand === "all") return categories;
@@ -66,15 +90,15 @@ const ModelSelection = ({ models, brands, categories, onSelect }: ModelSelection
         result.sort((a, b) => a.name.localeCompare(b.name, "pt-BR"));
         break;
       case "price-asc":
-        result.sort((a, b) => (a.base_price || 0) - (b.base_price || 0));
+        result.sort((a, b) => ((a.base_price || 0) + (inclTotals[a.id] || 0)) - ((b.base_price || 0) + (inclTotals[b.id] || 0)));
         break;
       case "price-desc":
-        result.sort((a, b) => (b.base_price || 0) - (a.base_price || 0));
+        result.sort((a, b) => ((b.base_price || 0) + (inclTotals[b.id] || 0)) - ((a.base_price || 0) + (inclTotals[a.id] || 0)));
         break;
     }
 
     return result;
-  }, [models, selectedBrand, selectedCategory, categories, sortBy]);
+  }, [models, selectedBrand, selectedCategory, categories, sortBy, inclTotals]);
 
   const handleBrandChange = (value: string) => {
     setSelectedBrand(value);
@@ -225,8 +249,21 @@ const ModelSelection = ({ models, brands, categories, onSelect }: ModelSelection
                         A partir de
                       </div>
                       <div className="sp-display font-bold text-[19px] text-sp-primary sp-tabular">
-                        {formatCurrency(model.base_price)}
+                        {formatCurrency((model.base_price || 0) + (inclTotals[model.id] || 0))}
                       </div>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col gap-1 px-3 py-2 bg-sp-muted/60 rounded-sp text-[12px] sp-tabular">
+                    <div className="flex justify-between items-center text-sp-muted-fg">
+                      <span>Custo da piscina</span>
+                      <span className="font-semibold text-sp-fg">{formatCurrency(model.base_price || 0)}</span>
+                    </div>
+                    <div className="flex justify-between items-center text-sp-muted-fg">
+                      <span>Itens inclusos</span>
+                      <span className="font-semibold text-sp-fg">
+                        {inclTotals[model.id] === undefined ? "—" : formatCurrency(inclTotals[model.id])}
+                      </span>
                     </div>
                   </div>
 
