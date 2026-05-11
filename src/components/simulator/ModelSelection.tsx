@@ -44,6 +44,29 @@ const ModelSelection = ({ models, brands, categories, onSelect }: ModelSelection
   const [selectedBrand, setSelectedBrand] = useState<string>("all");
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [sortBy, setSortBy] = useState<string>("name-asc");
+  const [inclTotals, setInclTotals] = useState<Record<string, number>>({});
+
+  useEffect(() => {
+    let cancelled = false;
+    const missing = models.filter((m) => inclTotals[m.id] === undefined);
+    if (missing.length === 0) return;
+    (async () => {
+      const results = await Promise.all(
+        missing.map(async (m) => {
+          const { data } = await supabase.rpc("get_model_included_items_total", { _model_id: m.id });
+          return [m.id, Number(data) || 0] as const;
+        })
+      );
+      if (cancelled) return;
+      setInclTotals((prev) => {
+        const next = { ...prev };
+        results.forEach(([id, v]) => { next[id] = v; });
+        return next;
+      });
+    })();
+    return () => { cancelled = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [models]);
 
   const filteredCategories = useMemo(() => {
     if (selectedBrand === "all") return categories;
