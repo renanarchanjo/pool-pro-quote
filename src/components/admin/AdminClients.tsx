@@ -136,7 +136,7 @@ const AdminClients = () => {
         const brand = pm?.categories?.brands;
         return (
           <div ref={proposalPdfRef} aria-hidden="true"
-            style={{ position: "fixed", top: 0, left: 0, width: "794px", height: "auto", overflow: "hidden", clip: "rect(0,0,0,0)", clipPath: "inset(50%)", pointerEvents: "none", zIndex: -1 }}>
+            style={{ position: "fixed", top: 0, left: "-10000px", width: "794px", height: "auto", overflow: "visible", pointerEvents: "none", zIndex: -1, opacity: 0 }}>
             <ProposalView
               model={pm}
               selectedOptionals={Array.isArray(exportingProposal.selected_optionals)
