@@ -1,6 +1,7 @@
 import { lazy, Suspense, useState, useCallback } from "react";
 import { Loader2, ArrowRight } from "lucide-react";
 import PageSEO from "@/components/PageSEO";
+import MetaPixel from "@/components/MetaPixel";
 import { motion } from "framer-motion";
 import SiteHeader from "@/components/landing/SiteHeader";
 import SiteFooter from "@/components/landing/SiteFooter";
@@ -47,6 +48,7 @@ const Index = () => {
         description="Descubra o preço da sua piscina de fibra em menos de 1 minuto. Simulador gratuito com orçamento detalhado na hora. 100% online."
         path="/"
       />
+      <MetaPixel />
       {/* ─── Hero Block ─── */}
       <header
         className="relative overflow-hidden"
