@@ -1,5 +1,6 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Sparkles, Ruler, Droplet, Truck, Waves } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
 interface PoolModel {
   id: string;
