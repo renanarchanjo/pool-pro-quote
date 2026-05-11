@@ -282,7 +282,7 @@ const SimuladorLoja = () => {
     return (
       <>
         <Dialog open={showCongrats} onOpenChange={setShowCongrats}>
-          <DialogContent className="max-w-[300px] sm:max-w-md text-center p-5 sm:p-6">
+          <DialogContent centered className="max-w-[300px] sm:max-w-md text-center p-5 sm:p-6">
             <DialogHeader className="items-center">
               <div className="mx-auto mb-2 flex h-12 w-12 sm:h-16 sm:w-16 items-center justify-center rounded-full" style={{ background: `${primaryColor}15` }}>
                 <PartyPopper className="h-6 w-6 sm:h-8 sm:w-8" style={{ color: primaryColor }} />
