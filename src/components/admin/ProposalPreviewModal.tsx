@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { ZoomIn, ZoomOut, X } from "lucide-react";
+import { ZoomIn, ZoomOut, X, ArrowLeft } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import ProposalView from "@/components/simulator/ProposalView";
 import QuizDataSummary from "@/components/leads/QuizDataSummary";
