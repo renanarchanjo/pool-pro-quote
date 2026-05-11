@@ -90,15 +90,15 @@ const ModelSelection = ({ models, brands, categories, onSelect }: ModelSelection
         result.sort((a, b) => a.name.localeCompare(b.name, "pt-BR"));
         break;
       case "price-asc":
-        result.sort((a, b) => (a.base_price || 0) - (b.base_price || 0));
+        result.sort((a, b) => ((a.base_price || 0) + (inclTotals[a.id] || 0)) - ((b.base_price || 0) + (inclTotals[b.id] || 0)));
         break;
       case "price-desc":
-        result.sort((a, b) => (b.base_price || 0) - (a.base_price || 0));
+        result.sort((a, b) => ((b.base_price || 0) + (inclTotals[b.id] || 0)) - ((a.base_price || 0) + (inclTotals[a.id] || 0)));
         break;
     }
 
     return result;
-  }, [models, selectedBrand, selectedCategory, categories, sortBy]);
+  }, [models, selectedBrand, selectedCategory, categories, sortBy, inclTotals]);
 
   const handleBrandChange = (value: string) => {
     setSelectedBrand(value);
