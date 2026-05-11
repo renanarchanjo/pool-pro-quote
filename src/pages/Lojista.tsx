@@ -17,6 +17,7 @@ import LojistaHeader from "@/components/landing/LojistaHeader";
 import SiteFooter from "@/components/landing/SiteFooter";
 import { useForceLightTheme } from "@/hooks/useForceLightTheme";
 import PageSEO from "@/components/PageSEO";
+import MetaPixel from "@/components/MetaPixel";
 
 const METRICS = [
   { value: "200+", label: "lojistas ativos" },
@@ -135,6 +136,7 @@ const Lojista = () => {
         description="Transforme sua loja de piscinas com orçamentos automáticos, leads qualificados e gestão de equipe. Comece grátis."
         path="/lojista"
       />
+      <MetaPixel />
       {/* ─── Hero ─── */}
       <div
         className="relative overflow-hidden"

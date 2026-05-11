@@ -6,6 +6,7 @@ import SiteHeader from "@/components/landing/SiteHeader";
 import SiteFooter from "@/components/landing/SiteFooter";
 import { useForceLightTheme } from "@/hooks/useForceLightTheme";
 import PageSEO from "@/components/PageSEO";
+import MetaPixel from "@/components/MetaPixel";
 
 interface Partner {
   id: string;
@@ -92,6 +93,7 @@ const Parceiros = () => {
         description="Seja parceiro SIMULAPOOL e posicione sua marca diretamente no simulador de piscinas mais usado do Brasil."
         path="/parceiros"
       />
+      <MetaPixel />
       {/* ─── Hero ─── */}
       <div
         className="relative overflow-hidden"
