@@ -311,7 +311,7 @@ const Login = () => {
         <div className="mt-4 pt-4 border-t border-white/10">
           <Button
             className="w-full bg-white/10 border border-white/20 text-white hover:bg-white/20"
-            onClick={() => navigate("/")}
+            onClick={() => navigate("/lojista")}
           >
             Voltar ao Início
           </Button>
