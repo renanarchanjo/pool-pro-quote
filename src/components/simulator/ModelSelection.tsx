@@ -1,6 +1,7 @@
-import { useState, useMemo, useEffect } from "react";
+import { useMemo, useEffect, useState } from "react";
 import { Sparkles, Ruler, Droplet, Truck, Waves } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { usePersistedState } from "@/hooks/usePersistedState";
 
 interface PoolModel {
   id: string;
@@ -41,9 +42,9 @@ const formatCurrency = (v: number) =>
   `R$ ${v.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`;
 
 const ModelSelection = ({ models, brands, categories, onSelect }: ModelSelectionProps) => {
-  const [selectedBrand, setSelectedBrand] = useState<string>("all");
-  const [selectedCategory, setSelectedCategory] = useState<string>("all");
-  const [sortBy, setSortBy] = useState<string>("name-asc");
+  const [selectedBrand, setSelectedBrand] = usePersistedState<string>("sim:model:brand", "all");
+  const [selectedCategory, setSelectedCategory] = usePersistedState<string>("sim:model:category", "all");
+  const [sortBy, setSortBy] = usePersistedState<string>("sim:model:sort", "name-asc");
   const [inclTotals, setInclTotals] = useState<Record<string, number>>({});
 
   useEffect(() => {
