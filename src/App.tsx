@@ -12,6 +12,8 @@ import PageTransition from "@/components/PageTransition";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import SuspenseFallback from "@/components/SuspenseFallback";
 import ErrorBoundary from "@/components/ErrorBoundary";
+import ScrollRestorer from "@/components/ScrollRestorer";
+import FormDraftKeeper from "@/components/FormDraftKeeper";
 import { supabase } from "@/integrations/supabase/client";
 import { useMobileKeyboard } from "@/hooks/useMobileKeyboard";
 import { useRoutePrefetch } from "@/hooks/useRoutePrefetch";
@@ -79,6 +81,8 @@ const AppInner = () => {
 
   return (
     <BrowserRouter>
+      <ScrollRestorer />
+      <FormDraftKeeper />
       <Sentry.ErrorBoundary
         fallback={({ resetError }) => (
           <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: "100vh", gap: 16, padding: 24 }}>
