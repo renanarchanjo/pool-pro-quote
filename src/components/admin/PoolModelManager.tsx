@@ -92,6 +92,7 @@ const PoolModelManager = () => {
   const [editing, setEditing] = useState<string | null>(null);
   const [formTab, setFormTab] = useState("dados");
   const [saving, setSaving] = useState(false);
+  const formRef = useRef<HTMLDivElement>(null);
 
   // Form state
   const [formData, setFormData] = useState({
