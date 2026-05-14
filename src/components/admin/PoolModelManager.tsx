@@ -762,7 +762,7 @@ const PoolModelManager = () => {
   return (
     <div className="space-y-6">
       {/* ===== FORM ===== */}
-      <Card className="p-3 sm:p-6">
+      <Card ref={formRef} className="p-3 sm:p-6 scroll-mt-20">
         <h2 className="text-base sm:text-lg font-bold mb-2 sm:mb-3">{editing ? "Editar Modelo" : "Novo Modelo"}</h2>
 
 
