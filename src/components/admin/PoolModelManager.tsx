@@ -326,7 +326,9 @@ const PoolModelManager = () => {
       newDifferential: "", newNotIncluded: "",
     });
     setFormTab("dados");
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    setTimeout(() => {
+      formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 50);
   };
 
   const handleDelete = async (id: string) => {
