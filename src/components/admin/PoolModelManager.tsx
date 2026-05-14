@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -92,6 +92,7 @@ const PoolModelManager = () => {
   const [editing, setEditing] = useState<string | null>(null);
   const [formTab, setFormTab] = useState("dados");
   const [saving, setSaving] = useState(false);
+  const formRef = useRef<HTMLDivElement>(null);
 
   // Form state
   const [formData, setFormData] = useState({
@@ -325,7 +326,9 @@ const PoolModelManager = () => {
       newDifferential: "", newNotIncluded: "",
     });
     setFormTab("dados");
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    setTimeout(() => {
+      formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 50);
   };
 
   const handleDelete = async (id: string) => {
@@ -759,7 +762,7 @@ const PoolModelManager = () => {
   return (
     <div className="space-y-6">
       {/* ===== FORM ===== */}
-      <Card className="p-3 sm:p-6">
+      <Card ref={formRef} className="p-3 sm:p-6 scroll-mt-20">
         <h2 className="text-base sm:text-lg font-bold mb-2 sm:mb-3">{editing ? "Editar Modelo" : "Novo Modelo"}</h2>
 
 
