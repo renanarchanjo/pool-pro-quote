@@ -1,9 +1,9 @@
-import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import BrandCategoryManager from "./BrandCategoryManager";
+import { usePersistedState } from "@/hooks/usePersistedState";
 
 const BrandsAndCategoriesPage = () => {
-  const [tab, setTab] = useState<"brands" | "categories">("brands");
+  const [tab, setTab] = usePersistedState<"brands" | "categories">("admin:brands:tab", "brands");
 
   return (
     <div className="space-y-4">
