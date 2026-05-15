@@ -15,19 +15,15 @@ Deno.serve(async (req) => {
   }
 
   try {
-    // Auth: only service_role or cron
+    // SECURITY: only the service role (cron / backend) may invoke this monitor.
+    // Reject calls bearing the public anon key or any user JWT.
     const authHeader = req.headers.get("Authorization") ?? "";
-    const token = authHeader.replace("Bearer ", "");
-    if (token !== SERVICE_ROLE_KEY && token !== Deno.env.get("SUPABASE_ANON_KEY")) {
-      // Verify it's a valid service_role call
-      const sb = createClient(SUPABASE_URL, token, { auth: { persistSession: false } });
-      const { data } = await sb.auth.getUser(token);
-      if (!data?.user) {
-        return new Response(JSON.stringify({ error: "Unauthorized" }), {
-          status: 401,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
-      }
+    const token = authHeader.replace("Bearer ", "").trim();
+    if (!token || token !== SERVICE_ROLE_KEY) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
 
     const supabase = createClient(SUPABASE_URL, SERVICE_ROLE_KEY, {
