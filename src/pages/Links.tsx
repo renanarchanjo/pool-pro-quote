@@ -77,7 +77,13 @@ const Links = () => {
           transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
           className="flex flex-col items-center text-center"
         >
-          <div className="relative mb-6 cursor-pointer">
+          <motion.div
+            className="relative mb-6 cursor-pointer"
+            animate={{ y: [0, -8, 0] }}
+            transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
+            whileHover={{ scale: 1.07 }}
+            whileTap={{ scale: 0.94 }}
+          >
             <motion.div
               animate={{ opacity: [0.25, 0.55, 0.25] }}
               transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
@@ -90,7 +96,7 @@ const Links = () => {
                 className="h-16 w-16 rounded-full object-cover"
               />
             </div>
-          </div>
+          </motion.div>
 
           <h1 className="text-[28px] font-bold tracking-tight text-white">
             <span>Simula</span>
