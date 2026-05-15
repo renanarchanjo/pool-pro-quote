@@ -1,5 +1,6 @@
 import { useEffect } from "react";
-import { motion, useScroll, useTransform, useSpring } from "framer-motion";
+import { Link } from "react-router-dom";
+import { motion } from "framer-motion";
 import { Waves, Store, Handshake, ChevronRight } from "lucide-react";
 import logoIcon from "@/assets/logo-icon-v3.webp";
 
@@ -45,16 +46,26 @@ const LINKS: LinkItem[] = [
   },
 ];
 
+// Prefetch destination chunks the moment user hovers/touches a link
+const prefetchRoute = (href: string) => {
+  switch (href) {
+    case "/lojista":
+      import("./Lojista");
+      break;
+    case "/parceiros":
+      import("./Parceiros");
+      break;
+    // "/" (Index) is eager-loaded in App.tsx — no prefetch needed
+  }
+};
+
+const MotionLink = motion(Link);
+
 const Links = () => {
   useEffect(() => {
     document.documentElement.classList.add("dark");
     return () => document.documentElement.classList.remove("dark");
   }, []);
-
-  const { scrollY } = useScroll();
-  const scrollSpring = useSpring(scrollY, { stiffness: 100, damping: 30 });
-  const parallaxY = useTransform(scrollSpring, [0, 200], [0, -12]);
-  const parallaxOpacity = useTransform(scrollSpring, [0, 120], [1, 0.6]);
 
   return (
     <div className="relative min-h-[100dvh] w-full overflow-hidden bg-[#020617] text-white selection:bg-sky-500/30">
@@ -74,18 +85,15 @@ const Links = () => {
       />
 
       <div className="relative z-10 mx-auto flex min-h-[100dvh] w-full max-w-[440px] flex-col px-5 pt-[max(48px,env(safe-area-inset-top))] pb-[max(32px,env(safe-area-inset-bottom))]">
-        {/* Header with parallax */}
+        {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
           className="flex flex-col items-center text-center"
         >
-          {/* Avatar — floating with parallax on scroll */}
-          <motion.div
-            className="relative mb-5"
-            style={{ y: parallaxY, opacity: parallaxOpacity }}
-          >
+          {/* Avatar */}
+          <div className="relative mb-5">
             {/* Breathing glow */}
             <motion.div
               animate={{ opacity: [0.15, 0.3, 0.15], scale: [0.95, 1.05, 0.95] }}
@@ -98,15 +106,17 @@ const Links = () => {
               whileTap={{ scale: 0.96 }}
               transition={{ type: "spring", stiffness: 300, damping: 20 }}
             >
-              <motion.img
+              <img
                 src={logoIcon}
                 alt="SimulaPool"
+                width={64}
+                height={64}
+                fetchPriority="high"
+                decoding="async"
                 className="h-16 w-16 rounded-full object-cover"
-                animate={{ scale: [1, 1.02, 1] }}
-                transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
               />
             </motion.div>
-          </motion.div>
+          </div>
 
           {/* Title */}
           <motion.h1
@@ -132,12 +142,14 @@ const Links = () => {
           </motion.p>
         </motion.div>
 
-        {/* Links — staggered entrance */}
+        {/* Links — staggered entrance, SPA navigation via react-router Link */}
         <div className="mt-10 flex flex-col gap-3">
           {LINKS.map((link, idx) => (
-            <motion.a
+            <MotionLink
               key={link.href}
-              href={link.href}
+              to={link.href}
+              onMouseEnter={() => prefetchRoute(link.href)}
+              onTouchStart={() => prefetchRoute(link.href)}
               initial={{ opacity: 0, y: 16, scale: 0.98 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               transition={{
@@ -175,9 +187,9 @@ const Links = () => {
                 </p>
               </div>
 
-              {/* Chevron — fade in on hover */}
+              {/* Chevron */}
               <ChevronRight className="relative h-4 w-4 flex-shrink-0 text-white/20 transition-all duration-300 group-hover:translate-x-0.5 group-hover:text-white/50" />
-            </motion.a>
+            </MotionLink>
           ))}
         </div>
 
