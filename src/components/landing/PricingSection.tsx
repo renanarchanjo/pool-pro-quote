@@ -499,7 +499,7 @@ const PricingSection = ({
                       <span className={`text-[32px] font-extrabold leading-none tracking-tight ${isBest ? "text-orange-600" : "text-foreground"}`}>
                         {fmt(lp.price_monthly)}
                       </span>
-                      <span className="text-[13px] text-muted-foreground/50 ml-1">/mês</span>
+                      <span className="text-[13px] text-muted-foreground ml-1">/mês</span>
                     </div>
                     <div className="bg-orange-50 rounded-lg py-2 px-3 mb-3">
                       <span className="text-orange-700 font-bold text-lg">{lp.lead_limit}</span>
