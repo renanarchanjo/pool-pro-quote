@@ -131,7 +131,13 @@ const PoolSimulator = ({ onBack }: PoolSimulatorProps) => {
       if (modelsRes.error) throw modelsRes.error;
 
       setStoreId(sid);
-      setModels(modelsRes.data || []);
+      // Sort models by size descending (largest first)
+      const sortedModels = (modelsRes.data || []).sort((a: PoolModel, b: PoolModel) => {
+        const sizeA = (a.length || 0) * (a.width || 0) * (a.depth || 0) || (a.length || 0) * (a.width || 0);
+        const sizeB = (b.length || 0) * (b.width || 0) * (b.depth || 0) || (b.length || 0) * (b.width || 0);
+        return sizeB - sizeA;
+      });
+      setModels(sortedModels);
       setBrands(brandsRes.data || []);
       setCategories(catsRes.data || []);
       setOptionals(optionalsRes.data || []);
@@ -147,7 +153,7 @@ const PoolSimulator = ({ onBack }: PoolSimulatorProps) => {
         setStoreOffersAlvenaria(!!s.offers_alvenaria);
         setStoreOffersVinil(!!s.offers_vinil);
       }
-      setPoolTypeChoice(null);
+      setPoolTypeChoice("fibra");
       setStep(1);
     } catch (error) {
       console.error("Error loading store data:", error);
@@ -177,7 +183,13 @@ const PoolSimulator = ({ onBack }: PoolSimulatorProps) => {
         supabase.rpc("get_model_optionals_public"),
       ]);
       if (modelsRes.error) throw modelsRes.error;
-      setModels(modelsRes.data || []);
+      // Sort models by size descending (largest first)
+      const sortedModels = (modelsRes.data || []).sort((a: PoolModel, b: PoolModel) => {
+        const sizeA = (a.length || 0) * (a.width || 0) * (a.depth || 0) || (a.length || 0) * (a.width || 0);
+        const sizeB = (b.length || 0) * (b.width || 0) * (b.depth || 0) || (b.length || 0) * (b.width || 0);
+        return sizeB - sizeA;
+      });
+      setModels(sortedModels);
       setBrands(brandsRes.data || []);
       setCategories(catsRes.data || []);
       setOptionals(optionalsRes.data || []);
