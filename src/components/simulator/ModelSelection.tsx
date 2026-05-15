@@ -44,7 +44,7 @@ const formatCurrency = (v: number) =>
 const ModelSelection = ({ models, brands, categories, onSelect }: ModelSelectionProps) => {
   const [selectedBrand, setSelectedBrand] = usePersistedState<string>("sim:model:brand", "all");
   const [selectedCategory, setSelectedCategory] = usePersistedState<string>("sim:model:category", "all");
-  const [sortBy, setSortBy] = usePersistedState<string>("sim:model:sort", "name-asc");
+  const [sortBy, setSortBy] = usePersistedState<string>("sim:model:sort", "size-desc");
   const [inclTotals, setInclTotals] = useState<Record<string, number>>({});
 
   useEffect(() => {
@@ -74,6 +74,15 @@ const ModelSelection = ({ models, brands, categories, onSelect }: ModelSelection
     return categories.filter((c) => c.brand_id === selectedBrand);
   }, [categories, selectedBrand]);
 
+  const modelSize = (m: PoolModel) => {
+    const l = m.length || 0;
+    const w = m.width || 0;
+    const d = m.depth || 0;
+    if (l > 0 && w > 0 && d > 0) return l * w * d;
+    if (l > 0 && w > 0) return l * w;
+    return 0;
+  };
+
   const filteredModels = useMemo(() => {
     let result = [...models];
 
@@ -95,6 +104,9 @@ const ModelSelection = ({ models, brands, categories, onSelect }: ModelSelection
         break;
       case "price-desc":
         result.sort((a, b) => ((b.base_price || 0) + (inclTotals[b.id] || 0)) - ((a.base_price || 0) + (inclTotals[a.id] || 0)));
+        break;
+      case "size-desc":
+        result.sort((a, b) => modelSize(b) - modelSize(a));
         break;
     }
 
@@ -168,6 +180,7 @@ const ModelSelection = ({ models, brands, categories, onSelect }: ModelSelection
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value)}
             >
+              <option value="size-desc">Maior medida</option>
               <option value="name-asc">Nome (A–Z)</option>
               <option value="price-asc">Menor preço</option>
               <option value="price-desc">Maior preço</option>
