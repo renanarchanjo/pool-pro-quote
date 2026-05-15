@@ -96,7 +96,10 @@ const Links = () => {
           </div>
 
           <h1 className="text-[28px] font-bold tracking-tight text-white">
-            SimulaPool
+            <span>Simula</span>
+            <span className="bg-gradient-to-r from-sky-400 via-cyan-400 to-blue-500 bg-clip-text text-transparent drop-shadow-sm">
+              Pool
+            </span>
           </h1>
           <p className="mt-1 text-[10px] font-bold uppercase tracking-[0.22em] text-sky-400/80">
             Orçamentos em Minutos
