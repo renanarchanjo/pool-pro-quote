@@ -90,9 +90,6 @@ const Links = () => {
                 className="h-16 w-16 rounded-full object-cover"
               />
             </div>
-            <div className="absolute -bottom-1 -right-1 flex h-7 w-7 items-center justify-center rounded-full border-2 border-[#020617] bg-sky-500 shadow-lg shadow-sky-500/50">
-              <Sparkles className="h-3.5 w-3.5 text-white" />
-            </div>
           </div>
 
           <h1 className="text-[28px] font-bold tracking-tight text-white">
