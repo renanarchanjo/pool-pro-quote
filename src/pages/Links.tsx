@@ -188,8 +188,6 @@ const Links = () => {
             ))}
           </div>
 
-          <div className="links-divider" />
-          <span className="links-footer">simulapool.lovable.app</span>
         </div>
       </div>
     </>
