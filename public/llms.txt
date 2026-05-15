@@ -1,0 +1,17 @@
+# SIMULAPOOL
+
+> Plataforma SaaS B2B2C para lojistas de piscinas de fibra: simulador online de orçamentos, geração de propostas em PDF e gestão comercial.
+
+SIMULAPOOL é um sistema profissional para lojistas e fabricantes de piscinas de fibra criarem orçamentos personalizados em segundos, distribuírem leads para suas equipes e fecharem negócios mais rápido. O cliente final responde um quiz curto e recebe o preço da piscina ideal sem precisar conversar com vendedor.
+
+## Pages
+
+- [Home](/): Simulador público gratuito de orçamento de piscinas de fibra.
+- [Lojista](/lojista): Página comercial para lojistas que querem usar o SIMULAPOOL na sua loja.
+- [Planos](/lojista/planos): Planos de assinatura e preços para lojistas.
+- [Parceiros](/parceiros): Marcas e fabricantes parceiros da plataforma.
+- [Links](/links): Hub de links institucionais (link na bio).
+
+## Optional
+
+- [Login Lojista](/login): Acesso para lojistas e colaboradores.
