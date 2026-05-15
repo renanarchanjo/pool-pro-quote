@@ -45,6 +45,31 @@ serve(async (req) => {
     const stripe = new Stripe(stripeKey, { apiVersion: "2025-08-27.basil" });
 
     if (subscription_id) {
+      // SECURITY: Verify the subscription_id belongs to the caller's store before canceling.
+      const { data: storeRow, error: storeErr } = await supabaseClient
+        .from("stores")
+        .select("id, stripe_subscription_id")
+        .eq("stripe_subscription_id", subscription_id)
+        .maybeSingle();
+
+      if (storeErr) throw new Error(`Store lookup failed: ${storeErr.message}`);
+      if (!storeRow) throw new Error("Subscription not found");
+
+      // Confirm caller owns / belongs to that store via profiles.store_id
+      const { data: profileRow } = await supabaseClient
+        .from("profiles")
+        .select("store_id")
+        .eq("id", user.id)
+        .maybeSingle();
+
+      if (!profileRow || profileRow.store_id !== storeRow.id) {
+        logStep("Ownership check failed", { user: user.id, requested: subscription_id });
+        return new Response(JSON.stringify({ error: "Forbidden" }), {
+          status: 403,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
       if (cancel_immediately) {
         const canceled = await stripe.subscriptions.cancel(subscription_id);
         logStep("Subscription canceled immediately", { id: canceled.id });
