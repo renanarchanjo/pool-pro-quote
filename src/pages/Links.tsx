@@ -90,7 +90,6 @@ const Links = () => {
                 className="h-16 w-16 rounded-full object-cover"
               />
             </div>
-            </div>
           </div>
 
           <h1 className="text-[28px] font-bold tracking-tight text-white">
