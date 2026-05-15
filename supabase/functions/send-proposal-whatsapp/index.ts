@@ -117,6 +117,28 @@ serve(async (req) => {
     if (!storeId || !proposalId) {
       throw new Error("Campos obrigatórios: storeId, proposalId");
     }
+    // SECURITY: validate UUID format to block path-injection attempts on the
+    // storage key `${storeId}/${proposalId}.pdf`.
+    const uuidRe = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    if (!uuidRe.test(storeId) || !uuidRe.test(proposalId)) {
+      throw new Error("storeId/proposalId inválidos");
+    }
+    // SECURITY: confirm the proposal actually belongs to the supplied store
+    // before allowing the upload to overwrite the slot.
+    const { data: proposalRow, error: proposalErr } = await supabaseAdmin
+      .from("proposals")
+      .select("id, store_id")
+      .eq("id", proposalId)
+      .maybeSingle();
+    if (proposalErr) throw new Error(`Lookup falhou: ${proposalErr.message}`);
+    if (!proposalRow || proposalRow.store_id !== storeId) {
+      console.warn("[SEND-PROPOSAL-WHATSAPP] Mismatch storeId/proposalId", {
+        storeId,
+        proposalId,
+        actual_store: proposalRow?.store_id,
+      });
+      throw new Error("Proposta não pertence à loja informada");
+    }
     if (!uploadOnly && (!customerPhone || !customerName || !storeName)) {
       throw new Error("Campos obrigatórios: customerPhone, customerName, storeName");
     }

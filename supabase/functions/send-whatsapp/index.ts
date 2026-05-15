@@ -155,6 +155,16 @@ serve(async (req) => {
           throw new Error("Campos obrigatórios: customerPhone, customerName, storeName, pdfUrl");
         }
 
+        // SECURITY: only allow signed URLs from our own proposals bucket — blocks
+        // arbitrary external URLs that could be used for phishing via the company's
+        // WhatsApp account.
+        const supabaseBaseUrl = (Deno.env.get("SUPABASE_URL") ?? "").trim().replace(/\/+$/, "");
+        const expectedPrefix = `${supabaseBaseUrl}/storage/v1/object/sign/proposals/`;
+        if (!supabaseBaseUrl || !data.pdfUrl.startsWith(expectedPrefix)) {
+          console.warn("[SEND-WHATSAPP] Rejected non-bucket pdfUrl:", String(data.pdfUrl).slice(0, 80));
+          throw new Error("pdfUrl inválido: precisa ser uma URL assinada do bucket de propostas.");
+        }
+
         // Validate PDF URL is accessible before sending to Z-API
         console.log("[SEND-WHATSAPP] Validando acesso ao PDF:", data.pdfUrl.substring(0, 80));
         const pdfCheck = await fetch(data.pdfUrl, { method: "HEAD" });
