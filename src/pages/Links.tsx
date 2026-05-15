@@ -1,196 +1,171 @@
 import { useEffect } from "react";
+import { motion } from "framer-motion";
+import { Waves, Store, Handshake, ChevronRight, Sparkles } from "lucide-react";
 import logoIcon from "@/assets/logo-icon-v3.webp";
 
-const LINKS = [
+type LinkItem = {
+  label: string;
+  desc: string;
+  href: string;
+  Icon: typeof Waves;
+  iconBg: string;
+  iconShadow: string;
+  hoverText: string;
+  featured?: boolean;
+};
+
+const LINKS: LinkItem[] = [
   {
     label: "Simular minha piscina",
     desc: "Monte seu orçamento em minutos",
     href: "/",
-    color: "rgba(26,127,212,0.2)",
-    icon: "🏊",
-    cls: "btn-consumidor",
+    Icon: Waves,
+    iconBg: "bg-sky-500",
+    iconShadow: "shadow-sky-500/40",
+    hoverText: "group-hover:text-sky-300",
+    featured: true,
   },
   {
     label: "Sou Lojista",
     desc: "Conheça a plataforma para sua loja",
     href: "/lojista",
-    color: "rgba(14,138,116,0.2)",
-    icon: "🏪",
-    cls: "btn-lojista",
+    Icon: Store,
+    iconBg: "bg-emerald-500",
+    iconShadow: "shadow-emerald-500/30",
+    hoverText: "group-hover:text-emerald-300",
   },
   {
     label: "Parceiros",
     desc: "Marcas e fabricantes parceiros",
     href: "/parceiros",
-    color: "rgba(217,124,16,0.2)",
-    icon: "🤝",
-    cls: "btn-parceiros",
+    Icon: Handshake,
+    iconBg: "bg-amber-500",
+    iconShadow: "shadow-amber-500/30",
+    hoverText: "group-hover:text-amber-300",
   },
 ];
 
 const Links = () => {
+  // Force dark theme only on this page
   useEffect(() => {
     document.documentElement.classList.add("dark");
     return () => document.documentElement.classList.remove("dark");
   }, []);
 
   return (
-    <>
-      <style>{`
-        .links-page {
-          font-family: 'DM Sans', sans-serif;
-          min-height: 100vh;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          background: #0a1628;
-          position: relative;
-          overflow: hidden;
-        }
-        .links-page::before {
-          content: '';
-          position: fixed;
-          width: 600px; height: 600px;
-          border-radius: 50%;
-          background: radial-gradient(circle, rgba(26,127,212,0.12) 0%, transparent 70%);
-          top: -150px; left: -150px;
-          pointer-events: none;
-        }
-        .links-page::after {
-          content: '';
-          position: fixed;
-          width: 500px; height: 500px;
-          border-radius: 50%;
-          background: radial-gradient(circle, rgba(14,138,116,0.10) 0%, transparent 70%);
-          bottom: -100px; right: -100px;
-          pointer-events: none;
-        }
-        .links-card {
-          position: relative;
-          z-index: 1;
-          width: 100%;
-          max-width: 400px;
-          padding: 40px 28px 36px;
-          text-align: center;
-        }
-        .links-logo {
-          width: 72px; height: 72px;
-          border-radius: 50%;
-          object-fit: cover;
-          border: 2px solid rgba(255,255,255,0.15);
-          animation: links-pop 0.5s cubic-bezier(0.34,1.56,0.64,1) both;
-        }
-        @keyframes links-pop {
-          from { transform: scale(0.5); opacity: 0; }
-          to   { transform: scale(1);   opacity: 1; }
-        }
-        @keyframes links-fadeUp {
-          from { opacity: 0; transform: translateY(10px); }
-          to   { opacity: 1; transform: translateY(0); }
-        }
-        .links-brand {
-          font-family: 'Sora', 'Montserrat', sans-serif;
-          font-size: 26px; font-weight: 800;
-          color: #ffffff;
-          letter-spacing: -0.02em;
-          animation: links-fadeUp 0.5s 0.1s ease both;
-        }
-        .links-tag {
-          font-size: 11px; font-weight: 500;
-          color: rgba(255,255,255,0.4);
-          letter-spacing: 0.1em;
-          text-transform: uppercase;
-          margin-bottom: 32px;
-          animation: links-fadeUp 0.5s 0.2s ease both;
-        }
-        .links-btn {
-          display: flex;
-          align-items: center;
-          gap: 14px;
-          padding: 16px 20px;
-          border-radius: 14px;
-          text-decoration: none;
-          border: 1px solid rgba(255,255,255,0.08);
-          background: rgba(255,255,255,0.05);
-          backdrop-filter: blur(10px);
-          transition: transform 0.18s ease, background 0.18s ease, border-color 0.18s ease;
-          cursor: pointer;
-          text-align: left;
-          animation: links-fadeUp 0.5s ease both;
-          color: inherit;
-        }
-        .links-btn:hover {
-          transform: translateY(-2px);
-          background: rgba(255,255,255,0.1);
-          border-color: rgba(255,255,255,0.2);
-        }
-        .links-btn:active { transform: scale(0.98); }
-        .links-btn:nth-child(1) { animation-delay: 0.25s; }
-        .links-btn:nth-child(2) { animation-delay: 0.35s; }
-        .links-btn:nth-child(3) { animation-delay: 0.45s; }
-        .links-btn-icon {
-          width: 42px; height: 42px;
-          border-radius: 10px;
-          display: flex; align-items: center; justify-content: center;
-          font-size: 20px;
-          flex-shrink: 0;
-        }
-        .links-btn-label {
-          font-family: 'Sora', 'Montserrat', sans-serif;
-          font-size: 14px; font-weight: 700;
-          color: #ffffff;
-          display: block; margin-bottom: 2px;
-        }
-        .links-btn-desc {
-          font-size: 11px;
-          color: rgba(255,255,255,0.45);
-          line-height: 1.4;
-        }
-        .links-btn-arrow {
-          color: rgba(255,255,255,0.3);
-          font-size: 18px;
-          flex-shrink: 0;
-        }
-        .links-divider {
-          height: 1px;
-          background: rgba(255,255,255,0.06);
-          margin: 24px 0 20px;
-          animation: links-fadeUp 0.5s 0.5s ease both;
-        }
-        .links-footer {
-          font-size: 10px;
-          color: rgba(255,255,255,0.2);
-          animation: links-fadeUp 0.5s 0.55s ease both;
-          letter-spacing: 0.08em;
-        }
-      `}</style>
+    <div className="relative min-h-[100dvh] w-full overflow-hidden bg-[#020617] text-white selection:bg-sky-500/30">
+      {/* Ambient blurred orbs — premium iOS depth */}
+      <div className="pointer-events-none absolute -top-32 -left-32 h-[420px] w-[420px] rounded-full bg-sky-600/25 blur-[120px]" />
+      <div className="pointer-events-none absolute top-1/3 -right-24 h-[360px] w-[360px] rounded-full bg-blue-900/40 blur-[110px]" />
+      <div className="pointer-events-none absolute -bottom-32 left-1/4 h-[420px] w-[420px] rounded-full bg-cyan-500/15 blur-[140px]" />
 
-      <div className="links-page">
-        <div className="links-card">
-          <div className="flex flex-col items-center gap-2.5 mb-1.5">
-            <img src={logoIcon} alt="SimulaPool" className="links-logo" />
-            <span className="links-brand">SimulaPool</span>
-            <span className="links-tag">Orçamentos em Minutos</span>
+      {/* Subtle noise grain via radial mask */}
+      <div
+        className="pointer-events-none absolute inset-0 opacity-[0.04] mix-blend-overlay"
+        style={{
+          backgroundImage:
+            "radial-gradient(rgba(255,255,255,0.6) 1px, transparent 1px)",
+          backgroundSize: "3px 3px",
+        }}
+      />
+
+      <div className="relative z-10 mx-auto flex min-h-[100dvh] w-full max-w-[440px] flex-col px-5 pt-[max(56px,env(safe-area-inset-top))] pb-[max(40px,env(safe-area-inset-bottom))]">
+        {/* Header */}
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+          className="flex flex-col items-center text-center"
+        >
+          <div className="relative mb-6 cursor-pointer">
+            <motion.div
+              animate={{ opacity: [0.25, 0.55, 0.25] }}
+              transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+              className="absolute -inset-2 rounded-full bg-sky-500 blur-2xl"
+            />
+            <div className="relative flex h-24 w-24 items-center justify-center overflow-hidden rounded-full border border-white/15 bg-white/5 shadow-2xl backdrop-blur-xl">
+              <img
+                src={logoIcon}
+                alt="SimulaPool"
+                className="h-16 w-16 rounded-full object-cover"
+              />
+            </div>
+            <div className="absolute -bottom-1 -right-1 flex h-7 w-7 items-center justify-center rounded-full border-2 border-[#020617] bg-sky-500 shadow-lg shadow-sky-500/50">
+              <Sparkles className="h-3.5 w-3.5 text-white" />
+            </div>
           </div>
 
-          <div className="flex flex-col gap-3">
-            {LINKS.map((link) => (
-              <a key={link.cls} href={link.href} className={`links-btn ${link.cls}`}>
-                <span className="links-btn-icon" style={{ background: link.color }}>
-                  {link.icon}
-                </span>
-                <span className="flex-1">
-                  <span className="links-btn-label">{link.label}</span>
-                  <span className="links-btn-desc">{link.desc}</span>
-                </span>
-                <span className="links-btn-arrow">›</span>
-              </a>
-            ))}
-          </div>
+          <h1 className="text-[28px] font-bold tracking-tight text-white">
+            SimulaPool
+          </h1>
+          <p className="mt-1 text-[10px] font-bold uppercase tracking-[0.22em] text-sky-400/80">
+            Orçamentos em Minutos
+          </p>
+        </motion.div>
 
+        {/* Links */}
+        <div className="mt-10 flex flex-col gap-3.5">
+          {LINKS.map((link, idx) => (
+            <motion.a
+              key={link.href}
+              href={link.href}
+              initial={{ opacity: 0, y: 18 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{
+                duration: 0.5,
+                delay: 0.2 + idx * 0.08,
+                ease: [0.22, 1, 0.36, 1],
+              }}
+              whileTap={{ scale: 0.97 }}
+              className={`group relative flex w-full items-center gap-4 overflow-hidden rounded-3xl border border-white/[0.08] bg-white/[0.035] p-4 backdrop-blur-xl transition-all duration-300 hover:border-white/20 hover:bg-white/[0.07] active:bg-white/[0.09] ${
+                link.featured ? "shadow-[0_8px_32px_rgba(14,165,233,0.18)]" : ""
+              }`}
+              style={{ WebkitTapHighlightColor: "transparent" }}
+            >
+              {/* Hover gradient sweep */}
+              <span className="pointer-events-none absolute inset-0 bg-gradient-to-r from-white/[0.06] via-transparent to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
+
+              {/* Icon block */}
+              <div className="relative flex h-14 w-14 flex-shrink-0 items-center justify-center rounded-2xl border border-white/10 bg-white/[0.04] shadow-inner">
+                <div
+                  className={`flex h-10 w-10 items-center justify-center rounded-xl ${link.iconBg} shadow-lg ${link.iconShadow}`}
+                >
+                  <link.Icon className="h-5 w-5 text-white" strokeWidth={2.2} />
+                </div>
+              </div>
+
+              {/* Text */}
+              <div className="relative flex-1 text-left">
+                <h2
+                  className={`text-[15px] font-semibold leading-tight text-white transition-colors ${link.hoverText}`}
+                >
+                  {link.label}
+                </h2>
+                <p className="mt-0.5 text-[12px] leading-snug text-white/45">
+                  {link.desc}
+                </p>
+              </div>
+
+              {/* Chevron */}
+              <ChevronRight className="relative h-4 w-4 flex-shrink-0 text-white/25 transition-all duration-300 group-hover:translate-x-0.5 group-hover:text-white/60" />
+            </motion.a>
+          ))}
         </div>
+
+        {/* Footer brand */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.7, duration: 0.8 }}
+          className="mt-auto flex flex-col items-center pt-12"
+        >
+          <div className="h-px w-12 bg-white/10" />
+          <span className="mt-4 text-[10px] font-bold uppercase tracking-[0.3em] text-white/30">
+            SimulaPool
+          </span>
+        </motion.div>
       </div>
-    </>
+    </div>
   );
 };
 
