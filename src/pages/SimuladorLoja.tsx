@@ -154,13 +154,20 @@ const SimuladorLoja = () => {
         supabase.from("partners").select("id, name, logo_url, banner_1_url, banner_2_url, display_percent").eq("active", true).order("display_order"),
       ]);
 
-      setModels(modelsRes.data || []);
+      // Sort models by size descending (largest first)
+      const sortedModels = (modelsRes.data || []).sort((a: PoolModel, b: PoolModel) => {
+        const sizeA = (a.length || 0) * (a.width || 0) * (a.depth || 0) || (a.length || 0) * (a.width || 0);
+        const sizeB = (b.length || 0) * (b.width || 0) * (b.depth || 0) || (b.length || 0) * (b.width || 0);
+        return sizeB - sizeA;
+      });
+      setModels(sortedModels);
       setBrands(brandsRes.data || []);
       setCategories(catsRes.data || []);
       setOptionals(optionalsRes.data || []);
       setModelOptionals(modelOptsRes.data || []);
       setStoreSettings(settingsRes.data && settingsRes.data.length > 0 ? settingsRes.data[0] : null);
       setPartners(partnersRes.data || []);
+      setPoolTypeChoice("fibra");
     } catch (error) {
       console.error("Error loading store:", error);
       setNotFound(true);
