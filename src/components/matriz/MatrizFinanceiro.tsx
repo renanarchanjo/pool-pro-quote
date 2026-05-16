@@ -81,6 +81,14 @@ const MatrizFinanceiro = () => {
     loadAll();
   }, [competencia]);
 
+  // Fix Radix nested-dialog pointer-events bug
+  useEffect(() => {
+    if (!catModalOpen) {
+      const t = setTimeout(() => { document.body.style.pointerEvents = ""; }, 100);
+      return () => clearTimeout(t);
+    }
+  }, [catModalOpen]);
+
   const loadAll = async () => {
     setLoading(true);
     const year = competencia.slice(0, 4);
