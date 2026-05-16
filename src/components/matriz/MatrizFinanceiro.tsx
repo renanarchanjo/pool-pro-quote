@@ -447,14 +447,17 @@ const MatrizFinanceiro = () => {
             </div>
             <div>
               <Label>Categoria</Label>
-              <Select value={form.categoria_id} onValueChange={(v) => setForm({ ...form, categoria_id: v })}>
-                <SelectTrigger><SelectValue placeholder="Selecione" /></SelectTrigger>
-                <SelectContent>
-                  {categorias.filter((c) => c.tipo === form.tipo).map((c) => (
-                    <SelectItem key={c.id} value={c.id}>{c.nome}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <div className="flex items-center gap-2">
+                <Select value={form.categoria_id} onValueChange={(v) => setForm({ ...form, categoria_id: v })}>
+                  <SelectTrigger className="flex-1"><SelectValue placeholder="Selecione" /></SelectTrigger>
+                  <SelectContent>
+                    {categorias.filter((c) => c.tipo === form.tipo).map((c) => (
+                      <SelectItem key={c.id} value={c.id}>{c.nome}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Button type="button" size="icon" variant="outline" onClick={() => { setCatForm({ nome: "", tipo: form.tipo, cor: "#6366f1" }); setCatModalOpen(true); }} title="Nova categoria"><Plus className="w-4 h-4" /></Button>
+              </div>
             </div>
             <div>
               <Label>Observação</Label>
