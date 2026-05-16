@@ -392,6 +392,83 @@ export type Database = {
         }
         Relationships: []
       }
+      financeiro_categorias: {
+        Row: {
+          cor: string
+          created_at: string
+          id: string
+          nome: string
+          store_id: string
+          tipo: string
+        }
+        Insert: {
+          cor?: string
+          created_at?: string
+          id?: string
+          nome: string
+          store_id: string
+          tipo: string
+        }
+        Update: {
+          cor?: string
+          created_at?: string
+          id?: string
+          nome?: string
+          store_id?: string
+          tipo?: string
+        }
+        Relationships: []
+      }
+      financeiro_lancamentos: {
+        Row: {
+          categoria_id: string | null
+          competencia: string
+          created_at: string
+          created_by: string | null
+          data_lancamento: string
+          descricao: string
+          id: string
+          observacao: string | null
+          store_id: string
+          tipo: string
+          valor: number
+        }
+        Insert: {
+          categoria_id?: string | null
+          competencia?: string
+          created_at?: string
+          created_by?: string | null
+          data_lancamento?: string
+          descricao: string
+          id?: string
+          observacao?: string | null
+          store_id: string
+          tipo: string
+          valor?: number
+        }
+        Update: {
+          categoria_id?: string | null
+          competencia?: string
+          created_at?: string
+          created_by?: string | null
+          data_lancamento?: string
+          descricao?: string
+          id?: string
+          observacao?: string | null
+          store_id?: string
+          tipo?: string
+          valor?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "financeiro_lancamentos_categoria_id_fkey"
+            columns: ["categoria_id"]
+            isOneToOne: false
+            referencedRelation: "financeiro_categorias"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       included_item_template_items: {
         Row: {
           cost: number
@@ -2307,6 +2384,10 @@ export type Database = {
       }
       partner_has_catalog: { Args: { _partner_id: string }; Returns: boolean }
       remove_team_member: { Args: { _member_id: string }; Returns: undefined }
+      seed_financeiro_categorias_default: {
+        Args: { _store_id: string }
+        Returns: undefined
+      }
       store_exists: { Args: { _store_id: string }; Returns: boolean }
       sync_pool_model_included_items: {
         Args: { _model_id: string }
