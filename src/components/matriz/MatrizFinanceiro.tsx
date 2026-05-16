@@ -64,6 +64,7 @@ const MatrizFinanceiro = () => {
   const [filtroCategoria, setFiltroCategoria] = useState<string>("todas");
 
   const [modalOpen, setModalOpen] = useState(false);
+  const [catModalOpen, setCatModalOpen] = useState(false);
   const [editing, setEditing] = useState<Lancamento | null>(null);
   const [form, setForm] = useState({
     tipo: "saida" as Tipo,
@@ -73,6 +74,7 @@ const MatrizFinanceiro = () => {
     categoria_id: "",
     observacao: "",
   });
+  const [catForm, setCatForm] = useState({ nome: "", tipo: "saida" as Tipo, cor: "#6366f1" });
 
   // Load stores
   useEffect(() => {
