@@ -81,6 +81,14 @@ const MatrizFinanceiro = () => {
     loadAll();
   }, [competencia]);
 
+  // Fix Radix nested-dialog pointer-events bug
+  useEffect(() => {
+    if (!catModalOpen) {
+      const t = setTimeout(() => { document.body.style.pointerEvents = ""; }, 100);
+      return () => clearTimeout(t);
+    }
+  }, [catModalOpen]);
+
   const loadAll = async () => {
     setLoading(true);
     const year = competencia.slice(0, 4);
@@ -189,7 +197,8 @@ const MatrizFinanceiro = () => {
     });
     if (error) return toast.error(error.message);
     toast.success("Categoria criada");
-    setCatForm({ nome: "", tipo: "saida", cor: "#6366f1" });
+    setCatForm({ nome: "", tipo: catForm.tipo, cor: "#6366f1" });
+    setCatModalOpen(false);
     loadAll();
   };
 
@@ -440,8 +449,19 @@ const MatrizFinanceiro = () => {
                 <Select value={form.categoria_id} onValueChange={(v) => setForm({ ...form, categoria_id: v })}>
                   <SelectTrigger className="flex-1"><SelectValue placeholder="Selecione" /></SelectTrigger>
                   <SelectContent>
-                    {categorias.filter((c) => c.tipo === form.tipo).map((c) => (
-                      <SelectItem key={c.id} value={c.id}>{c.nome}</SelectItem>
+                    {categorias.length === 0 ? (
+                      <div className="px-2 py-3 text-xs text-muted-foreground text-center">Nenhuma categoria criada</div>
+                    ) : categorias.filter((c) => c.tipo === form.tipo).length === 0 ? (
+                      <div className="px-2 py-3 text-xs text-muted-foreground text-center">
+                        Nenhuma categoria de {form.tipo === "entrada" ? "entrada" : "saída"}
+                      </div>
+                    ) : categorias.filter((c) => c.tipo === form.tipo).map((c) => (
+                      <SelectItem key={c.id} value={c.id}>
+                        <span className="inline-flex items-center gap-2">
+                          <span className="w-2.5 h-2.5 rounded-full" style={{ background: c.cor }} />
+                          {c.nome}
+                        </span>
+                      </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
