@@ -467,6 +467,39 @@ const MatrizFinanceiro = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Modal nova categoria */}
+      <Dialog open={catModalOpen} onOpenChange={setCatModalOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Nova categoria</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3">
+            <div>
+              <Label>Nome</Label>
+              <Input value={catForm.nome} onChange={(e) => setCatForm({ ...catForm, nome: e.target.value })} />
+            </div>
+            <div>
+              <Label>Tipo</Label>
+              <div className="flex gap-2">
+                <Button type="button" className="flex-1" variant={catForm.tipo === "entrada" ? "default" : "outline"} onClick={() => setCatForm({ ...catForm, tipo: "entrada" })}>Entrada</Button>
+                <Button type="button" className="flex-1" variant={catForm.tipo === "saida" ? "default" : "outline"} onClick={() => setCatForm({ ...catForm, tipo: "saida" })}>Saída</Button>
+              </div>
+            </div>
+            <div>
+              <Label>Cor</Label>
+              <div className="flex items-center gap-2">
+                <input type="color" value={catForm.cor} onChange={(e) => setCatForm({ ...catForm, cor: e.target.value })} className="w-10 h-10 rounded cursor-pointer border" />
+                <Input value={catForm.cor} onChange={(e) => setCatForm({ ...catForm, cor: e.target.value })} className="flex-1" />
+              </div>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setCatModalOpen(false)}>Cancelar</Button>
+            <Button onClick={saveCategoria}><Tag className="w-4 h-4 mr-2" />Criar categoria</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
