@@ -189,8 +189,15 @@ const MatrizFinanceiro = () => {
     });
     if (error) return toast.error(error.message);
     toast.success("Categoria criada");
-    setCatModalOpen(false);
     setCatForm({ nome: "", tipo: "saida", cor: "#6366f1" });
+    loadAll();
+  };
+
+  const removeCategoria = async (id: string) => {
+    if (!confirm("Excluir esta categoria? Lançamentos vinculados ficarão sem categoria.")) return;
+    const { error } = await supabase.from("financeiro_categorias").delete().eq("id", id);
+    if (error) return toast.error(error.message);
+    toast.success("Categoria excluída");
     loadAll();
   };
 
