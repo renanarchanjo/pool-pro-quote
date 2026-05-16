@@ -55,6 +55,8 @@
     "html2canvas-pro": "^2.0.2",
     "html2pdf.js": "0.14.0",
     "input-otp": "^1.4.2",
+    "jspdf": "^4.2.1",
+    "jspdf-autotable": "^5.0.7",
     "leaflet": "^1.9.4",
     "lucide-react": "^0.462.0",
     "maplibre-gl": "^5.24.0",
