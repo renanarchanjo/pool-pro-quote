@@ -297,13 +297,16 @@ const MatrizFinanceiro = () => {
               <SelectItem value="saida">Saídas</SelectItem>
             </SelectContent>
           </Select>
-          <Select value={filtroCategoria} onValueChange={setFiltroCategoria}>
-            <SelectTrigger className="w-[180px]"><SelectValue /></SelectTrigger>
-            <SelectContent>
-              <SelectItem value="todas">Todas categorias</SelectItem>
-              {categorias.map((c) => <SelectItem key={c.id} value={c.id}>{c.nome}</SelectItem>)}
-            </SelectContent>
-          </Select>
+          <div className="flex items-center gap-2">
+            <Select value={filtroCategoria} onValueChange={setFiltroCategoria}>
+              <SelectTrigger className="w-[180px]"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="todas">Todas categorias</SelectItem>
+                {categorias.map((c) => <SelectItem key={c.id} value={c.id}>{c.nome}</SelectItem>)}
+              </SelectContent>
+            </Select>
+            <Button size="icon" variant="ghost" onClick={() => setCatModalOpen(true)} title="Nova categoria"><Plus className="w-4 h-4" /></Button>
+          </div>
         </div>
         <div className="flex gap-2">
           <Button variant="outline" onClick={exportPDF}><FileDown className="w-4 h-4 mr-2" />Exportar PDF</Button>
