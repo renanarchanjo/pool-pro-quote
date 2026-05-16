@@ -22,7 +22,9 @@ import autoTable from "jspdf-autotable";
 
 type Tipo = "entrada" | "saida";
 
-interface Store { id: string; name: string; }
+// SimulaPool Matriz — controle financeiro próprio (não vinculado a lojas)
+const MATRIZ_STORE_ID = "00000000-0000-0000-0000-00005104a700";
+
 interface Categoria { id: string; store_id: string; nome: string; tipo: Tipo; cor: string; }
 interface Lancamento {
   id: string;
@@ -50,8 +52,7 @@ const monthOptions = () => {
 };
 
 const MatrizFinanceiro = () => {
-  const [stores, setStores] = useState<Store[]>([]);
-  const [storeId, setStoreId] = useState<string>("");
+  const storeId = MATRIZ_STORE_ID;
   const [categorias, setCategorias] = useState<Categoria[]>([]);
   const [lancamentos, setLancamentos] = useState<Lancamento[]>([]);
   const [yearLancamentos, setYearLancamentos] = useState<Lancamento[]>([]);
@@ -76,20 +77,9 @@ const MatrizFinanceiro = () => {
   });
   const [catForm, setCatForm] = useState({ nome: "", tipo: "saida" as Tipo, cor: "#6366f1" });
 
-  // Load stores
   useEffect(() => {
-    (async () => {
-      const { data } = await supabase.from("stores").select("id, name").order("name");
-      setStores(data || []);
-      if (data && data.length && !storeId) setStoreId(data[0].id);
-    })();
-  }, []);
-
-  // Load categorias & lançamentos when store changes
-  useEffect(() => {
-    if (!storeId) return;
     loadAll();
-  }, [storeId, competencia]);
+  }, [competencia]);
 
   const loadAll = async () => {
     setLoading(true);
@@ -205,14 +195,12 @@ const MatrizFinanceiro = () => {
   };
 
   const exportPDF = () => {
-    const store = stores.find((s) => s.id === storeId);
     const periodLabel = months.find((m) => m.value === competencia)?.label || competencia;
     const doc = new jsPDF();
     doc.setFontSize(16);
-    doc.text("SimulaPool — Relatório Financeiro", 14, 18);
+    doc.text("SimulaPool — Controle Financeiro Matriz", 14, 18);
     doc.setFontSize(11);
-    doc.text(`Loja: ${store?.name || "-"}`, 14, 26);
-    doc.text(`Período: ${periodLabel}`, 14, 32);
+    doc.text(`Período: ${periodLabel}`, 14, 26);
 
     doc.setFontSize(13);
     doc.text("Resumo Executivo", 14, 44);
@@ -269,7 +257,7 @@ const MatrizFinanceiro = () => {
       );
     }
 
-    doc.save(`financeiro-${store?.name || "loja"}-${competencia}.pdf`);
+    doc.save(`financeiro-simulapool-${competencia}.pdf`);
   };
 
   return (
@@ -277,12 +265,6 @@ const MatrizFinanceiro = () => {
       {/* Header controls */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
         <div className="flex flex-wrap gap-2">
-          <Select value={storeId} onValueChange={setStoreId}>
-            <SelectTrigger className="w-[220px]"><SelectValue placeholder="Selecione a loja" /></SelectTrigger>
-            <SelectContent>
-              {stores.map((s) => <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>)}
-            </SelectContent>
-          </Select>
           <Select value={competencia} onValueChange={setCompetencia}>
             <SelectTrigger className="w-[200px]"><Calendar className="w-4 h-4 mr-2" /><SelectValue /></SelectTrigger>
             <SelectContent>
