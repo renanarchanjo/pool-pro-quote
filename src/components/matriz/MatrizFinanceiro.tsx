@@ -189,6 +189,21 @@ const MatrizFinanceiro = () => {
     loadAll();
   };
 
+  const saveCategoria = async () => {
+    if (!catForm.nome || !storeId) { toast.error("Preencha o nome da categoria"); return; }
+    const { error } = await supabase.from("financeiro_categorias").insert({
+      store_id: storeId,
+      nome: catForm.nome,
+      tipo: catForm.tipo,
+      cor: catForm.cor,
+    });
+    if (error) return toast.error(error.message);
+    toast.success("Categoria criada");
+    setCatModalOpen(false);
+    setCatForm({ nome: "", tipo: "saida", cor: "#6366f1" });
+    loadAll();
+  };
+
   const exportPDF = () => {
     const store = stores.find((s) => s.id === storeId);
     const periodLabel = months.find((m) => m.value === competencia)?.label || competencia;
