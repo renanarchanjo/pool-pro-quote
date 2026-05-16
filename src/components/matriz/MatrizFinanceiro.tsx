@@ -52,8 +52,7 @@ const monthOptions = () => {
 };
 
 const MatrizFinanceiro = () => {
-  const [stores, setStores] = useState<Store[]>([]);
-  const [storeId, setStoreId] = useState<string>("");
+  const storeId = MATRIZ_STORE_ID;
   const [categorias, setCategorias] = useState<Categoria[]>([]);
   const [lancamentos, setLancamentos] = useState<Lancamento[]>([]);
   const [yearLancamentos, setYearLancamentos] = useState<Lancamento[]>([]);
@@ -78,20 +77,9 @@ const MatrizFinanceiro = () => {
   });
   const [catForm, setCatForm] = useState({ nome: "", tipo: "saida" as Tipo, cor: "#6366f1" });
 
-  // Load stores
   useEffect(() => {
-    (async () => {
-      const { data } = await supabase.from("stores").select("id, name").order("name");
-      setStores(data || []);
-      if (data && data.length && !storeId) setStoreId(data[0].id);
-    })();
-  }, []);
-
-  // Load categorias & lançamentos when store changes
-  useEffect(() => {
-    if (!storeId) return;
     loadAll();
-  }, [storeId, competencia]);
+  }, [competencia]);
 
   const loadAll = async () => {
     setLoading(true);
