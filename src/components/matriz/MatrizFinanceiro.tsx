@@ -257,7 +257,7 @@ const MatrizFinanceiro = () => {
       );
     }
 
-    doc.save(`financeiro-${store?.name || "loja"}-${competencia}.pdf`);
+    doc.save(`financeiro-simulapool-${competencia}.pdf`);
   };
 
   return (
@@ -265,12 +265,6 @@ const MatrizFinanceiro = () => {
       {/* Header controls */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
         <div className="flex flex-wrap gap-2">
-          <Select value={storeId} onValueChange={setStoreId}>
-            <SelectTrigger className="w-[220px]"><SelectValue placeholder="Selecione a loja" /></SelectTrigger>
-            <SelectContent>
-              {stores.map((s) => <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>)}
-            </SelectContent>
-          </Select>
           <Select value={competencia} onValueChange={setCompetencia}>
             <SelectTrigger className="w-[200px]"><Calendar className="w-4 h-4 mr-2" /><SelectValue /></SelectTrigger>
             <SelectContent>
