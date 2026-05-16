@@ -22,7 +22,9 @@ import autoTable from "jspdf-autotable";
 
 type Tipo = "entrada" | "saida";
 
-interface Store { id: string; name: string; }
+// SimulaPool Matriz — controle financeiro próprio (não vinculado a lojas)
+const MATRIZ_STORE_ID = "00000000-0000-0000-0000-00005104a700";
+
 interface Categoria { id: string; store_id: string; nome: string; tipo: Tipo; cor: string; }
 interface Lancamento {
   id: string;
