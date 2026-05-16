@@ -15,7 +15,7 @@ import {
 import {
   Table, TableHeader, TableBody, TableHead, TableRow, TableCell,
 } from "@/components/ui/table";
-import { Loader2, Plus, Pencil, Trash2, FileDown, TrendingUp, TrendingDown, Wallet, Calendar } from "lucide-react";
+import { Loader2, Plus, Pencil, Trash2, FileDown, TrendingUp, TrendingDown, Wallet, Calendar, Tag } from "lucide-react";
 import { toast } from "sonner";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
