@@ -195,14 +195,12 @@ const MatrizFinanceiro = () => {
   };
 
   const exportPDF = () => {
-    const store = stores.find((s) => s.id === storeId);
     const periodLabel = months.find((m) => m.value === competencia)?.label || competencia;
     const doc = new jsPDF();
     doc.setFontSize(16);
-    doc.text("SimulaPool — Relatório Financeiro", 14, 18);
+    doc.text("SimulaPool — Controle Financeiro Matriz", 14, 18);
     doc.setFontSize(11);
-    doc.text(`Loja: ${store?.name || "-"}`, 14, 26);
-    doc.text(`Período: ${periodLabel}`, 14, 32);
+    doc.text(`Período: ${periodLabel}`, 14, 26);
 
     doc.setFontSize(13);
     doc.text("Resumo Executivo", 14, 44);
