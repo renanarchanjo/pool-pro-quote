@@ -189,7 +189,8 @@ const MatrizFinanceiro = () => {
     });
     if (error) return toast.error(error.message);
     toast.success("Categoria criada");
-    setCatForm({ nome: "", tipo: "saida", cor: "#6366f1" });
+    setCatForm({ nome: "", tipo: catForm.tipo, cor: "#6366f1" });
+    setCatModalOpen(false);
     loadAll();
   };
 
